@@ -14,535 +14,314 @@
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{font-family:'JetBrains Mono','SF Mono','Fira Code',monospace;background:#020617;overflow:hidden;height:100vh;height:100dvh;width:100vw;position:fixed;top:0;left:0}
   #map{position:absolute;inset:0;width:100%;height:100%}
+  .top-bar{position:absolute;top:0;left:0;right:0;display:flex;align-items:flex-start;justify-content:space-between;padding:env(safe-area-inset-top,8px) 14px 0;padding-top:calc(env(safe-area-inset-top,8px)+8px);background:linear-gradient(180deg,rgba(2,6,23,.88) 0%,rgba(2,6,23,.4) 70%,transparent 100%);pointer-events:none;z-index:10}
+  .brand{display:flex;align-items:center;gap:8px;pointer-events:auto}
+  .brand-title{font-size:14px;font-weight:700;color:#e2e8f0;letter-spacing:.08em;text-transform:uppercase}
+  .brand-badge{font-size:8px;padding:2px 5px;border-radius:3px;background:rgba(56,189,248,.15);color:#38bdf8;font-weight:600;letter-spacing:.1em}
+  .cursor-coord{font-size:10px;color:#475569;letter-spacing:.03em;padding-top:3px}
+  .gps-panel{position:absolute;top:calc(env(safe-area-inset-top,8px)+44px);left:10px;background:rgba(2,6,23,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:10px;padding:10px 14px;z-index:10;border:1px solid rgba(56,189,248,.15);min-width:190px;display:none}
+  .gps-panel.active{display:block}
+  .gps-panel-header{font-size:11px;color:#38bdf8;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .gps-dot-live{width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 2s ease-in-out infinite}
+  .gps-dot-sim{width:6px;height:6px;border-radius:50%;background:#f59e0b;animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .gps-coords{font-size:11px;color:#cbd5e1;line-height:1.7}
+  .gps-meta{display:flex;gap:14px;color:#94a3b8;font-size:10px}
+  .gps-accuracy{color:#475569;font-size:9px}
+  .gps-error{position:absolute;top:calc(env(safe-area-inset-top,8px)+44px);left:10px;background:rgba(127,29,29,.85);backdrop-filter:blur(12px);border-radius:8px;padding:8px 12px;z-index:10;font-size:10px;color:#fca5a5;border:1px solid rgba(239,68,68,.3);max-width:250px;display:none}
+  .gps-error.active{display:block}
+  .basemap-sw{position:absolute;top:calc(env(safe-area-inset-top,8px)+44px);right:10px;z-index:10;display:flex;flex-direction:column;gap:5px}
+  .bm-btn{width:48px;height:48px;border-radius:8px;border:2px solid rgba(255,255,255,.1);cursor:pointer;overflow:hidden;position:relative;transition:all .2s;box-shadow:0 2px 10px rgba(0,0,0,.5)}
+  .bm-btn.active{border-color:#38bdf8;box-shadow:0 0 0 1px #38bdf8,0 2px 10px rgba(0,0,0,.5)}
+  .bm-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.7);color:#e2e8f0;font-size:6px;font-family:'JetBrains Mono',monospace;text-align:center;padding:2px 0;letter-spacing:.05em;font-weight:600;text-transform:uppercase}
+  .date-bar{position:absolute;top:calc(env(safe-area-inset-top,8px)+44px);left:50%;transform:translateX(-50%);z-index:10;display:none;align-items:center;gap:6px;background:rgba(2,6,23,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:8px;padding:6px 10px;border:1px solid rgba(139,92,246,.25)}
+  .date-bar.active{display:flex}
+  .date-bar label{font-size:9px;color:#a78bfa;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+  .date-bar input[type=date]{background:rgba(15,23,42,.8);border:1px solid rgba(255,255,255,.1);border-radius:5px;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:11px;padding:4px 6px;outline:none;color-scheme:dark}
+  .date-bar .dn{background:none;border:1px solid rgba(255,255,255,.1);border-radius:5px;color:#94a3b8;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .15s}
 
-.top-bar{position:absolute;top:0;left:0;right:0;display:flex;align-items:flex-start;justify-content:space-between;padding:env(safe-area-inset-top,8px) 14px 0;padding-top:calc(env(safe-area-inset-top,8px) + 8px);background:linear-gradient(180deg,rgba(2,6,23,0.88) 0%,rgba(2,6,23,0.4) 70%,transparent 100%);pointer-events:none;z-index:10}
-.brand{display:flex;align-items:center;gap:8px;pointer-events:auto}
-.brand-title{font-size:14px;font-weight:700;color:#e2e8f0;letter-spacing:.08em;text-transform:uppercase}
-.brand-badge{font-size:8px;padding:2px 5px;border-radius:3px;background:rgba(56,189,248,0.15);color:#38bdf8;font-weight:600;letter-spacing:.1em}
-.cursor-coord{font-size:10px;color:#475569;letter-spacing:.03em;padding-top:3px}
-
-.gps-panel{position:absolute;top:calc(env(safe-area-inset-top,8px) + 44px);left:10px;background:rgba(2,6,23,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:10px;padding:10px 14px;z-index:10;border:1px solid rgba(56,189,248,0.15);min-width:190px;display:none}
-.gps-panel.active{display:block}
-.gps-panel-header{font-size:11px;color:#38bdf8;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:6px}
-.gps-dot-live{width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 2s ease-in-out infinite}
-.gps-dot-sim{width:6px;height:6px;border-radius:50%;background:#f59e0b;animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-.gps-coords{font-size:11px;color:#cbd5e1;line-height:1.7}
-.gps-meta{display:flex;gap:14px;color:#94a3b8;font-size:10px}
-.gps-accuracy{color:#475569;font-size:9px}
-
-.gps-error{position:absolute;top:calc(env(safe-area-inset-top,8px) + 44px);left:10px;background:rgba(127,29,29,0.85);backdrop-filter:blur(12px);border-radius:8px;padding:8px 12px;z-index:10;font-size:10px;color:#fca5a5;border:1px solid rgba(239,68,68,0.3);max-width:250px;display:none}
-.gps-error.active{display:block}
-
-.basemap-sw{position:absolute;top:calc(env(safe-area-inset-top,8px) + 44px);right:10px;z-index:10;display:flex;flex-direction:column;gap:5px}
-.bm-btn{width:52px;height:52px;border-radius:8px;border:2px solid rgba(255,255,255,0.1);cursor:pointer;overflow:hidden;position:relative;transition:all .2s ease;box-shadow:0 2px 10px rgba(0,0,0,0.5)}
-.bm-btn.active{border-color:#38bdf8;box-shadow:0 0 0 1px #38bdf8,0 2px 10px rgba(0,0,0,0.5)}
-.bm-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);color:#e2e8f0;font-size:7px;font-family:‘JetBrains Mono’,monospace;text-align:center;padding:2px 0;letter-spacing:.05em;font-weight:600;text-transform:uppercase}
-
-/* Date picker bar */
-.date-bar{position:absolute;top:calc(env(safe-area-inset-top,8px) + 44px);left:50%;transform:translateX(-50%);z-index:10;display:none;align-items:center;gap:6px;background:rgba(2,6,23,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:8px;padding:6px 10px;border:1px solid rgba(139,92,246,0.25)}
-.date-bar.active{display:flex}
-.date-bar label{font-size:9px;color:#a78bfa;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
-.date-bar input[type=date]{background:rgba(15,23,42,0.8);border:1px solid rgba(255,255,255,0.1);border-radius:5px;color:#e2e8f0;font-family:‘JetBrains Mono’,monospace;font-size:11px;padding:4px 6px;outline:none;color-scheme:dark}
-.date-bar .date-nav{background:none;border:1px solid rgba(255,255,255,0.1);border-radius:5px;color:#94a3b8;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .15s}
-.date-bar .date-nav:hover{background:rgba(139,92,246,0.15);color:#c4b5fd}
+/* Marlin legend */
+.marlin-legend{position:absolute;bottom:120px;left:10px;z-index:10;background:rgba(2,6,23,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:10px;padding:10px 12px;border:1px solid rgba(251,146,60,.25);display:none;min-width:170px}
+.marlin-legend.active{display:block}
+.marlin-legend h3{font-size:10px;color:#fb923c;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.ml-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.ml-row:last-child{margin-bottom:0}
+.ml-swatch{width:28px;height:10px;border-radius:3px;flex-shrink:0}
+.ml-text{font-size:9px;color:#cbd5e1;line-height:1.3}
+.ml-species{font-weight:600;color:#fbbf24}
+.ml-feat{display:flex;align-items:center;gap:6px;margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,.06)}
+.ml-feat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ml-feat-line{width:20px;height:3px;border-radius:2px;flex-shrink:0}
 
 .bottom-controls{position:absolute;bottom:0;left:0;right:0;z-index:10;pointer-events:none;padding-bottom:env(safe-area-inset-bottom,12px)}
 .layer-row{display:flex;gap:7px;padding:0 10px 8px;overflow-x:auto;pointer-events:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .layer-row::-webkit-scrollbar{display:none}
-
-.layer-btn{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.08);background:rgba(15,23,42,0.75);color:#64748b;font-size:12px;font-family:inherit;font-weight:500;cursor:pointer;transition:all .2s ease;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);white-space:nowrap;flex-shrink:0}
-.layer-btn.on{border-color:rgba(56,189,248,0.35);background:rgba(56,189,248,0.1);color:#7dd3fc}
-.layer-btn.on-green{border-color:rgba(34,197,94,0.35);background:rgba(34,197,94,0.1);color:#86efac}
-.layer-btn.on-red{border-color:rgba(239,68,68,0.35);background:rgba(239,68,68,0.1);color:#fca5a5}
-.layer-btn.on-purple{border-color:rgba(139,92,246,0.35);background:rgba(139,92,246,0.1);color:#c4b5fd}
+.layer-btn{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;border:1.5px solid rgba(255,255,255,.08);background:rgba(15,23,42,.75);color:#64748b;font-size:12px;font-family:inherit;font-weight:500;cursor:pointer;transition:all .2s;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);white-space:nowrap;flex-shrink:0}
+.layer-btn.on{border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.1);color:#7dd3fc}
+.layer-btn.on-green{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.1);color:#86efac}
+.layer-btn.on-red{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.1);color:#fca5a5}
+.layer-btn.on-purple{border-color:rgba(139,92,246,.35);background:rgba(139,92,246,.1);color:#c4b5fd}
+.layer-btn.on-orange{border-color:rgba(251,146,60,.4);background:rgba(251,146,60,.12);color:#fdba74}
 .layer-btn .icon{font-size:14px}
-
 .gps-row{display:flex;gap:8px;padding:0 10px 12px;pointer-events:auto}
-.gps-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.08);background:rgba(15,23,42,0.8);color:#94a3b8;font-size:12px;font-family:inherit;font-weight:600;cursor:pointer;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:all .2s ease;letter-spacing:.04em}
-.gps-btn.tracking{border-color:rgba(34,197,94,0.4);background:rgba(34,197,94,0.1);color:#86efac}
-.gps-btn.sim{border-color:rgba(245,158,11,0.4);background:rgba(245,158,11,0.1);color:#fcd34d}
-.center-btn{display:flex;align-items:center;justify-content:center;padding:11px 15px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.08);background:rgba(15,23,42,0.8);color:#94a3b8;cursor:pointer;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:all .2s ease}
-.center-btn.following{border-color:rgba(56,189,248,0.4);background:rgba(56,189,248,0.1);color:#7dd3fc}
+.gps-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:10px;border:1.5px solid rgba(255,255,255,.08);background:rgba(15,23,42,.8);color:#94a3b8;font-size:12px;font-family:inherit;font-weight:600;cursor:pointer;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:all .2s;letter-spacing:.04em}
+.gps-btn.tracking{border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.1);color:#86efac}
+.gps-btn.sim{border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.1);color:#fcd34d}
+.center-btn{display:flex;align-items:center;justify-content:center;padding:11px 15px;border-radius:10px;border:1.5px solid rgba(255,255,255,.08);background:rgba(15,23,42,.8);color:#94a3b8;cursor:pointer;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:all .2s}
+.center-btn.following{border-color:rgba(56,189,248,.4);background:rgba(56,189,248,.1);color:#7dd3fc}
 .center-btn.hidden{display:none}
-
-.maplibregl-ctrl-attrib{font-size:9px!important;background:rgba(2,6,23,0.5)!important;color:#475569!important;border-radius:3px!important;font-family:‘JetBrains Mono’,monospace!important}
+.maplibregl-ctrl-attrib{font-size:9px!important;background:rgba(2,6,23,.5)!important;color:#475569!important;border-radius:3px!important;font-family:‘JetBrains Mono’,monospace!important}
 .maplibregl-ctrl-attrib a{color:#64748b!important}
-.maplibregl-ctrl-group{background:rgba(15,23,42,0.8)!important;border:1px solid rgba(255,255,255,0.06)!important;border-radius:8px!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;overflow:hidden!important;box-shadow:0 2px 12px rgba(0,0,0,0.4)!important}
-.maplibregl-ctrl-group button{width:34px!important;height:34px!important;border-color:rgba(255,255,255,0.04)!important}
-.maplibregl-ctrl-group button:hover{background:rgba(56,189,248,0.1)!important}
-.maplibregl-ctrl button .maplibregl-ctrl-icon{filter:invert(0.65)!important}
-.maplibregl-ctrl-scale{background:rgba(2,6,23,0.5)!important;color:#94a3b8!important;border-color:#475569!important;font-family:‘JetBrains Mono’,monospace!important;font-size:9px!important;border-radius:3px!important;padding:1px 5px!important;border-width:1px!important;border-top:none!important}
+.maplibregl-ctrl-group{background:rgba(15,23,42,.8)!important;border:1px solid rgba(255,255,255,.06)!important;border-radius:8px!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;overflow:hidden!important;box-shadow:0 2px 12px rgba(0,0,0,.4)!important}
+.maplibregl-ctrl-group button{width:34px!important;height:34px!important;border-color:rgba(255,255,255,.04)!important}
+.maplibregl-ctrl-group button:hover{background:rgba(56,189,248,.1)!important}
+.maplibregl-ctrl button .maplibregl-ctrl-icon{filter:invert(.65)!important}
+.maplibregl-ctrl-scale{background:rgba(2,6,23,.5)!important;color:#94a3b8!important;border-color:#475569!important;font-family:‘JetBrains Mono’,monospace!important;font-size:9px!important;border-radius:3px!important;padding:1px 5px!important;border-width:1px!important;border-top:none!important}
+.maplibregl-popup-content{background:rgba(2,6,23,.9)!important;color:#e2e8f0!important;font-family:‘JetBrains Mono’,monospace!important;font-size:11px!important;border-radius:8px!important;padding:8px 12px!important;border:1px solid rgba(251,146,60,.2)!important;box-shadow:0 4px 20px rgba(0,0,0,.5)!important}
+.maplibregl-popup-tip{border-top-color:rgba(2,6,23,.9)!important}
+.maplibregl-popup-close-button{color:#94a3b8!important;font-size:16px!important}
 </style>
 
 </head>
 <body>
-
 <div id="map"></div>
 
 <div class="top-bar">
-  <div class="brand">
-    <span style="font-size:17px">⚓</span>
-    <span class="brand-title">Marine Chart</span>
-    <span class="brand-badge">PROTO</span>
-  </div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">Marine Chart</span><span class="brand-badge">PROTO</span></div>
   <div class="cursor-coord" id="cursorCoord"></div>
 </div>
 
 <div class="gps-panel" id="gpsPanel">
-  <div class="gps-panel-header">
-    <span id="gpsDot" class="gps-dot-live"></span>
-    <span id="gpsLabel">GPS ACTIVE</span>
-  </div>
+  <div class="gps-panel-header"><span id="gpsDot" class="gps-dot-live"></span><span id="gpsLabel">GPS ACTIVE</span></div>
   <div class="gps-coords" id="gpsCoords"></div>
 </div>
 <div class="gps-error" id="gpsError"></div>
 
-<!-- Date picker for satellite layers -->
-
 <div class="date-bar" id="dateBar">
   <label>Date</label>
-  <button class="date-nav" onclick="shiftDate(-1)">◀</button>
+  <button class="dn" onclick="shiftDate(-1)">◀</button>
   <input type="date" id="dateInput" onchange="onDateChange()">
-  <button class="date-nav" onclick="shiftDate(1)">▶</button>
+  <button class="dn" onclick="shiftDate(1)">▶</button>
 </div>
 
 <div class="basemap-sw">
-  <div class="bm-btn active" id="bmGA" onclick="setBasemap('ga-bathy')" title="GA Bathymetry">
-    <div style="width:100%;height:100%;background:linear-gradient(135deg,#0a2e4a,#0c3d6b,#1a5a8a);display:flex;align-items:center;justify-content:center"><span style="font-size:18px">🌊</span></div>
-    <div class="bm-label">GA Bathy</div>
+  <div class="bm-btn active" id="bmGA" onclick="setBasemap('ga-bathy')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#0a2e4a,#0c3d6b,#1a5a8a);display:flex;align-items:center;justify-content:center"><span style="font-size:16px">🌊</span></div><div class="bm-label">GA Bathy</div></div>
+  <div class="bm-btn" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#0c2340,#1e5a8a);display:flex;align-items:center;justify-content:center"><span style="font-size:16px">🗺️</span></div><div class="bm-label">Ocean</div></div>
+  <div class="bm-btn" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#1a3322,#3d5a2a);display:flex;align-items:center;justify-content:center"><span style="font-size:16px">🛰️</span></div><div class="bm-label">Satellite</div></div>
+  <div class="bm-btn" id="bmStreet" onclick="setBasemap('street')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#e8e0d0,#d4cbb8,#bfb5a0);display:flex;align-items:center;justify-content:center"><span style="font-size:16px">🏙️</span></div><div class="bm-label">Street</div></div>
+</div>
+
+<!-- Marlin legend -->
+
+<div class="marlin-legend" id="marlinLegend">
+  <h3>🐟 Marlin Zones</h3>
+  <div class="ml-row"><div class="ml-swatch" style="background:linear-gradient(90deg,#f97316,#ef4444)"></div><div class="ml-text"><span class="ml-species">Blue Marlin</span><br>23–29°C (73–84°F)</div></div>
+  <div class="ml-row"><div class="ml-swatch" style="background:linear-gradient(90deg,#3b82f6,#8b5cf6)"></div><div class="ml-text"><span class="ml-species">Striped Marlin</span><br>21–24°C (70–75°F)</div></div>
+  <div class="ml-feat">
+    <div class="ml-feat-line" style="background:#f59e0b"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">200m shelf edge</div>
   </div>
-  <div class="bm-btn" id="bmOcean" onclick="setBasemap('ocean')" title="ESRI Ocean">
-    <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#0c2340,#1e5a8a);display:flex;align-items:center;justify-content:center"><span style="font-size:18px">🗺️</span></div>
-    <div class="bm-label">Ocean</div>
+  <div class="ml-feat" style="border:none;margin-top:4px;padding-top:0">
+    <div class="ml-feat-dot" style="background:#f43f5e"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Perth Canyon / FAD</div>
   </div>
-  <div class="bm-btn" id="bmSat" onclick="setBasemap('satellite')" title="Satellite">
-    <div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#1a3322,#3d5a2a);display:flex;align-items:center;justify-content:center"><span style="font-size:18px">🛰️</span></div>
-    <div class="bm-label">Satellite</div>
-  </div>
-  <div class="bm-btn" id="bmStreet" onclick="setBasemap('street')" title="Street">
-    <div style="width:100%;height:100%;background:linear-gradient(135deg,#e8e0d0,#d4cbb8,#bfb5a0);display:flex;align-items:center;justify-content:center"><span style="font-size:18px">🏙️</span></div>
-    <div class="bm-label">Street</div>
-  </div>
+  <div style="margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,.06);font-size:8px;color:#64748b;line-height:1.4">SST data: NASA GIBS<br>Look for sharp colour changes = temp breaks</div>
 </div>
 
 <div class="bottom-controls">
   <div class="layer-row">
-    <button class="layer-btn on" id="btnSeamarks" onclick="toggleLayer('seamark')">
-      <span class="icon">🚩</span> Sea Marks
-    </button>
-    <button class="layer-btn" id="btnChloro" onclick="toggleLayer('chlorophyll')">
-      <span class="icon">🧬</span> Chlorophyll
-    </button>
-    <button class="layer-btn" id="btnSST" onclick="toggleLayer('sst')">
-      <span class="icon">🌡️</span> SST
-    </button>
-    <button class="layer-btn" id="btnTrueColor" onclick="toggleLayer('truecolor')">
-      <span class="icon">🛰️</span> True Colour
-    </button>
+    <button class="layer-btn on" id="btnSeamarks" onclick="toggleLayer('seamark')"><span class="icon">🚩</span> Sea Marks</button>
+    <button class="layer-btn" id="btnMarlin" onclick="toggleLayer('marlin')"><span class="icon">🐟</span> Marlin Zones</button>
+    <button class="layer-btn" id="btnChloro" onclick="toggleLayer('chlorophyll')"><span class="icon">🧬</span> Chlorophyll</button>
+    <button class="layer-btn" id="btnSST" onclick="toggleLayer('sst')"><span class="icon">🌡️</span> SST</button>
+    <button class="layer-btn" id="btnTrueColor" onclick="toggleLayer('truecolor')"><span class="icon">🛰️</span> True Colour</button>
   </div>
   <div class="gps-row">
-    <button class="gps-btn" id="btnGPS" onclick="toggleGPS()">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
-      START GPS
-    </button>
-    <button class="gps-btn" id="btnSim" onclick="toggleSimGPS()" style="flex:none;padding:11px 14px">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
-      SIM
-    </button>
-    <button class="center-btn hidden" id="btnCenter" onclick="centerOnGPS()">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
-    </button>
+    <button class="gps-btn" id="btnGPS" onclick="toggleGPS()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg> START GPS</button>
+    <button class="gps-btn" id="btnSim" onclick="toggleSimGPS()" style="flex:none;padding:11px 14px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg> SIM</button>
+    <button class="center-btn hidden" id="btnCenter" onclick="centerOnGPS()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg></button>
   </div>
 </div>
 
 <script>
-// ============================================================
-// Config
-// ============================================================
-var BASEMAPS = {
-  'ga-bathy': {tiles:['https://services.ga.gov.au/gis/rest/services/World_Bathymetry_Base_Map/MapServer/tile/{z}/{y}/{x}'],attribution:'© Geoscience Australia',maxzoom:15,btnId:'bmGA'},
-  ocean: {tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}'],attribution:'© Esri, GEBCO, NOAA',maxzoom:16,btnId:'bmOcean'},
-  satellite: {tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],attribution:'© Esri, Maxar',maxzoom:19,btnId:'bmSat'},
-  street: {tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],attribution:'© OpenStreetMap',maxzoom:19,btnId:'bmStreet'}
-};
+var BASEMAPS={'ga-bathy':{tiles:['https://services.ga.gov.au/gis/rest/services/World_Bathymetry_Base_Map/MapServer/tile/{z}/{y}/{x}'],attribution:'© Geoscience Australia',maxzoom:15,btnId:'bmGA'},ocean:{tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}'],attribution:'© Esri, GEBCO',maxzoom:16,btnId:'bmOcean'},satellite:{tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],attribution:'© Esri, Maxar',maxzoom:19,btnId:'bmSat'},street:{tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],attribution:'© OpenStreetMap',maxzoom:19,btnId:'bmStreet'}};
+var OCEAN_LABELS='https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}';
+var SEAMARK_URL='https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png';
+var BLANK='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+var GIBS='https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi';
+function gibsUrl(l,d,t){return GIBS+'?SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS='+l+'&FORMAT=image/png&TRANSPARENT='+(t!==false?'true':'false')+'&WIDTH=256&HEIGHT=256&SRS=EPSG:3857&BBOX={bbox-epsg-3857}&TIME='+d}
+var GL={chlorophyll:'MODIS_Aqua_L2_Chlorophyll_A',sst:'GHRSST_L4_MUR_Sea_Surface_Temperature',truecolor:'MODIS_Terra_CorrectedReflectance_TrueColor'};
 
-var OCEAN_LABELS_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}';
-var SEAMARK_URL = 'https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png';
-var BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+// Approx 200m shelf edge contour off Perth (Mandurah to Two Rocks)
+var SHELF_EDGE=[[115.10,-32.60],[115.05,-32.45],[114.98,-32.25],[114.92,-32.10],[114.88,-32.00],[114.85,-31.90],[114.82,-31.80],[114.80,-31.70],[114.78,-31.60],[114.77,-31.50],[114.78,-31.40],[114.80,-31.30],[114.82,-31.20]];
 
-// NASA GIBS WMS base
-var GIBS_WMS = 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi';
-
-function gibsWmsUrl(layer, date, transparent) {
-  return GIBS_WMS +
-    '?SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1' +
-    '&LAYERS=' + layer +
-    '&FORMAT=image/png&TRANSPARENT=' + (transparent !== false ? 'true' : 'false') +
-    '&WIDTH=256&HEIGHT=256&SRS=EPSG:3857' +
-    '&BBOX={bbox-epsg-3857}' +
-    '&TIME=' + date;
-}
-
-// GIBS layer identifiers
-var GIBS_LAYERS = {
-  chlorophyll: 'MODIS_Aqua_L2_Chlorophyll_A',
-  sst: 'GHRSST_L4_MUR_Sea_Surface_Temperature',
-  truecolor: 'MODIS_Terra_CorrectedReflectance_TrueColor'
-};
-
-// ============================================================
-// State
-// ============================================================
-var map;
-var currentBasemap = 'ga-bathy';
-var gpsWatchId = null;
-var gpsMode = 'off';
-var currentPos = null;
-var followGPS = false;
-var simInterval = null;
-var trackCoords = [];
-var simIndex = 0;
-
-// Layer visibility state
-var layerState = {
-  seamark: true,
-  chlorophyll: false,
-  sst: false,
-  truecolor: false
-};
-
-// Imagery date — default to 3 days ago (data availability lag)
-var imgDate = new Date();
-imgDate.setDate(imgDate.getDate() - 3);
-var currentDate = imgDate.toISOString().split('T')[0];
-
-var SIM_ROUTE = [
-  [115.7486,-32.0569],[115.7440,-32.0550],[115.7380,-32.0520],
-  [115.7300,-32.0490],[115.7200,-32.0450],[115.7080,-32.0400],
-  [115.6950,-32.0350],[115.6800,-32.0300],[115.6650,-32.0250],
-  [115.6500,-32.0200],[115.6350,-32.0150],[115.6200,-32.0100],
-  [115.6050,-32.0050],[115.5900,-32.0000],[115.5750,-31.9960],
-  [115.5600,-31.9930],[115.5450,-31.9910],[115.5300,-31.9900],
-  [115.5180,-31.9890],[115.5080,-31.9880],[115.4980,-31.9870]
+// Key fishing spots
+var FISH_SPOTS=[
+  {coords:[114.98,-32.01],name:'Perth Canyon Head',desc:'200m→1000m drop. Blue whale feeding area. Prime upwelling zone.'},
+  {coords:[114.85,-31.99],name:'Perth Canyon Deep',desc:'Canyon floor 2000m+. Leeuwin Current interaction zone.'},
+  {coords:[115.42,-31.98],name:'Rottnest FADs',desc:'Fish Aggregation Devices. Striped marlin zone in 200m water.'},
+  {coords:[115.30,-31.90],name:'Rottnest Trench',desc:'Deep water access close to shelf. Bait aggregation.'},
+  {coords:[115.05,-31.75],name:'Two Rocks Canyon',desc:'Northern canyon system. Shelf edge access.'}
 ];
 
-// ============================================================
-// Helpers
-// ============================================================
-function fmtCoord(lat,lng){
-  var latD=Math.floor(Math.abs(lat)),latM=((Math.abs(lat)-latD)*60).toFixed(3);
-  var lngD=Math.floor(Math.abs(lng)),lngM=((Math.abs(lng)-lngD)*60).toFixed(3);
-  return latD+'°'+latM+"'"+(lat>=0?'N':'S')+'  '+lngD+'°'+lngM+"'"+(lng>=0?'E':'W');
-}
-function fmtSpeed(ms){return(ms==null||isNaN(ms))?'—':(ms*1.94384).toFixed(1)+' kn'}
+var map,currentBasemap='ga-bathy',gpsWatchId=null,gpsMode='off',currentPos=null,followGPS=false,simInterval=null,trackCoords=[],simIndex=0;
+var layerState={seamark:true,marlin:false,chlorophyll:false,sst:false,truecolor:false};
+var imgDate=new Date();imgDate.setDate(imgDate.getDate()-3);
+var currentDate=imgDate.toISOString().split('T')[0];
+var SIM_ROUTE=[[115.7486,-32.0569],[115.7440,-32.0550],[115.7380,-32.0520],[115.7300,-32.0490],[115.7200,-32.0450],[115.7080,-32.0400],[115.6950,-32.0350],[115.6800,-32.0300],[115.6650,-32.0250],[115.6500,-32.0200],[115.6350,-32.0150],[115.6200,-32.0100],[115.6050,-32.0050],[115.5900,-32.0000],[115.5750,-31.9960],[115.5600,-31.9930],[115.5450,-31.9910],[115.5300,-31.9900],[115.5180,-31.9890],[115.5080,-31.9880],[115.4980,-31.9870]];
+var fishPopups=[];
+
+function fmtCoord(a,b){var d=Math.floor(Math.abs(a)),m=((Math.abs(a)-d)*60).toFixed(3),d2=Math.floor(Math.abs(b)),m2=((Math.abs(b)-d2)*60).toFixed(3);return d+'°'+m+"'"+(a>=0?'N':'S')+'  '+d2+'°'+m2+"'"+(b>=0?'E':'W')}
+function fmtSpeed(s){return(s==null||isNaN(s))?'—':(s*1.94384).toFixed(1)+' kn'}
 function fmtHeading(d){return(d==null||isNaN(d))?'—':Math.round(d)+'°'}
-function svgCross(){return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>'}
-function showGPSError(m){var e=document.getElementById('gpsError');e.textContent='GPS: '+m;e.classList.add('active')}
-function hideGPSError(){document.getElementById('gpsError').classList.remove('active')}
+function svgX(){return'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>'}
+function showErr(m){var e=document.getElementById('gpsError');e.textContent='GPS: '+m;e.classList.add('active')}
+function hideErr(){document.getElementById('gpsError').classList.remove('active')}
 
-// ============================================================
-// Map init
-// ============================================================
 function initMap(){
-  var bm = BASEMAPS['ga-bathy'];
-
-  // Build initial sources
-  var sources = {
-    'basemap': {type:'raster',tiles:bm.tiles,tileSize:256,attribution:bm.attribution,maxzoom:bm.maxzoom},
-    'ocean-labels': {type:'raster',tiles:[BLANK],tileSize:256,maxzoom:16},
-    'seamark': {type:'raster',tiles:[SEAMARK_URL],tileSize:256,attribution:'© OpenSeaMap',maxzoom:18},
-    'gibs-chlorophyll': {type:'raster',tiles:[gibsWmsUrl(GIBS_LAYERS.chlorophyll, currentDate)],tileSize:256,maxzoom:8},
-    'gibs-sst': {type:'raster',tiles:[gibsWmsUrl(GIBS_LAYERS.sst, currentDate)],tileSize:256,maxzoom:9},
-    'gibs-truecolor': {type:'raster',tiles:[gibsWmsUrl(GIBS_LAYERS.truecolor, currentDate, false)],tileSize:256,maxzoom:9}
+  var bm=BASEMAPS['ga-bathy'];
+  var sources={
+    basemap:{type:'raster',tiles:bm.tiles,tileSize:256,attribution:bm.attribution,maxzoom:bm.maxzoom},
+    'ocean-labels':{type:'raster',tiles:[BLANK],tileSize:256,maxzoom:16},
+    seamark:{type:'raster',tiles:[SEAMARK_URL],tileSize:256,attribution:'© OpenSeaMap',maxzoom:18},
+    'gibs-chlorophyll':{type:'raster',tiles:[gibsUrl(GL.chlorophyll,currentDate)],tileSize:256,maxzoom:8},
+    'gibs-sst':{type:'raster',tiles:[gibsUrl(GL.sst,currentDate)],tileSize:256,maxzoom:9},
+    'gibs-truecolor':{type:'raster',tiles:[gibsUrl(GL.truecolor,currentDate,false)],tileSize:256,maxzoom:9},
+    'shelf-edge':{type:'geojson',data:{type:'Feature',geometry:{type:'LineString',coordinates:SHELF_EDGE}}},
+    'fish-spots':{type:'geojson',data:{type:'FeatureCollection',features:FISH_SPOTS.map(function(s){return{type:'Feature',geometry:{type:'Point',coordinates:s.coords},properties:{name:s.name,desc:s.desc}}})}}
   };
-
-  var layers = [
+  var layers=[
     {id:'basemap-layer',type:'raster',source:'basemap'},
     {id:'ocean-labels-layer',type:'raster',source:'ocean-labels',paint:{'raster-opacity':0}},
-    {id:'gibs-truecolor-layer',type:'raster',source:'gibs-truecolor',layout:{visibility:'none'},paint:{'raster-opacity':0.85}},
-    {id:'gibs-sst-layer',type:'raster',source:'gibs-sst',layout:{visibility:'none'},paint:{'raster-opacity':0.65}},
-    {id:'gibs-chlorophyll-layer',type:'raster',source:'gibs-chlorophyll',layout:{visibility:'none'},paint:{'raster-opacity':0.7}},
-    {id:'seamark-layer',type:'raster',source:'seamark',paint:{'raster-opacity':0.85}}
+    {id:'gibs-truecolor-layer',type:'raster',source:'gibs-truecolor',layout:{visibility:'none'},paint:{'raster-opacity':.85}},
+    {id:'gibs-sst-layer',type:'raster',source:'gibs-sst',layout:{visibility:'none'},paint:{'raster-opacity':.6}},
+    {id:'gibs-chlorophyll-layer',type:'raster',source:'gibs-chlorophyll',layout:{visibility:'none'},paint:{'raster-opacity':.7}},
+    {id:'shelf-line',type:'line',source:'shelf-edge',layout:{visibility:'none'},paint:{'line-color':'#f59e0b','line-width':2.5,'line-opacity':.8,'line-dasharray':[4,3]}},
+    {id:'shelf-glow',type:'line',source:'shelf-edge',layout:{visibility:'none'},paint:{'line-color':'#f59e0b','line-width':8,'line-opacity':.15,'line-blur':4}},
+    {id:'fish-glow',type:'circle',source:'fish-spots',layout:{visibility:'none'},paint:{'circle-radius':16,'circle-color':'#f43f5e','circle-opacity':.15,'circle-blur':.8}},
+    {id:'fish-dots',type:'circle',source:'fish-spots',layout:{visibility:'none'},paint:{'circle-radius':6,'circle-color':'#f43f5e','circle-stroke-width':2,'circle-stroke-color':'#fff','circle-opacity':.9}},
+    {id:'fish-labels',type:'symbol',source:'fish-spots',layout:{visibility:'none','text-field':['get','name'],'text-size':10,'text-offset':[0,1.5],'text-anchor':'top','text-font':['Open Sans Regular']},paint:{'text-color':'#fbbf24','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5}},
+    {id:'seamark-layer',type:'raster',source:'seamark',paint:{'raster-opacity':.85}}
   ];
-
-  map = new maplibregl.Map({
-    container:'map',
-    style:{version:8, sources:sources, layers:layers, glyphs:'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf'},
-    center:[115.75,-31.97],
-    zoom:10,
-    maxZoom:18,
-    minZoom:3,
-    attributionControl:true
-  });
-
+  map=new maplibregl.Map({container:'map',style:{version:8,sources:sources,layers:layers,glyphs:'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf'},center:[115.45,-31.97],zoom:10,maxZoom:18,minZoom:3,attributionControl:true});
   map.addControl(new maplibregl.NavigationControl({showCompass:true}),'top-right');
   map.addControl(new maplibregl.ScaleControl({maxWidth:140,unit:'nautical'}),'bottom-left');
-
   map.on('mousemove',function(e){document.getElementById('cursorCoord').textContent=fmtCoord(e.lngLat.lat,e.lngLat.lng)});
   map.on('moveend',function(){var c=map.getCenter();document.getElementById('cursorCoord').textContent=fmtCoord(c.lat,c.lng)});
   map.on('dragstart',function(){followGPS=false;document.getElementById('btnCenter').classList.remove('following')});
 
-  // Set date picker
-  document.getElementById('dateInput').value = currentDate;
+  // Click fish spots for popup
+  map.on('click','fish-dots',function(e){
+    var f=e.features[0];
+    new maplibregl.Popup({offset:12}).setLngLat(f.geometry.coordinates).setHTML('<div style="font-weight:700;color:#fb923c;margin-bottom:4px">'+f.properties.name+'</div><div style="font-size:10px;color:#94a3b8;line-height:1.4">'+f.properties.desc+'</div>').addTo(map);
+  });
+  map.on('mouseenter','fish-dots',function(){map.getCanvas().style.cursor='pointer'});
+  map.on('mouseleave','fish-dots',function(){map.getCanvas().style.cursor=''});
+
+  document.getElementById('dateInput').value=currentDate;
 }
 
-// ============================================================
-// Date control
-// ============================================================
-function onDateChange(){
-  currentDate = document.getElementById('dateInput').value;
-  refreshGIBSLayers();
-}
+function onDateChange(){currentDate=document.getElementById('dateInput').value;refreshGIBS()}
+function shiftDate(d){var dt=new Date(currentDate);dt.setDate(dt.getDate()+d);currentDate=dt.toISOString().split('T')[0];document.getElementById('dateInput').value=currentDate;refreshGIBS()}
 
-function shiftDate(delta){
-  var d = new Date(currentDate);
-  d.setDate(d.getDate() + delta);
-  currentDate = d.toISOString().split('T')[0];
-  document.getElementById('dateInput').value = currentDate;
-  refreshGIBSLayers();
-}
-
-function refreshGIBSLayers(){
-  // Remove and re-add GIBS sources with new date
-  var gibsLayers = ['gibs-chlorophyll','gibs-sst','gibs-truecolor'];
-  var gibsLayerIds = ['gibs-chlorophyll-layer','gibs-sst-layer','gibs-truecolor-layer'];
-  var gibsConfigs = {
-    'gibs-chlorophyll': {layer:GIBS_LAYERS.chlorophyll, maxzoom:8, opacity:0.7, vis:layerState.chlorophyll},
-    'gibs-sst': {layer:GIBS_LAYERS.sst, maxzoom:9, opacity:0.65, vis:layerState.sst},
-    'gibs-truecolor': {layer:GIBS_LAYERS.truecolor, maxzoom:9, opacity:0.85, vis:layerState.truecolor, transparent:false}
-  };
-
-  // Remove layers then sources
-  for(var i=0;i<gibsLayerIds.length;i++){
-    if(map.getLayer(gibsLayerIds[i])) map.removeLayer(gibsLayerIds[i]);
-  }
-  for(var i=0;i<gibsLayers.length;i++){
-    if(map.getSource(gibsLayers[i])) map.removeSource(gibsLayers[i]);
-  }
-
-  // Re-add before seamark layer
-  var beforeLayer = map.getLayer('seamark-layer') ? 'seamark-layer' : undefined;
-
-  // Add in correct order: truecolor (bottom), sst, chlorophyll (top)
-  var order = ['gibs-truecolor','gibs-sst','gibs-chlorophyll'];
+function refreshGIBS(){
+  var ids=['gibs-truecolor','gibs-sst','gibs-chlorophyll'];
+  var cfg={'gibs-truecolor':{l:GL.truecolor,z:9,o:.85,v:layerState.truecolor,t:false},'gibs-sst':{l:GL.sst,z:9,o:.6,v:layerState.sst||layerState.marlin},'gibs-chlorophyll':{l:GL.chlorophyll,z:8,o:.7,v:layerState.chlorophyll}};
+  for(var i=0;i<ids.length;i++){if(map.getLayer(ids[i]+'-layer'))map.removeLayer(ids[i]+'-layer')}
+  for(var i=0;i<ids.length;i++){if(map.getSource(ids[i]))map.removeSource(ids[i])}
+  var before=map.getLayer('shelf-line')?'shelf-line':(map.getLayer('seamark-layer')?'seamark-layer':undefined);
+  var order=['gibs-truecolor','gibs-sst','gibs-chlorophyll'];
   for(var i=0;i<order.length;i++){
-    var key = order[i];
-    var cfg = gibsConfigs[key];
-    map.addSource(key, {
-      type:'raster',
-      tiles:[gibsWmsUrl(cfg.layer, currentDate, cfg.transparent)],
-      tileSize:256,
-      maxzoom:cfg.maxzoom
-    });
-    map.addLayer({
-      id: key+'-layer',
-      type:'raster',
-      source: key,
-      layout:{visibility: cfg.vis ? 'visible' : 'none'},
-      paint:{'raster-opacity': cfg.opacity}
-    }, beforeLayer);
+    var k=order[i],c=cfg[k];
+    map.addSource(k,{type:'raster',tiles:[gibsUrl(c.l,currentDate,c.t)],tileSize:256,maxzoom:c.z});
+    map.addLayer({id:k+'-layer',type:'raster',source:k,layout:{visibility:c.v?'visible':'none'},paint:{'raster-opacity':c.o}},before);
   }
 }
 
-// ============================================================
-// Layer toggles
-// ============================================================
+var MARLIN_LAYERS=['shelf-line','shelf-glow','fish-glow','fish-dots','fish-labels'];
+
 function toggleLayer(name){
-  layerState[name] = !layerState[name];
-  var active = layerState[name];
+  layerState[name]=!layerState[name];
+  var a=layerState[name];
+  var lmap={seamark:'seamark-layer',chlorophyll:'gibs-chlorophyll-layer',sst:'gibs-sst-layer',truecolor:'gibs-truecolor-layer'};
+  var bmap={seamark:{id:'btnSeamarks',c:'on'},chlorophyll:{id:'btnChloro',c:'on-green'},sst:{id:'btnSST',c:'on-red'},truecolor:{id:'btnTrueColor',c:'on-purple'},marlin:{id:'btnMarlin',c:'on-orange'}};
 
-  // Map layer name to map layer ID
-  var layerMap = {
-    seamark: 'seamark-layer',
-    chlorophyll: 'gibs-chlorophyll-layer',
-    sst: 'gibs-sst-layer',
-    truecolor: 'gibs-truecolor-layer'
-  };
-
-  var btnMap = {
-    seamark: {id:'btnSeamarks', cls:'on'},
-    chlorophyll: {id:'btnChloro', cls:'on-green'},
-    sst: {id:'btnSST', cls:'on-red'},
-    truecolor: {id:'btnTrueColor', cls:'on-purple'}
-  };
-
-  if(map.getLayer(layerMap[name])){
-    map.setLayoutProperty(layerMap[name],'visibility', active?'visible':'none');
-  }
-
-  var btn = document.getElementById(btnMap[name].id);
-  if(active){
-    btn.classList.add(btnMap[name].cls);
+  if(name==='marlin'){
+    // Toggle SST + shelf edge + fish spots + legend
+    for(var i=0;i<MARLIN_LAYERS.length;i++){
+      if(map.getLayer(MARLIN_LAYERS[i]))map.setLayoutProperty(MARLIN_LAYERS[i],'visibility',a?'visible':'none');
+    }
+    // Also show/hide SST when marlin toggled (unless SST is independently on)
+    if(map.getLayer('gibs-sst-layer')){
+      var showSST=a||layerState.sst;
+      map.setLayoutProperty('gibs-sst-layer','visibility',showSST?'visible':'none');
+    }
+    document.getElementById('marlinLegend').classList.toggle('active',a);
   } else {
-    btn.classList.remove(btnMap[name].cls);
+    if(lmap[name]&&map.getLayer(lmap[name])){
+      map.setLayoutProperty(lmap[name],'visibility',a?'visible':'none');
+    }
+    // If turning off SST but marlin is on, keep SST visible
+    if(name==='sst'&&!a&&layerState.marlin){
+      map.setLayoutProperty('gibs-sst-layer','visibility','visible');
+    }
   }
 
-  // Show/hide date bar if any GIBS layer is active
-  var anyGIBS = layerState.chlorophyll || layerState.sst || layerState.truecolor;
-  document.getElementById('dateBar').classList.toggle('active', anyGIBS);
+  var b=bmap[name];
+  if(b){var el=document.getElementById(b.id);a?el.classList.add(b.c):el.classList.remove(b.c)}
+
+  var anyGIBS=layerState.chlorophyll||layerState.sst||layerState.truecolor||layerState.marlin;
+  document.getElementById('dateBar').classList.toggle('active',anyGIBS);
 }
 
-// ============================================================
-// Basemap switcher
-// ============================================================
 function setBasemap(name){
-  if(name===currentBasemap) return;
-  currentBasemap=name;
-  var bm=BASEMAPS[name];
-
-  var gpsLayers=['gps-track-line','gps-acc-fill','gps-acc-line','gps-glow','gps-outer','gps-inner','gps-heading-line'];
-  var firstGPS=null;
-  for(var i=0;i<gpsLayers.length;i++){if(map.getLayer(gpsLayers[i])){firstGPS=gpsLayers[i];break;}}
-
-  // Remove all overlay layers
-  var removeLayers = ['seamark-layer','gibs-chlorophyll-layer','gibs-sst-layer','gibs-truecolor-layer','ocean-labels-layer','basemap-layer'];
-  for(var i=0;i<removeLayers.length;i++){if(map.getLayer(removeLayers[i])) map.removeLayer(removeLayers[i]);}
-
-  // Remove sources
-  var removeSources = ['basemap','ocean-labels','gibs-chlorophyll','gibs-sst','gibs-truecolor'];
-  for(var i=0;i<removeSources.length;i++){if(map.getSource(removeSources[i])) map.removeSource(removeSources[i]);}
-
-  // Re-add basemap
+  if(name===currentBasemap)return;currentBasemap=name;var bm=BASEMAPS[name];
+  var gL=['gps-track-line','gps-acc-fill','gps-acc-line','gps-glow','gps-outer','gps-inner','gps-heading-line'];
+  var fg=null;for(var i=0;i<gL.length;i++){if(map.getLayer(gL[i])){fg=gL[i];break;}}
+  var rm=['seamark-layer','fish-labels','fish-dots','fish-glow','shelf-glow','shelf-line','gibs-chlorophyll-layer','gibs-sst-layer','gibs-truecolor-layer','ocean-labels-layer','basemap-layer'];
+  for(var i=0;i<rm.length;i++){if(map.getLayer(rm[i]))map.removeLayer(rm[i])}
+  var rs=['basemap','ocean-labels','gibs-chlorophyll','gibs-sst','gibs-truecolor'];
+  for(var i=0;i<rs.length;i++){if(map.getSource(rs[i]))map.removeSource(rs[i])}
   map.addSource('basemap',{type:'raster',tiles:bm.tiles,tileSize:256,attribution:bm.attribution,maxzoom:bm.maxzoom});
-  var showLabels = (name==='ocean');
-  map.addSource('ocean-labels',{type:'raster',tiles:showLabels?[OCEAN_LABELS_URL]:[BLANK],tileSize:256,maxzoom:16});
-
-  map.addLayer({id:'basemap-layer',type:'raster',source:'basemap'},firstGPS||undefined);
-  map.addLayer({id:'ocean-labels-layer',type:'raster',source:'ocean-labels',paint:{'raster-opacity':showLabels?0.9:0}},firstGPS||undefined);
-
-  // Re-add GIBS layers
-  var gibsOrder = ['gibs-truecolor','gibs-sst','gibs-chlorophyll'];
-  var gibsConfigs = {
-    'gibs-truecolor': {layer:GIBS_LAYERS.truecolor,maxzoom:9,opacity:0.85,vis:layerState.truecolor,transparent:false},
-    'gibs-sst': {layer:GIBS_LAYERS.sst,maxzoom:9,opacity:0.65,vis:layerState.sst},
-    'gibs-chlorophyll': {layer:GIBS_LAYERS.chlorophyll,maxzoom:8,opacity:0.7,vis:layerState.chlorophyll}
-  };
-  for(var i=0;i<gibsOrder.length;i++){
-    var key=gibsOrder[i], cfg=gibsConfigs[key];
-    map.addSource(key,{type:'raster',tiles:[gibsWmsUrl(cfg.layer,currentDate,cfg.transparent)],tileSize:256,maxzoom:cfg.maxzoom});
-    map.addLayer({id:key+'-layer',type:'raster',source:key,layout:{visibility:cfg.vis?'visible':'none'},paint:{'raster-opacity':cfg.opacity}},firstGPS||undefined);
-  }
-
-  // Re-add seamark
-  map.addLayer({id:'seamark-layer',type:'raster',source:'seamark',
-    paint:{'raster-opacity':0.85},layout:{visibility:layerState.seamark?'visible':'none'}},firstGPS||undefined);
-
+  var sl=(name==='ocean');
+  map.addSource('ocean-labels',{type:'raster',tiles:sl?[OCEAN_LABELS]:[BLANK],tileSize:256,maxzoom:16});
+  var bf=fg||undefined;
+  map.addLayer({id:'basemap-layer',type:'raster',source:'basemap'},bf);
+  map.addLayer({id:'ocean-labels-layer',type:'raster',source:'ocean-labels',paint:{'raster-opacity':sl?.9:0}},bf);
+  // GIBS
+  var go=['gibs-truecolor','gibs-sst','gibs-chlorophyll'];
+  var gc={'gibs-truecolor':{l:GL.truecolor,z:9,o:.85,v:layerState.truecolor,t:false},'gibs-sst':{l:GL.sst,z:9,o:.6,v:layerState.sst||layerState.marlin},'gibs-chlorophyll':{l:GL.chlorophyll,z:8,o:.7,v:layerState.chlorophyll}};
+  for(var i=0;i<go.length;i++){var k=go[i],c=gc[k];map.addSource(k,{type:'raster',tiles:[gibsUrl(c.l,currentDate,c.t)],tileSize:256,maxzoom:c.z});map.addLayer({id:k+'-layer',type:'raster',source:k,layout:{visibility:c.v?'visible':'none'},paint:{'raster-opacity':c.o}},bf);}
+  // Shelf + fish
+  var mv=layerState.marlin?'visible':'none';
+  map.addLayer({id:'shelf-glow',type:'line',source:'shelf-edge',layout:{visibility:mv},paint:{'line-color':'#f59e0b','line-width':8,'line-opacity':.15,'line-blur':4}},bf);
+  map.addLayer({id:'shelf-line',type:'line',source:'shelf-edge',layout:{visibility:mv},paint:{'line-color':'#f59e0b','line-width':2.5,'line-opacity':.8,'line-dasharray':[4,3]}},bf);
+  map.addLayer({id:'fish-glow',type:'circle',source:'fish-spots',layout:{visibility:mv},paint:{'circle-radius':16,'circle-color':'#f43f5e','circle-opacity':.15,'circle-blur':.8}},bf);
+  map.addLayer({id:'fish-dots',type:'circle',source:'fish-spots',layout:{visibility:mv},paint:{'circle-radius':6,'circle-color':'#f43f5e','circle-stroke-width':2,'circle-stroke-color':'#fff','circle-opacity':.9}},bf);
+  map.addLayer({id:'fish-labels',type:'symbol',source:'fish-spots',layout:{visibility:mv,'text-field':['get','name'],'text-size':10,'text-offset':[0,1.5],'text-anchor':'top','text-font':['Open Sans Regular']},paint:{'text-color':'#fbbf24','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5}},bf);
+  map.addLayer({id:'seamark-layer',type:'raster',source:'seamark',paint:{'raster-opacity':.85},layout:{visibility:layerState.seamark?'visible':'none'}},bf);
   document.querySelectorAll('.bm-btn').forEach(function(b){b.classList.remove('active')});
   document.getElementById(bm.btnId).classList.add('active');
 }
 
-// ============================================================
-// GPS marker
-// ============================================================
-function makeCircle(center,radiusM){
-  var pts=48,coords=[],km=radiusM/1000;
-  for(var i=0;i<=pts;i++){var a=(i/pts)*2*Math.PI;coords.push([center[0]+(km*Math.cos(a))/(111.32*Math.cos(center[1]*Math.PI/180)),center[1]+(km*Math.sin(a))/111.32]);}
-  return{type:'Feature',geometry:{type:'Polygon',coordinates:[coords]}};
+// GPS
+function makeCircle(c,r){var p=48,co=[],k=r/1000;for(var i=0;i<=p;i++){var a=(i/p)*2*Math.PI;co.push([c[0]+(k*Math.cos(a))/(111.32*Math.cos(c[1]*Math.PI/180)),c[1]+(k*Math.sin(a))/111.32])}return{type:'Feature',geometry:{type:'Polygon',coordinates:[co]}}}
+function updateMarker(p){
+  var c=[p.lng,p.lat],ag=makeCircle(c,p.accuracy||20);
+  if(!map.getSource('gps-acc')){map.addSource('gps-acc',{type:'geojson',data:ag});map.addLayer({id:'gps-acc-fill',type:'fill',source:'gps-acc',paint:{'fill-color':'#0ea5e9','fill-opacity':.07}});map.addLayer({id:'gps-acc-line',type:'line',source:'gps-acc',paint:{'line-color':'#0ea5e9','line-width':1,'line-opacity':.25}})}else{map.getSource('gps-acc').setData(ag)}
+  trackCoords.push(c);var tg={type:'Feature',geometry:{type:'LineString',coordinates:trackCoords}};
+  if(!map.getSource('gps-track')){map.addSource('gps-track',{type:'geojson',data:tg});map.addLayer({id:'gps-track-line',type:'line',source:'gps-track',paint:{'line-color':'#f59e0b','line-width':2.5,'line-opacity':.65}},'gps-acc-fill')}else{map.getSource('gps-track').setData(tg)}
+  var pg={type:'Feature',geometry:{type:'Point',coordinates:c}};
+  if(!map.getSource('gps-pt')){map.addSource('gps-pt',{type:'geojson',data:pg});map.addLayer({id:'gps-glow',type:'circle',source:'gps-pt',paint:{'circle-radius':18,'circle-color':'#0ea5e9','circle-opacity':.12,'circle-blur':1}});map.addLayer({id:'gps-outer',type:'circle',source:'gps-pt',paint:{'circle-radius':10,'circle-color':'#0c4a6e','circle-opacity':.7}});map.addLayer({id:'gps-inner',type:'circle',source:'gps-pt',paint:{'circle-radius':6,'circle-color':'#38bdf8','circle-stroke-width':2,'circle-stroke-color':'#fff'}})}else{map.getSource('gps-pt').setData(pg)}
+  if(p.heading!=null&&!isNaN(p.heading)){var hr=p.heading*Math.PI/180,d=.0004,hg={type:'Feature',geometry:{type:'LineString',coordinates:[c,[c[0]+d*Math.sin(hr),c[1]+d*Math.cos(hr)]]}};if(!map.getSource('gps-heading')){map.addSource('gps-heading',{type:'geojson',data:hg});map.addLayer({id:'gps-heading-line',type:'line',source:'gps-heading',paint:{'line-color':'#f43f5e','line-width':2.5,'line-opacity':.8}})}else{map.getSource('gps-heading').setData(hg)}}
+  document.getElementById('gpsCoords').innerHTML='<div>'+fmtCoord(p.lat,p.lng)+'</div><div class="gps-meta"><span>SPD '+fmtSpeed(p.speed)+'</span><span>HDG '+fmtHeading(p.heading)+'</span></div><div class="gps-accuracy">&plusmn;'+Math.round(p.accuracy||0)+'m</div>';
+  if(followGPS)map.easeTo({center:c,duration:800});
 }
 
-function updateMarker(pos){
-  var coords=[pos.lng,pos.lat];
-  var accGeo=makeCircle(coords,pos.accuracy||20);
-  if(!map.getSource('gps-acc')){
-    map.addSource('gps-acc',{type:'geojson',data:accGeo});
-    map.addLayer({id:'gps-acc-fill',type:'fill',source:'gps-acc',paint:{'fill-color':'#0ea5e9','fill-opacity':0.07}});
-    map.addLayer({id:'gps-acc-line',type:'line',source:'gps-acc',paint:{'line-color':'#0ea5e9','line-width':1,'line-opacity':0.25}});
-  } else {map.getSource('gps-acc').setData(accGeo);}
+function toggleGPS(){if(gpsMode==='live'){stopLive();return}if(gpsMode==='sim')stopSim();if(!navigator.geolocation){showErr('Not supported');return}gpsMode='live';followGPS=true;trackCoords=[];hideErr();document.getElementById('btnGPS').classList.add('tracking');document.getElementById('btnGPS').innerHTML=svgX()+' GPS TRACKING';document.getElementById('gpsPanel').classList.add('active');document.getElementById('gpsDot').className='gps-dot-live';document.getElementById('gpsLabel').textContent='GPS ACTIVE';document.getElementById('btnCenter').classList.remove('hidden');gpsWatchId=navigator.geolocation.watchPosition(function(p){currentPos={lat:p.coords.latitude,lng:p.coords.longitude,accuracy:p.coords.accuracy,heading:p.coords.heading,speed:p.coords.speed};updateMarker(currentPos)},function(e){showErr(e.message);stopLive()},{enableHighAccuracy:true,maximumAge:3000,timeout:15000})}
+function stopLive(){if(gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null}gpsMode='off';followGPS=false;document.getElementById('btnGPS').classList.remove('tracking');document.getElementById('btnGPS').innerHTML=svgX()+' START GPS';document.getElementById('gpsPanel').classList.remove('active');document.getElementById('btnCenter').classList.add('hidden')}
+function toggleSimGPS(){if(gpsMode==='sim'){stopSim();return}if(gpsMode==='live')stopLive();gpsMode='sim';followGPS=true;trackCoords=[];simIndex=0;hideErr();document.getElementById('btnSim').classList.add('sim');document.getElementById('gpsPanel').classList.add('active');document.getElementById('gpsDot').className='gps-dot-sim';document.getElementById('gpsLabel').textContent='SIM — Freo → Rottnest';document.getElementById('btnCenter').classList.remove('hidden');map.flyTo({center:SIM_ROUTE[0],zoom:12,duration:1500});simInterval=setInterval(function(){if(simIndex>=SIM_ROUTE.length){simIndex=0;trackCoords=[]}var pt=SIM_ROUTE[simIndex],h=null,s=null;if(simIndex>0){var pv=SIM_ROUTE[simIndex-1];h=(Math.atan2(pt[0]-pv[0],pt[1]-pv[1])*180/Math.PI+360)%360;s=Math.min(Math.sqrt(Math.pow(pt[0]-pv[0],2)+Math.pow(pt[1]-pv[1],2))*111320/2,6)}currentPos={lat:pt[1],lng:pt[0],accuracy:8+Math.random()*5,heading:h,speed:s};updateMarker(currentPos);simIndex++},2000)}
+function stopSim(){if(simInterval){clearInterval(simInterval);simInterval=null}gpsMode='off';followGPS=false;document.getElementById('btnSim').classList.remove('sim');document.getElementById('gpsPanel').classList.remove('active');document.getElementById('btnCenter').classList.add('hidden')}
+function centerOnGPS(){if(currentPos){map.flyTo({center:[currentPos.lng,currentPos.lat],zoom:14,duration:1200});followGPS=true;document.getElementById('btnCenter').classList.add('following')}}
 
-  trackCoords.push(coords);
-  var trackGeo={type:'Feature',geometry:{type:'LineString',coordinates:trackCoords}};
-  if(!map.getSource('gps-track')){
-    map.addSource('gps-track',{type:'geojson',data:trackGeo});
-    map.addLayer({id:'gps-track-line',type:'line',source:'gps-track',paint:{'line-color':'#f59e0b','line-width':2.5,'line-opacity':0.65}},'gps-acc-fill');
-  } else {map.getSource('gps-track').setData(trackGeo);}
-
-  var ptGeo={type:'Feature',geometry:{type:'Point',coordinates:coords}};
-  if(!map.getSource('gps-pt')){
-    map.addSource('gps-pt',{type:'geojson',data:ptGeo});
-    map.addLayer({id:'gps-glow',type:'circle',source:'gps-pt',paint:{'circle-radius':18,'circle-color':'#0ea5e9','circle-opacity':0.12,'circle-blur':1}});
-    map.addLayer({id:'gps-outer',type:'circle',source:'gps-pt',paint:{'circle-radius':10,'circle-color':'#0c4a6e','circle-opacity':0.7}});
-    map.addLayer({id:'gps-inner',type:'circle',source:'gps-pt',paint:{'circle-radius':6,'circle-color':'#38bdf8','circle-stroke-width':2,'circle-stroke-color':'#fff'}});
-  } else {map.getSource('gps-pt').setData(ptGeo);}
-
-  if(pos.heading!=null&&!isNaN(pos.heading)){
-    var hr=pos.heading*Math.PI/180,d=0.0004;
-    var hGeo={type:'Feature',geometry:{type:'LineString',coordinates:[coords,[coords[0]+d*Math.sin(hr),coords[1]+d*Math.cos(hr)]]}};
-    if(!map.getSource('gps-heading')){
-      map.addSource('gps-heading',{type:'geojson',data:hGeo});
-      map.addLayer({id:'gps-heading-line',type:'line',source:'gps-heading',paint:{'line-color':'#f43f5e','line-width':2.5,'line-opacity':0.8}});
-    } else {map.getSource('gps-heading').setData(hGeo);}
-  }
-
-  document.getElementById('gpsCoords').innerHTML=
-    '<div>'+fmtCoord(pos.lat,pos.lng)+'</div>'+
-    '<div class="gps-meta"><span>SPD '+fmtSpeed(pos.speed)+'</span><span>HDG '+fmtHeading(pos.heading)+'</span></div>'+
-    '<div class="gps-accuracy">&plusmn;'+Math.round(pos.accuracy||0)+'m</div>';
-  if(followGPS) map.easeTo({center:coords,duration:800});
-}
-
-// ============================================================
-// Live GPS
-// ============================================================
-function toggleGPS(){
-  if(gpsMode==='live'){stopLiveGPS();return}
-  if(gpsMode==='sim') stopSimGPS();
-  if(!navigator.geolocation){showGPSError('Geolocation not supported');return}
-  gpsMode='live';followGPS=true;trackCoords=[];hideGPSError();
-  document.getElementById('btnGPS').classList.add('tracking');
-  document.getElementById('btnGPS').innerHTML=svgCross()+' GPS TRACKING';
-  document.getElementById('gpsPanel').classList.add('active');
-  document.getElementById('gpsDot').className='gps-dot-live';
-  document.getElementById('gpsLabel').textContent='GPS ACTIVE';
-  document.getElementById('btnCenter').classList.remove('hidden');
-  gpsWatchId=navigator.geolocation.watchPosition(
-    function(p){currentPos={lat:p.coords.latitude,lng:p.coords.longitude,accuracy:p.coords.accuracy,heading:p.coords.heading,speed:p.coords.speed};updateMarker(currentPos)},
-    function(err){showGPSError(err.message);stopLiveGPS()},
-    {enableHighAccuracy:true,maximumAge:3000,timeout:15000}
-  );
-}
-function stopLiveGPS(){
-  if(gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null}
-  gpsMode='off';followGPS=false;
-  document.getElementById('btnGPS').classList.remove('tracking');
-  document.getElementById('btnGPS').innerHTML=svgCross()+' START GPS';
-  document.getElementById('gpsPanel').classList.remove('active');
-  document.getElementById('btnCenter').classList.add('hidden');
-}
-
-// ============================================================
-// Sim GPS
-// ============================================================
-function toggleSimGPS(){
-  if(gpsMode==='sim'){stopSimGPS();return}
-  if(gpsMode==='live') stopLiveGPS();
-  gpsMode='sim';followGPS=true;trackCoords=[];simIndex=0;hideGPSError();
-  document.getElementById('btnSim').classList.add('sim');
-  document.getElementById('gpsPanel').classList.add('active');
-  document.getElementById('gpsDot').className='gps-dot-sim';
-  document.getElementById('gpsLabel').textContent='SIM — Freo → Rottnest';
-  document.getElementById('btnCenter').classList.remove('hidden');
-  map.flyTo({center:SIM_ROUTE[0],zoom:12,duration:1500});
-  simInterval=setInterval(function(){
-    if(simIndex>=SIM_ROUTE.length){simIndex=0;trackCoords=[]}
-    var pt=SIM_ROUTE[simIndex],heading=null,speed=null;
-    if(simIndex>0){var prev=SIM_ROUTE[simIndex-1];heading=(Math.atan2(pt[0]-prev[0],pt[1]-prev[1])*180/Math.PI+360)%360;speed=Math.min(Math.sqrt(Math.pow(pt[0]-prev[0],2)+Math.pow(pt[1]-prev[1],2))*111320/2,6);}
-    currentPos={lat:pt[1],lng:pt[0],accuracy:8+Math.random()*5,heading:heading,speed:speed};
-    updateMarker(currentPos);simIndex++;
-  },2000);
-}
-function stopSimGPS(){
-  if(simInterval){clearInterval(simInterval);simInterval=null}
-  gpsMode='off';followGPS=false;
-  document.getElementById('btnSim').classList.remove('sim');
-  document.getElementById('gpsPanel').classList.remove('active');
-  document.getElementById('btnCenter').classList.add('hidden');
-}
-function centerOnGPS(){
-  if(currentPos){map.flyTo({center:[currentPos.lng,currentPos.lat],zoom:14,duration:1200});followGPS=true;document.getElementById('btnCenter').classList.add('following')}
-}
-
-// ============================================================
 document.addEventListener('DOMContentLoaded',initMap);
 </script>
 
