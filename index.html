@@ -33,11 +33,9 @@
   .gps-error{position:absolute;top:calc(env(safe-area-inset-top,8px) + 44px);left:10px;background:rgba(127,29,29,0.85);backdrop-filter:blur(12px);border-radius:8px;padding:8px 12px;z-index:10;font-size:10px;color:#fca5a5;border:1px solid rgba(239,68,68,0.3);max-width:250px;display:none}
   .gps-error.active{display:block}
 
-  /* Basemap switcher */
   .basemap-sw{position:absolute;top:calc(env(safe-area-inset-top,8px) + 44px);right:10px;z-index:10;display:flex;flex-direction:column;gap:5px}
   .bm-btn{width:52px;height:52px;border-radius:8px;border:2px solid rgba(255,255,255,0.1);cursor:pointer;overflow:hidden;position:relative;transition:all .2s ease;box-shadow:0 2px 10px rgba(0,0,0,0.5)}
   .bm-btn.active{border-color:#38bdf8;box-shadow:0 0 0 1px #38bdf8,0 2px 10px rgba(0,0,0,0.5)}
-  .bm-btn img{width:100%;height:100%;object-fit:cover}
   .bm-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);color:#e2e8f0;font-size:7px;font-family:'JetBrains Mono',monospace;text-align:center;padding:2px 0;letter-spacing:.05em;font-weight:600;text-transform:uppercase}
 
   .bottom-controls{position:absolute;bottom:0;left:0;right:0;z-index:10;pointer-events:none;padding-bottom:env(safe-area-inset-bottom,12px)}
@@ -89,11 +87,16 @@
 </div>
 <div class="gps-error" id="gpsError"></div>
 
-<!-- Basemap switcher -->
 <div class="basemap-sw">
-  <div class="bm-btn active" id="bmOcean" onclick="setBasemap('ocean')" title="Ocean">
-    <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#0c2340,#1e5a8a);display:flex;align-items:center;justify-content:center">
+  <div class="bm-btn active" id="bmGA" onclick="setBasemap('ga-bathy')" title="GA Bathymetry">
+    <div style="width:100%;height:100%;background:linear-gradient(135deg,#0a2e4a,#0c3d6b,#1a5a8a);display:flex;align-items:center;justify-content:center">
       <span style="font-size:18px">🌊</span>
+    </div>
+    <div class="bm-label">GA Bathy</div>
+  </div>
+  <div class="bm-btn" id="bmOcean" onclick="setBasemap('ocean')" title="ESRI Ocean">
+    <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#0c2340,#1e5a8a);display:flex;align-items:center;justify-content:center">
+      <span style="font-size:18px">🗺️</span>
     </div>
     <div class="bm-label">Ocean</div>
   </div>
@@ -105,7 +108,7 @@
   </div>
   <div class="bm-btn" id="bmStreet" onclick="setBasemap('street')" title="Street">
     <div style="width:100%;height:100%;background:linear-gradient(135deg,#e8e0d0,#d4cbb8,#bfb5a0);display:flex;align-items:center;justify-content:center">
-      <span style="font-size:18px">🗺️</span>
+      <span style="font-size:18px">🏙️</span>
     </div>
     <div class="bm-label">Street</div>
   </div>
@@ -116,7 +119,6 @@
     <button class="layer-btn on" id="btnSeamarks" onclick="toggleSeamarks()">
       <span class="icon">🚩</span> Sea Marks
     </button>
-    <button class="layer-btn disabled"><span class="icon">🌊</span> Bathymetry</button>
     <button class="layer-btn disabled"><span class="icon">🌡️</span> SST</button>
     <button class="layer-btn disabled"><span class="icon">🧬</span> Chlorophyll</button>
     <button class="layer-btn disabled"><span class="icon">〰️</span> Currents</button>
@@ -138,40 +140,43 @@
 
 <script>
 // ============================================================
-// Basemap tile URLs (all free, no API key)
+// Basemap tile URLs — all free, no API key
 // ============================================================
 const BASEMAPS = {
+  'ga-bathy': {
+    tiles: ['https://services.ga.gov.au/gis/rest/services/World_Bathymetry_Base_Map/MapServer/tile/{z}/{y}/{x}'],
+    attribution: '© Commonwealth of Australia (Geoscience Australia)',
+    maxzoom: 15,
+    btnId: 'bmGA'
+  },
   ocean: {
     tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}'],
     attribution: '© Esri, GEBCO, NOAA',
-    maxzoom: 16
+    maxzoom: 16,
+    btnId: 'bmOcean'
   },
   satellite: {
     tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
     attribution: '© Esri, Maxar, Earthstar',
-    maxzoom: 19
+    maxzoom: 19,
+    btnId: 'bmSat'
   },
   street: {
     tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
     attribution: '© OpenStreetMap contributors',
-    maxzoom: 19
+    maxzoom: 19,
+    btnId: 'bmStreet'
   }
 };
 
-// Also layer: ESRI Ocean Reference (labels for ocean basemap)
-const OCEAN_LABELS = {
-  tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}'],
-  maxzoom: 16
-};
+const OCEAN_LABELS_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}';
+const SEAMARK_URL = 'https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png';
 
-const SEAMARK = {
-  tiles: ['https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png'],
-  attribution: '© OpenSeaMap',
-  maxzoom: 18
-};
+// Blank 1x1 transparent PNG for disabling tile layers
+const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
 let map;
-let currentBasemap = 'ocean';
+let currentBasemap = 'ga-bathy';
 let gpsWatchId = null;
 let gpsMode = 'off';
 let currentPos = null;
@@ -180,154 +185,227 @@ let seamarksVisible = true;
 let simInterval = null;
 let trackCoords = [];
 
-// Sim route: Fremantle → Rottnest
 const SIM_ROUTE = [
-  [115.7486,-32.0569],[115.7420,-32.0540],[115.7320,-32.0500],
-  [115.7180,-32.0440],[115.7020,-32.0380],[115.6850,-32.0310],
-  [115.6680,-32.0240],[115.6500,-32.0170],[115.6300,-32.0100],
-  [115.6100,-32.0040],[115.5900,-31.9990],[115.5700,-31.9950],
-  [115.5520,-31.9920],[115.5370,-31.9900],[115.5240,-31.9890],
-  [115.5130,-31.9880],[115.5050,-31.9875],[115.4980,-31.9870]
+  [115.7486,-32.0569],[115.7440,-32.0550],[115.7380,-32.0520],
+  [115.7300,-32.0490],[115.7200,-32.0450],[115.7080,-32.0400],
+  [115.6950,-32.0350],[115.6800,-32.0300],[115.6650,-32.0250],
+  [115.6500,-32.0200],[115.6350,-32.0150],[115.6200,-32.0100],
+  [115.6050,-32.0050],[115.5900,-32.0000],[115.5750,-31.9960],
+  [115.5600,-31.9930],[115.5450,-31.9910],[115.5300,-31.9900],
+  [115.5180,-31.9890],[115.5080,-31.9880],[115.4980,-31.9870]
 ];
 let simIndex = 0;
 
 // ============================================================
-// Coord formatting
+// Helpers
 // ============================================================
 function fmtCoord(lat,lng){
   const latD=Math.floor(Math.abs(lat)),latM=((Math.abs(lat)-latD)*60).toFixed(3);
   const lngD=Math.floor(Math.abs(lng)),lngM=((Math.abs(lng)-lngD)*60).toFixed(3);
-  return `${latD}°${latM}'${lat>=0?'N':'S'}  ${lngD}°${lngM}'${lng>=0?'E':'W'}`;
+  return latD+'°'+latM+"'"+((lat>=0)?'N':'S')+'  '+lngD+'°'+lngM+"'"+((lng>=0)?'E':'W');
 }
-function fmtSpeed(ms){return ms==null||isNaN(ms)?'—':(ms*1.94384).toFixed(1)+' kn'}
-function fmtHeading(d){return d==null||isNaN(d)?'—':Math.round(d)+'°'}
+function fmtSpeed(ms){return(ms==null||isNaN(ms))?'—':(ms*1.94384).toFixed(1)+' kn'}
+function fmtHeading(d){return(d==null||isNaN(d))?'—':Math.round(d)+'°'}
+function svgCross(){return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>'}
+function showGPSError(m){var e=document.getElementById('gpsError');e.textContent='GPS: '+m;e.classList.add('active')}
+function hideGPSError(){document.getElementById('gpsError').classList.remove('active')}
 
 // ============================================================
-// Map init
+// Map init — GA Bathymetry as default
 // ============================================================
 function initMap(){
-  const bm = BASEMAPS.ocean;
-  map = new maplibregl.Map({
-    container:'map',
-    style:{
-      version:8,
-      sources:{
-        'basemap':{type:'raster',tiles:bm.tiles,tileSize:256,attribution:bm.attribution,maxzoom:bm.maxzoom},
-        'ocean-labels':{type:'raster',tiles:OCEAN_LABELS.tiles,tileSize:256,maxzoom:OCEAN_LABELS.maxzoom},
-        'seamark':{type:'raster',tiles:SEAMARK.tiles,tileSize:256,attribution:SEAMARK.attribution,maxzoom:SEAMARK.maxzoom}
-      },
-      layers:[
-        {id:'basemap-layer',type:'raster',source:'basemap'},
-        {id:'ocean-labels-layer',type:'raster',source:'ocean-labels',paint:{'raster-opacity':0.9}},
-        {id:'seamark-layer',type:'raster',source:'seamark',paint:{'raster-opacity':0.85}}
-      ],
-      glyphs:'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf'
-    },
-    center:[115.75,-31.97],
-    zoom:11,
-    maxZoom:18,
-    minZoom:3,
-    attributionControl:true
-  });
-  map.addControl(new maplibregl.NavigationControl({showCompass:true}),'top-right');
-  map.addControl(new maplibregl.ScaleControl({maxWidth:140,unit:'nautical'}),'bottom-left');
+  var bm = BASEMAPS['ga-bathy'];
 
-  map.on('mousemove',e=>{document.getElementById('cursorCoord').textContent=fmtCoord(e.lngLat.lat,e.lngLat.lng)});
-  map.on('moveend',()=>{const c=map.getCenter();document.getElementById('cursorCoord').textContent=fmtCoord(c.lat,c.lng)});
-  map.on('dragstart',()=>{followGPS=false;document.getElementById('btnCenter').classList.remove('following')});
+  map = new maplibregl.Map({
+    container: 'map',
+    style: {
+      version: 8,
+      sources: {
+        'basemap': {
+          type: 'raster',
+          tiles: bm.tiles,
+          tileSize: 256,
+          attribution: bm.attribution,
+          maxzoom: bm.maxzoom
+        },
+        'ocean-labels': {
+          type: 'raster',
+          tiles: [OCEAN_LABELS_URL],
+          tileSize: 256,
+          maxzoom: 16
+        },
+        'seamark': {
+          type: 'raster',
+          tiles: [SEAMARK_URL],
+          tileSize: 256,
+          attribution: '© OpenSeaMap',
+          maxzoom: 18
+        }
+      },
+      layers: [
+        {id:'basemap-layer', type:'raster', source:'basemap'},
+        {id:'ocean-labels-layer', type:'raster', source:'ocean-labels', paint:{'raster-opacity':0}},
+        {id:'seamark-layer', type:'raster', source:'seamark', paint:{'raster-opacity':0.85}}
+      ],
+      glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf'
+    },
+    center: [115.75, -31.97],
+    zoom: 10,
+    maxZoom: 18,
+    minZoom: 3,
+    attributionControl: true
+  });
+
+  map.addControl(new maplibregl.NavigationControl({showCompass:true}), 'top-right');
+  map.addControl(new maplibregl.ScaleControl({maxWidth:140, unit:'nautical'}), 'bottom-left');
+
+  map.on('mousemove', function(e){
+    document.getElementById('cursorCoord').textContent = fmtCoord(e.lngLat.lat, e.lngLat.lng);
+  });
+  map.on('moveend', function(){
+    var c = map.getCenter();
+    document.getElementById('cursorCoord').textContent = fmtCoord(c.lat, c.lng);
+  });
+  map.on('dragstart', function(){
+    followGPS = false;
+    document.getElementById('btnCenter').classList.remove('following');
+  });
 }
 
 // ============================================================
 // Basemap switcher
 // ============================================================
 function setBasemap(name){
-  if(name===currentBasemap)return;
-  currentBasemap=name;
-  const bm=BASEMAPS[name];
+  if(name === currentBasemap) return;
+  currentBasemap = name;
+  var bm = BASEMAPS[name];
 
-  // Update basemap source
-  const src=map.getSource('basemap');
-  // MapLibre doesn't support changing tiles directly, so remove and re-add
-  map.removeLayer('seamark-layer');
-  map.removeLayer('ocean-labels-layer');
-  map.removeLayer('basemap-layer');
-  map.removeSource('basemap');
-  map.removeSource('ocean-labels');
-
-  map.addSource('basemap',{type:'raster',tiles:bm.tiles,tileSize:256,attribution:bm.attribution,maxzoom:bm.maxzoom});
-
-  // Re-add ocean labels only for ocean basemap
-  if(name==='ocean'){
-    map.addSource('ocean-labels',{type:'raster',tiles:OCEAN_LABELS.tiles,tileSize:256,maxzoom:OCEAN_LABELS.maxzoom});
-  } else {
-    map.addSource('ocean-labels',{type:'raster',tiles:['data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='],tileSize:256,maxzoom:1});
+  // Collect existing GPS layer IDs so we can re-add overlays beneath them
+  var gpsLayers = ['gps-track-line','gps-acc-fill','gps-acc-line','gps-glow','gps-outer','gps-inner','gps-heading-line'];
+  var firstGPS = null;
+  for(var i=0;i<gpsLayers.length;i++){
+    if(map.getLayer(gpsLayers[i])){ firstGPS=gpsLayers[i]; break; }
   }
 
-  // Find first GPS layer to insert basemap before it
-  const firstGPSLayer = ['gps-track-line','gps-acc-fill','gps-acc-line','gps-glow','gps-outer','gps-inner','gps-heading-line']
-    .find(id=>map.getLayer(id));
+  // Remove overlay layers
+  if(map.getLayer('seamark-layer')) map.removeLayer('seamark-layer');
+  if(map.getLayer('ocean-labels-layer')) map.removeLayer('ocean-labels-layer');
+  if(map.getLayer('basemap-layer')) map.removeLayer('basemap-layer');
 
-  map.addLayer({id:'basemap-layer',type:'raster',source:'basemap'},firstGPSLayer||undefined);
-  map.addLayer({id:'ocean-labels-layer',type:'raster',source:'ocean-labels',paint:{'raster-opacity':name==='ocean'?0.9:0}},firstGPSLayer||undefined);
-  map.addLayer({id:'seamark-layer',type:'raster',source:'seamark',paint:{'raster-opacity':seamarksVisible?0.85:0}},firstGPSLayer||undefined);
+  // Remove sources
+  if(map.getSource('basemap')) map.removeSource('basemap');
+  if(map.getSource('ocean-labels')) map.removeSource('ocean-labels');
 
-  // Update button states
-  document.querySelectorAll('.bm-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById(name==='ocean'?'bmOcean':name==='satellite'?'bmSat':'bmStreet').classList.add('active');
+  // Add new basemap source
+  map.addSource('basemap', {
+    type:'raster', tiles:bm.tiles, tileSize:256,
+    attribution:bm.attribution, maxzoom:bm.maxzoom
+  });
+
+  // Ocean labels only useful on ESRI Ocean basemap
+  var showLabels = (name === 'ocean');
+  map.addSource('ocean-labels', {
+    type:'raster',
+    tiles: showLabels ? [OCEAN_LABELS_URL] : [BLANK],
+    tileSize:256, maxzoom:16
+  });
+
+  // Re-add layers in order, before any GPS layers
+  map.addLayer({id:'basemap-layer', type:'raster', source:'basemap'}, firstGPS||undefined);
+  map.addLayer({id:'ocean-labels-layer', type:'raster', source:'ocean-labels',
+    paint:{'raster-opacity': showLabels ? 0.9 : 0}}, firstGPS||undefined);
+  map.addLayer({id:'seamark-layer', type:'raster', source:'seamark',
+    paint:{'raster-opacity': seamarksVisible ? 0.85 : 0},
+    layout:{'visibility': seamarksVisible ? 'visible' : 'none'}}, firstGPS||undefined);
+
+  // Update button highlights
+  document.querySelectorAll('.bm-btn').forEach(function(b){b.classList.remove('active')});
+  document.getElementById(bm.btnId).classList.add('active');
+}
+
+// ============================================================
+// Layer toggles
+// ============================================================
+function toggleSeamarks(){
+  seamarksVisible = !seamarksVisible;
+  if(map.getLayer('seamark-layer')){
+    map.setLayoutProperty('seamark-layer','visibility', seamarksVisible?'visible':'none');
+  }
+  document.getElementById('btnSeamarks').classList.toggle('on', seamarksVisible);
 }
 
 // ============================================================
 // GPS marker + track
 // ============================================================
-function makeCircle(center,radiusM,pts){
-  pts=pts||48;const coords=[];const km=radiusM/1000;
-  for(let i=0;i<=pts;i++){
-    const a=(i/pts)*2*Math.PI;
-    coords.push([center[0]+(km*Math.cos(a))/(111.32*Math.cos(center[1]*Math.PI/180)),center[1]+(km*Math.sin(a))/111.32]);
+function makeCircle(center, radiusM){
+  var pts=48, coords=[], km=radiusM/1000;
+  for(var i=0;i<=pts;i++){
+    var a=(i/pts)*2*Math.PI;
+    coords.push([
+      center[0]+(km*Math.cos(a))/(111.32*Math.cos(center[1]*Math.PI/180)),
+      center[1]+(km*Math.sin(a))/111.32
+    ]);
   }
-  return{type:'Feature',geometry:{type:'Polygon',coordinates:[coords]}};
+  return {type:'Feature', geometry:{type:'Polygon', coordinates:[coords]}};
 }
 
 function updateMarker(pos){
-  const coords=[pos.lng,pos.lat];
-  const accGeo=makeCircle(coords,pos.accuracy||20);
+  var coords = [pos.lng, pos.lat];
+  var accGeo = makeCircle(coords, pos.accuracy||20);
 
   if(!map.getSource('gps-acc')){
     map.addSource('gps-acc',{type:'geojson',data:accGeo});
     map.addLayer({id:'gps-acc-fill',type:'fill',source:'gps-acc',paint:{'fill-color':'#0ea5e9','fill-opacity':0.07}});
     map.addLayer({id:'gps-acc-line',type:'line',source:'gps-acc',paint:{'line-color':'#0ea5e9','line-width':1,'line-opacity':0.25}});
-  } else { map.getSource('gps-acc').setData(accGeo); }
-
-  trackCoords.push(coords);
-  const trackGeo={type:'Feature',geometry:{type:'LineString',coordinates:trackCoords}};
-  if(!map.getSource('gps-track')){
-    map.addSource('gps-track',{type:'geojson',data:trackGeo});
-    map.addLayer({id:'gps-track-line',type:'line',source:'gps-track',paint:{'line-color':'#f59e0b','line-width':2.5,'line-opacity':0.65}},'gps-acc-fill');
-  } else { map.getSource('gps-track').setData(trackGeo); }
-
-  const ptGeo={type:'Feature',geometry:{type:'Point',coordinates:coords}};
-  if(!map.getSource('gps-pt')){
-    map.addSource('gps-pt',{type:'geojson',data:ptGeo});
-    map.addLayer({id:'gps-glow',type:'circle',source:'gps-pt',paint:{'circle-radius':18,'circle-color':'#0ea5e9','circle-opacity':0.12,'circle-blur':1}});
-    map.addLayer({id:'gps-outer',type:'circle',source:'gps-pt',paint:{'circle-radius':10,'circle-color':'#0c4a6e','circle-opacity':0.7}});
-    map.addLayer({id:'gps-inner',type:'circle',source:'gps-pt',paint:{'circle-radius':6,'circle-color':'#38bdf8','circle-stroke-width':2,'circle-stroke-color':'#fff'}});
-  } else { map.getSource('gps-pt').setData(ptGeo); }
-
-  if(pos.heading!=null&&!isNaN(pos.heading)){
-    const hr=pos.heading*Math.PI/180,d=0.0004;
-    const hGeo={type:'Feature',geometry:{type:'LineString',coordinates:[coords,[coords[0]+d*Math.sin(hr),coords[1]+d*Math.cos(hr)]]}};
-    if(!map.getSource('gps-heading')){
-      map.addSource('gps-heading',{type:'geojson',data:hGeo});
-      map.addLayer({id:'gps-heading-line',type:'line',source:'gps-heading',paint:{'line-color':'#f43f5e','line-width':2.5,'line-opacity':0.8}});
-    } else { map.getSource('gps-heading').setData(hGeo); }
+  } else {
+    map.getSource('gps-acc').setData(accGeo);
   }
 
-  document.getElementById('gpsCoords').innerHTML=
-    `<div>${fmtCoord(pos.lat,pos.lng)}</div>`+
-    `<div class="gps-meta"><span>SPD ${fmtSpeed(pos.speed)}</span><span>HDG ${fmtHeading(pos.heading)}</span></div>`+
-    `<div class="gps-accuracy">±${Math.round(pos.accuracy||0)}m</div>`;
+  trackCoords.push(coords);
+  var trackGeo = {type:'Feature', geometry:{type:'LineString', coordinates:trackCoords}};
+  if(!map.getSource('gps-track')){
+    map.addSource('gps-track',{type:'geojson',data:trackGeo});
+    map.addLayer({id:'gps-track-line',type:'line',source:'gps-track',
+      paint:{'line-color':'#f59e0b','line-width':2.5,'line-opacity':0.65}},'gps-acc-fill');
+  } else {
+    map.getSource('gps-track').setData(trackGeo);
+  }
 
-  if(followGPS) map.easeTo({center:coords,duration:800});
+  var ptGeo = {type:'Feature', geometry:{type:'Point', coordinates:coords}};
+  if(!map.getSource('gps-pt')){
+    map.addSource('gps-pt',{type:'geojson',data:ptGeo});
+    map.addLayer({id:'gps-glow',type:'circle',source:'gps-pt',
+      paint:{'circle-radius':18,'circle-color':'#0ea5e9','circle-opacity':0.12,'circle-blur':1}});
+    map.addLayer({id:'gps-outer',type:'circle',source:'gps-pt',
+      paint:{'circle-radius':10,'circle-color':'#0c4a6e','circle-opacity':0.7}});
+    map.addLayer({id:'gps-inner',type:'circle',source:'gps-pt',
+      paint:{'circle-radius':6,'circle-color':'#38bdf8','circle-stroke-width':2,'circle-stroke-color':'#fff'}});
+  } else {
+    map.getSource('gps-pt').setData(ptGeo);
+  }
+
+  // Heading line
+  if(pos.heading!=null && !isNaN(pos.heading)){
+    var hr=pos.heading*Math.PI/180, d=0.0004;
+    var hGeo={type:'Feature', geometry:{type:'LineString', coordinates:[
+      coords,[coords[0]+d*Math.sin(hr), coords[1]+d*Math.cos(hr)]
+    ]}};
+    if(!map.getSource('gps-heading')){
+      map.addSource('gps-heading',{type:'geojson',data:hGeo});
+      map.addLayer({id:'gps-heading-line',type:'line',source:'gps-heading',
+        paint:{'line-color':'#f43f5e','line-width':2.5,'line-opacity':0.8}});
+    } else {
+      map.getSource('gps-heading').setData(hGeo);
+    }
+  }
+
+  // Update info panel
+  document.getElementById('gpsCoords').innerHTML =
+    '<div>'+fmtCoord(pos.lat,pos.lng)+'</div>'+
+    '<div class="gps-meta"><span>SPD '+fmtSpeed(pos.speed)+'</span><span>HDG '+fmtHeading(pos.heading)+'</span></div>'+
+    '<div class="gps-accuracy">&plusmn;'+Math.round(pos.accuracy||0)+'m</div>';
+
+  if(followGPS) map.easeTo({center:coords, duration:800});
 }
 
 // ============================================================
@@ -335,28 +413,33 @@ function updateMarker(pos){
 // ============================================================
 function toggleGPS(){
   if(gpsMode==='live'){stopLiveGPS();return}
-  if(gpsMode==='sim')stopSimGPS();
+  if(gpsMode==='sim') stopSimGPS();
   if(!navigator.geolocation){showGPSError('Geolocation not supported');return}
-  gpsMode='live';followGPS=true;trackCoords=[];hideGPSError();
+
+  gpsMode='live'; followGPS=true; trackCoords=[]; hideGPSError();
   document.getElementById('btnGPS').classList.add('tracking');
-  document.getElementById('btnGPS').innerHTML=svgCross()+' GPS TRACKING';
+  document.getElementById('btnGPS').innerHTML = svgCross()+' GPS TRACKING';
   document.getElementById('gpsPanel').classList.add('active');
   document.getElementById('gpsDot').className='gps-dot-live';
   document.getElementById('gpsLabel').textContent='GPS ACTIVE';
   document.getElementById('btnCenter').classList.remove('hidden');
 
-  gpsWatchId=navigator.geolocation.watchPosition(
-    p=>{currentPos={lat:p.coords.latitude,lng:p.coords.longitude,accuracy:p.coords.accuracy,heading:p.coords.heading,speed:p.coords.speed};updateMarker(currentPos)},
-    err=>{showGPSError(err.message);stopLiveGPS()},
-    {enableHighAccuracy:true,maximumAge:3000,timeout:15000}
+  gpsWatchId = navigator.geolocation.watchPosition(
+    function(p){
+      currentPos={lat:p.coords.latitude, lng:p.coords.longitude,
+        accuracy:p.coords.accuracy, heading:p.coords.heading, speed:p.coords.speed};
+      updateMarker(currentPos);
+    },
+    function(err){showGPSError(err.message);stopLiveGPS()},
+    {enableHighAccuracy:true, maximumAge:3000, timeout:15000}
   );
 }
 
 function stopLiveGPS(){
   if(gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null}
-  gpsMode='off';followGPS=false;
+  gpsMode='off'; followGPS=false;
   document.getElementById('btnGPS').classList.remove('tracking');
-  document.getElementById('btnGPS').innerHTML=svgCross()+' START GPS';
+  document.getElementById('btnGPS').innerHTML = svgCross()+' START GPS';
   document.getElementById('gpsPanel').classList.remove('active');
   document.getElementById('btnCenter').classList.add('hidden');
 }
@@ -366,56 +449,51 @@ function stopLiveGPS(){
 // ============================================================
 function toggleSimGPS(){
   if(gpsMode==='sim'){stopSimGPS();return}
-  if(gpsMode==='live')stopLiveGPS();
-  gpsMode='sim';followGPS=true;trackCoords=[];simIndex=0;hideGPSError();
+  if(gpsMode==='live') stopLiveGPS();
+
+  gpsMode='sim'; followGPS=true; trackCoords=[]; simIndex=0; hideGPSError();
   document.getElementById('btnSim').classList.add('sim');
   document.getElementById('gpsPanel').classList.add('active');
   document.getElementById('gpsDot').className='gps-dot-sim';
   document.getElementById('gpsLabel').textContent='SIM — Freo → Rottnest';
   document.getElementById('btnCenter').classList.remove('hidden');
-  map.flyTo({center:SIM_ROUTE[0],zoom:12,duration:1500});
+  map.flyTo({center:SIM_ROUTE[0], zoom:12, duration:1500});
 
-  simInterval=setInterval(()=>{
+  simInterval = setInterval(function(){
     if(simIndex>=SIM_ROUTE.length){simIndex=0;trackCoords=[]}
-    const pt=SIM_ROUTE[simIndex];
-    let heading=null,speed=null;
+    var pt=SIM_ROUTE[simIndex];
+    var heading=null, speed=null;
     if(simIndex>0){
-      const prev=SIM_ROUTE[simIndex-1];
+      var prev=SIM_ROUTE[simIndex-1];
       heading=(Math.atan2(pt[0]-prev[0],pt[1]-prev[1])*180/Math.PI+360)%360;
-      speed=Math.min(Math.sqrt((pt[0]-prev[0])**2+(pt[1]-prev[1])**2)*111320/2,6);
+      speed=Math.min(Math.sqrt(Math.pow(pt[0]-prev[0],2)+Math.pow(pt[1]-prev[1],2))*111320/2, 6);
     }
-    currentPos={lat:pt[1],lng:pt[0],accuracy:8+Math.random()*5,heading,speed};
+    currentPos={lat:pt[1],lng:pt[0],accuracy:8+Math.random()*5,heading:heading,speed:speed};
     updateMarker(currentPos);
     simIndex++;
-  },2000);
+  }, 2000);
 }
 
 function stopSimGPS(){
   if(simInterval){clearInterval(simInterval);simInterval=null}
-  gpsMode='off';followGPS=false;
+  gpsMode='off'; followGPS=false;
   document.getElementById('btnSim').classList.remove('sim');
   document.getElementById('gpsPanel').classList.remove('active');
   document.getElementById('btnCenter').classList.add('hidden');
 }
 
-// ============================================================
-// Helpers
-// ============================================================
-function toggleSeamarks(){
-  seamarksVisible=!seamarksVisible;
-  map.setLayoutProperty('seamark-layer','visibility',seamarksVisible?'visible':'none');
-  document.getElementById('btnSeamarks').classList.toggle('on',seamarksVisible);
-}
-
 function centerOnGPS(){
-  if(currentPos){map.flyTo({center:[currentPos.lng,currentPos.lat],zoom:14,duration:1200});followGPS=true;document.getElementById('btnCenter').classList.add('following')}
+  if(currentPos){
+    map.flyTo({center:[currentPos.lng,currentPos.lat], zoom:14, duration:1200});
+    followGPS=true;
+    document.getElementById('btnCenter').classList.add('following');
+  }
 }
 
-function showGPSError(m){const e=document.getElementById('gpsError');e.textContent='GPS: '+m;e.classList.add('active')}
-function hideGPSError(){document.getElementById('gpsError').classList.remove('active')}
-function svgCross(){return'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>'}
-
-document.addEventListener('DOMContentLoaded',initMap);
+// ============================================================
+// Init
+// ============================================================
+document.addEventListener('DOMContentLoaded', initMap);
 </script>
 </body>
 </html>
