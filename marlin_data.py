@@ -455,9 +455,10 @@ def process_water_clarity(kd490_file):
 #   → traps warm water, marlin congregate on leading edge
 # Negative SLA = cold-core cyclonic eddy → upwelling, bait but cold
 SLA_LEVELS = [
-    (-0.15, "cold_eddy",  "#60a5fa"),   # blue — cold eddy
-    ( 0.00, "neutral",    "#e2e8f0"),   # white — mean sea level
-    ( 0.15, "warm_eddy",  "#f97316"),   # orange — warm eddy edge
+    (-0.01, "cold_eddy",  "#60a5fa"),   # blue — slight cold anomaly
+    ( 0.03, "neutral",    "#94a3b8"),   # gray — eddy boundary
+    ( 0.07, "warm_eddy",  "#fb923c"),   # orange — warm eddy
+    ( 0.11, "warm_core",  "#ef4444"),   # red — warm eddy core
 ]
 
 def process_ssh(ssh_file):
