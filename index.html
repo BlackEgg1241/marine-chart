@@ -97,9 +97,11 @@
 .maplibregl-ctrl-group button:hover{background:rgba(56,189,248,.1)!important}
 .maplibregl-ctrl button .maplibregl-ctrl-icon{filter:invert(.65)!important}
 .maplibregl-ctrl-scale{background:rgba(2,6,23,.5)!important;color:#94a3b8!important;border-color:#475569!important;font-family:‘JetBrains Mono’,monospace!important;font-size:9px!important;border-radius:3px!important;padding:1px 5px!important;border-width:1px!important;border-top:none!important}
-.maplibregl-popup-content{background:rgba(2,6,23,.92)!important;color:#e2e8f0!important;font-family:‘JetBrains Mono’,monospace!important;font-size:11px!important;border-radius:8px!important;padding:8px 12px!important;border:1px solid rgba(251,146,60,.2)!important;box-shadow:0 4px 20px rgba(0,0,0,.5)!important}
+.maplibregl-popup-content{background:rgba(2,6,23,.92)!important;color:#e2e8f0!important;font-family:’JetBrains Mono’,monospace!important;font-size:11px!important;border-radius:8px!important;padding:8px 12px!important;border:1px solid rgba(251,146,60,.2)!important;box-shadow:0 4px 20px rgba(0,0,0,.5)!important}
 .maplibregl-popup-tip{border-top-color:rgba(2,6,23,.92)!important}
 .maplibregl-popup-close-button{color:#94a3b8!important;font-size:16px!important}
+.hp-title{font-weight:700;color:#fbbf24;font-size:11px;margin-bottom:2px}
+.hp-sub{font-size:9px;color:#94a3b8;line-height:1.4}
 </style>
 
 </head>
@@ -283,8 +285,35 @@ function initMap(){
   map.on('click','spot-dot',function(e){var f=e.features[0];new maplibregl.Popup({offset:12}).setLngLat(f.geometry.coordinates).setHTML('<div style="font-weight:700;color:#fb923c;margin-bottom:3px">'+f.properties.name+'</div><div style="font-size:10px;color:#94a3b8;line-height:1.4">'+f.properties.desc+'</div>').addTo(map)});
   map.on('mouseenter','spot-dot',function(){map.getCanvas().style.cursor='pointer'});
   map.on('mouseleave','spot-dot',function(){map.getCanvas().style.cursor=''});
+  // Hover labels for all analytical line layers
+  var hPop=new maplibregl.Popup({closeButton:false,closeOnClick:false,offset:12,maxWidth:'240px'});
+  var hInfo={
+    'sst-front-line':function(p){return '<div class="hp-title">SST Front</div><div class="hp-sub">Sharp temperature gradient — prey aggregation zone</div>'},
+    'isotherm-blue':function(p){return '<div class="hp-title">'+p.temperature+'\u00b0C Isotherm</div><div class="hp-sub">Blue Marlin preferred temperature boundary</div>'},
+    'isotherm-striped':function(p){return '<div class="hp-title">'+p.temperature+'\u00b0C Isotherm</div><div class="hp-sub">Striped Marlin preferred temperature boundary</div>'},
+    'bathy-200':function(p){return '<div class="hp-title">200m Depth Contour</div><div class="hp-sub">Continental shelf edge — prime bait aggregation zone</div>'},
+    'bathy-500':function(p){return '<div class="hp-title">500m Depth Contour</div>'},
+    'bathy-1000':function(p){return '<div class="hp-title">1000m Depth Contour</div>'},
+    'chl-edge-line':function(p){return '<div class="hp-title">Chlorophyll Edge</div><div class="hp-sub">'+(p.concentration||'')+' mg/m\u00b3 — bait fish boundary</div>'},
+    'current-line':function(p){return '<div class="hp-title">Surface Current</div><div class="hp-sub">Ocean current vector</div>'},
+    'ssh-cold':function(p){return '<div class="hp-title">Cold-core Eddy</div><div class="hp-sub">Upwelling, cyclonic — avoid for marlin</div>'},
+    'ssh-neutral':function(p){return '<div class="hp-title">Neutral Zone</div><div class="hp-sub">Low sea level anomaly</div>'},
+    'ssh-warm':function(p){return '<div class="hp-title">Warm Eddy</div><div class="hp-sub">Leeuwin Current eddy — marlin habitat</div>'},
+    'ssh-warm-core':function(p){return '<div class="hp-title">Warm Core Eddy</div><div class="hp-sub">Strong anticyclonic — prime marlin zone</div>'},
+    'clarity-clean':function(p){return '<div class="hp-title">Clean Water</div><div class="hp-sub">Low turbidity — good fishing visibility</div>'},
+    'clarity-turbid':function(p){return '<div class="hp-title">Turbid Water</div><div class="hp-sub">High turbidity — reduced visibility</div>'},
+    'clarity-bloom':function(p){return '<div class="hp-title">Trichodesmium Bloom</div><div class="hp-sub">Very poor water clarity — avoid</div>'}
+  };
+  Object.keys(hInfo).forEach(function(lid){
+    map.on('mousemove',lid,function(e){
+      if(!e.features||!e.features.length)return;
+      map.getCanvas().style.cursor='crosshair';
+      hPop.setLngLat(e.lngLat).setHTML(hInfo[lid](e.features[0].properties)).addTo(map);
+    });
+    map.on('mouseleave',lid,function(){map.getCanvas().style.cursor='';hPop.remove()});
+  });
   document.getElementById('dateInput').value=cDate;
-  loadDatedGeoJSON();
+  map.once('load',function(){loadDatedGeoJSON()});
 }
 
 function loadDatedGeoJSON(){

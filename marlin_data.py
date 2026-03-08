@@ -45,7 +45,8 @@ MARLIN_TEMPS = {
 }
 
 # SST gradient threshold for front detection (°C per ~10km)
-SST_GRADIENT_THRESHOLD = 0.3
+# Higher value = fewer but more significant fronts (less noise)
+SST_GRADIENT_THRESHOLD = 0.5
 
 # Chlorophyll gradient threshold for edge detection (log scale)
 CHL_GRADIENT_THRESHOLD = 0.4
@@ -267,10 +268,11 @@ def detect_sst_fronts(sst_file, threshold=SST_GRADIENT_THRESHOLD):
     coast_buffer = binary_dilation(mask, iterations=2)
     grad_mag[coast_buffer] = 0
 
-    # Extract contours at the threshold level
+    # Extract contours at the threshold level — require >=8 pts to filter noise stubs
     features = _contours_to_geojson(
         grad_mag, lons, lats, threshold,
-        properties={"type": "sst_front", "threshold": threshold}
+        properties={"type": "sst_front", "threshold": threshold},
+        min_pts=8
     )
 
     # Extract isotherms at all marlin-relevant temperatures (deduplicated)
@@ -726,8 +728,9 @@ def fetch_bathymetry_gmrt(bbox, depths=[-200, -500, -1000]):
 # ---------------------------------------------------------------------------
 # Contour extraction helper (from numpy array to GeoJSON)
 # ---------------------------------------------------------------------------
-def _contours_to_geojson(grid, lons, lats, level, properties=None):
-    """Convert a 2D grid to GeoJSON contour lines at a given level."""
+def _contours_to_geojson(grid, lons, lats, level, properties=None, min_pts=2):
+    """Convert a 2D grid to GeoJSON contour lines at a given level.
+    min_pts: minimum number of coordinate points to keep a segment (filters noise)."""
     try:
         import matplotlib
         matplotlib.use("Agg")
@@ -741,7 +744,7 @@ def _contours_to_geojson(grid, lons, lats, level, properties=None):
         features = []
         for seg_list in cs.allsegs:       # one entry per level (we only have one)
             for seg in seg_list:           # each connected segment
-                if len(seg) >= 2:
+                if len(seg) >= min_pts:
                     features.append({
                         "type": "Feature",
                         "geometry": {
