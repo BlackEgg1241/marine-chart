@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+venv/
+.venv/
+
+# Data files (large, generated)
+data/*.nc
+data/*.tif
+*.nc
+*.tif
+
+# Keep generated GeoJSON (small, needed by web app)
+# !data/*.geojson
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,8 @@
+copernicusmarine>=2.0.0
+xarray
+numpy
+scipy
+netCDF4
+matplotlib
+rasterio
+geojson
