@@ -1051,8 +1051,9 @@ def build_deep_water_mask(tif_path, depth_threshold=-100):
         plt.close(fig)
 
         polys = []
-        for col in cf.collections:
-            for path in col.get_paths():
+        # matplotlib 3.8+ removed cf.collections; use cf.get_paths() directly
+        all_paths = cf.get_paths() if hasattr(cf, 'get_paths') else [p for col in cf.collections for p in col.get_paths()]
+        for path in all_paths:
                 verts, codes = path.vertices, path.codes
                 parts, cur = [], []
                 for v, c in zip(verts, codes if codes is not None else [MplPath.LINETO]*len(verts)):
