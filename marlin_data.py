@@ -134,6 +134,50 @@ def fetch_copernicus_chlorophyll(date_str, bbox):
     return output_file
 
 
+def fetch_copernicus_kd490(date_str, bbox):
+    """
+    Download KD490 (diffuse attenuation at 490nm) from Copernicus Marine.
+    KD490 is a water clarity indicator:
+      < 0.06 m⁻¹ = very clear, clean blue water  (no trichodesmium/turbidity)
+      0.06–0.10   = moderately clear
+      > 0.10 m⁻¹  = turbid / likely bloom-affected
+    Dataset: cmems_obs-oc_glo_bgc-transp_nrt_l4-gapfree-multi-4km_P1D
+    Note: satellite ocean colour products have a ~2-3 day latency, so we
+    step back through the last 5 days until a valid day is found.
+    """
+    import copernicusmarine
+    from datetime import datetime, timedelta
+
+    output_file = os.path.join(OUTPUT_DIR, "kd490_raw.nc")
+    base_dt = datetime.strptime(date_str, "%Y-%m-%d")
+
+    for delta in range(0, 6):
+        try_date = (base_dt - timedelta(days=delta)).strftime("%Y-%m-%d")
+        print(f"[Water Clarity] Fetching KD490 for {try_date}...")
+        try:
+            copernicusmarine.subset(
+                dataset_id="cmems_obs-oc_glo_bgc-transp_nrt_l4-gapfree-multi-4km_P1D",
+                variables=["KD490"],
+                minimum_longitude=bbox["lon_min"],
+                maximum_longitude=bbox["lon_max"],
+                minimum_latitude=bbox["lat_min"],
+                maximum_latitude=bbox["lat_max"],
+                start_datetime=f"{try_date}T00:00:00",
+                end_datetime=f"{try_date}T23:59:59",
+                output_filename=output_file,
+                output_directory=".",
+                overwrite=True,
+            )
+            print(f"[Water Clarity] Saved to {output_file} (data date: {try_date})")
+            return output_file
+        except Exception as e:
+            if delta < 5:
+                print(f"[Water Clarity] {try_date} not available, trying earlier...")
+            else:
+                raise
+    return None
+
+
 # ---------------------------------------------------------------------------
 # 2. SST Front Detection
 # ---------------------------------------------------------------------------
@@ -176,8 +220,12 @@ def detect_sst_fronts(sst_file, threshold=SST_GRADIENT_THRESHOLD):
     grad_y = sobel(data_smooth, axis=0)
     grad_mag = np.sqrt(grad_x**2 + grad_y**2)
 
-    # Mask out land
-    grad_mag[mask] = 0
+    # Mask out land AND a 2-pixel coastal buffer.
+    # Even with ocean_mean fill, the boundary pixels still carry a residual
+    # gradient artefact.  Dilating the land mask by 2 cells removes it.
+    from scipy.ndimage import binary_dilation
+    coast_buffer = binary_dilation(mask, iterations=2)
+    grad_mag[coast_buffer] = 0
 
     # Extract contours at the threshold level
     features = _contours_to_geojson(
@@ -294,6 +342,68 @@ def detect_chlorophyll_edges(chl_file, threshold=CHL_GRADIENT_THRESHOLD):
         json.dump(geojson, f)
 
     print(f"[Chlorophyll] {len(all_features)} contours at {[l[0] for l in CHL_LEVELS]} mg/m³ → {output_path}")
+    return output_path
+
+
+# ---------------------------------------------------------------------------
+# 3b. Water Clarity (KD490)
+# ---------------------------------------------------------------------------
+# Kd490 contour levels (m⁻¹): boundary between clean and turbid water
+# < 0.06 = clear blue offshore water  (avoid trichodesmium)
+# 0.06   = "clean water line" — the most useful boundary for anglers
+# 0.10   = noticeably turbid
+# > 0.15 = bloom/trichodesmium likely
+KD490_LEVELS = [
+    (0.06, "clean",   "#38bdf8"),   # sky blue — clear water boundary
+    (0.10, "turbid",  "#fb923c"),   # orange — murky water starts here
+    (0.15, "bloom",   "#dc2626"),   # red — likely bloom/trichodesmium
+]
+
+def process_water_clarity(kd490_file):
+    """
+    Extract KD490 contour lines to show clean vs bloom-affected water.
+    Anglers want to stay in water below the 0.06 m⁻¹ contour (clear side).
+    """
+    import xarray as xr
+    from scipy.ndimage import gaussian_filter
+
+    print("[Water Clarity] Processing KD490 contours...")
+    ds = xr.open_dataset(kd490_file)
+    kd = ds["KD490"].squeeze()
+
+    lons = kd.longitude.values if "longitude" in kd.dims else kd.lon.values
+    lats = kd.latitude.values if "latitude" in kd.dims else kd.lat.values
+    data = kd.values.copy().astype(float)
+
+    mask = np.isnan(data) | (data <= 0)
+    data[mask] = 0.0
+    data_smooth = gaussian_filter(data, sigma=0.5)
+    data_smooth[mask] = 0.0
+
+    data_max = float(np.nanmax(data_smooth))
+    all_features = []
+
+    for level, label, color in KD490_LEVELS:
+        if level > data_max:
+            continue
+        feats = _contours_to_geojson(
+            data_smooth, lons, lats, level,
+            properties={
+                "type": "kd490_contour",
+                "kd490": level,
+                "label": label,
+                "color": color,
+            }
+        )
+        feats = [f for f in feats if len(f["geometry"]["coordinates"]) >= 3]
+        all_features.extend(feats)
+
+    geojson = {"type": "FeatureCollection", "features": all_features}
+    output_path = os.path.join(OUTPUT_DIR, "water_clarity.geojson")
+    with open(output_path, "w") as f:
+        json.dump(geojson, f)
+
+    print(f"[Water Clarity] {len(all_features)} contours → {output_path}")
     return output_path
 
 
@@ -651,6 +761,11 @@ def main():
         except Exception as e:
             print(f"[Chlorophyll] Error: {e}")
 
+        try:
+            fetch_copernicus_kd490(date_str, bbox)
+        except Exception as e:
+            print(f"[Water Clarity] Fetch error: {e}")
+
     # Process SST fronts
     sst_file = os.path.join(OUTPUT_DIR, "sst_raw.nc")
     if os.path.exists(sst_file):
@@ -666,6 +781,14 @@ def main():
             detect_chlorophyll_edges(chl_file)
         except Exception as e:
             print(f"[Chlorophyll Edges] Error: {e}")
+
+    # Process water clarity (KD490)
+    kd_file = os.path.join(OUTPUT_DIR, "kd490_raw.nc")
+    if os.path.exists(kd_file):
+        try:
+            process_water_clarity(kd_file)
+        except Exception as e:
+            print(f"[Water Clarity] Processing error: {e}")
 
     # Process currents
     cur_file = os.path.join(OUTPUT_DIR, "currents_raw.nc")

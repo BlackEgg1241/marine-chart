@@ -154,10 +154,13 @@
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#16a34a;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Chl 0.30 mg/m³ (bait zone)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#7dd3fc;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Ocean current vector</div></div>
   <div class="ml-divider"></div>
-  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#f59e0b"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">200m shelf edge (GEBCO)</div></div>
+  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#f59e0b"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">200m shelf edge (GMRT)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#06b6d4;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">500m contour</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#3b82f6;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">1000m contour</div></div>
   <div class="ml-feat"><div class="ml-feat-dot" style="background:#f43f5e"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Canyon / FAD spots</div></div>
+  <div class="ml-divider"></div>
+  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#38bdf8;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Clean water (Kd490 &lt;0.06)</div></div>
+  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#fb923c;border-style:dashed"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Turbid / bloom edge (0.10)</div></div>
   <div class="ml-note">Money zone: SST front + Chl edge at the 200m shelf = bait stacks, marlin follows</div>
 </div>
 
@@ -182,6 +185,7 @@
       <button class="layer-btn" id="btnChlEdges" onclick="toggleLayer('chl_edges')"><span class="icon">🌿</span> Chl Edges</button>
       <button class="layer-btn" id="btnCurrents" onclick="toggleLayer('currents')"><span class="icon">💧</span> Currents</button>
       <button class="layer-btn" id="btnBathy" onclick="toggleLayer('bathymetry')"><span class="icon">📐</span> Bathymetry</button>
+      <button class="layer-btn" id="btnClarity" onclick="toggleLayer('clarity')"><span class="icon">🔵</span> Clarity</button>
     </div>
   </div>
   <div class="gps-row">
@@ -210,7 +214,7 @@ var SPOTS=[
 ];
 
 var map,cBM='ga-bathy',gpsWId=null,gM='off',cPos=null,fGPS=false,simI=null,trk=[],sIdx=0;
-var LS={seamark:true,marlin:false,chlorophyll:false,sst:false,truecolor:false,sst_fronts:false,chl_edges:false,currents:false,bathymetry:false};
+var LS={seamark:true,marlin:false,chlorophyll:false,sst:false,truecolor:false,sst_fronts:false,chl_edges:false,currents:false,bathymetry:false,clarity:false};
 var iD=new Date();iD.setDate(iD.getDate()-3);var cDate=iD.toISOString().split('T')[0];
 var SR=[[115.7486,-32.0569],[115.7440,-32.0550],[115.7380,-32.0520],[115.7300,-32.0490],[115.7200,-32.0450],[115.7080,-32.0400],[115.6950,-32.0350],[115.6800,-32.0300],[115.6650,-32.0250],[115.6500,-32.0200],[115.6350,-32.0150],[115.6200,-32.0100],[115.6050,-32.0050],[115.5900,-32.0000],[115.5750,-31.9960],[115.5600,-31.9930],[115.5450,-31.9910],[115.5300,-31.9900],[115.5180,-31.9890],[115.5080,-31.9880],[115.4980,-31.9870]];
 
@@ -235,7 +239,8 @@ function initMap(){
     'sst-fronts':{type:'geojson',data:'data/sst_fronts.geojson'},
     'chl-edges':{type:'geojson',data:'data/chl_edges.geojson'},
     'currents':{type:'geojson',data:'data/currents.geojson'},
-    'bathymetry':{type:'geojson',data:'data/bathymetry_contours.geojson'}
+    'bathymetry':{type:'geojson',data:'data/bathymetry_contours.geojson'},
+    'water-clarity':{type:'geojson',data:'data/water_clarity.geojson'}
   };
   var ly=[
     {id:'basemap-layer',type:'raster',source:'basemap'},
@@ -257,6 +262,7 @@ function initMap(){
     {id:'isotherm-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{visibility:'none','symbol-placement':'line','text-field':['concat',['to-string',['get','temperature']],'°'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#fcd34d','text-halo-color':'rgba(0,0,0,0.75)','text-halo-width':1.5}},
     {id:'chl-edge-line',type:'line',source:'chl-edges',layout:{visibility:'none'},paint:{'line-color':['step',['get','concentration'],  '#86efac',0.15,'#4ade80',0.30,'#16a34a',0.60,'#14532d'],'line-width':['step',['get','concentration'],1,0.15,1.5,0.30,2,0.60,2.5],'line-opacity':.8}},
     {id:'current-line',type:'line',source:'currents',layout:{visibility:'none'},paint:{'line-color':'#7dd3fc','line-width':1.5,'line-opacity':.65}},
+    {id:'clarity-line',type:'line',source:'water-clarity',layout:{visibility:'none'},paint:{'line-color':['match',['get','label'],'clean','#38bdf8','turbid','#fb923c','bloom','#dc2626','#94a3b8'],'line-width':['match',['get','label'],'clean',2,'turbid',2,'bloom',2.5,1.5],'line-opacity':.9,'line-dasharray':['match',['get','label'],'clean',['literal',[1,0]],'turbid',['literal',[4,2]],'bloom',['literal',[4,2]],['literal',[1,0]]]}},
     {id:'sm-layer',type:'raster',source:'sm',paint:{'raster-opacity':.85}}
   ];
   map=new maplibregl.Map({container:'map',style:{version:8,sources:src,layers:ly,glyphs:'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf'},center:[115.35,-31.97],zoom:10,maxZoom:18,minZoom:3,attributionControl:true});
@@ -291,15 +297,16 @@ function toggleLayer(n){
   var lm={seamark:'sm-layer',chlorophyll:'g-chl-layer',sst:'g-sst-layer',truecolor:'g-tc-layer',
     sst_fronts:['sst-front-line','isotherm-line','isotherm-label'],
     chl_edges:'chl-edge-line',currents:'current-line',
-    bathymetry:['bathy-glow','bathy-200','bathy-500','bathy-1000']};
-  var bm={seamark:{id:'btnSeamarks',c:'on'},chlorophyll:{id:'btnChloro',c:'on-green'},sst:{id:'btnSST',c:'on-red'},truecolor:{id:'btnTrueColor',c:'on-purple'},marlin:{id:'btnMarlin',c:'on-orange'},sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},currents:{id:'btnCurrents',c:'on'},bathymetry:{id:'btnBathy',c:'on-orange'}};
+    bathymetry:['bathy-glow','bathy-200','bathy-500','bathy-1000'],
+    clarity:'clarity-line'};
+  var bm={seamark:{id:'btnSeamarks',c:'on'},chlorophyll:{id:'btnChloro',c:'on-green'},sst:{id:'btnSST',c:'on-red'},truecolor:{id:'btnTrueColor',c:'on-purple'},marlin:{id:'btnMarlin',c:'on-orange'},sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},currents:{id:'btnCurrents',c:'on'},bathymetry:{id:'btnBathy',c:'on-orange'},clarity:{id:'btnClarity',c:'on'}};
   if(n==='marlin'){
     for(var i=0;i<ML.length;i++){if(map.getLayer(ML[i]))map.setLayoutProperty(ML[i],'visibility',a?'visible':'none')}
     if(map.getLayer('g-sst-layer'))map.setLayoutProperty('g-sst-layer','visibility',(a||LS.sst)?'visible':'none');
     document.getElementById('marlinLegend').classList.toggle('active',a);
     // Marlin Zones is a master toggle — also control all analytical overlay layers
-    var mSub={sst_fronts:['sst-front-line','isotherm-line','isotherm-label'],chl_edges:'chl-edge-line',bathymetry:['bathy-glow','bathy-200','bathy-500','bathy-1000']};
-    var mBtns={sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},bathymetry:{id:'btnBathy',c:'on-orange'}};
+    var mSub={sst_fronts:['sst-front-line','isotherm-line','isotherm-label'],chl_edges:'chl-edge-line',bathymetry:['bathy-glow','bathy-200','bathy-500','bathy-1000'],clarity:'clarity-line'};
+    var mBtns={sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},bathymetry:{id:'btnBathy',c:'on-orange'},clarity:{id:'btnClarity',c:'on'}};
     for(var k in mSub){
       LS[k]=a;
       var ids2=Array.isArray(mSub[k])?mSub[k]:[mSub[k]];
@@ -320,7 +327,7 @@ function setBasemap(n){
   if(n===cBM)return;cBM=n;var bm=BM[n];
   var gL=['gps-track-line','gps-acc-fill','gps-acc-line','gps-glow','gps-outer','gps-inner','gps-heading-line'];
   var fg=null;for(var i=0;i<gL.length;i++){if(map.getLayer(gL[i])){fg=gL[i];break}}
-  var rm=['sm-layer','current-line','chl-edge-line','isotherm-label','isotherm-line','sst-front-line','bathy-1000','bathy-500','bathy-200','bathy-glow','spot-label','spot-dot','spot-glow','shelf-glow','shelf-line','g-chl-layer','g-sst-layer','g-tc-layer','ol-layer','basemap-layer'];
+  var rm=['sm-layer','clarity-line','current-line','chl-edge-line','isotherm-label','isotherm-line','sst-front-line','bathy-1000','bathy-500','bathy-200','bathy-glow','spot-label','spot-dot','spot-glow','shelf-glow','shelf-line','g-chl-layer','g-sst-layer','g-tc-layer','ol-layer','basemap-layer'];
   for(var i=0;i<rm.length;i++){if(map.getLayer(rm[i]))map.removeLayer(rm[i])}
   var rs=['basemap','ol','g-chl','g-sst','g-tc'];
   for(var i=0;i<rs.length;i++){if(map.getSource(rs[i]))map.removeSource(rs[i])}
@@ -350,6 +357,7 @@ function setBasemap(n){
   map.addLayer({id:'isotherm-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{visibility:fv,'symbol-placement':'line','text-field':['concat',['to-string',['get','temperature']],'°'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#fcd34d','text-halo-color':'rgba(0,0,0,0.75)','text-halo-width':1.5}},bf);
   map.addLayer({id:'chl-edge-line',type:'line',source:'chl-edges',layout:{visibility:LS.chl_edges?'visible':'none'},paint:{'line-color':['step',['get','concentration'],'#86efac',0.15,'#4ade80',0.30,'#16a34a',0.60,'#14532d'],'line-width':['step',['get','concentration'],1,0.15,1.5,0.30,2,0.60,2.5],'line-opacity':.8}},bf);
   map.addLayer({id:'current-line',type:'line',source:'currents',layout:{visibility:LS.currents?'visible':'none'},paint:{'line-color':'#7dd3fc','line-width':1.5,'line-opacity':.65}},bf);
+  map.addLayer({id:'clarity-line',type:'line',source:'water-clarity',layout:{visibility:LS.clarity?'visible':'none'},paint:{'line-color':['match',['get','label'],'clean','#38bdf8','turbid','#fb923c','bloom','#dc2626','#94a3b8'],'line-width':2,'line-opacity':.9}},bf);
   map.addLayer({id:'sm-layer',type:'raster',source:'sm',paint:{'raster-opacity':.85},layout:{visibility:LS.seamark?'visible':'none'}},bf);
   document.querySelectorAll('.bm-btn').forEach(function(b){b.classList.remove('active')});
   document.getElementById(bm.btn).classList.add('active');
