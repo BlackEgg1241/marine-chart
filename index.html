@@ -262,7 +262,9 @@ function initMap(){
     {id:'isotherm-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{visibility:'none','symbol-placement':'line','text-field':['concat',['to-string',['get','temperature']],'°'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#fcd34d','text-halo-color':'rgba(0,0,0,0.75)','text-halo-width':1.5}},
     {id:'chl-edge-line',type:'line',source:'chl-edges',layout:{visibility:'none'},paint:{'line-color':['step',['get','concentration'],  '#86efac',0.15,'#4ade80',0.30,'#16a34a',0.60,'#14532d'],'line-width':['step',['get','concentration'],1,0.15,1.5,0.30,2,0.60,2.5],'line-opacity':.8}},
     {id:'current-line',type:'line',source:'currents',layout:{visibility:'none'},paint:{'line-color':'#7dd3fc','line-width':1.5,'line-opacity':.65}},
-    {id:'clarity-line',type:'line',source:'water-clarity',layout:{visibility:'none'},paint:{'line-color':['match',['get','label'],'clean','#38bdf8','turbid','#fb923c','bloom','#dc2626','#94a3b8'],'line-width':['match',['get','label'],'clean',2,'turbid',2,'bloom',2.5,1.5],'line-opacity':.9,'line-dasharray':['match',['get','label'],'clean',['literal',[1,0]],'turbid',['literal',[4,2]],'bloom',['literal',[4,2]],['literal',[1,0]]]}},
+    {id:'clarity-clean',type:'line',source:'water-clarity',filter:['==',['get','label'],'clean'],layout:{visibility:'none'},paint:{'line-color':'#38bdf8','line-width':2,'line-opacity':.9}},
+    {id:'clarity-turbid',type:'line',source:'water-clarity',filter:['==',['get','label'],'turbid'],layout:{visibility:'none'},paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':.85,'line-dasharray':[4,2]}},
+    {id:'clarity-bloom',type:'line',source:'water-clarity',filter:['==',['get','label'],'bloom'],layout:{visibility:'none'},paint:{'line-color':'#dc2626','line-width':2,'line-opacity':.9,'line-dasharray':[4,2]}},
     {id:'sm-layer',type:'raster',source:'sm',paint:{'raster-opacity':.85}}
   ];
   map=new maplibregl.Map({container:'map',style:{version:8,sources:src,layers:ly,glyphs:'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf'},center:[115.35,-31.97],zoom:10,maxZoom:18,minZoom:3,attributionControl:true});
@@ -298,14 +300,14 @@ function toggleLayer(n){
     sst_fronts:['sst-front-line','isotherm-line','isotherm-label'],
     chl_edges:'chl-edge-line',currents:'current-line',
     bathymetry:['bathy-glow','bathy-200','bathy-500','bathy-1000'],
-    clarity:'clarity-line'};
+    clarity:['clarity-clean','clarity-turbid','clarity-bloom']};
   var bm={seamark:{id:'btnSeamarks',c:'on'},chlorophyll:{id:'btnChloro',c:'on-green'},sst:{id:'btnSST',c:'on-red'},truecolor:{id:'btnTrueColor',c:'on-purple'},marlin:{id:'btnMarlin',c:'on-orange'},sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},currents:{id:'btnCurrents',c:'on'},bathymetry:{id:'btnBathy',c:'on-orange'},clarity:{id:'btnClarity',c:'on'}};
   if(n==='marlin'){
     for(var i=0;i<ML.length;i++){if(map.getLayer(ML[i]))map.setLayoutProperty(ML[i],'visibility',a?'visible':'none')}
     if(map.getLayer('g-sst-layer'))map.setLayoutProperty('g-sst-layer','visibility',(a||LS.sst)?'visible':'none');
     document.getElementById('marlinLegend').classList.toggle('active',a);
     // Marlin Zones is a master toggle — also control all analytical overlay layers
-    var mSub={sst_fronts:['sst-front-line','isotherm-line','isotherm-label'],chl_edges:'chl-edge-line',bathymetry:['bathy-glow','bathy-200','bathy-500','bathy-1000'],clarity:'clarity-line'};
+    var mSub={sst_fronts:['sst-front-line','isotherm-line','isotherm-label'],chl_edges:'chl-edge-line',bathymetry:['bathy-glow','bathy-200','bathy-500','bathy-1000'],clarity:['clarity-clean','clarity-turbid','clarity-bloom']};
     var mBtns={sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},bathymetry:{id:'btnBathy',c:'on-orange'},clarity:{id:'btnClarity',c:'on'}};
     for(var k in mSub){
       LS[k]=a;
@@ -327,7 +329,7 @@ function setBasemap(n){
   if(n===cBM)return;cBM=n;var bm=BM[n];
   var gL=['gps-track-line','gps-acc-fill','gps-acc-line','gps-glow','gps-outer','gps-inner','gps-heading-line'];
   var fg=null;for(var i=0;i<gL.length;i++){if(map.getLayer(gL[i])){fg=gL[i];break}}
-  var rm=['sm-layer','clarity-line','current-line','chl-edge-line','isotherm-label','isotherm-line','sst-front-line','bathy-1000','bathy-500','bathy-200','bathy-glow','spot-label','spot-dot','spot-glow','shelf-glow','shelf-line','g-chl-layer','g-sst-layer','g-tc-layer','ol-layer','basemap-layer'];
+  var rm=['sm-layer','clarity-bloom','clarity-turbid','clarity-clean','current-line','chl-edge-line','isotherm-label','isotherm-line','sst-front-line','bathy-1000','bathy-500','bathy-200','bathy-glow','spot-label','spot-dot','spot-glow','shelf-glow','shelf-line','g-chl-layer','g-sst-layer','g-tc-layer','ol-layer','basemap-layer'];
   for(var i=0;i<rm.length;i++){if(map.getLayer(rm[i]))map.removeLayer(rm[i])}
   var rs=['basemap','ol','g-chl','g-sst','g-tc'];
   for(var i=0;i<rs.length;i++){if(map.getSource(rs[i]))map.removeSource(rs[i])}
@@ -357,7 +359,10 @@ function setBasemap(n){
   map.addLayer({id:'isotherm-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{visibility:fv,'symbol-placement':'line','text-field':['concat',['to-string',['get','temperature']],'°'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#fcd34d','text-halo-color':'rgba(0,0,0,0.75)','text-halo-width':1.5}},bf);
   map.addLayer({id:'chl-edge-line',type:'line',source:'chl-edges',layout:{visibility:LS.chl_edges?'visible':'none'},paint:{'line-color':['step',['get','concentration'],'#86efac',0.15,'#4ade80',0.30,'#16a34a',0.60,'#14532d'],'line-width':['step',['get','concentration'],1,0.15,1.5,0.30,2,0.60,2.5],'line-opacity':.8}},bf);
   map.addLayer({id:'current-line',type:'line',source:'currents',layout:{visibility:LS.currents?'visible':'none'},paint:{'line-color':'#7dd3fc','line-width':1.5,'line-opacity':.65}},bf);
-  map.addLayer({id:'clarity-line',type:'line',source:'water-clarity',layout:{visibility:LS.clarity?'visible':'none'},paint:{'line-color':['match',['get','label'],'clean','#38bdf8','turbid','#fb923c','bloom','#dc2626','#94a3b8'],'line-width':2,'line-opacity':.9}},bf);
+  var cv=LS.clarity?'visible':'none';
+  map.addLayer({id:'clarity-clean',type:'line',source:'water-clarity',filter:['==',['get','label'],'clean'],layout:{visibility:cv},paint:{'line-color':'#38bdf8','line-width':2,'line-opacity':.9}},bf);
+  map.addLayer({id:'clarity-turbid',type:'line',source:'water-clarity',filter:['==',['get','label'],'turbid'],layout:{visibility:cv},paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':.85,'line-dasharray':[4,2]}},bf);
+  map.addLayer({id:'clarity-bloom',type:'line',source:'water-clarity',filter:['==',['get','label'],'bloom'],layout:{visibility:cv},paint:{'line-color':'#dc2626','line-width':2,'line-opacity':.9,'line-dasharray':[4,2]}},bf);
   map.addLayer({id:'sm-layer',type:'raster',source:'sm',paint:{'raster-opacity':.85},layout:{visibility:LS.seamark?'visible':'none'}},bf);
   document.querySelectorAll('.bm-btn').forEach(function(b){b.classList.remove('active')});
   document.getElementById(bm.btn).classList.add('active');
