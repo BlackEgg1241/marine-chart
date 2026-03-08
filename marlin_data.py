@@ -116,7 +116,7 @@ def fetch_copernicus_chlorophyll(date_str, bbox):
 
     print(f"[Chlorophyll] Fetching for {date_str}...")
     copernicusmarine.subset(
-        dataset_id="cmems_mod_glo_bgc-bio_anfc_0.25deg_P1D-m",
+        dataset_id="cmems_mod_glo_bgc-pft_anfc_0.25deg_P1D-m",
         variables=["chl"],
         minimum_longitude=bbox["lon_min"],
         maximum_longitude=bbox["lon_max"],
