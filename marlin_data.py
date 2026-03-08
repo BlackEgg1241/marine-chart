@@ -623,6 +623,7 @@ def extract_bathymetry_contours(gebco_file, depths=[-50, -100, -200, -500, -1000
     print(f"[Bathymetry] Extracting contours from {gebco_file}...")
 
     DEPTH_STYLE = {
+        -100:  {"label": "100m contour",    "color": "#a3e635"},
         -200:  {"label": "200m shelf edge", "color": "#f59e0b"},
         -500:  {"label": "500m contour",    "color": "#06b6d4"},
         -1000: {"label": "1000m contour",   "color": "#3b82f6"},
@@ -692,7 +693,7 @@ def extract_contours_gdal(gebco_file, depths=[-50, -100, -200, -500, -1000]):
 # ---------------------------------------------------------------------------
 # 5b. Bathymetry from GMRT (Global Multi-Resolution Topography) REST API
 # ---------------------------------------------------------------------------
-def fetch_bathymetry_gmrt(bbox, depths=[-200, -500, -1000]):
+def fetch_bathymetry_gmrt(bbox, depths=[-100, -200, -500, -1000]):
     """
     Download a bathymetry GeoTIFF from the GMRT GridServer API and extract
     depth contours.  GMRT is freely available, no API key required.
@@ -911,6 +912,24 @@ def main():
         p2 = os.path.join(base_output, name)
         return p2 if os.path.exists(p2) else None
 
+    # Download bathymetry FIRST so we can build the depth mask for clipping
+    # (reuse cached tif if it already exists in the dated or base dir)
+    tif_path = os.path.join(OUTPUT_DIR, "bathy_gmrt.tif")
+    if not os.path.exists(tif_path):
+        tif_path_base = os.path.join(base_output, "bathy_gmrt.tif")
+        if os.path.exists(tif_path_base):
+            import shutil as _shutil
+            _shutil.copy2(tif_path_base, tif_path)
+
+    if not os.path.exists(tif_path):
+        try:
+            fetch_bathymetry_gmrt(bbox)
+        except Exception as e:
+            print(f"[Bathymetry] Early download failed: {e}")
+            tif_path = None
+
+    deep_mask = build_deep_water_mask(tif_path) if tif_path and os.path.exists(tif_path) else None
+
     # Process SST fronts
     sst_file = _nc("sst_raw.nc")
     if sst_file:
@@ -952,6 +971,7 @@ def main():
             print(f"[Currents] Error: {e}")
 
     # Bathymetry contours — GEBCO file takes priority; fall back to GMRT API
+    # Tif was already downloaded above for the depth mask; just extract contours
     if args.gebco:
         try:
             extract_contours_gdal(args.gebco)
@@ -961,11 +981,23 @@ def main():
                 extract_bathymetry_contours(args.gebco)
             except Exception as e2:
                 print(f"[Bathymetry] Error: {e2}")
+    elif tif_path and os.path.exists(tif_path):
+        try:
+            extract_bathymetry_contours(tif_path)
+        except Exception as e:
+            print(f"[Bathymetry] Contour extraction failed: {e}")
     else:
         try:
             fetch_bathymetry_gmrt(bbox)
         except Exception as e:
             print(f"[Bathymetry] GMRT download failed: {e}")
+
+    # Clip all analytical GeoJSON features to the >100m depth mask
+    # This removes features over land and shallow coastal areas
+    if deep_mask is not None:
+        for fname in ["sst_fronts.geojson", "chl_edges.geojson", "currents.geojson",
+                      "water_clarity.geojson", "ssh_eddies.geojson"]:
+            clip_geojson_to_mask(os.path.join(OUTPUT_DIR, fname), deep_mask)
 
     # Generate report
     generate_report(date_str, bbox)
@@ -986,6 +1018,102 @@ def main():
     else:
         print(f"✅ Done! GeoJSON files in {OUTPUT_DIR}/ (base data/ not updated)")
     print(f"   Date folder: data/{date_str}/\n")
+
+
+def build_deep_water_mask(tif_path, depth_threshold=-100):
+    """
+    Build a Shapely (Multi)Polygon covering ocean areas deeper than depth_threshold.
+    Used to clip marlin zone features so they don't appear over land or shallow water.
+    Returns None on failure (features will not be clipped).
+    """
+    try:
+        import rasterio
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        from matplotlib.path import Path as MplPath
+        from shapely.geometry import Polygon
+        from shapely.ops import unary_union
+
+        with rasterio.open(tif_path) as ds:
+            data = ds.read(1).astype(float)
+            t = ds.transform
+            h, w = data.shape
+            lons = np.array([t.c + (j + 0.5) * t.a for j in range(w)])
+            lats = np.array([t.f + (i + 0.5) * t.e for i in range(h)])
+            nd = ds.nodata
+            if nd is not None:
+                data[data == nd] = np.nan
+
+        # Filled contour: region where elevation < depth_threshold (i.e. deeper water)
+        fig, ax = plt.subplots()
+        cf = ax.contourf(lons, lats, data, levels=[-12000, depth_threshold])
+        plt.close(fig)
+
+        polys = []
+        for col in cf.collections:
+            for path in col.get_paths():
+                verts, codes = path.vertices, path.codes
+                parts, cur = [], []
+                for v, c in zip(verts, codes if codes is not None else [MplPath.LINETO]*len(verts)):
+                    if c == MplPath.MOVETO:
+                        if cur: parts.append(cur)
+                        cur = [tuple(v)]
+                    elif c == MplPath.CLOSEPOLY:
+                        if cur: cur.append(cur[0]); parts.append(cur)
+                        cur = []
+                    else:
+                        cur.append(tuple(v))
+                if cur: parts.append(cur)
+                if not parts: continue
+                try:
+                    p = Polygon(parts[0], parts[1:] if len(parts) > 1 else [])
+                    p = p.buffer(0)
+                    if p.is_valid and p.area > 0:
+                        polys.append(p)
+                except Exception:
+                    pass
+
+        if not polys:
+            return None
+        mask = unary_union(polys).buffer(0)
+        print(f"[Depth mask] Built >100m ocean mask ({len(polys)} polygons)")
+        return mask
+    except Exception as e:
+        print(f"[Depth mask] Warning — could not build mask: {e}")
+        return None
+
+
+def clip_geojson_to_mask(geojson_path, mask):
+    """
+    Load a GeoJSON file, clip all features to mask (Shapely polygon),
+    and save back to the same path. Features entirely outside mask are dropped;
+    features straddling the boundary are trimmed to the mask edge.
+    """
+    if mask is None or not os.path.exists(geojson_path):
+        return
+    try:
+        from shapely.geometry import shape, mapping
+        with open(geojson_path) as f:
+            gj = json.load(f)
+        clipped = []
+        for feat in gj.get("features", []):
+            try:
+                geom = shape(feat["geometry"])
+                inter = geom.intersection(mask)
+                if inter.is_empty:
+                    continue
+                feat = dict(feat)
+                feat["geometry"] = mapping(inter)
+                clipped.append(feat)
+            except Exception:
+                clipped.append(feat)  # keep original if shapely fails
+        gj["features"] = clipped
+        with open(geojson_path, "w") as f:
+            json.dump(gj, f)
+        print(f"[Depth mask] Clipped {geojson_path.split(os.sep)[-1]}: {len(gj['features'])} features kept")
+    except Exception as e:
+        print(f"[Depth mask] Clip failed for {geojson_path}: {e}")
 
 
 if __name__ == "__main__":
