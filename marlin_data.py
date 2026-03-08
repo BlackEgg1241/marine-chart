@@ -992,12 +992,9 @@ def main():
         except Exception as e:
             print(f"[Bathymetry] GMRT download failed: {e}")
 
-    # Clip all analytical GeoJSON features to the >100m depth mask
-    # This removes features over land and shallow coastal areas
+    # Save deep water polygon as GeoJSON for the map fill layer
     if deep_mask is not None:
-        for fname in ["sst_fronts.geojson", "chl_edges.geojson", "currents.geojson",
-                      "water_clarity.geojson", "ssh_eddies.geojson"]:
-            clip_geojson_to_mask(os.path.join(OUTPUT_DIR, fname), deep_mask)
+        save_deep_water_mask_geojson(deep_mask, os.path.join(OUTPUT_DIR, "deep_water.geojson"))
 
     # Generate report
     generate_report(date_str, bbox)
@@ -1007,6 +1004,7 @@ def main():
     geojson_files = [
         "sst_fronts.geojson", "chl_edges.geojson", "currents.geojson",
         "bathymetry_contours.geojson", "water_clarity.geojson", "ssh_eddies.geojson",
+        "deep_water.geojson",
     ]
     if not args.no_update_latest:
         for fname in geojson_files:
@@ -1083,6 +1081,27 @@ def build_deep_water_mask(tif_path, depth_threshold=-100):
     except Exception as e:
         print(f"[Depth mask] Warning — could not build mask: {e}")
         return None
+
+
+def save_deep_water_mask_geojson(mask, output_path):
+    """Save the deep water Shapely polygon as a GeoJSON FeatureCollection."""
+    if mask is None:
+        return
+    try:
+        from shapely.geometry import mapping
+        gj = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "geometry": mapping(mask),
+                "properties": {"label": "deep_water", "depth_threshold": -100}
+            }]
+        }
+        with open(output_path, "w") as f:
+            json.dump(gj, f)
+        print(f"[Depth mask] Saved deep water polygon → {output_path}")
+    except Exception as e:
+        print(f"[Depth mask] Could not save GeoJSON: {e}")
 
 
 def clip_geojson_to_mask(geojson_path, mask):
