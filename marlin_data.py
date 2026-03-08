@@ -840,6 +840,7 @@ def main():
     parser.add_argument("--gebco", default=None, help="Path to GEBCO GeoTIFF for bathymetry contours")
     parser.add_argument("--skip-fetch", action="store_true", help="Skip data download, process existing files")
     parser.add_argument("--output", default=OUTPUT_DIR, help="Output directory")
+    parser.add_argument("--no-update-latest", action="store_true", help="Do not copy GeoJSON to base data/ dir (use for backfill)")
 
     args = parser.parse_args()
 
@@ -972,13 +973,15 @@ def main():
         "sst_fronts.geojson", "chl_edges.geojson", "currents.geojson",
         "bathymetry_contours.geojson", "water_clarity.geojson", "ssh_eddies.geojson",
     ]
-    for fname in geojson_files:
-        src = os.path.join(OUTPUT_DIR, fname)
-        dst = os.path.join(base_output, fname)
-        if os.path.exists(src):
-            shutil.copy2(src, dst)
-
-    print(f"✅ Done! GeoJSON files in {OUTPUT_DIR}/ and {base_output}/")
+    if not args.no_update_latest:
+        for fname in geojson_files:
+            src = os.path.join(OUTPUT_DIR, fname)
+            dst = os.path.join(base_output, fname)
+            if os.path.exists(src):
+                shutil.copy2(src, dst)
+        print(f"✅ Done! GeoJSON files in {OUTPUT_DIR}/ and {base_output}/")
+    else:
+        print(f"✅ Done! GeoJSON files in {OUTPUT_DIR}/ (base data/ not updated)")
     print(f"   Date folder: data/{date_str}/\n")
 
 
