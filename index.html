@@ -150,7 +150,8 @@
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#ff6b35;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">SST front (temp break)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#f97316"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Isotherm (blue marlin)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#818cf8"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Isotherm (striped marlin)</div></div>
-  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#4ade80"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Chlorophyll edge</div></div>
+  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#86efac;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Chl 0.07 mg/m³ (low)</div></div>
+  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#16a34a;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Chl 0.30 mg/m³ (bait zone)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#7dd3fc;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Ocean current vector</div></div>
   <div class="ml-divider"></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#f59e0b"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">200m shelf edge (GEBCO)</div></div>
@@ -254,7 +255,7 @@ function initMap(){
     {id:'sst-front-line',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],layout:{visibility:'none'},paint:{'line-color':'#ff6b35','line-width':2,'line-opacity':.85}},
     {id:'isotherm-line',type:'line',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{visibility:'none'},paint:{'line-color':['match',['get','species'],'blue','#f97316','striped','#818cf8','#e2e8f0'],'line-width':1.5,'line-opacity':.75,'line-dasharray':[6,3]}},
     {id:'isotherm-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{visibility:'none','symbol-placement':'line','text-field':['concat',['to-string',['get','temperature']],'°'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#fcd34d','text-halo-color':'rgba(0,0,0,0.75)','text-halo-width':1.5}},
-    {id:'chl-edge-line',type:'line',source:'chl-edges',layout:{visibility:'none'},paint:{'line-color':'#4ade80','line-width':1.5,'line-opacity':.75,'line-dasharray':[4,4]}},
+    {id:'chl-edge-line',type:'line',source:'chl-edges',layout:{visibility:'none'},paint:{'line-color':['step',['get','concentration'],  '#86efac',0.15,'#4ade80',0.30,'#16a34a',0.60,'#14532d'],'line-width':['step',['get','concentration'],1,0.15,1.5,0.30,2,0.60,2.5],'line-opacity':.8}},
     {id:'current-line',type:'line',source:'currents',layout:{visibility:'none'},paint:{'line-color':'#7dd3fc','line-width':1.5,'line-opacity':.65}},
     {id:'sm-layer',type:'raster',source:'sm',paint:{'raster-opacity':.85}}
   ];
@@ -338,7 +339,7 @@ function setBasemap(n){
   map.addLayer({id:'sst-front-line',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],layout:{visibility:fv},paint:{'line-color':'#ff6b35','line-width':2,'line-opacity':.85}},bf);
   map.addLayer({id:'isotherm-line',type:'line',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{visibility:fv},paint:{'line-color':['match',['get','species'],'blue','#f97316','striped','#818cf8','#e2e8f0'],'line-width':1.5,'line-opacity':.75,'line-dasharray':[6,3]}},bf);
   map.addLayer({id:'isotherm-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{visibility:fv,'symbol-placement':'line','text-field':['concat',['to-string',['get','temperature']],'°'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#fcd34d','text-halo-color':'rgba(0,0,0,0.75)','text-halo-width':1.5}},bf);
-  map.addLayer({id:'chl-edge-line',type:'line',source:'chl-edges',layout:{visibility:LS.chl_edges?'visible':'none'},paint:{'line-color':'#4ade80','line-width':1.5,'line-opacity':.75,'line-dasharray':[4,4]}},bf);
+  map.addLayer({id:'chl-edge-line',type:'line',source:'chl-edges',layout:{visibility:LS.chl_edges?'visible':'none'},paint:{'line-color':['step',['get','concentration'],'#86efac',0.15,'#4ade80',0.30,'#16a34a',0.60,'#14532d'],'line-width':['step',['get','concentration'],1,0.15,1.5,0.30,2,0.60,2.5],'line-opacity':.8}},bf);
   map.addLayer({id:'current-line',type:'line',source:'currents',layout:{visibility:LS.currents?'visible':'none'},paint:{'line-color':'#7dd3fc','line-width':1.5,'line-opacity':.65}},bf);
   map.addLayer({id:'sm-layer',type:'raster',source:'sm',paint:{'raster-opacity':.85},layout:{visibility:LS.seamark?'visible':'none'}},bf);
   document.querySelectorAll('.bm-btn').forEach(function(b){b.classList.remove('active')});

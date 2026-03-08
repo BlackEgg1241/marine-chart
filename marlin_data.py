@@ -160,14 +160,16 @@ def detect_sst_fronts(sst_file, threshold=SST_GRADIENT_THRESHOLD):
     lats = sst.latitude.values if "latitude" in sst.dims else sst.lat.values
     data = sst.values.copy()
 
-    # Fill NaN (land) with nearest value to avoid edge artefacts
-    from scipy.ndimage import generic_filter
-
     mask = np.isnan(data)
-    data[mask] = 0
 
-    # Smooth slightly to reduce noise
-    data_smooth = gaussian_filter(data, sigma=1.0)
+    # Fill land pixels with the ocean mean — NOT zero.
+    # Filling with 0 creates a giant artificial ~22°C gradient at every coastline,
+    # causing the Sobel filter to trace the entire coast instead of real fronts.
+    ocean_mean = float(np.nanmean(data))
+    data[mask] = ocean_mean
+
+    # Smooth to suppress pixel-scale noise
+    data_smooth = gaussian_filter(data, sigma=1.5)
 
     # Sobel gradient in x and y
     grad_x = sobel(data_smooth, axis=1)
@@ -183,10 +185,19 @@ def detect_sst_fronts(sst_file, threshold=SST_GRADIENT_THRESHOLD):
         properties={"type": "sst_front", "threshold": threshold}
     )
 
-    # Also extract isotherms at marlin-relevant temperatures
+    # Extract isotherms at all marlin-relevant temperatures (deduplicated)
+    # Only draw an isotherm if it falls within the actual SST data range
+    data_min = float(np.nanmin(data_smooth[~mask]))
+    data_max = float(np.nanmax(data_smooth[~mask]))
+    seen_temps = set()
     isotherm_features = []
     for species, temps in MARLIN_TEMPS.items():
         for temp in [temps["min"], temps["max"]]:
+            if temp in seen_temps:
+                continue
+            seen_temps.add(temp)
+            if temp < data_min - 0.5 or temp > data_max + 0.5:
+                continue
             iso = _contours_to_geojson(
                 data_smooth, lons, lats, temp,
                 properties={
@@ -210,17 +221,31 @@ def detect_sst_fronts(sst_file, threshold=SST_GRADIENT_THRESHOLD):
 
 
 # ---------------------------------------------------------------------------
-# 3. Chlorophyll Edge Detection
+# 3. Chlorophyll Concentration Contours
 # ---------------------------------------------------------------------------
+
+# Ecologically meaningful chlorophyll levels (mg/m³):
+#   0.07 = oligotrophic open ocean
+#   0.15 = transition / shelf edge
+#   0.30 = productive shelf / upwelling fringe  ← marlin bait zone
+#   0.60 = high productivity / coastal bloom
+CHL_LEVELS = [
+    (0.07, "low",       "#86efac"),
+    (0.15, "moderate",  "#4ade80"),
+    (0.30, "high",      "#16a34a"),
+    (0.60, "very_high", "#14532d"),
+]
+
 def detect_chlorophyll_edges(chl_file, threshold=CHL_GRADIENT_THRESHOLD):
     """
-    Detect chlorophyll-a concentration edges (productivity boundaries).
-    Uses log-scale gradient because chlorophyll varies over orders of magnitude.
+    Trace chlorophyll-a concentration contours at ecologically meaningful levels.
+    Gradient-based edge detection is too noisy at 0.25° resolution and produces
+    coastal artefacts.  Contours show the actual chlorophyll field clearly.
     """
     import xarray as xr
-    from scipy.ndimage import sobel, gaussian_filter
+    from scipy.ndimage import gaussian_filter
 
-    print("[Chlorophyll Edges] Processing...")
+    print("[Chlorophyll] Processing concentration contours...")
     ds = xr.open_dataset(chl_file)
 
     for var in ["chl", "CHL", "chlor_a"]:
@@ -232,31 +257,43 @@ def detect_chlorophyll_edges(chl_file, threshold=CHL_GRADIENT_THRESHOLD):
 
     lons = chl.longitude.values if "longitude" in chl.dims else chl.lon.values
     lats = chl.latitude.values if "latitude" in chl.dims else chl.lat.values
-    data = chl.values.copy()
+    data = chl.values.copy().astype(float)
 
     mask = np.isnan(data) | (data <= 0)
-    data[mask] = 0.001  # tiny value for log
+    # Fill land with a value well below any contour level so contours don't
+    # run along the coast.
+    data[mask] = 0.0
 
-    # Log transform — chlorophyll varies over orders of magnitude
-    data_log = np.log10(data)
-    data_log = gaussian_filter(data_log, sigma=1.0)
+    # Light smoothing to reduce single-pixel noise at 0.25° resolution
+    data_smooth = gaussian_filter(data, sigma=0.8)
+    data_smooth[mask] = 0.0
 
-    grad_x = sobel(data_log, axis=1)
-    grad_y = sobel(data_log, axis=0)
-    grad_mag = np.sqrt(grad_x**2 + grad_y**2)
-    grad_mag[mask] = 0
+    data_max = float(np.nanmax(data_smooth))
+    all_features = []
 
-    features = _contours_to_geojson(
-        grad_mag, lons, lats, threshold,
-        properties={"type": "chlorophyll_edge", "threshold": threshold}
-    )
+    for level, label, color in CHL_LEVELS:
+        if level > data_max:
+            continue
+        feats = _contours_to_geojson(
+            data_smooth, lons, lats, level,
+            properties={
+                "type": "chl_contour",
+                "concentration": level,
+                "label": label,
+                "color": color,
+            }
+        )
+        # Drop artefact lines that touch the bounding box edge — those are land boundary
+        # contours from the zero-fill.  Any real ocean contour won't span the full domain.
+        feats = [f for f in feats if len(f["geometry"]["coordinates"]) >= 3]
+        all_features.extend(feats)
 
-    geojson = {"type": "FeatureCollection", "features": features}
+    geojson = {"type": "FeatureCollection", "features": all_features}
     output_path = os.path.join(OUTPUT_DIR, "chl_edges.geojson")
     with open(output_path, "w") as f:
         json.dump(geojson, f)
 
-    print(f"[Chlorophyll Edges] {len(features)} edge lines → {output_path}")
+    print(f"[Chlorophyll] {len(all_features)} contours at {[l[0] for l in CHL_LEVELS]} mg/m³ → {output_path}")
     return output_path
 
 
@@ -400,6 +437,42 @@ def extract_contours_gdal(gebco_file, depths=[-50, -100, -200, -500, -1000]):
 
 
 # ---------------------------------------------------------------------------
+# 5b. Bathymetry from GMRT (Global Multi-Resolution Topography) REST API
+# ---------------------------------------------------------------------------
+def fetch_bathymetry_gmrt(bbox, depths=[-200, -500, -1000]):
+    """
+    Download a bathymetry GeoTIFF from the GMRT GridServer API and extract
+    depth contours.  GMRT is freely available, no API key required.
+
+    API docs: https://www.gmrt.org/services/gridserverinfo.html
+    """
+    import requests
+
+    tif_path = os.path.join(OUTPUT_DIR, "bathy_gmrt.tif")
+
+    # Expand bbox by ~0.5° so contours don't end at the exact region edge
+    pad = 0.5
+    url = (
+        "https://www.gmrt.org/services/GridServer"
+        f"?west={bbox['lon_min'] - pad}"
+        f"&east={bbox['lon_max'] + pad}"
+        f"&south={bbox['lat_min'] - pad}"
+        f"&north={bbox['lat_max'] + pad}"
+        f"&layer=topo&format=geotiff&resolution=low"
+    )
+
+    print(f"[Bathymetry] Downloading GMRT GeoTIFF...")
+    resp = requests.get(url, timeout=120)
+    resp.raise_for_status()
+
+    with open(tif_path, "wb") as f:
+        f.write(resp.content)
+    print(f"[Bathymetry] Downloaded {len(resp.content)//1024} KB → {tif_path}")
+
+    return extract_bathymetry_contours(tif_path, depths=depths)
+
+
+# ---------------------------------------------------------------------------
 # Contour extraction helper (from numpy array to GeoJSON)
 # ---------------------------------------------------------------------------
 def _contours_to_geojson(grid, lons, lats, level, properties=None):
@@ -413,16 +486,16 @@ def _contours_to_geojson(grid, lons, lats, level, properties=None):
         cs = ax.contour(lons, lats, grid, levels=[level])
         plt.close(fig)
 
+        # Use allsegs (avoids the deprecated .collections attribute in mpl 3.8+)
         features = []
-        for collection in cs.collections:
-            for path in collection.get_paths():
-                coords = path.vertices.tolist()
-                if len(coords) >= 2:
+        for seg_list in cs.allsegs:       # one entry per level (we only have one)
+            for seg in seg_list:           # each connected segment
+                if len(seg) >= 2:
                     features.append({
                         "type": "Feature",
                         "geometry": {
                             "type": "LineString",
-                            "coordinates": [[round(c[0], 5), round(c[1], 5)] for c in coords],
+                            "coordinates": [[round(float(c[0]), 5), round(float(c[1]), 5)] for c in seg],
                         },
                         "properties": dict(properties) if properties else {},
                     })
@@ -584,7 +657,7 @@ def main():
         except Exception as e:
             print(f"[Currents] Error: {e}")
 
-    # Bathymetry contours (if GEBCO file provided)
+    # Bathymetry contours — GEBCO file takes priority; fall back to GMRT API
     if args.gebco:
         try:
             extract_contours_gdal(args.gebco)
@@ -594,6 +667,11 @@ def main():
                 extract_bathymetry_contours(args.gebco)
             except Exception as e2:
                 print(f"[Bathymetry] Error: {e2}")
+    else:
+        try:
+            fetch_bathymetry_gmrt(bbox)
+        except Exception as e:
+            print(f"[Bathymetry] GMRT download failed: {e}")
 
     # Generate report
     generate_report(date_str, bbox)
