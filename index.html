@@ -268,7 +268,7 @@ function initMap(){
     {id:'isotherm-striped',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'striped']],layout:{visibility:'none'},paint:{'line-color':'#818cf8','line-width':1.5,'line-opacity':.75,'line-dasharray':[6,3]}},
     {id:'isotherm-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{visibility:'none','symbol-placement':'line','text-field':['concat',['to-string',['get','temperature']],'°'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#fcd34d','text-halo-color':'rgba(0,0,0,0.75)','text-halo-width':1.5}},
     {id:'chl-edge-line',type:'line',source:'chl-edges',layout:{visibility:'none'},paint:{'line-color':['step',['get','concentration'],  '#86efac',0.15,'#4ade80',0.30,'#16a34a',0.60,'#14532d'],'line-width':['step',['get','concentration'],1,0.15,1.5,0.30,2,0.60,2.5],'line-opacity':.8}},
-    {id:'current-line',type:'line',source:'currents',layout:{visibility:'none'},paint:{'line-color':'#000000','line-width':2,'line-opacity':.75}},
+    {id:'current-line',type:'line',source:'currents',layout:{visibility:'none'},paint:{'line-color':'#000000','line-width':1,'line-opacity':.75}},
     {id:'ssh-cold',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'cold_eddy'],layout:{visibility:'none'},paint:{'line-color':'#60a5fa','line-width':2,'line-opacity':.8,'line-dasharray':[5,3]}},
     {id:'ssh-neutral',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'neutral'],layout:{visibility:'none'},paint:{'line-color':'#94a3b8','line-width':1,'line-opacity':.5,'line-dasharray':[2,3]}},
     {id:'ssh-warm',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'warm_eddy'],layout:{visibility:'none'},paint:{'line-color':'#fb923c','line-width':2.5,'line-opacity':.9}},
@@ -294,6 +294,7 @@ function onDateChange(){cDate=document.getElementById('dateInput').value;rG()}
 function shiftDate(d){var dt=new Date(cDate);dt.setDate(dt.getDate()+d);cDate=dt.toISOString().split('T')[0];document.getElementById('dateInput').value=cDate;rG()}
 
 function rG(){
+  // Reload WMS raster tiles for the new date
   var ids=['g-tc','g-sst','g-chl'];
   var cfg={'g-tc':{l:GL.tc,z:9,o:.85,v:LS.truecolor,t:false},'g-sst':{l:GL.sst,z:9,o:.6,v:LS.sst||LS.marlin},'g-chl':{l:GL.chl,z:8,o:.7,v:LS.chlorophyll}};
   for(var i=0;i<ids.length;i++){if(map.getLayer(ids[i]+'-layer'))map.removeLayer(ids[i]+'-layer')}
@@ -301,6 +302,9 @@ function rG(){
   var bef=map.getLayer('shelf-glow')?'shelf-glow':(map.getLayer('sm-layer')?'sm-layer':undefined);
   var ord=['g-tc','g-sst','g-chl'];
   for(var i=0;i<ord.length;i++){var k=ord[i],c=cfg[k];map.addSource(k,{type:'raster',tiles:[gu(c.l,cDate,c.t)],tileSize:256,maxzoom:c.z});map.addLayer({id:k+'-layer',type:'raster',source:k,layout:{visibility:c.v?'visible':'none'},paint:{'raster-opacity':c.o}},bef)}
+  // Reload GeoJSON layers from date-specific folder (falls back gracefully if missing)
+  var gj={'sst-fronts':'sst_fronts.geojson','chl-edges':'chl_edges.geojson','currents':'currents.geojson','water-clarity':'water_clarity.geojson','ssh-eddies':'ssh_eddies.geojson'};
+  for(var src in gj){if(map.getSource(src))map.getSource(src).setData('data/'+cDate+'/'+gj[src])}
 }
 
 var ML=['shelf-line','shelf-glow','spot-glow','spot-dot','spot-label'];
@@ -371,7 +375,7 @@ function setBasemap(n){
   map.addLayer({id:'isotherm-striped',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'striped']],layout:{visibility:fv},paint:{'line-color':'#818cf8','line-width':1.5,'line-opacity':.75,'line-dasharray':[6,3]}},bf);
   map.addLayer({id:'isotherm-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{visibility:fv,'symbol-placement':'line','text-field':['concat',['to-string',['get','temperature']],'°'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#fcd34d','text-halo-color':'rgba(0,0,0,0.75)','text-halo-width':1.5}},bf);
   map.addLayer({id:'chl-edge-line',type:'line',source:'chl-edges',layout:{visibility:LS.chl_edges?'visible':'none'},paint:{'line-color':['step',['get','concentration'],'#86efac',0.15,'#4ade80',0.30,'#16a34a',0.60,'#14532d'],'line-width':['step',['get','concentration'],1,0.15,1.5,0.30,2,0.60,2.5],'line-opacity':.8}},bf);
-  map.addLayer({id:'current-line',type:'line',source:'currents',layout:{visibility:LS.currents?'visible':'none'},paint:{'line-color':'#000000','line-width':2,'line-opacity':.75}},bf);
+  map.addLayer({id:'current-line',type:'line',source:'currents',layout:{visibility:LS.currents?'visible':'none'},paint:{'line-color':'#000000','line-width':1,'line-opacity':.75}},bf);
   var sv=LS.ssh?'visible':'none';
   map.addLayer({id:'ssh-cold',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'cold_eddy'],layout:{visibility:sv},paint:{'line-color':'#60a5fa','line-width':2,'line-opacity':.8,'line-dasharray':[5,3]}},bf);
   map.addLayer({id:'ssh-neutral',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'neutral'],layout:{visibility:sv},paint:{'line-color':'#94a3b8','line-width':1,'line-opacity':.5,'line-dasharray':[2,3]}},bf);

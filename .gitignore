@@ -12,7 +12,8 @@ data/*.tif
 *.tif
 
 # Keep generated GeoJSON (small, needed by web app)
-# !data/*.geojson
+!data/*.geojson
+!data/*/*.geojson
 
 # OS
 .DS_Store

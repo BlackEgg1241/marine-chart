@@ -274,9 +274,13 @@ def detect_sst_fronts(sst_file, threshold=SST_GRADIENT_THRESHOLD):
     )
 
     # Extract isotherms at all marlin-relevant temperatures (deduplicated)
-    # Only draw an isotherm if it falls within the actual SST data range
-    data_min = float(np.nanmin(data_smooth[~mask]))
-    data_max = float(np.nanmax(data_smooth[~mask]))
+    # Extract isotherms from lightly-smoothed data (sigma=0.5) so they closely
+    # match the visible SST gradient rather than the front-detection smooth field
+    iso_data = gaussian_filter(data, sigma=0.5)
+    iso_data[mask] = np.nan
+
+    data_min = float(np.nanmin(iso_data[~mask]))
+    data_max = float(np.nanmax(iso_data[~mask]))
     seen_temps = set()
     isotherm_features = []
     for species, temps in MARLIN_TEMPS.items():
@@ -287,7 +291,8 @@ def detect_sst_fronts(sst_file, threshold=SST_GRADIENT_THRESHOLD):
             if temp < data_min - 0.5 or temp > data_max + 0.5:
                 continue
             iso = _contours_to_geojson(
-                data_smooth, lons, lats, temp,
+                np.where(mask, float(np.nanmean(iso_data[~mask])), iso_data),
+                lons, lats, temp,
                 properties={
                     "type": "isotherm",
                     "temperature": temp,
@@ -550,8 +555,8 @@ def process_currents(currents_file):
                 continue
 
             direction = np.degrees(np.arctan2(u_val, v_val)) % 360
-            # Arrow scale: 0.15 degrees per m/s  (~17 km for 1 m/s current)
-            scale = 0.15
+            # Arrow scale: 0.075 degrees per m/s  (~8 km for 1 m/s current)
+            scale = 0.075
             dx = u_val * scale
             dy = v_val * scale
             ox, oy = float(lons[j]), float(lats[i])
@@ -559,7 +564,7 @@ def process_currents(currents_file):
 
             # Build arrowhead: small V at the tip pointing in travel direction
             angle_rad = np.arctan2(dx, dy)
-            head = 0.015  # arrowhead arm length in degrees
+            head = 0.0075  # arrowhead arm length in degrees
             spread = np.radians(30)
             ax1 = ex - head * np.sin(angle_rad + spread)
             ay1 = ey - head * np.cos(angle_rad + spread)
@@ -854,8 +859,13 @@ def main():
             "lat_max": args.bbox[3],
         }
 
-    OUTPUT_DIR = args.output
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    # Always write to a dated subfolder so the UI can navigate by date,
+    # and ALSO write to the base output dir as the "latest" copy.
+    base_output = args.output
+    dated_output = os.path.join(base_output, date_str)
+    os.makedirs(base_output, exist_ok=True)
+    os.makedirs(dated_output, exist_ok=True)
+    OUTPUT_DIR = dated_output
 
     print(f"\n🐟 Marlin Zone Data Pipeline")
     print(f"   Date:   {date_str}")
@@ -889,41 +899,49 @@ def main():
         except Exception as e:
             print(f"[SSH/Eddies] Fetch error: {e}")
 
+    def _nc(name):
+        """Find a NetCDF file: prefer dated dir, fall back to base dir."""
+        p = os.path.join(OUTPUT_DIR, name)
+        if os.path.exists(p):
+            return p
+        p2 = os.path.join(base_output, name)
+        return p2 if os.path.exists(p2) else None
+
     # Process SST fronts
-    sst_file = os.path.join(OUTPUT_DIR, "sst_raw.nc")
-    if os.path.exists(sst_file):
+    sst_file = _nc("sst_raw.nc")
+    if sst_file:
         try:
             detect_sst_fronts(sst_file)
         except Exception as e:
             print(f"[SST Fronts] Error: {e}")
 
     # Process chlorophyll edges
-    chl_file = os.path.join(OUTPUT_DIR, "chl_raw.nc")
-    if os.path.exists(chl_file):
+    chl_file = _nc("chl_raw.nc")
+    if chl_file:
         try:
             detect_chlorophyll_edges(chl_file)
         except Exception as e:
             print(f"[Chlorophyll Edges] Error: {e}")
 
     # Process water clarity (KD490)
-    kd_file = os.path.join(OUTPUT_DIR, "kd490_raw.nc")
-    if os.path.exists(kd_file):
+    kd_file = _nc("kd490_raw.nc")
+    if kd_file:
         try:
             process_water_clarity(kd_file)
         except Exception as e:
             print(f"[Water Clarity] Processing error: {e}")
 
     # Process SSH eddies
-    ssh_file = os.path.join(OUTPUT_DIR, "ssh_raw.nc")
-    if os.path.exists(ssh_file):
+    ssh_file = _nc("ssh_raw.nc")
+    if ssh_file:
         try:
             process_ssh(ssh_file)
         except Exception as e:
             print(f"[SSH/Eddies] Processing error: {e}")
 
     # Process currents
-    cur_file = os.path.join(OUTPUT_DIR, "currents_raw.nc")
-    if os.path.exists(cur_file):
+    cur_file = _nc("currents_raw.nc")
+    if cur_file:
         try:
             process_currents(cur_file)
         except Exception as e:
@@ -948,8 +966,20 @@ def main():
     # Generate report
     generate_report(date_str, bbox)
 
-    print("✅ Done! GeoJSON files are in the data/ directory.")
-    print("   Copy them to your web app's data/ folder and reload.\n")
+    # Copy GeoJSON files to base data/ dir so latest data is always at data/*.geojson
+    import shutil
+    geojson_files = [
+        "sst_fronts.geojson", "chl_edges.geojson", "currents.geojson",
+        "bathymetry_contours.geojson", "water_clarity.geojson", "ssh_eddies.geojson",
+    ]
+    for fname in geojson_files:
+        src = os.path.join(OUTPUT_DIR, fname)
+        dst = os.path.join(base_output, fname)
+        if os.path.exists(src):
+            shutil.copy2(src, dst)
+
+    print(f"✅ Done! GeoJSON files in {OUTPUT_DIR}/ and {base_output}/")
+    print(f"   Date folder: data/{date_str}/\n")
 
 
 if __name__ == "__main__":
