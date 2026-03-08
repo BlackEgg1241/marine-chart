@@ -185,6 +185,7 @@
       <button class="layer-btn" id="btnSST" onclick="toggleLayer('sst')"><span class="icon">🌡️</span> SST</button>
       <button class="layer-btn" id="btnChloro" onclick="toggleLayer('chlorophyll')"><span class="icon">🧬</span> Chlorophyll</button>
       <button class="layer-btn" id="btnTrueColor" onclick="toggleLayer('truecolor')"><span class="icon">🛰️</span> True Colour</button>
+      <button class="layer-btn" id="btnSSHMap" onclick="toggleLayer('ssh_visual')"><span class="icon">🌊</span> Height Map</button>
     </div>
     <!-- Row 3: Analysis vector layers (scrollable) -->
     <div class="layer-row">
@@ -211,6 +212,9 @@ var BLK='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC
 var GW='https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi';
 function gu(l,d,t){return GW+'?SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS='+l+'&FORMAT=image/png&TRANSPARENT='+(t!==false?'true':'false')+'&WIDTH=256&HEIGHT=256&SRS=EPSG:3857&BBOX={bbox-epsg-3857}&TIME='+d}
 var GL={chl:'MODIS_Aqua_L2_Chlorophyll_A',sst:'GHRSST_L4_MUR_Sea_Surface_Temperature',tc:'MODIS_Terra_CorrectedReflectance_TrueColor'};
+// CMEMS Sea Level Anomaly WMTS — NRT daily, no auth required
+var CMEMS_SLA='https://wmts.marine.copernicus.eu/teroWmts/?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=SEALEVEL_GLO_PHY_L4_NRT_008_046/cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.25deg_P1D_202311/sla&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&TIME=DATE&STYLE=cmap:balance,range=-0.5/0.5';
+function guSLA(d){return CMEMS_SLA.replace('TIME=DATE','TIME='+d);}
 
 var SPOTS=[
   {c:[114.98,-32.01],n:'Perth Canyon Head',d:'200m→1000m drop. Prime upwelling zone.'},
@@ -234,7 +238,7 @@ var SPOTS=[
 ];
 
 var map,cBM='ocean',gpsWId=null,gM='off',cPos=null,fGPS=false,simI=null,trk=[],sIdx=0;
-var LS={seamark:true,marlin:false,chlorophyll:false,sst:false,truecolor:false,sst_fronts:false,chl_edges:false,currents:false,bathymetry:false,clarity:false,ssh:false};
+var LS={seamark:true,marlin:false,chlorophyll:false,sst:false,truecolor:false,ssh_visual:false,sst_fronts:false,chl_edges:false,currents:false,bathymetry:false,clarity:false,ssh:false};
 // Opacity-based toggling for GeoJSON layers — tiles stay loaded, no cache purge on toggle
 var gLO={'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue':['line-opacity',.8],'isotherm-striped':['line-opacity',.8],'isotherm-label':['text-opacity',1],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.95],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'bathy-glow':['line-opacity',.12],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'deep-water-fill':['fill-opacity',.08]};
 function sGL(id,on){if(!map.getLayer(id))return;var e=gLO[id];e?map.setPaintProperty(id,e[0],on?e[1]:0):map.setLayoutProperty(id,'visibility',on?'visible':'none')}
@@ -257,6 +261,7 @@ function initMap(){
     'g-chl':{type:'raster',tiles:[gu(GL.chl,cDate)],tileSize:256,maxzoom:8},
     'g-sst':{type:'raster',tiles:[gu(GL.sst,cDate)],tileSize:256,maxzoom:9},
     'g-tc':{type:'raster',tiles:[gu(GL.tc,cDate,false)],tileSize:256,maxzoom:9},
+    'g-ssh':{type:'raster',tiles:[guSLA(cDate)],tileSize:256,maxzoom:8},
     spots:{type:'geojson',data:{type:'FeatureCollection',features:SPOTS.map(function(s){return{type:'Feature',geometry:{type:'Point',coordinates:s.c},properties:{name:s.n,desc:s.d}}})}},
     'sst-fronts':{type:'geojson',data:'data/sst_fronts.geojson'},
     'chl-edges':{type:'geojson',data:'data/chl_edges.geojson'},
@@ -272,6 +277,7 @@ function initMap(){
     {id:'g-tc-layer',type:'raster',source:'g-tc',layout:{visibility:'none'},paint:{'raster-opacity':.85}},
     {id:'g-sst-layer',type:'raster',source:'g-sst',layout:{visibility:'none'},paint:{'raster-opacity':.6}},
     {id:'g-chl-layer',type:'raster',source:'g-chl',layout:{visibility:'none'},paint:{'raster-opacity':.7}},
+    {id:'g-ssh-layer',type:'raster',source:'g-ssh',layout:{visibility:'none'},paint:{'raster-opacity':.7}},
 {id:'spot-glow',type:'circle',source:'spots',layout:{visibility:'none'},paint:{'circle-radius':16,'circle-color':'#f43f5e','circle-opacity':.15,'circle-blur':.8}},
     {id:'spot-dot',type:'circle',source:'spots',layout:{visibility:'none'},paint:{'circle-radius':6,'circle-color':'#f43f5e','circle-stroke-width':2,'circle-stroke-color':'#fff','circle-opacity':.9}},
     {id:'spot-label',type:'symbol',source:'spots',layout:{visibility:'none','text-field':['get','name'],'text-size':10,'text-offset':[0,1.5],'text-anchor':'top','text-font':['Open Sans Regular']},paint:{'text-color':'#fbbf24','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5}},
@@ -368,16 +374,18 @@ var ML=['spot-glow','spot-dot','spot-label'];
 
 function toggleLayer(n){
   LS[n]=!LS[n];var a=LS[n];
-  var lm={seamark:'sm-layer',chlorophyll:'g-chl-layer',sst:'g-sst-layer',truecolor:'g-tc-layer',
+  var lm={seamark:'sm-layer',chlorophyll:'g-chl-layer',sst:'g-sst-layer',truecolor:'g-tc-layer',ssh_visual:'g-ssh-layer',
     sst_fronts:['sst-front-glow','sst-front-line','isotherm-blue','isotherm-striped','isotherm-label'],
     chl_edges:'chl-edge-line',currents:'current-line',
     bathymetry:['bathy-100','bathy-glow','bathy-200','bathy-500','bathy-1000'],
     clarity:['clarity-clean','clarity-turbid','clarity-bloom'],
     ssh:['ssh-cold','ssh-neutral','ssh-warm','ssh-warm-core']};
-  var bm={seamark:{id:'btnSeamarks',c:'on'},chlorophyll:{id:'btnChloro',c:'on-green'},sst:{id:'btnSST',c:'on-red'},truecolor:{id:'btnTrueColor',c:'on-purple'},marlin:{id:'btnMarlin',c:'on-orange'},sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},currents:{id:'btnCurrents',c:'on'},bathymetry:{id:'btnBathy',c:'on-orange'},clarity:{id:'btnClarity',c:'on'},ssh:{id:'btnSSH',c:'on-orange'}};
+  var bm={seamark:{id:'btnSeamarks',c:'on'},chlorophyll:{id:'btnChloro',c:'on-green'},sst:{id:'btnSST',c:'on-red'},truecolor:{id:'btnTrueColor',c:'on-purple'},ssh_visual:{id:'btnSSHMap',c:'on'},marlin:{id:'btnMarlin',c:'on-orange'},sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},currents:{id:'btnCurrents',c:'on'},bathymetry:{id:'btnBathy',c:'on-orange'},clarity:{id:'btnClarity',c:'on'},ssh:{id:'btnSSH',c:'on-orange'}};
   if(n==='marlin'){
     for(var i=0;i<ML.length;i++){if(map.getLayer(ML[i]))map.setLayoutProperty(ML[i],'visibility',a?'visible':'none')}
-    if(map.getLayer('g-sst-layer'))map.setLayoutProperty('g-sst-layer','visibility',(a||LS.sst)?'visible':'none');
+    // Sync SST on with marlin so the button state matches and it toggles correctly
+    if(a&&!LS.sst){LS.sst=true;document.getElementById('btnSST').classList.add('on-red')}
+    if(map.getLayer('g-sst-layer'))map.setLayoutProperty('g-sst-layer','visibility',LS.sst?'visible':'none');
     sGL('deep-water-fill',a);
     document.getElementById('marlinLegend').classList.toggle('active',a);
     // Marlin Zones is a master toggle — also control all analytical overlay layers
@@ -392,10 +400,9 @@ function toggleLayer(n){
   } else {
     var ln=lm[n];
     if(ln){var ids=Array.isArray(ln)?ln:[ln];for(var i=0;i<ids.length;i++){sGL(ids[i],a)}}
-    if(n==='sst'&&!a&&LS.marlin)map.setLayoutProperty('g-sst-layer','visibility','visible');
   }
   var b=bm[n];if(b){var el=document.getElementById(b.id);a?el.classList.add(b.c):el.classList.remove(b.c)}
-  var any=LS.chlorophyll||LS.sst||LS.truecolor||LS.marlin;
+  var any=LS.chlorophyll||LS.sst||LS.truecolor||LS.ssh_visual||LS.marlin;
   document.getElementById('dateBar').classList.toggle('active',any);
 }
 
@@ -405,7 +412,7 @@ function setBasemap(n){
   var fg=null;for(var i=0;i<gL.length;i++){if(map.getLayer(gL[i])){fg=gL[i];break}}
   var rm=['sm-layer','clarity-bloom','clarity-turbid','clarity-clean','ssh-warm-core','ssh-warm','ssh-neutral','ssh-cold','current-line','chl-edge-line','isotherm-label','isotherm-striped','isotherm-blue','sst-front-line','sst-front-glow','bathy-1000','bathy-500','bathy-200','bathy-glow','bathy-100','deep-water-fill','spot-label','spot-dot','spot-glow','g-chl-layer','g-sst-layer','g-tc-layer','ol-layer','basemap-layer'];
   for(var i=0;i<rm.length;i++){if(map.getLayer(rm[i]))map.removeLayer(rm[i])}
-  var rs=['basemap','ol','g-chl','g-sst','g-tc'];
+  var rs=['basemap','ol','g-chl','g-sst','g-tc','g-ssh'];
   for(var i=0;i<rs.length;i++){if(map.getSource(rs[i]))map.removeSource(rs[i])}
   map.addSource('basemap',{type:'raster',tiles:bm.tiles,tileSize:256,attribution:bm.attr,maxzoom:bm.mz});
   var sl=(n==='ocean');
@@ -414,8 +421,10 @@ function setBasemap(n){
   map.addLayer({id:'basemap-layer',type:'raster',source:'basemap'},bf);
   map.addLayer({id:'ol-layer',type:'raster',source:'ol',paint:{'raster-opacity':sl?.9:0}},bf);
   var go=['g-tc','g-sst','g-chl'];
-  var gc={'g-tc':{l:GL.tc,z:9,o:.85,v:LS.truecolor,t:false},'g-sst':{l:GL.sst,z:9,o:.6,v:LS.sst||LS.marlin},'g-chl':{l:GL.chl,z:8,o:.7,v:LS.chlorophyll}};
+  var gc={'g-tc':{l:GL.tc,z:9,o:.85,v:LS.truecolor,t:false},'g-sst':{l:GL.sst,z:9,o:.6,v:LS.sst},'g-chl':{l:GL.chl,z:8,o:.7,v:LS.chlorophyll}};
   for(var i=0;i<go.length;i++){var k=go[i],c=gc[k];map.addSource(k,{type:'raster',tiles:[gu(c.l,cDate,c.t)],tileSize:256,maxzoom:c.z});map.addLayer({id:k+'-layer',type:'raster',source:k,layout:{visibility:c.v?'visible':'none'},paint:{'raster-opacity':c.o}},bf)}
+  map.addSource('g-ssh',{type:'raster',tiles:[guSLA(cDate)],tileSize:256,maxzoom:8});
+  map.addLayer({id:'g-ssh-layer',type:'raster',source:'g-ssh',layout:{visibility:LS.ssh_visual?'visible':'none'},paint:{'raster-opacity':.7}},bf);
   var mv=LS.marlin?'visible':'none';
   map.addLayer({id:'spot-glow',type:'circle',source:'spots',layout:{visibility:mv},paint:{'circle-radius':16,'circle-color':'#f43f5e','circle-opacity':.15,'circle-blur':.8}},bf);
   map.addLayer({id:'spot-dot',type:'circle',source:'spots',layout:{visibility:mv},paint:{'circle-radius':6,'circle-color':'#f43f5e','circle-stroke-width':2,'circle-stroke-color':'#fff','circle-opacity':.9}},bf);
