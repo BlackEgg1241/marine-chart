@@ -126,8 +126,7 @@
 <!-- Basemap switcher - compact horizontal row -->
 
 <div class="basemap-sw">
-  <div class="bm-btn active" id="bmGA" onclick="setBasemap('ga-bathy')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#0a2e4a,#1a5a8a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🌊</span></div><div class="bm-label">Bathy</div></div>
-  <div class="bm-btn" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#1e5a8a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🗺️</span></div><div class="bm-label">Ocean</div></div>
+  <div class="bm-btn active" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#1e5a8a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🗺️</span></div><div class="bm-label">Ocean</div></div>
   <div class="bm-btn" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
   <div class="bm-btn" id="bmStreet" onclick="setBasemap('street')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#d4cbb8,#bfb5a0);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🏙️</span></div><div class="bm-label">Street</div></div>
 </div>
@@ -203,7 +202,7 @@
 </div>
 
 <script>
-var BM={'ga-bathy':{tiles:['https://services.ga.gov.au/gis/rest/services/World_Bathymetry_Base_Map/MapServer/tile/{z}/{y}/{x}'],attr:'© Geoscience Australia',mz:15,btn:'bmGA'},ocean:{tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}'],attr:'© Esri, GEBCO',mz:16,btn:'bmOcean'},satellite:{tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],attr:'© Esri, Maxar',mz:19,btn:'bmSat'},street:{tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],attr:'© OpenStreetMap',mz:19,btn:'bmStreet'}};
+var BM={ocean:{tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}'],attr:'© Esri, GEBCO',mz:16,btn:'bmOcean'},satellite:{tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],attr:'© Esri, Maxar',mz:19,btn:'bmSat'},street:{tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],attr:'© OpenStreetMap',mz:19,btn:'bmStreet'}};
 var OL_URL='https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}';
 var SM_URL='https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png';
 var BLK='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
@@ -219,7 +218,7 @@ var SPOTS=[
   {c:[115.05,-31.75],n:'Two Rocks Canyon',d:'Northern canyon. Shelf edge access.'}
 ];
 
-var map,cBM='ga-bathy',gpsWId=null,gM='off',cPos=null,fGPS=false,simI=null,trk=[],sIdx=0;
+var map,cBM='ocean',gpsWId=null,gM='off',cPos=null,fGPS=false,simI=null,trk=[],sIdx=0;
 var LS={seamark:true,marlin:false,chlorophyll:false,sst:false,truecolor:false,sst_fronts:false,chl_edges:false,currents:false,bathymetry:false,clarity:false,ssh:false};
 var iD=new Date();iD.setDate(iD.getDate()-3);var cDate=iD.toISOString().split('T')[0];
 var SR=[[115.7486,-32.0569],[115.7440,-32.0550],[115.7380,-32.0520],[115.7300,-32.0490],[115.7200,-32.0450],[115.7080,-32.0400],[115.6950,-32.0350],[115.6800,-32.0300],[115.6650,-32.0250],[115.6500,-32.0200],[115.6350,-32.0150],[115.6200,-32.0100],[115.6050,-32.0050],[115.5900,-32.0000],[115.5750,-31.9960],[115.5600,-31.9930],[115.5450,-31.9910],[115.5300,-31.9900],[115.5180,-31.9890],[115.5080,-31.9880],[115.4980,-31.9870]];
@@ -232,7 +231,7 @@ function sE(m){var e=document.getElementById('gpsError');e.textContent='GPS: '+m
 function hE(){document.getElementById('gpsError').classList.remove('active')}
 
 function initMap(){
-  var bm=BM['ga-bathy'];
+  var bm=BM['ocean'];
   var src={
     basemap:{type:'raster',tiles:bm.tiles,tileSize:256,attribution:bm.attr,maxzoom:bm.mz},
     'ol':{type:'raster',tiles:[BLK],tileSize:256,maxzoom:16},
@@ -241,12 +240,12 @@ function initMap(){
     'g-sst':{type:'raster',tiles:[gu(GL.sst,cDate)],tileSize:256,maxzoom:9},
     'g-tc':{type:'raster',tiles:[gu(GL.tc,cDate,false)],tileSize:256,maxzoom:9},
     spots:{type:'geojson',data:{type:'FeatureCollection',features:SPOTS.map(function(s){return{type:'Feature',geometry:{type:'Point',coordinates:s.c},properties:{name:s.n,desc:s.d}}})}},
-    'sst-fronts':{type:'geojson',data:'data/sst_fronts.geojson'},
-    'chl-edges':{type:'geojson',data:'data/chl_edges.geojson'},
-    'currents':{type:'geojson',data:'data/currents.geojson'},
-    'bathymetry':{type:'geojson',data:'data/bathymetry_contours.geojson'},
-    'water-clarity':{type:'geojson',data:'data/water_clarity.geojson'},
-    'ssh-eddies':{type:'geojson',data:'data/ssh_eddies.geojson'}
+    'sst-fronts':{type:'geojson',data:'data/sst_fronts.geojson',tolerance:0},
+    'chl-edges':{type:'geojson',data:'data/chl_edges.geojson',tolerance:0},
+    'currents':{type:'geojson',data:'data/currents.geojson',tolerance:0},
+    'bathymetry':{type:'geojson',data:'data/bathymetry_contours.geojson',tolerance:0},
+    'water-clarity':{type:'geojson',data:'data/water_clarity.geojson',tolerance:0},
+    'ssh-eddies':{type:'geojson',data:'data/ssh_eddies.geojson',tolerance:0}
   };
   var ly=[
     {id:'basemap-layer',type:'raster',source:'basemap'},
