@@ -302,9 +302,15 @@ function rG(){
   var bef=map.getLayer('shelf-glow')?'shelf-glow':(map.getLayer('sm-layer')?'sm-layer':undefined);
   var ord=['g-tc','g-sst','g-chl'];
   for(var i=0;i<ord.length;i++){var k=ord[i],c=cfg[k];map.addSource(k,{type:'raster',tiles:[gu(c.l,cDate,c.t)],tileSize:256,maxzoom:c.z});map.addLayer({id:k+'-layer',type:'raster',source:k,layout:{visibility:c.v?'visible':'none'},paint:{'raster-opacity':c.o}},bef)}
-  // Reload GeoJSON layers from date-specific folder (falls back gracefully if missing)
+  // Reload GeoJSON layers — use dated folder if available, else fall back to data/ (latest)
   var gj={'sst-fronts':'sst_fronts.geojson','chl-edges':'chl_edges.geojson','currents':'currents.geojson','water-clarity':'water_clarity.geojson','ssh-eddies':'ssh_eddies.geojson'};
-  for(var src in gj){if(map.getSource(src))map.getSource(src).setData('data/'+cDate+'/'+gj[src])}
+  Object.keys(gj).forEach(function(src){
+    if(!map.getSource(src))return;
+    var dated='data/'+cDate+'/'+gj[src],fallback='data/'+gj[src];
+    fetch(dated,{method:'HEAD'}).then(function(r){
+      map.getSource(src).setData(r.ok?dated:fallback);
+    }).catch(function(){map.getSource(src).setData(fallback)});
+  });
 }
 
 var ML=['shelf-line','shelf-glow','spot-glow','spot-dot','spot-label'];
