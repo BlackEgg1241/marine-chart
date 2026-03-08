@@ -379,7 +379,6 @@ def extract_bathymetry_contours(gebco_file, depths=[-50, -100, -200, -500, -1000
     """
     try:
         import rasterio
-        from rasterio import features as rio_features
     except ImportError:
         print("[Bathymetry] rasterio not installed. Run: pip install rasterio")
         print("[Bathymetry] Alternatively, use GDAL directly:")
@@ -388,26 +387,45 @@ def extract_bathymetry_contours(gebco_file, depths=[-50, -100, -200, -500, -1000
 
     print(f"[Bathymetry] Extracting contours from {gebco_file}...")
 
+    DEPTH_STYLE = {
+        -200:  {"label": "200m shelf edge", "color": "#f59e0b"},
+        -500:  {"label": "500m contour",    "color": "#06b6d4"},
+        -1000: {"label": "1000m contour",   "color": "#3b82f6"},
+    }
+
     with rasterio.open(gebco_file) as src:
-        data = src.read(1)
-        transform = src.transform
+        data = src.read(1).astype(float)
+        t = src.transform
+        height, width = data.shape
+        lons = np.array([t.c + (j + 0.5) * t.a for j in range(width)])
+        lats = np.array([t.f + (i + 0.5) * t.e for i in range(height)])
+        nodata = src.nodata
+        if nodata is not None:
+            data[data == nodata] = np.nan
+
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
 
     all_features = []
     for depth in depths:
-        # Create binary mask: 1 where depth <= target, 0 otherwise
-        binary = (data <= depth).astype(np.uint8)
-
-        # Extract polygon boundaries
-        for geom, val in rio_features.shapes(binary, transform=transform):
-            if val == 1:
-                # Convert polygon boundary to linestring
-                coords = geom["coordinates"][0]
-                if len(coords) > 2:
+        style = DEPTH_STYLE.get(depth, {"label": f"{abs(depth)}m", "color": "#94a3b8"})
+        fig, ax = plt.subplots()
+        cs = ax.contour(lons, lats, data, levels=[depth])
+        plt.close(fig)
+        segs = 0
+        for seg_list in cs.allsegs:
+            for seg in seg_list:
+                # Filter out tiny artefact segments (< 10 points)
+                if len(seg) >= 10:
+                    segs += 1
+                    coords = [[round(float(x), 5), round(float(y), 5)] for x, y in seg]
                     all_features.append({
                         "type": "Feature",
                         "geometry": {"type": "LineString", "coordinates": coords},
-                        "properties": {"depth": depth, "label": f"{abs(depth)}m"},
+                        "properties": {"depth": depth, "label": style["label"], "color": style["color"]},
                     })
+        print(f"[Bathymetry] {depth}m: {segs} segments")
 
     geojson = {"type": "FeatureCollection", "features": all_features}
     output_path = os.path.join(OUTPUT_DIR, "bathymetry_contours.geojson")
@@ -458,7 +476,7 @@ def fetch_bathymetry_gmrt(bbox, depths=[-200, -500, -1000]):
         f"&east={bbox['lon_max'] + pad}"
         f"&south={bbox['lat_min'] - pad}"
         f"&north={bbox['lat_max'] + pad}"
-        f"&layer=topo&format=geotiff&resolution=low"
+        f"&layer=topo&format=geotiff&resolution=high"
     )
 
     print(f"[Bathymetry] Downloading GMRT GeoTIFF...")

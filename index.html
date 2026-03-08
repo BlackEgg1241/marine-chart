@@ -297,6 +297,15 @@ function toggleLayer(n){
     for(var i=0;i<ML.length;i++){if(map.getLayer(ML[i]))map.setLayoutProperty(ML[i],'visibility',a?'visible':'none')}
     if(map.getLayer('g-sst-layer'))map.setLayoutProperty('g-sst-layer','visibility',(a||LS.sst)?'visible':'none');
     document.getElementById('marlinLegend').classList.toggle('active',a);
+    // Marlin Zones is a master toggle — also control all analytical overlay layers
+    var mSub={sst_fronts:['sst-front-line','isotherm-line','isotherm-label'],chl_edges:'chl-edge-line',bathymetry:['bathy-glow','bathy-200','bathy-500','bathy-1000']};
+    var mBtns={sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},bathymetry:{id:'btnBathy',c:'on-orange'}};
+    for(var k in mSub){
+      LS[k]=a;
+      var ids2=Array.isArray(mSub[k])?mSub[k]:[mSub[k]];
+      for(var j=0;j<ids2.length;j++){if(map.getLayer(ids2[j]))map.setLayoutProperty(ids2[j],'visibility',a?'visible':'none')}
+      var sb=mBtns[k];if(sb){var el2=document.getElementById(sb.id);a?el2.classList.add(sb.c):el2.classList.remove(sb.c)}
+    }
   } else {
     var ln=lm[n];
     if(ln){var ids=Array.isArray(ln)?ln:[ln];for(var i=0;i<ids.length;i++){if(map.getLayer(ids[i]))map.setLayoutProperty(ids[i],'visibility',a?'visible':'none')}}
