@@ -178,6 +178,46 @@ def fetch_copernicus_kd490(date_str, bbox):
     return None
 
 
+def fetch_copernicus_ssh(date_str, bbox):
+    """
+    Download Sea Level Anomaly (SLA) from CMEMS satellite altimetry.
+    SLA shows eddies: positive = warm-core anticyclonic eddy (marlin habitat).
+    Dataset: cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.125deg_P1D
+    Satellite altimetry has ~3-5 day latency; steps back automatically.
+    """
+    import copernicusmarine
+    from datetime import datetime, timedelta
+
+    output_file = os.path.join(OUTPUT_DIR, "ssh_raw.nc")
+    base_dt = datetime.strptime(date_str, "%Y-%m-%d")
+
+    for delta in range(0, 8):
+        try_date = (base_dt - timedelta(days=delta)).strftime("%Y-%m-%d")
+        print(f"[SSH/Eddies] Fetching SLA for {try_date}...")
+        try:
+            copernicusmarine.subset(
+                dataset_id="cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.125deg_P1D",
+                variables=["sla"],
+                minimum_longitude=bbox["lon_min"],
+                maximum_longitude=bbox["lon_max"],
+                minimum_latitude=bbox["lat_min"],
+                maximum_latitude=bbox["lat_max"],
+                start_datetime=f"{try_date}T00:00:00",
+                end_datetime=f"{try_date}T23:59:59",
+                output_filename=output_file,
+                output_directory=".",
+                overwrite=True,
+            )
+            print(f"[SSH/Eddies] Saved to {output_file} (data date: {try_date})")
+            return output_file
+        except Exception as e:
+            if delta < 7:
+                print(f"[SSH/Eddies] {try_date} not available, trying earlier...")
+            else:
+                raise
+    return None
+
+
 # ---------------------------------------------------------------------------
 # 2. SST Front Detection
 # ---------------------------------------------------------------------------
@@ -408,6 +448,71 @@ def process_water_clarity(kd490_file):
 
 
 # ---------------------------------------------------------------------------
+# 3c. SSH / Eddy Detection (Sea Level Anomaly)
+# ---------------------------------------------------------------------------
+# SLA contour levels (m): eddy structure boundaries
+# Positive SLA = warm-core anticyclonic eddy (clockwise in S. hemisphere)
+#   → traps warm water, marlin congregate on leading edge
+# Negative SLA = cold-core cyclonic eddy → upwelling, bait but cold
+SLA_LEVELS = [
+    (-0.15, "cold_eddy",  "#60a5fa"),   # blue — cold eddy
+    ( 0.00, "neutral",    "#e2e8f0"),   # white — mean sea level
+    ( 0.15, "warm_eddy",  "#f97316"),   # orange — warm eddy edge
+]
+
+def process_ssh(ssh_file):
+    """
+    Extract SLA contours to show eddy structure.
+    Anglers look for the warm side of the 0.0 m contour (positive SLA).
+    """
+    import xarray as xr
+    from scipy.ndimage import gaussian_filter
+
+    print("[SSH/Eddies] Processing SLA contours...")
+    ds = xr.open_dataset(ssh_file)
+    # variable may be 'sla' or 'adt' depending on product version
+    varname = "sla" if "sla" in ds else "adt"
+    sla = ds[varname].squeeze()
+
+    lons = sla.longitude.values if "longitude" in sla.dims else sla.lon.values
+    lats = sla.latitude.values if "latitude" in sla.dims else sla.lat.values
+    data = sla.values.copy().astype(float)
+
+    mask = np.isnan(data)
+    if not mask.all():
+        fill = float(np.nanmean(data))
+        data[mask] = fill
+        data_smooth = gaussian_filter(data, sigma=0.5)
+        data_smooth[mask] = np.nan
+    else:
+        print("[SSH/Eddies] No valid data")
+        return None
+
+    all_features = []
+    data_min = float(np.nanmin(data_smooth))
+    data_max = float(np.nanmax(data_smooth))
+
+    for level, label, color in SLA_LEVELS:
+        if level < data_min - 0.05 or level > data_max + 0.05:
+            continue
+        feats = _contours_to_geojson(
+            np.where(np.isnan(data_smooth), fill, data_smooth),
+            lons, lats, level,
+            properties={"type": "sla_contour", "sla": level, "label": label, "color": color}
+        )
+        feats = [f for f in feats if len(f["geometry"]["coordinates"]) >= 5]
+        all_features.extend(feats)
+
+    geojson = {"type": "FeatureCollection", "features": all_features}
+    output_path = os.path.join(OUTPUT_DIR, "ssh_eddies.geojson")
+    with open(output_path, "w") as f:
+        json.dump(geojson, f)
+
+    print(f"[SSH/Eddies] {len(all_features)} contours → {output_path}")
+    return output_path
+
+
+# ---------------------------------------------------------------------------
 # 4. Current Vectors (for arrow overlay)
 # ---------------------------------------------------------------------------
 def process_currents(currents_file):
@@ -440,22 +545,34 @@ def process_currents(currents_file):
                 continue
 
             speed = np.sqrt(u_val**2 + v_val**2)
-            if speed < 0.01:
+            if speed < 0.02:
                 continue
 
             direction = np.degrees(np.arctan2(u_val, v_val)) % 360
-            # Arrow endpoint — exaggerated for visibility
-            scale = 0.02  # degrees per 0.1 m/s
-            end_lon = float(lons[j]) + u_val * scale
-            end_lat = float(lats[i]) + v_val * scale
+            # Arrow scale: 0.15 degrees per m/s  (~17 km for 1 m/s current)
+            scale = 0.15
+            dx = u_val * scale
+            dy = v_val * scale
+            ox, oy = float(lons[j]), float(lats[i])
+            ex, ey = ox + dx, oy + dy
 
+            # Build arrowhead: small V at the tip pointing in travel direction
+            angle_rad = np.arctan2(dx, dy)
+            head = 0.015  # arrowhead arm length in degrees
+            spread = np.radians(30)
+            ax1 = ex - head * np.sin(angle_rad + spread)
+            ay1 = ey - head * np.cos(angle_rad + spread)
+            ax2 = ex - head * np.sin(angle_rad - spread)
+            ay2 = ey - head * np.cos(angle_rad - spread)
+
+            # Shaft + arrowhead as a single MultiLineString
             features.append({
                 "type": "Feature",
                 "geometry": {
-                    "type": "LineString",
+                    "type": "MultiLineString",
                     "coordinates": [
-                        [float(lons[j]), float(lats[i])],
-                        [end_lon, end_lat],
+                        [[ox, oy], [ex, ey]],
+                        [[ax1, ay1], [ex, ey], [ax2, ay2]],
                     ],
                 },
                 "properties": {
@@ -766,6 +883,11 @@ def main():
         except Exception as e:
             print(f"[Water Clarity] Fetch error: {e}")
 
+        try:
+            fetch_copernicus_ssh(date_str, bbox)
+        except Exception as e:
+            print(f"[SSH/Eddies] Fetch error: {e}")
+
     # Process SST fronts
     sst_file = os.path.join(OUTPUT_DIR, "sst_raw.nc")
     if os.path.exists(sst_file):
@@ -789,6 +911,14 @@ def main():
             process_water_clarity(kd_file)
         except Exception as e:
             print(f"[Water Clarity] Processing error: {e}")
+
+    # Process SSH eddies
+    ssh_file = os.path.join(OUTPUT_DIR, "ssh_raw.nc")
+    if os.path.exists(ssh_file):
+        try:
+            process_ssh(ssh_file)
+        except Exception as e:
+            print(f"[SSH/Eddies] Processing error: {e}")
 
     # Process currents
     cur_file = os.path.join(OUTPUT_DIR, "currents_raw.nc")
