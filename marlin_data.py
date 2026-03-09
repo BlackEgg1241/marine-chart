@@ -548,11 +548,12 @@ def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None, tif_
 # Weights reflect relative importance for blue marlin habitat selection.
 BLUE_MARLIN_WEIGHTS = {
     # Dynamic ocean conditions (these determine the score)
-    "sst":        0.30,   # SST — primary habitat driver
+    "sst":        0.25,   # SST — primary habitat driver
     "sst_front":  0.15,   # SST gradient — prey aggregation at fronts (modulated by SST)
-    "chl":        0.10,   # Chlorophyll — bait productivity indicator
-    "ssh":        0.15,   # Sea level anomaly — warm-core eddies (relative)
-    "current":    0.15,   # Current favorability — eastward/onshore flow into canyon
+    "chl":        0.08,   # Chlorophyll — bait productivity indicator
+    "ssh":        0.15,   # Sea level anomaly — warm water mass + eddies (absolute + relative)
+    "current":    0.12,   # Current favorability — warm eastward/onshore flow into canyon
+    "convergence":0.10,   # Current convergence — bait aggregation at canyon head
     "mld":        0.10,   # Mixed layer depth — shallow = catchable
     "o2":         0.025,  # Dissolved oxygen at 100m (rarely limiting in this region)
     "clarity":    0.025,  # Water clarity (rarely limiting offshore)
@@ -726,8 +727,9 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
         except Exception as e:
             print(f"[Hotspots] Depth/shelf scoring failed: {e}")
 
-    # 5. SSH score — warm-core eddies: use RELATIVE SLA (above local mean)
-    #    so localized positive anomalies (eddies) score high, flat areas score low
+    # 5. SSH score — blended absolute + relative SLA
+    #    Absolute: high SLA (>0.10m) = warm water mass present over canyon (2025: 0.20m vs 2026: 0.06m)
+    #    Relative: local highs above background = eddy edges where marlin hunt
     ssh_file = os.path.join(OUTPUT_DIR, "ssh_raw.nc")
     if os.path.exists(ssh_file):
         try:
@@ -737,17 +739,22 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
             s_lons = sla_da.longitude.values if "longitude" in sla_da.dims else sla_da.lon.values
             s_lats = sla_da.latitude.values if "latitude" in sla_da.dims else sla_da.lat.values
             sla_data = _interp_to_grid(sla_da.values.astype(float), s_lons, s_lats)
-            # Relative anomaly: subtract heavily smoothed background to isolate eddies
+            # Absolute SLA: warm water mass indicator
+            # 0 at SLA<=0, 1.0 at SLA>=0.15m (strong warm anomaly)
+            abs_score = np.clip(sla_data / 0.15, 0, 1)
+            # Relative SLA: eddy structure (local highs above background)
             sla_filled = sla_data.copy()
             sla_filled[np.isnan(sla_filled)] = np.nanmean(sla_data)
-            sla_bg = gaussian_filter(sla_filled, sigma=4)  # broad spatial mean
-            sla_relative = sla_data - sla_bg  # positive = local high (eddy)
-            # Score: 0 at relative SLA<=0, 1.0 at +0.04m above background
-            ssh_score = np.clip(sla_relative / 0.04, 0, 1)
+            sla_bg = gaussian_filter(sla_filled, sigma=4)
+            sla_relative = sla_data - sla_bg
+            rel_score = np.clip(sla_relative / 0.04, 0, 1)
+            # Blend: 50% absolute (warm water presence) + 50% relative (eddy edges)
+            ssh_score = 0.5 * abs_score + 0.5 * rel_score
             ssh_score[land] = np.nan
             _add_score("ssh", ssh_score)
+            mean_abs = np.nanmean(sla_data[~land])
             pct_high = np.sum(ssh_score[~np.isnan(ssh_score)] > 0.5) / np.sum(~np.isnan(ssh_score)) * 100
-            print(f"[Hotspots] SSH relative scoring: {pct_high:.0f}% of cells >50%")
+            print(f"[Hotspots] SSH scoring: {pct_high:.0f}% >50%, mean abs SLA={mean_abs:.3f}m")
         except Exception as e:
             print(f"[Hotspots] SSH scoring failed: {e}")
 
@@ -871,6 +878,25 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
             fav_pct = np.sum(current_score[ocean] > 0.3) / np.sum(ocean) * 100
             mean_up_sst = np.nanmean(upstream_sst[ocean])
             print(f"[Hotspots] Current scoring: {fav_pct:.0f}% favorable, upstream SST mean {mean_up_sst:.1f}°C")
+
+            # 10. Current convergence — negative divergence = converging flow
+            #     Convergence concentrates bait (pilchards, squid) at canyon head,
+            #     which is the primary mechanism that aggregates marlin.
+            #     Use the current grid (already on master grid via interpolation).
+            dudx = np.gradient(uo_data, axis=1)
+            dvdy = np.gradient(vo_data, axis=0)
+            divergence = dudx + dvdy
+            # Convergence = negative divergence. Stronger convergence = higher score.
+            # Score: 0 at div>=0 (diverging), 1.0 at div<=-0.005 (strong convergence)
+            conv_score = np.clip(-divergence / 0.005, 0, 1)
+            # Smooth to reduce noise from grid-scale artefacts
+            conv_filled = conv_score.copy()
+            conv_filled[np.isnan(conv_filled)] = 0
+            conv_score = gaussian_filter(conv_filled, sigma=1.0)
+            conv_score[land] = np.nan
+            _add_score("convergence", conv_score)
+            conv_pct = np.sum(conv_score[~np.isnan(conv_score) & ~land] > 0.3) / np.sum(~np.isnan(conv_score) & ~land) * 100
+            print(f"[Hotspots] Convergence scoring: {conv_pct:.0f}% of cells have bait-concentrating flow")
         except Exception as e:
             print(f"[Hotspots] Current scoring failed: {e}")
 
