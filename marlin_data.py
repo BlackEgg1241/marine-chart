@@ -508,7 +508,7 @@ BLUE_MARLIN_WEIGHTS = {
 }
 
 # Intensity bands for contourf polygon export
-HOTSPOT_BANDS = [0.15, 0.30, 0.45, 0.60, 0.75]
+HOTSPOT_BANDS = [0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85]
 
 
 def generate_blue_marlin_hotspots(bbox, tif_path=None):
@@ -748,27 +748,25 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
 
     # --- Helper to sample mean sub-scores within a polygon's bounding box ---
     def _sample_scores(coords_list):
-        """Return dict of mean sub-score values for the area covered by polygon coords."""
+        """Return (actual_intensity, sub_scores_dict) for the polygon area."""
         xs = [c[0] for c in coords_list]
         ys = [c[1] for c in coords_list]
         lon_min, lon_max = min(xs), max(xs)
         lat_min, lat_max = min(ys), max(ys)
-        # Find grid cells within bounding box
         col_mask = (lons >= lon_min) & (lons <= lon_max)
         row_mask = (lats >= lat_min) & (lats <= lat_max)
+        # Actual composite score from the smoothed grid
+        region_composite = final_smooth[np.ix_(row_mask, col_mask)]
+        valid_composite = region_composite[~np.isnan(region_composite)]
+        actual_intensity = round(float(np.mean(valid_composite)), 2) if len(valid_composite) > 0 else 0.0
         result = {}
-        weight_labels = {"sst": "SST", "sst_front": "Fronts", "chl": "Chl",
-                         "depth": "Depth", "ssh": "SSH", "mld": "MLD",
-                         "o2": "O\u2082", "clarity": "Clarity"}
         for name, arr in sub_scores.items():
             region = arr[np.ix_(row_mask, col_mask)]
             valid = region[~np.isnan(region)]
             if len(valid) > 0:
-                label = weight_labels.get(name, name)
                 w = BLUE_MARLIN_WEIGHTS.get(name, 0)
-                result[name] = {"label": label, "score": round(float(np.mean(valid)), 2),
-                                "weight": w, "contribution": round(float(np.mean(valid)) * w, 3)}
-        return result
+                result[name] = {"score": round(float(np.mean(valid)), 2), "weight": w}
+        return actual_intensity, result
 
     # --- Export as filled contour polygons with intensity bands ---
     # Fill NaN with 0 for contourf
@@ -794,16 +792,15 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
             if coords[0] != coords[-1]:
                 coords.append(coords[0])
 
-            # Sample sub-scores for this polygon
-            breakdown = _sample_scores(coords)
+            # Sample actual composite score and sub-scores for this polygon
+            actual_intensity, breakdown = _sample_scores(coords)
 
             props = {
                 "species": "blue",
                 "type": "hotspot",
-                "intensity": intensity,
+                "intensity": actual_intensity,
                 "band": band_label,
             }
-            # Add individual scores as flat properties for hover display
             for name, info in breakdown.items():
                 props[f"s_{name}"] = info["score"]
                 props[f"w_{name}"] = info["weight"]
