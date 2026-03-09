@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Marine Chart — Perth WA</title>
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.css">
@@ -320,7 +320,7 @@ function initMap(){
     {id:'o2-adequate',type:'line',source:'oxygen',filter:['==',['get','label'],'adequate'],paint:{'line-color':'#22c55e','line-width':1.5,'line-opacity':0}},
     {id:'sm-layer',type:'raster',source:'sm',paint:{'raster-opacity':.85}}
   ];
-  map=new maplibregl.Map({container:'map',style:{version:8,sources:src,layers:ly,glyphs:'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf'},center:[115.35,-31.97],zoom:10,maxZoom:18,minZoom:3,attributionControl:true});
+  map=new maplibregl.Map({container:'map',style:{version:8,sources:src,layers:ly,glyphs:'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf'},center:[115.35,-31.97],zoom:10,maxZoom:18,minZoom:3,attributionControl:true});
   map.addControl(new maplibregl.NavigationControl({showCompass:true}),'top-right');
   map.addControl(new maplibregl.ScaleControl({maxWidth:130,unit:'nautical'}),'bottom-left');
   map.on('mousemove',function(e){document.getElementById('cursorCoord').textContent=fc(e.lngLat.lat,e.lngLat.lng)});
