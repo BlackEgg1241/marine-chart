@@ -1690,6 +1690,23 @@ def _contours_to_geojson(grid, lons, lats, level, properties=None, min_pts=2):
 # ---------------------------------------------------------------------------
 # 6. Generate summary report
 # ---------------------------------------------------------------------------
+# Fishing grounds — convex hull around Perth Canyon FADs and key marks.
+# SST range is computed within this area (not the full bbox) so the report
+# reflects conditions where people actually fish.
+FISHING_GROUNDS_POLYGON = [
+    # Ordered polygon enclosing the main FAD cluster
+    (114.98, -31.92),   # Perth Canyon Head (west)
+    (115.08, -31.85),   # north of canyon head
+    (115.27, -31.87),   # north of FURUNO
+    (115.33, -31.95),   # Club Marine (east)
+    (115.33, -32.05),   # Club Marine (south-east)
+    (115.17, -32.17),   # Fibrelite Boats (south)
+    (115.00, -32.10),   # south of Rottnest Trench
+    (114.92, -32.01),   # west of Rottnest Trench
+    (114.98, -31.92),   # close polygon
+]
+
+
 def generate_report(date_str, bbox):
     """Create a simple JSON summary of conditions."""
     import xarray as xr
@@ -1705,12 +1722,39 @@ def generate_report(date_str, bbox):
         ds = xr.open_dataset(sst_file)
         for var in ["thetao", "analysed_sst", "sst"]:
             if var in ds:
-                sst = _kelvin_to_celsius(ds[var].squeeze().values)
-                sst_valid = sst[~np.isnan(sst)]
+                sst_da = ds[var].squeeze()
+                sst = _kelvin_to_celsius(sst_da.values.copy().astype(float))
+                lons = sst_da.longitude.values if "longitude" in sst_da.dims else sst_da.lon.values
+                lats = sst_da.latitude.values if "latitude" in sst_da.dims else sst_da.lat.values
+
+                # Mask to fishing grounds polygon (ray-casting point-in-polygon)
+                poly = FISHING_GROUNDS_POLYGON
+                fg_mask = np.zeros_like(sst, dtype=bool)
+                for yi in range(len(lats)):
+                    for xi in range(len(lons)):
+                        px, py = float(lons[xi]), float(lats[yi])
+                        inside = False
+                        n = len(poly)
+                        j = n - 1
+                        for i in range(n):
+                            pxi, pyi = poly[i]
+                            pxj, pyj = poly[j]
+                            if ((pyi > py) != (pyj > py)) and (px < (pxj - pxi) * (py - pyi) / (pyj - pyi) + pxi):
+                                inside = not inside
+                            j = i
+                        fg_mask[yi, xi] = inside
+
+                sst_fg = sst[fg_mask & ~np.isnan(sst)]
+                sst_all = sst[~np.isnan(sst)]
+                # Use fishing grounds SST if we have enough pixels, else fall back to full area
+                sst_valid = sst_fg if len(sst_fg) > 3 else sst_all
+                label = "fishing grounds" if len(sst_fg) > 3 else "full area"
+
                 report["sst"] = {
                     "min": round(float(np.min(sst_valid)), 1),
                     "max": round(float(np.max(sst_valid)), 1),
                     "mean": round(float(np.mean(sst_valid)), 1),
+                    "area": label,
                     "blue_marlin_prime": bool(
                         np.any((sst_valid >= 24) & (sst_valid <= 27))
                     ),
@@ -1728,11 +1772,11 @@ def generate_report(date_str, bbox):
         json.dump(report, f, indent=2)
 
     print(f"\n{'='*50}")
-    print(f"MARLIN ZONE REPORT — {date_str}")
+    print(f"MARLIN ZONE REPORT - {date_str}")
     print(f"{'='*50}")
     if "sst" in report:
         s = report["sst"]
-        print(f"SST Range: {s['min']}C - {s['max']}C (mean {s['mean']}C)")
+        print(f"SST Range ({s['area']}): {s['min']}C - {s['max']}C (mean {s['mean']}C)")
         print(f"Blue Marlin Prime (24-27C):   {'YES' if s['blue_marlin_prime'] else 'NO'}")
         print(f"Blue Marlin Good (22-30C):    {'YES' if s['blue_marlin_good'] else 'NO'}")
         print(f"Striped Marlin Zone (21-24C): {'YES' if s['striped_marlin_zone'] else 'NO'}")
