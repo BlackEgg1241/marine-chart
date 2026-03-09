@@ -489,6 +489,319 @@ def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None, tif_
 
 
 # ---------------------------------------------------------------------------
+# 2b. Blue Marlin Habitat Suitability Heatmap
+# ---------------------------------------------------------------------------
+# Composite score 0–1 per grid cell based on all available ocean variables.
+# Weights reflect relative importance for blue marlin habitat selection.
+BLUE_MARLIN_WEIGHTS = {
+    "sst":       0.30,   # SST — primary habitat driver
+    "sst_front": 0.15,   # SST gradient — prey aggregation at fronts
+    "chl":       0.10,   # Chlorophyll — bait productivity indicator
+    "depth":     0.15,   # Bathymetry — pelagic species needs >200m
+    "ssh":       0.10,   # Sea level anomaly — warm-core eddies
+    "mld":       0.10,   # Mixed layer depth — shallow = catchable
+    "o2":        0.05,   # Dissolved oxygen at 100m
+    "clarity":   0.05,   # Water clarity (KD490)
+}
+
+# Intensity bands for contourf polygon export
+HOTSPOT_BANDS = [0.15, 0.30, 0.45, 0.60, 0.75]
+
+
+def generate_blue_marlin_hotspots(bbox, tif_path=None):
+    """
+    Build a composite habitat suitability grid for blue marlin by scoring
+    each pixel across all available ocean variables, then export as filled
+    GeoJSON polygons with intensity bands.
+    """
+    import xarray as xr
+    from scipy.ndimage import gaussian_filter, sobel
+    from scipy.interpolate import RegularGridInterpolator
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    print("[Hotspots] Building blue marlin habitat suitability...")
+
+    # --- Load SST as master grid ---
+    sst_file = os.path.join(OUTPUT_DIR, "sst_raw.nc")
+    if not os.path.exists(sst_file):
+        print("[Hotspots] No SST data — skipping")
+        return None
+    ds = xr.open_dataset(sst_file)
+    for var in ["thetao", "analysed_sst", "sst"]:
+        if var in ds:
+            sst_da = ds[var].squeeze()
+            break
+    else:
+        print("[Hotspots] No SST variable found")
+        return None
+
+    lons = sst_da.longitude.values if "longitude" in sst_da.dims else sst_da.lon.values
+    lats = sst_da.latitude.values if "latitude" in sst_da.dims else sst_da.lat.values
+    sst = sst_da.values.copy().astype(float)
+    land = np.isnan(sst)
+
+    ny, nx = sst.shape
+    score = np.zeros((ny, nx), dtype=float)
+    weight_sum = np.zeros((ny, nx), dtype=float)
+
+    def _interp_to_grid(data, src_lons, src_lats):
+        """Interpolate a 2D array onto the master SST grid."""
+        if data.shape == (ny, nx):
+            return data
+        interp = RegularGridInterpolator(
+            (src_lats, src_lons), data,
+            method="linear", bounds_error=False, fill_value=np.nan
+        )
+        lat_grid, lon_grid = np.meshgrid(lats, lons, indexing="ij")
+        return interp((lat_grid, lon_grid))
+
+    def _add_score(name, values, mask=None):
+        """Add a weighted sub-score. Values should be 0–1."""
+        w = BLUE_MARLIN_WEIGHTS.get(name, 0)
+        if w == 0:
+            return
+        v = np.clip(values, 0, 1)
+        valid = ~np.isnan(v) & ~land
+        if mask is not None:
+            valid &= ~mask
+        score[valid] += w * v[valid]
+        weight_sum[valid] += w
+
+    # 1. SST score — Gaussian centered at 25.5°C (blue prime center), sigma=2.5°C
+    sst_filled = sst.copy()
+    sst_filled[land] = np.nanmean(sst)
+    sst_smooth = gaussian_filter(sst_filled, sigma=0.5)
+    sst_smooth[land] = np.nan
+    optimal_temp = 25.5
+    sst_score = np.exp(-0.5 * ((sst_smooth - optimal_temp) / 2.5) ** 2)
+    _add_score("sst", sst_score)
+
+    # 2. SST front score — Sobel gradient magnitude, normalized
+    sst_for_grad = sst_filled.copy()
+    sst_grad = gaussian_filter(sst_for_grad, sigma=1.5)
+    gx = sobel(sst_grad, axis=1)
+    gy = sobel(sst_grad, axis=0)
+    grad_mag = np.sqrt(gx**2 + gy**2)
+    from scipy.ndimage import binary_dilation
+    coast_buf = binary_dilation(land, iterations=2)
+    grad_mag[coast_buf] = 0
+    gmax = np.nanmax(grad_mag)
+    if gmax > 0:
+        front_score = np.clip(grad_mag / (gmax * 0.5), 0, 1)  # saturate at 50% of max
+    else:
+        front_score = np.zeros_like(grad_mag)
+    _add_score("sst_front", front_score)
+
+    # 3. Chlorophyll score — peaks at 0.15–0.30 mg/m³ (shelf edge bait zone)
+    chl_file = os.path.join(OUTPUT_DIR, "chl_raw.nc")
+    if os.path.exists(chl_file):
+        try:
+            cds = xr.open_dataset(chl_file)
+            for cv in ["chl", "CHL", "chlor_a"]:
+                if cv in cds:
+                    chl_da = cds[cv].squeeze()
+                    break
+            chl_lons = chl_da.longitude.values if "longitude" in chl_da.dims else chl_da.lon.values
+            chl_lats = chl_da.latitude.values if "latitude" in chl_da.dims else chl_da.lat.values
+            chl_data = _interp_to_grid(chl_da.values.astype(float), chl_lons, chl_lats)
+            # Peak score at 0.20 mg/m³, Gaussian falloff in log space
+            chl_log = np.log10(np.clip(chl_data, 0.01, 10))
+            optimal_chl = np.log10(0.20)
+            chl_score = np.exp(-0.5 * ((chl_log - optimal_chl) / 0.4) ** 2)
+            _add_score("chl", chl_score)
+        except Exception as e:
+            print(f"[Hotspots] Chl scoring failed: {e}")
+
+    # 4. Depth score — peaks at 200–1000m, zero below 200m
+    if tif_path and os.path.exists(tif_path):
+        try:
+            import rasterio
+            with rasterio.open(tif_path) as src:
+                bathy = src.read(1).astype(float)
+                bt = src.transform
+                bw, bh = bathy.shape[1], bathy.shape[0]
+                b_lons = np.array([bt.c + (j + 0.5) * bt.a for j in range(bw)])
+                b_lats = np.array([bt.f + (i + 0.5) * bt.e for i in range(bh)])
+                nd = src.nodata
+                if nd is not None:
+                    bathy[bathy == nd] = np.nan
+            depth = _interp_to_grid(bathy, b_lons, b_lats)
+            # depth is negative (elevation): -200m = 200m deep
+            abs_depth = -depth  # positive meters of depth
+            # Score: 0 at <200m, ramps to 1.0 at 400m, stays 1.0 to 2000m, tapers off
+            depth_score = np.where(abs_depth < 200, 0,
+                          np.where(abs_depth < 400, (abs_depth - 200) / 200,
+                          np.where(abs_depth < 2000, 1.0,
+                          np.clip(1.0 - (abs_depth - 2000) / 3000, 0.3, 1.0))))
+            _add_score("depth", depth_score)
+        except Exception as e:
+            print(f"[Hotspots] Depth scoring failed: {e}")
+
+    # 5. SSH score — positive SLA = warm-core eddy = good
+    ssh_file = os.path.join(OUTPUT_DIR, "ssh_raw.nc")
+    if os.path.exists(ssh_file):
+        try:
+            sds = xr.open_dataset(ssh_file)
+            sv = "sla" if "sla" in sds else "adt"
+            sla_da = sds[sv].squeeze()
+            s_lons = sla_da.longitude.values if "longitude" in sla_da.dims else sla_da.lon.values
+            s_lats = sla_da.latitude.values if "latitude" in sla_da.dims else sla_da.lat.values
+            sla_data = _interp_to_grid(sla_da.values.astype(float), s_lons, s_lats)
+            # Score: 0 at SLA<-0.02, ramps to 1.0 at SLA=+0.10
+            ssh_score = np.clip((sla_data + 0.02) / 0.12, 0, 1)
+            _add_score("ssh", ssh_score)
+        except Exception as e:
+            print(f"[Hotspots] SSH scoring failed: {e}")
+
+    # 6. MLD score — shallower = better (marlin compressed at surface)
+    mld_file = os.path.join(OUTPUT_DIR, "mld_raw.nc")
+    if os.path.exists(mld_file):
+        try:
+            mds = xr.open_dataset(mld_file)
+            for mv in ["mlotst", "mld", "MLD"]:
+                if mv in mds:
+                    mld_da = mds[mv].squeeze()
+                    break
+            m_lons = mld_da.longitude.values if "longitude" in mld_da.dims else mld_da.lon.values
+            m_lats = mld_da.latitude.values if "latitude" in mld_da.dims else mld_da.lat.values
+            mld_data = _interp_to_grid(mld_da.values.astype(float), m_lons, m_lats)
+            # Score: 1.0 at MLD<20m, 0.5 at 50m, 0 at 100m
+            mld_score = np.clip(1.0 - (mld_data - 20) / 80, 0, 1)
+            _add_score("mld", mld_score)
+        except Exception as e:
+            print(f"[Hotspots] MLD scoring failed: {e}")
+
+    # 7. Oxygen score — O2 at 100m depth
+    o2_file = os.path.join(OUTPUT_DIR, "oxygen_raw.nc")
+    if os.path.exists(o2_file):
+        try:
+            ods = xr.open_dataset(o2_file)
+            for ov in ["o2", "O2", "doxy"]:
+                if ov in ods:
+                    o2_da = ods[ov].squeeze()
+                    break
+            o_lons = o2_da.longitude.values if "longitude" in o2_da.dims else o2_da.lon.values
+            o_lats = o2_da.latitude.values if "latitude" in o2_da.dims else o2_da.lat.values
+            o2_data = _interp_to_grid(o2_da.values.astype(float), o_lons, o_lats)
+            # Score: 0 at <100 mmol/m³, 0.5 at 150, 1.0 at >200
+            o2_score = np.clip((o2_data - 100) / 100, 0, 1)
+            _add_score("o2", o2_score)
+        except Exception as e:
+            print(f"[Hotspots] O2 scoring failed: {e}")
+
+    # 8. Water clarity — KD490
+    kd_file = os.path.join(OUTPUT_DIR, "kd490_raw.nc")
+    if os.path.exists(kd_file):
+        try:
+            kds = xr.open_dataset(kd_file)
+            kd_da = kds["KD490"].squeeze()
+            k_lons = kd_da.longitude.values if "longitude" in kd_da.dims else kd_da.lon.values
+            k_lats = kd_da.latitude.values if "latitude" in kd_da.dims else kd_da.lat.values
+            kd_data = _interp_to_grid(kd_da.values.astype(float), k_lons, k_lats)
+            # Score: 1.0 at KD490<0.04, 0 at KD490>0.15
+            clarity_score = np.clip(1.0 - (kd_data - 0.04) / 0.11, 0, 1)
+            _add_score("clarity", clarity_score)
+        except Exception as e:
+            print(f"[Hotspots] Clarity scoring failed: {e}")
+
+    # --- Normalize by actual weights used (handles missing data gracefully) ---
+    valid = weight_sum > 0
+    final = np.full((ny, nx), np.nan)
+    final[valid] = score[valid] / weight_sum[valid]
+    final[land] = np.nan
+
+    # Light spatial smoothing to reduce pixelation
+    final_filled = final.copy()
+    final_filled[np.isnan(final_filled)] = 0
+    final_smooth = gaussian_filter(final_filled, sigma=0.8)
+    final_smooth[land | ~valid] = np.nan
+
+    fmin = float(np.nanmin(final_smooth[~land & valid]))
+    fmax = float(np.nanmax(final_smooth[~land & valid]))
+    fmean = float(np.nanmean(final_smooth[~land & valid]))
+    print(f"[Hotspots] Score range: {fmin:.3f} – {fmax:.3f} (mean {fmean:.3f})")
+
+    # --- Build depth mask for clipping to >200m ---
+    clip_mask = None
+    if tif_path and os.path.exists(tif_path):
+        try:
+            from shapely.geometry import Polygon as ShapelyPolygon, mapping
+            clip_mask = build_deep_water_mask(tif_path, depth_threshold=-200)
+        except ImportError:
+            pass
+
+    # --- Export as filled contour polygons with intensity bands ---
+    # Fill NaN with 0 for contourf
+    plot_data = final_smooth.copy()
+    plot_data[np.isnan(plot_data)] = 0
+
+    levels = [0] + HOTSPOT_BANDS + [1.0]
+    fig, ax = plt.subplots()
+    cf = ax.contourf(lons, lats, plot_data, levels=levels, extend="neither")
+    plt.close(fig)
+
+    features = []
+    # contourf creates len(levels)-1 filled regions between consecutive levels
+    all_paths = cf.get_paths() if hasattr(cf, 'get_paths') else [p for col in cf.collections for p in col.get_paths()]
+
+    # Map each path to its intensity band
+    # cf.get_paths() returns paths grouped by level interval
+    # We need to figure out which band each path belongs to
+    # Use allsegs approach which is cleaner
+    for band_idx, seg_list in enumerate(cf.allsegs):
+        if band_idx == 0:
+            continue  # skip the 0–0.15 band (background noise)
+        intensity = round((levels[band_idx] + levels[band_idx + 1]) / 2, 2) if band_idx + 1 < len(levels) else 1.0
+        band_label = f"{levels[band_idx]:.0%}–{levels[band_idx+1]:.0%}" if band_idx + 1 < len(levels) else f">{levels[band_idx]:.0%}"
+
+        for seg in seg_list:
+            if len(seg) < 4:
+                continue
+            coords = [[round(float(x), 4), round(float(y), 4)] for x, y in seg]
+            if coords[0] != coords[-1]:
+                coords.append(coords[0])
+
+            props = {
+                "species": "blue",
+                "type": "hotspot",
+                "intensity": intensity,
+                "band": band_label,
+            }
+
+            if clip_mask is not None:
+                try:
+                    poly = ShapelyPolygon([(c[0], c[1]) for c in coords]).buffer(0)
+                    clipped = poly.intersection(clip_mask)
+                    if clipped.is_empty:
+                        continue
+                    geom = mapping(clipped)
+                    if geom["type"] == "Polygon":
+                        features.append({"type": "Feature", "geometry": geom, "properties": props})
+                    elif geom["type"] == "MultiPolygon":
+                        for mc in geom["coordinates"]:
+                            features.append({"type": "Feature", "geometry": {"type": "Polygon", "coordinates": mc}, "properties": props})
+                    continue
+                except Exception:
+                    pass
+
+            features.append({
+                "type": "Feature",
+                "geometry": {"type": "Polygon", "coordinates": [coords]},
+                "properties": props,
+            })
+
+    geojson = {"type": "FeatureCollection", "features": features}
+    output_path = os.path.join(OUTPUT_DIR, "blue_marlin_hotspots.geojson")
+    with open(output_path, "w") as f:
+        json.dump(geojson, f)
+
+    print(f"[Hotspots] {len(features)} polygons across {len(HOTSPOT_BANDS)} bands → {output_path}")
+    return output_path
+
+
+# ---------------------------------------------------------------------------
 # 3. Chlorophyll Concentration Contours
 # ---------------------------------------------------------------------------
 
@@ -1235,6 +1548,12 @@ def main():
         except Exception as e:
             print(f"[SST Fronts] Error: {e}")
 
+    # Generate blue marlin habitat hotspot heatmap
+    try:
+        generate_blue_marlin_hotspots(bbox, tif_path=tif_path)
+    except Exception as e:
+        print(f"[Hotspots] Error: {e}")
+
     # Process chlorophyll edges
     chl_file = _nc("chl_raw.nc")
     if chl_file:
@@ -1318,7 +1637,7 @@ def main():
         "sst_fronts.geojson", "chl_edges.geojson", "currents.geojson",
         "bathymetry_contours.geojson", "water_clarity.geojson", "ssh_eddies.geojson",
         "deep_water.geojson", "mld_contours.geojson", "oxygen_contours.geojson",
-        "marlin_zones.geojson",
+        "marlin_zones.geojson", "blue_marlin_hotspots.geojson",
     ]
     if not args.no_update_latest:
         for fname in geojson_files:
