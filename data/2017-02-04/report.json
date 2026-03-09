@@ -1,0 +1,19 @@
+{
+  "date": "2017-02-04",
+  "region": {
+    "lon_min": 113.5,
+    "lon_max": 116.5,
+    "lat_min": -33.5,
+    "lat_max": -30.5
+  },
+  "generated": "2026-03-09T23:48:01.884533Z",
+  "sst": {
+    "min": 21.4,
+    "max": 21.9,
+    "mean": 21.7,
+    "area": "fishing grounds",
+    "blue_marlin_prime": false,
+    "blue_marlin_good": false,
+    "striped_marlin_zone": true
+  }
+}

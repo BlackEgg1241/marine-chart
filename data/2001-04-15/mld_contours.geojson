@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "LineString", "coordinates": [[114.58735, -33.5], [114.58334, -33.49252], [114.5, -33.4695], [114.4325, -33.5]]}, "properties": {"type": "mld_contour", "mld": 30, "label": "shallow", "color": "#22d3ee"}}]}
