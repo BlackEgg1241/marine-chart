@@ -40,9 +40,9 @@ DEFAULT_BBOX = {
 
 # Marlin temperature preferences (°C) — based on Dale et al. (2022) IGFA tagging study
 MARLIN_TEMPS = {
-    "blue_prime": {"min": 24, "max": 27, "color": "#f97316", "species": "blue", "tier": "prime"},
-    "blue_good":  {"min": 22, "max": 30, "color": "#fdba74", "species": "blue", "tier": "good"},
-    "striped":    {"min": 21, "max": 24, "color": "#6366f1", "species": "striped", "tier": "prime"},
+    "blue_prime": {"min": 24, "max": 27, "color": "#06b6d4", "species": "blue", "tier": "prime", "min_depth": 200},
+    "blue_good":  {"min": 22, "max": 30, "color": "#22d3ee", "species": "blue", "tier": "good", "min_depth": 200},
+    "striped":    {"min": 21, "max": 24, "color": "#6366f1", "species": "striped", "tier": "prime", "min_depth": 100},
 }
 
 # SST gradient threshold for front detection (°C per ~10km)
@@ -275,7 +275,7 @@ def fetch_copernicus_oxygen(date_str, bbox):
 # ---------------------------------------------------------------------------
 # 2. SST Front Detection
 # ---------------------------------------------------------------------------
-def detect_sst_fronts(sst_file, threshold=SST_GRADIENT_THRESHOLD, deep_mask=None):
+def detect_sst_fronts(sst_file, threshold=SST_GRADIENT_THRESHOLD, deep_mask=None, tif_path=None):
     """
     Detect SST fronts using Sobel gradient magnitude.
     Returns GeoJSON FeatureCollection of front contour lines.
@@ -370,7 +370,7 @@ def detect_sst_fronts(sst_file, threshold=SST_GRADIENT_THRESHOLD, deep_mask=None
     print(f"[SST Fronts] {len(features)} front lines, {len(isotherm_features)} isotherms → {output_path}")
 
     # --- Generate filled marlin zone polygons ---
-    zone_features = _generate_marlin_zones(iso_data, mask, lons, lats, deep_mask=deep_mask)
+    zone_features = _generate_marlin_zones(iso_data, mask, lons, lats, deep_mask=deep_mask, tif_path=tif_path)
     zone_geojson = {"type": "FeatureCollection", "features": zone_features}
     zone_path = os.path.join(OUTPUT_DIR, "marlin_zones.geojson")
     with open(zone_path, "w") as f:
@@ -380,9 +380,9 @@ def detect_sst_fronts(sst_file, threshold=SST_GRADIENT_THRESHOLD, deep_mask=None
     return output_path
 
 
-def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None):
+def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None, tif_path=None):
     """Generate filled polygons for marlin temperature zones using contourf.
-    If deep_mask (Shapely polygon of ocean >100m) is provided, clips zones to deep water only."""
+    Uses per-species min_depth from MARLIN_TEMPS to build appropriate depth masks."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -391,25 +391,44 @@ def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None):
     data = sst_data.copy()
     data[land_mask] = np.nan
 
-    # Prepare Shapely imports for clipping
-    clip = False
-    if deep_mask is not None:
+    # Build per-depth-threshold masks for species-specific clipping
+    depth_masks = {}
+    can_clip = False
+    if tif_path and os.path.exists(tif_path):
         try:
             from shapely.geometry import Polygon as ShapelyPolygon, MultiPolygon, mapping
-            clip = True
-            print("[Marlin Zones] Clipping to deep water (>100m depth)")
+            can_clip = True
+            # Collect unique depth thresholds needed
+            for temps in MARLIN_TEMPS.values():
+                d = temps.get("min_depth", 100)
+                if d not in depth_masks:
+                    mask_poly = build_deep_water_mask(tif_path, depth_threshold=-d)
+                    if mask_poly is not None:
+                        depth_masks[d] = mask_poly
+                        print(f"[Marlin Zones] Built >{d}m depth mask for clipping")
         except ImportError:
             print("[Marlin Zones] Warning: shapely not available, skipping depth clipping")
+    elif deep_mask is not None:
+        try:
+            from shapely.geometry import Polygon as ShapelyPolygon, MultiPolygon, mapping
+            can_clip = True
+            depth_masks[100] = deep_mask
+        except ImportError:
+            pass
 
     features = []
     for key, temps in MARLIN_TEMPS.items():
         species = temps.get("species", key)
         tier = temps.get("tier", "prime")
         tmin, tmax = temps["min"], temps["max"]
+        min_depth = temps.get("min_depth", 100)
 
         fig, ax = plt.subplots()
         cf = ax.contourf(lons, lats, data, levels=[tmin, tmax], extend="neither")
         plt.close(fig)
+
+        # Get the appropriate depth mask for this species
+        clip_mask = depth_masks.get(min_depth) if can_clip else None
 
         for collection_paths in cf.get_paths() if hasattr(cf, 'get_paths') else [p for col in cf.collections for p in col.get_paths()]:
             paths = [collection_paths] if not isinstance(collection_paths, list) else collection_paths
@@ -439,18 +458,18 @@ def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None):
                     "temp_max": tmax,
                     "color": temps["color"],
                     "label": f"{species}_{tier}",
+                    "min_depth": min_depth,
                 }
 
                 # Clip to deep water if mask available
-                if clip:
+                if clip_mask is not None:
                     try:
                         exterior = [(x, y) for x, y in rings[0]]
                         holes = [[(x, y) for x, y in r] for r in rings[1:]] if len(rings) > 1 else []
                         poly = ShapelyPolygon(exterior, holes).buffer(0)
-                        clipped = poly.intersection(deep_mask)
+                        clipped = poly.intersection(clip_mask)
                         if clipped.is_empty:
                             continue
-                        # Convert clipped geometry to GeoJSON features
                         geom = mapping(clipped)
                         if geom["type"] == "Polygon":
                             features.append({"type": "Feature", "geometry": geom, "properties": props})
@@ -458,7 +477,7 @@ def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None):
                             for coords in geom["coordinates"]:
                                 features.append({"type": "Feature", "geometry": {"type": "Polygon", "coordinates": coords}, "properties": props})
                         continue
-                    except Exception as e:
+                    except Exception:
                         pass  # Fall through to unclipped
 
                 features.append({
@@ -1212,7 +1231,7 @@ def main():
     sst_file = _nc("sst_raw.nc")
     if sst_file:
         try:
-            detect_sst_fronts(sst_file, deep_mask=deep_mask)
+            detect_sst_fronts(sst_file, deep_mask=deep_mask, tif_path=tif_path)
         except Exception as e:
             print(f"[SST Fronts] Error: {e}")
 
