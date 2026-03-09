@@ -55,27 +55,33 @@ CHL_GRADIENT_THRESHOLD = 0.4
 OUTPUT_DIR = "data"
 
 
+def _kelvin_to_celsius(data):
+    """Convert SST from Kelvin to Celsius if needed (auto-detects)."""
+    mean_val = float(np.nanmean(data))
+    if mean_val > 100:  # Kelvin
+        return data - 273.15
+    return data
+
+
 # ---------------------------------------------------------------------------
 # 1. Fetch ocean data from Copernicus Marine
 # ---------------------------------------------------------------------------
 def fetch_copernicus_sst(date_str, bbox):
-    """Download SST data for the given date and region."""
+    """Download SST data — satellite observation L4 (same source as GIBS MUR tiles)."""
     import copernicusmarine
 
     output_file = os.path.join(OUTPUT_DIR, "sst_raw.nc")
 
-    print(f"[SST] Fetching for {date_str}...")
+    print(f"[SST] Fetching observation L4 for {date_str}...")
     copernicusmarine.subset(
-        dataset_id="cmems_mod_glo_phy-thetao_anfc_0.083deg_P1D-m",
-        variables=["thetao"],
+        dataset_id="METOFFICE-GLO-SST-L4-NRT-OBS-SST-V2",
+        variables=["analysed_sst"],
         minimum_longitude=bbox["lon_min"],
         maximum_longitude=bbox["lon_max"],
         minimum_latitude=bbox["lat_min"],
         maximum_latitude=bbox["lat_max"],
         start_datetime=f"{date_str}T00:00:00",
         end_datetime=f"{date_str}T23:59:59",
-        minimum_depth=0,
-        maximum_depth=1,
         output_filename=output_file,
         output_directory=".",
         overwrite=True,
@@ -296,7 +302,7 @@ def detect_sst_fronts(sst_file, threshold=SST_GRADIENT_THRESHOLD, deep_mask=None
 
     lons = sst.longitude.values if "longitude" in sst.dims else sst.lon.values
     lats = sst.latitude.values if "latitude" in sst.dims else sst.lat.values
-    data = sst.values.copy()
+    data = _kelvin_to_celsius(sst.values.copy())
 
     mask = np.isnan(data)
 
@@ -542,7 +548,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
 
     lons = sst_da.longitude.values if "longitude" in sst_da.dims else sst_da.lon.values
     lats = sst_da.latitude.values if "latitude" in sst_da.dims else sst_da.lat.values
-    sst = sst_da.values.copy().astype(float)
+    sst = _kelvin_to_celsius(sst_da.values.copy().astype(float))
     land = np.isnan(sst)
 
     ny, nx = sst.shape
@@ -1430,7 +1436,7 @@ def generate_report(date_str, bbox):
         ds = xr.open_dataset(sst_file)
         for var in ["thetao", "analysed_sst", "sst"]:
             if var in ds:
-                sst = ds[var].squeeze().values
+                sst = _kelvin_to_celsius(ds[var].squeeze().values)
                 sst_valid = sst[~np.isnan(sst)]
                 report["sst"] = {
                     "min": round(float(np.min(sst_valid)), 1),
