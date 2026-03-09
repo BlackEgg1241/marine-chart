@@ -91,16 +91,18 @@ def fetch_copernicus_sst(date_str, bbox):
 
 
 def fetch_copernicus_currents(date_str, bbox):
-    """Download ocean current data — observation first, model fallback."""
+    """Download ocean current data — model first (0.083° finer grid for canyon-scale
+    features), observation fallback (0.25° coarser but satellite-derived)."""
     import copernicusmarine
 
     output_file = os.path.join(OUTPUT_DIR, "currents_raw.nc")
 
-    # Try observation product first (GlobCurrent/OSCAR), fall back to model
+    # Prefer model product: 0.083° (~9km) resolves Perth Canyon currents
+    # much better than the 0.25° (~28km) observation product
     try:
-        print(f"[Currents] Fetching observation for {date_str}...")
+        print(f"[Currents] Fetching model 0.083° for {date_str}...")
         copernicusmarine.subset(
-            dataset_id="cmems_obs-mob_glo_phy-cur_nrt_0.25deg_P1D-m",
+            dataset_id="cmems_mod_glo_phy-cur_anfc_0.083deg_P1D-m",
             variables=["uo", "vo"],
             minimum_longitude=bbox["lon_min"],
             maximum_longitude=bbox["lon_max"],
@@ -109,18 +111,18 @@ def fetch_copernicus_currents(date_str, bbox):
             start_datetime=f"{date_str}T00:00:00",
             end_datetime=f"{date_str}T23:59:59",
             minimum_depth=0,
-            maximum_depth=15,
+            maximum_depth=1,
             output_filename=output_file,
             output_directory=".",
             overwrite=True,
         )
-        print(f"[Currents] Saved observation to {output_file}")
+        print(f"[Currents] Saved model 0.083° to {output_file}")
         return output_file
     except Exception as e:
-        print(f"[Currents] Observation unavailable ({str(e)[:60]}), falling back to model...")
+        print(f"[Currents] Model unavailable ({str(e)[:60]}), falling back to observation...")
 
     copernicusmarine.subset(
-        dataset_id="cmems_mod_glo_phy-cur_anfc_0.083deg_P1D-m",
+        dataset_id="cmems_obs-mob_glo_phy-cur_nrt_0.25deg_P1D-m",
         variables=["uo", "vo"],
         minimum_longitude=bbox["lon_min"],
         maximum_longitude=bbox["lon_max"],
@@ -129,12 +131,12 @@ def fetch_copernicus_currents(date_str, bbox):
         start_datetime=f"{date_str}T00:00:00",
         end_datetime=f"{date_str}T23:59:59",
         minimum_depth=0,
-        maximum_depth=1,
+        maximum_depth=15,
         output_filename=output_file,
         output_directory=".",
         overwrite=True,
     )
-    print(f"[Currents] Saved model fallback to {output_file}")
+    print(f"[Currents] Saved observation fallback to {output_file}")
     return output_file
 
 
@@ -712,11 +714,13 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
 
             depth = _interp_to_grid(bathy, b_lons, b_lats)
             abs_depth = -depth  # positive meters of depth
-            # Depth: MULTIPLIER — 0 if too shallow, 1 if deep enough
-            depth_score = np.where(abs_depth < 100, 0,
-                          np.where(abs_depth < 300, (abs_depth - 100) / 200,
-                          np.where(abs_depth < 2000, 1.0,
-                          np.clip(1.0 - (abs_depth - 2000) / 3000, 0.3, 1.0))))
+            # Depth: MULTIPLIER — marlin fishing peaks right at the shelf break
+            # (100-300m canyon head). Ramp: 0 at <50m, 1.0 at >=100m.
+            # Slight taper beyond 3000m (too far offshore, less bait aggregation)
+            depth_score = np.where(abs_depth < 50, 0,
+                          np.where(abs_depth < 100, (abs_depth - 50) / 50,
+                          np.where(abs_depth < 3000, 1.0,
+                          np.clip(1.0 - (abs_depth - 3000) / 2000, 0.5, 1.0))))
             # Store for hover but don't add to weighted sum
             sub_scores["depth"] = np.clip(depth_score, 0, 1)
         except Exception as e:
@@ -903,7 +907,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
     if tif_path and os.path.exists(tif_path):
         try:
             from shapely.geometry import Polygon as ShapelyPolygon, mapping
-            clip_mask = build_deep_water_mask(tif_path, depth_threshold=-100)
+            clip_mask = build_deep_water_mask(tif_path, depth_threshold=-50)
         except ImportError:
             pass
 
