@@ -217,19 +217,18 @@ var BM={ocean:{tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/Ocea
 var OL_URL='https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}';
 var SM_URL='https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png';
 var BLK='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
-var GW='https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi';
-function gu(l,d,t){return GW+'?SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS='+l+'&FORMAT=image/png&TRANSPARENT='+(t!==false?'true':'false')+'&WIDTH=256&HEIGHT=256&SRS=EPSG:3857&BBOX={bbox-epsg-3857}&TIME='+d}
+var GW='https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/';
+function gu(l,d,t){var fmt=(l==='MODIS_Terra_CorrectedReflectance_TrueColor')?'jpg':'png';return GW+l+'/default/'+d+'/GoogleMapsCompatible_Level9/{z}/{y}/{x}.'+fmt}
 var GL={chl:'MODIS_Aqua_L2_Chlorophyll_A',sst:'GHRSST_L4_MUR_Sea_Surface_Temperature',tc:'MODIS_Terra_CorrectedReflectance_TrueColor'};
 // CMEMS Sea Level Anomaly WMTS — NRT daily, no auth required
 var CMEMS_SLA='https://wmts.marine.copernicus.eu/teroWmts/?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=SEALEVEL_GLO_PHY_L4_NRT_008_046/cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.125deg_P1D_202506/sla&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&TIME=DATE&STYLE=cmap:balance,range:-0.5/0.5';
 function guSLA(d){return CMEMS_SLA.replace('TIME=DATE','TIME='+d);}
 
 var SPOTS=[
-  {c:[114.98,-32.01],n:'Perth Canyon Head',d:'200m→1000m drop. Prime upwelling zone.'},
-  {c:[114.85,-31.99],n:'Perth Canyon Deep',d:'Canyon floor 2000m+. Leeuwin Current interaction.'},
-  {c:[115.42,-31.98],n:'Rottnest FADs',d:'Striped marlin zone. 200m water.'},
-  {c:[115.30,-31.90],n:'Rottnest Trench',d:'Deep water close to shelf. Bait aggregation.'},
-  {c:[115.05,-31.75],n:'Two Rocks Canyon',d:'Northern canyon. Shelf edge access.'},
+  {c:[115.10,-31.88],n:'Perth Canyon Head',d:'200m→1000m drop. Prime upwelling zone.'},
+  {c:[114.85,-32.00],n:'Perth Canyon Deep',d:'Canyon floor 2000m+. Leeuwin Current interaction.'},
+  {c:[115.28,-31.92],n:'Rottnest Trench',d:'Deep water close to shelf. Bait aggregation.'},
+  {c:[115.10,-31.55],n:'Two Rocks Canyon',d:'Northern canyon. Shelf edge access.'},
   // FAD buoys — Perth Canyon group
   {c:[115.3333,-32.05],n:'Club Marine',d:'FAD buoy (Perth Canyon 48) — in position.'},
   {c:[115.2333,-32.0],n:'PGFC',d:'FAD buoy (Perth Canyon 47) — in position.'},
