@@ -451,6 +451,8 @@ def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None, tif_
                 if not rings:
                     continue
 
+                # SST suitability: prime tier ≈ 70%, good tier ≈ 40%
+                intensity = 0.70 if tier == "prime" else 0.40
                 props = {
                     "species": species,
                     "tier": tier,
@@ -459,6 +461,7 @@ def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None, tif_
                     "color": temps["color"],
                     "label": f"{species}_{tier}",
                     "min_depth": min_depth,
+                    "intensity": intensity,
                 }
 
                 # Clip to deep water if mask available
