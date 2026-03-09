@@ -368,7 +368,75 @@ def detect_sst_fronts(sst_file, threshold=SST_GRADIENT_THRESHOLD):
         json.dump(geojson, f)
 
     print(f"[SST Fronts] {len(features)} front lines, {len(isotherm_features)} isotherms → {output_path}")
+
+    # --- Generate filled marlin zone polygons ---
+    zone_features = _generate_marlin_zones(iso_data, mask, lons, lats)
+    zone_geojson = {"type": "FeatureCollection", "features": zone_features}
+    zone_path = os.path.join(OUTPUT_DIR, "marlin_zones.geojson")
+    with open(zone_path, "w") as f:
+        json.dump(zone_geojson, f)
+    print(f"[Marlin Zones] {len(zone_features)} zone polygons → {zone_path}")
+
     return output_path
+
+
+def _generate_marlin_zones(sst_data, land_mask, lons, lats):
+    """Generate filled polygons for marlin temperature zones using contourf."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    # Fill land with NaN so contourf skips it
+    data = sst_data.copy()
+    data[land_mask] = np.nan
+
+    features = []
+    for key, temps in MARLIN_TEMPS.items():
+        species = temps.get("species", key)
+        tier = temps.get("tier", "prime")
+        tmin, tmax = temps["min"], temps["max"]
+
+        fig, ax = plt.subplots()
+        cf = ax.contourf(lons, lats, data, levels=[tmin, tmax], extend="neither")
+        plt.close(fig)
+
+        for collection_paths in cf.get_paths() if hasattr(cf, 'get_paths') else [p for col in cf.collections for p in col.get_paths()]:
+            paths = [collection_paths] if not isinstance(collection_paths, list) else collection_paths
+            for path in paths:
+                verts = path.vertices
+                codes = path.codes
+                if len(verts) < 4:
+                    continue
+                # Split path into exterior and holes using MOVETO codes
+                rings = []
+                current = []
+                for i, (v, c) in enumerate(zip(verts, codes)):
+                    if c == 1 and current:  # MOVETO = new ring
+                        if len(current) >= 4:
+                            rings.append(current)
+                        current = []
+                    current.append([round(float(v[0]), 4), round(float(v[1]), 4)])
+                if len(current) >= 4:
+                    rings.append(current)
+                if not rings:
+                    continue
+                # First ring is exterior, rest are holes
+                features.append({
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": rings,
+                    },
+                    "properties": {
+                        "species": species,
+                        "tier": tier,
+                        "temp_min": tmin,
+                        "temp_max": tmax,
+                        "color": temps["color"],
+                        "label": f"{species}_{tier}",
+                    },
+                })
+    return features
 
 
 # ---------------------------------------------------------------------------
@@ -1201,6 +1269,7 @@ def main():
         "sst_fronts.geojson", "chl_edges.geojson", "currents.geojson",
         "bathymetry_contours.geojson", "water_clarity.geojson", "ssh_eddies.geojson",
         "deep_water.geojson", "mld_contours.geojson", "oxygen_contours.geojson",
+        "marlin_zones.geojson",
     ]
     if not args.no_update_latest:
         for fname in geojson_files:
