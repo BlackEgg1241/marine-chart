@@ -394,12 +394,16 @@ function onDateChange(){cDate=document.getElementById('dateInput').value;rG()}
 function shiftDate(d){var dt=new Date(cDate);dt.setDate(dt.getDate()+d);cDate=dt.toISOString().split('T')[0];document.getElementById('dateInput').value=cDate;rG()}
 
 function rG(){
+  // Update GIBS date (2-day latency from selected date)
+  var gd=new Date(cDate);gd.setDate(gd.getDate()-2);gDate=gd.toISOString().split('T')[0];
   // Reload WMS raster tiles for the new date
   var ids=['g-tc','g-sst','g-chl'];
   var cfg={'g-tc':{l:GL.tc,z:9,o:.85,v:LS.truecolor},'g-sst':{l:GL.sst,z:7,o:.6,v:LS.sst||(LS.blue_marlin||LS.striped_marlin)},'g-chl':{l:GL.chl,z:7,o:.7,v:LS.chlorophyll}};
   for(var i=0;i<ids.length;i++){if(map.getLayer(ids[i]+'-layer'))map.removeLayer(ids[i]+'-layer')}
   for(var i=0;i<ids.length;i++){if(map.getSource(ids[i]))map.removeSource(ids[i])}
-  var bef=map.getLayer('sm-layer')?'sm-layer':undefined;
+  // Insert rasters below first GeoJSON layer so they don't cover overlays
+  var firstGJ=['mz-striped','hs-blue','spot-glow'];var bef;
+  for(var j=0;j<firstGJ.length;j++){if(map.getLayer(firstGJ[j])){bef=firstGJ[j];break}}
   var ord=['g-tc','g-sst','g-chl'];
   for(var i=0;i<ord.length;i++){var k=ord[i],c=cfg[k];map.addSource(k,{type:'raster',tiles:[gu(c.l,gDate)],tileSize:256,maxzoom:c.z});map.addLayer({id:k+'-layer',type:'raster',source:k,layout:{visibility:c.v?'visible':'none'},paint:{'raster-opacity':c.o}},bef)}
   loadDatedGeoJSON();
