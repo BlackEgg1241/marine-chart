@@ -38,10 +38,11 @@ DEFAULT_BBOX = {
     "lat_max": -30.5,
 }
 
-# Marlin temperature preferences (°C)
+# Marlin temperature preferences (°C) — based on Dale et al. (2022) IGFA tagging study
 MARLIN_TEMPS = {
-    "blue": {"min": 23, "max": 29, "color": "#f97316"},
-    "striped": {"min": 21, "max": 24, "color": "#6366f1"},
+    "blue_prime": {"min": 24, "max": 27, "color": "#f97316", "species": "blue", "tier": "prime"},
+    "blue_good":  {"min": 22, "max": 30, "color": "#fdba74", "species": "blue", "tier": "good"},
+    "striped":    {"min": 21, "max": 24, "color": "#6366f1", "species": "striped", "tier": "prime"},
 }
 
 # SST gradient threshold for front detection (°C per ~10km)
@@ -219,6 +220,58 @@ def fetch_copernicus_ssh(date_str, bbox):
     return None
 
 
+def fetch_copernicus_mld(date_str, bbox):
+    """Download Mixed Layer Depth from CMEMS global physics model.
+    MLD < 50m = shallow mixed layer = marlin compressed at surface = good fishing."""
+    import copernicusmarine
+
+    output_file = os.path.join(OUTPUT_DIR, "mld_raw.nc")
+
+    print(f"[MLD] Fetching for {date_str}...")
+    copernicusmarine.subset(
+        dataset_id="cmems_mod_glo_phy_anfc_0.083deg_P1D-m",
+        variables=["mlotst"],
+        minimum_longitude=bbox["lon_min"],
+        maximum_longitude=bbox["lon_max"],
+        minimum_latitude=bbox["lat_min"],
+        maximum_latitude=bbox["lat_max"],
+        start_datetime=f"{date_str}T00:00:00",
+        end_datetime=f"{date_str}T23:59:59",
+        output_filename=output_file,
+        output_directory=".",
+        overwrite=True,
+    )
+    print(f"[MLD] Saved to {output_file}")
+    return output_file
+
+
+def fetch_copernicus_oxygen(date_str, bbox):
+    """Download dissolved oxygen at 100m depth from CMEMS biogeochemistry model.
+    O2 < 150 mmol/m3 at 100m = hypoxic, limits marlin vertical habitat."""
+    import copernicusmarine
+
+    output_file = os.path.join(OUTPUT_DIR, "oxygen_raw.nc")
+
+    print(f"[Oxygen] Fetching for {date_str}...")
+    copernicusmarine.subset(
+        dataset_id="cmems_mod_glo_bgc-bio_anfc_0.25deg_P1D-m",
+        variables=["o2"],
+        minimum_longitude=bbox["lon_min"],
+        maximum_longitude=bbox["lon_max"],
+        minimum_latitude=bbox["lat_min"],
+        maximum_latitude=bbox["lat_max"],
+        start_datetime=f"{date_str}T00:00:00",
+        end_datetime=f"{date_str}T23:59:59",
+        minimum_depth=95,
+        maximum_depth=105,
+        output_filename=output_file,
+        output_directory=".",
+        overwrite=True,
+    )
+    print(f"[Oxygen] Saved to {output_file}")
+    return output_file
+
+
 # ---------------------------------------------------------------------------
 # 2. SST Front Detection
 # ---------------------------------------------------------------------------
@@ -285,7 +338,9 @@ def detect_sst_fronts(sst_file, threshold=SST_GRADIENT_THRESHOLD):
     data_max = float(np.nanmax(iso_data[~mask]))
     seen_temps = set()
     isotherm_features = []
-    for species, temps in MARLIN_TEMPS.items():
+    for key, temps in MARLIN_TEMPS.items():
+        species = temps.get("species", key)
+        tier = temps.get("tier", "prime")
         for temp in [temps["min"], temps["max"]]:
             if temp in seen_temps:
                 continue
@@ -299,6 +354,7 @@ def detect_sst_fronts(sst_file, threshold=SST_GRADIENT_THRESHOLD):
                     "type": "isotherm",
                     "temperature": temp,
                     "species": species,
+                    "tier": tier,
                     "color": temps["color"],
                 }
             )
@@ -517,6 +573,116 @@ def process_ssh(ssh_file):
         json.dump(geojson, f)
 
     print(f"[SSH/Eddies] {len(all_features)} contours → {output_path}")
+    return output_path
+
+
+# ---------------------------------------------------------------------------
+# 4a. Mixed Layer Depth Contours
+# ---------------------------------------------------------------------------
+MLD_LEVELS = [
+    (30,  "shallow",  "#22d3ee"),   # cyan — very shallow MLD, strongly stratified
+    (50,  "moderate", "#0ea5e9"),   # blue — key threshold, good fishing boundary
+    (80,  "deep",     "#6366f1"),   # indigo — deep MLD, less favorable
+]
+
+
+def process_mld(mld_file):
+    """Extract MLD contour lines. MLD < 50m = shallow mixed layer = good marlin fishing."""
+    import xarray as xr
+    from scipy.ndimage import gaussian_filter
+
+    print("[MLD] Processing contours...")
+    ds = xr.open_dataset(mld_file)
+
+    mld = None
+    for var in ["mlotst", "mld", "MLD", "mlp"]:
+        if var in ds:
+            mld = ds[var].squeeze()
+            break
+    if mld is None:
+        raise ValueError(f"No MLD variable found. Available: {list(ds.data_vars)}")
+
+    lons = mld.longitude.values if "longitude" in mld.dims else mld.lon.values
+    lats = mld.latitude.values if "latitude" in mld.dims else mld.lat.values
+    data = mld.values.copy().astype(float)
+
+    mask = np.isnan(data)
+    data[mask] = 0.0
+    data_smooth = gaussian_filter(data, sigma=0.8)
+    data_smooth[mask] = 0.0
+    data_max = float(np.nanmax(data_smooth))
+
+    all_features = []
+    for level, label, color in MLD_LEVELS:
+        if level > data_max:
+            continue
+        feats = _contours_to_geojson(
+            data_smooth, lons, lats, level,
+            properties={"type": "mld_contour", "mld": level, "label": label, "color": color}
+        )
+        feats = [f for f in feats if len(f["geometry"]["coordinates"]) >= 3]
+        all_features.extend(feats)
+
+    geojson = {"type": "FeatureCollection", "features": all_features}
+    output_path = os.path.join(OUTPUT_DIR, "mld_contours.geojson")
+    with open(output_path, "w") as f:
+        json.dump(geojson, f)
+    print(f"[MLD] {len(all_features)} contours → {output_path}")
+    return output_path
+
+
+# ---------------------------------------------------------------------------
+# 4b. Dissolved Oxygen at 100m Contours
+# ---------------------------------------------------------------------------
+O2_LEVELS = [
+    (100, "hypoxic",  "#ef4444"),   # red — severely low O2, avoid
+    (150, "low",      "#fb923c"),   # orange — borderline for billfish
+    (200, "adequate", "#22c55e"),   # green — sufficient for marlin
+]
+
+
+def process_oxygen(oxygen_file):
+    """Extract dissolved O2 contours at 100m depth. O2 < 150 mmol/m3 = hypoxic for marlin."""
+    import xarray as xr
+    from scipy.ndimage import gaussian_filter
+
+    print("[Oxygen] Processing contours...")
+    ds = xr.open_dataset(oxygen_file)
+
+    o2 = None
+    for var in ["o2", "O2", "doxy", "dissolved_oxygen"]:
+        if var in ds:
+            o2 = ds[var].squeeze()
+            break
+    if o2 is None:
+        raise ValueError(f"No oxygen variable found. Available: {list(ds.data_vars)}")
+
+    lons = o2.longitude.values if "longitude" in o2.dims else o2.lon.values
+    lats = o2.latitude.values if "latitude" in o2.dims else o2.lat.values
+    data = o2.values.copy().astype(float)
+
+    mask = np.isnan(data) | (data <= 0)
+    data[mask] = 0.0
+    data_smooth = gaussian_filter(data, sigma=0.8)
+    data_smooth[mask] = 0.0
+    data_max = float(np.nanmax(data_smooth))
+
+    all_features = []
+    for level, label, color in O2_LEVELS:
+        if level > data_max:
+            continue
+        feats = _contours_to_geojson(
+            data_smooth, lons, lats, level,
+            properties={"type": "o2_contour", "o2": level, "label": label, "color": color}
+        )
+        feats = [f for f in feats if len(f["geometry"]["coordinates"]) >= 3]
+        all_features.extend(feats)
+
+    geojson = {"type": "FeatureCollection", "features": all_features}
+    output_path = os.path.join(OUTPUT_DIR, "oxygen_contours.geojson")
+    with open(output_path, "w") as f:
+        json.dump(geojson, f)
+    print(f"[Oxygen] {len(all_features)} contours → {output_path}")
     return output_path
 
 
@@ -805,8 +971,11 @@ def generate_report(date_str, bbox):
                     "min": round(float(np.min(sst_valid)), 1),
                     "max": round(float(np.max(sst_valid)), 1),
                     "mean": round(float(np.mean(sst_valid)), 1),
-                    "blue_marlin_zone": bool(
-                        np.any((sst_valid >= 23) & (sst_valid <= 29))
+                    "blue_marlin_prime": bool(
+                        np.any((sst_valid >= 24) & (sst_valid <= 27))
+                    ),
+                    "blue_marlin_good": bool(
+                        np.any((sst_valid >= 22) & (sst_valid <= 30))
                     ),
                     "striped_marlin_zone": bool(
                         np.any((sst_valid >= 21) & (sst_valid <= 24))
@@ -824,7 +993,8 @@ def generate_report(date_str, bbox):
     if "sst" in report:
         s = report["sst"]
         print(f"SST Range: {s['min']}°C — {s['max']}°C (mean {s['mean']}°C)")
-        print(f"Blue Marlin Zone (23-29°C):    {'✅ YES' if s['blue_marlin_zone'] else '❌ NO'}")
+        print(f"Blue Marlin Prime (24-27°C):   {'✅ YES' if s['blue_marlin_prime'] else '❌ NO'}")
+        print(f"Blue Marlin Good (22-30°C):    {'✅ YES' if s['blue_marlin_good'] else '❌ NO'}")
         print(f"Striped Marlin Zone (21-24°C): {'✅ YES' if s['striped_marlin_zone'] else '❌ NO'}")
     print(f"{'='*50}\n")
 
@@ -904,6 +1074,16 @@ def main():
         except Exception as e:
             print(f"[SSH/Eddies] Fetch error: {e}")
 
+        try:
+            fetch_copernicus_mld(date_str, bbox)
+        except Exception as e:
+            print(f"[MLD] Fetch error: {e}")
+
+        try:
+            fetch_copernicus_oxygen(date_str, bbox)
+        except Exception as e:
+            print(f"[Oxygen] Fetch error: {e}")
+
     def _nc(name):
         """Find a NetCDF file: prefer dated dir, fall back to base dir."""
         p = os.path.join(OUTPUT_DIR, name)
@@ -962,6 +1142,22 @@ def main():
         except Exception as e:
             print(f"[SSH/Eddies] Processing error: {e}")
 
+    # Process MLD contours
+    mld_file = _nc("mld_raw.nc")
+    if mld_file:
+        try:
+            process_mld(mld_file)
+        except Exception as e:
+            print(f"[MLD] Processing error: {e}")
+
+    # Process dissolved oxygen contours
+    o2_file = _nc("oxygen_raw.nc")
+    if o2_file:
+        try:
+            process_oxygen(o2_file)
+        except Exception as e:
+            print(f"[Oxygen] Processing error: {e}")
+
     # Process currents
     cur_file = _nc("currents_raw.nc")
     if cur_file:
@@ -1004,7 +1200,7 @@ def main():
     geojson_files = [
         "sst_fronts.geojson", "chl_edges.geojson", "currents.geojson",
         "bathymetry_contours.geojson", "water_clarity.geojson", "ssh_eddies.geojson",
-        "deep_water.geojson",
+        "deep_water.geojson", "mld_contours.geojson", "oxygen_contours.geojson",
     ]
     if not args.no_update_latest:
         for fname in geojson_files:
