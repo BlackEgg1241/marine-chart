@@ -6,13 +6,14 @@
     "lat_min": -33.5,
     "lat_max": -30.5
   },
-  "generated": "2026-03-09T15:06:06.528140Z",
+  "generated": "2026-03-09T23:36:25.816706Z",
   "sst": {
-    "min": 22.4,
-    "max": 24.9,
-    "mean": 23.7,
+    "min": 24.0,
+    "max": 24.3,
+    "mean": 24.1,
+    "area": "fishing grounds",
     "blue_marlin_prime": true,
     "blue_marlin_good": true,
-    "striped_marlin_zone": true
+    "striped_marlin_zone": false
   }
 }
