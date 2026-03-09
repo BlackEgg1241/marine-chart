@@ -546,10 +546,11 @@ def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None, tif_
 # Weights reflect relative importance for blue marlin habitat selection.
 BLUE_MARLIN_WEIGHTS = {
     # Dynamic ocean conditions (these determine the score)
-    "sst":        0.35,   # SST — primary habitat driver
-    "sst_front":  0.20,   # SST gradient — prey aggregation at fronts (modulated by SST)
+    "sst":        0.30,   # SST — primary habitat driver
+    "sst_front":  0.15,   # SST gradient — prey aggregation at fronts (modulated by SST)
     "chl":        0.10,   # Chlorophyll — bait productivity indicator
-    "ssh":        0.20,   # Sea level anomaly — warm-core eddies (relative)
+    "ssh":        0.15,   # Sea level anomaly — warm-core eddies (relative)
+    "current":    0.15,   # Current favorability — eastward/onshore flow into canyon
     "mld":        0.10,   # Mixed layer depth — shallow = catchable
     "o2":         0.025,  # Dissolved oxygen at 100m (rarely limiting in this region)
     "clarity":    0.025,  # Water clarity (rarely limiting offshore)
@@ -796,6 +797,78 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
             _add_score("clarity", clarity_score)
         except Exception as e:
             print(f"[Hotspots] Clarity scoring failed: {e}")
+
+    # 9. Current favorability — warm water advection into Perth Canyon
+    #    Score = direction × speed × upstream_SST_suitability
+    #    Eastward (onshore) flow of warm Leeuwin Current water into the canyon
+    #    is what aggregates bait and marlin. Cold water pushed onshore is useless.
+    cur_file = os.path.join(OUTPUT_DIR, "currents_raw.nc")
+    if os.path.exists(cur_file):
+        try:
+            cds = xr.open_dataset(cur_file)
+            # Select surface layer if multiple depths exist
+            uo_raw = cds["uo"]
+            vo_raw = cds["vo"]
+            if "depth" in uo_raw.dims and uo_raw.sizes["depth"] > 1:
+                uo_raw = uo_raw.isel(depth=0)
+                vo_raw = vo_raw.isel(depth=0)
+            uo_da = uo_raw.squeeze()
+            vo_da = vo_raw.squeeze()
+            c_lons = uo_da.longitude.values if "longitude" in uo_da.dims else uo_da.lon.values
+            c_lats = uo_da.latitude.values if "latitude" in uo_da.dims else uo_da.lat.values
+            uo_data = _interp_to_grid(uo_da.values.astype(float), c_lons, c_lats)
+            vo_data = _interp_to_grid(vo_da.values.astype(float), c_lons, c_lats)
+            cur_speed = np.sqrt(uo_data**2 + vo_data**2)
+
+            # Score 1: eastward component — positive uo = flow toward coast/canyon
+            # 0 at uo<=0, 1.0 at uo>=0.15 m/s (strong onshore)
+            east_score = np.clip(uo_data / 0.15, 0, 1)
+
+            # Score 2: current speed — stronger = more warm water transport
+            # 0 at <0.03 m/s, 1.0 at >=0.20 m/s
+            speed_score = np.clip((cur_speed - 0.03) / 0.17, 0, 1)
+
+            # Score 3: upstream water temperature — sample SST ~1-2 pixels
+            # UPSTREAM of each cell (opposite to current direction).
+            # This tells us what temperature the current is bringing IN.
+            # Use sst_smooth which is already computed above.
+            upstream_sst = np.full_like(sst_smooth, np.nan)
+            dlat = abs(lats[1] - lats[0]) if len(lats) > 1 else 0.05
+            dlon = abs(lons[1] - lons[0]) if len(lons) > 1 else 0.05
+            for yi in range(ny):
+                for xi in range(nx):
+                    if land[yi, xi] or np.isnan(uo_data[yi, xi]):
+                        continue
+                    # Look ~2 grid cells upstream (opposite flow direction)
+                    u_val, v_val = float(uo_data[yi, xi]), float(vo_data[yi, xi])
+                    spd = np.sqrt(u_val**2 + v_val**2)
+                    if spd < 0.01:
+                        upstream_sst[yi, xi] = sst_smooth[yi, xi]
+                        continue
+                    # Upstream offset in grid cells (2 cells in upstream direction)
+                    src_xi = int(round(xi - 2 * u_val / spd))
+                    src_yi = int(round(yi - 2 * v_val / spd))
+                    src_xi = max(0, min(nx - 1, src_xi))
+                    src_yi = max(0, min(ny - 1, src_yi))
+                    t = sst_smooth[src_yi, src_xi]
+                    upstream_sst[yi, xi] = t if not np.isnan(t) else sst_smooth[yi, xi]
+
+            # Score upstream SST using same Gaussian as main SST score
+            upstream_temp_score = np.exp(-0.5 * ((upstream_sst - optimal_temp) / 1.8) ** 2)
+            upstream_temp_score[land] = np.nan
+
+            # Combined: direction × speed × upstream warmth
+            # All three must be present: eastward + fast + warm = ideal
+            current_score = east_score * (0.4 * speed_score + 0.6 * upstream_temp_score)
+            current_score[land] = np.nan
+            _add_score("current", current_score)
+
+            ocean = ~land & ~np.isnan(current_score)
+            fav_pct = np.sum(current_score[ocean] > 0.3) / np.sum(ocean) * 100
+            mean_up_sst = np.nanmean(upstream_sst[ocean])
+            print(f"[Hotspots] Current scoring: {fav_pct:.0f}% favorable, upstream SST mean {mean_up_sst:.1f}°C")
+        except Exception as e:
+            print(f"[Hotspots] Current scoring failed: {e}")
 
     # --- Normalize by actual weights used (handles missing data gracefully) ---
     valid = weight_sum > 0
@@ -1260,8 +1333,13 @@ def process_currents(currents_file):
     print("[Currents] Processing...")
     ds = xr.open_dataset(currents_file)
 
-    uo = ds["uo"].squeeze()
-    vo = ds["vo"].squeeze()
+    uo_raw = ds["uo"]
+    vo_raw = ds["vo"]
+    if "depth" in uo_raw.dims and uo_raw.sizes["depth"] > 1:
+        uo_raw = uo_raw.isel(depth=0)
+        vo_raw = vo_raw.isel(depth=0)
+    uo = uo_raw.squeeze()
+    vo = vo_raw.squeeze()
 
     lons = uo.longitude.values if "longitude" in uo.dims else uo.lon.values
     lats = uo.latitude.values if "latitude" in uo.dims else uo.lat.values
