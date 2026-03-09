@@ -548,6 +548,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
     ny, nx = sst.shape
     score = np.zeros((ny, nx), dtype=float)
     weight_sum = np.zeros((ny, nx), dtype=float)
+    sub_scores = {}  # store individual score arrays for per-polygon breakdown
 
     def _interp_to_grid(data, src_lons, src_lats):
         """Interpolate a 2D array onto the master SST grid."""
@@ -571,6 +572,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
             valid &= ~mask
         score[valid] += w * v[valid]
         weight_sum[valid] += w
+        sub_scores[name] = v.copy()
 
     # 1. SST score — Gaussian centered at 25.5°C (blue prime center), sigma=2.5°C
     sst_filled = sst.copy()
@@ -735,6 +737,30 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
         except ImportError:
             pass
 
+    # --- Helper to sample mean sub-scores within a polygon's bounding box ---
+    def _sample_scores(coords_list):
+        """Return dict of mean sub-score values for the area covered by polygon coords."""
+        xs = [c[0] for c in coords_list]
+        ys = [c[1] for c in coords_list]
+        lon_min, lon_max = min(xs), max(xs)
+        lat_min, lat_max = min(ys), max(ys)
+        # Find grid cells within bounding box
+        col_mask = (lons >= lon_min) & (lons <= lon_max)
+        row_mask = (lats >= lat_min) & (lats <= lat_max)
+        result = {}
+        weight_labels = {"sst": "SST", "sst_front": "Fronts", "chl": "Chl",
+                         "depth": "Depth", "ssh": "SSH", "mld": "MLD",
+                         "o2": "O\u2082", "clarity": "Clarity"}
+        for name, arr in sub_scores.items():
+            region = arr[np.ix_(row_mask, col_mask)]
+            valid = region[~np.isnan(region)]
+            if len(valid) > 0:
+                label = weight_labels.get(name, name)
+                w = BLUE_MARLIN_WEIGHTS.get(name, 0)
+                result[name] = {"label": label, "score": round(float(np.mean(valid)), 2),
+                                "weight": w, "contribution": round(float(np.mean(valid)) * w, 3)}
+        return result
+
     # --- Export as filled contour polygons with intensity bands ---
     # Fill NaN with 0 for contourf
     plot_data = final_smooth.copy()
@@ -746,13 +772,6 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
     plt.close(fig)
 
     features = []
-    # contourf creates len(levels)-1 filled regions between consecutive levels
-    all_paths = cf.get_paths() if hasattr(cf, 'get_paths') else [p for col in cf.collections for p in col.get_paths()]
-
-    # Map each path to its intensity band
-    # cf.get_paths() returns paths grouped by level interval
-    # We need to figure out which band each path belongs to
-    # Use allsegs approach which is cleaner
     for band_idx, seg_list in enumerate(cf.allsegs):
         if band_idx == 0:
             continue  # skip the 0–0.15 band (background noise)
@@ -766,12 +785,19 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
             if coords[0] != coords[-1]:
                 coords.append(coords[0])
 
+            # Sample sub-scores for this polygon
+            breakdown = _sample_scores(coords)
+
             props = {
                 "species": "blue",
                 "type": "hotspot",
                 "intensity": intensity,
                 "band": band_label,
             }
+            # Add individual scores as flat properties for hover display
+            for name, info in breakdown.items():
+                props[f"s_{name}"] = info["score"]
+                props[f"w_{name}"] = info["weight"]
 
             if clip_mask is not None:
                 try:
