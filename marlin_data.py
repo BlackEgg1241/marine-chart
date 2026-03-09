@@ -91,12 +91,34 @@ def fetch_copernicus_sst(date_str, bbox):
 
 
 def fetch_copernicus_currents(date_str, bbox):
-    """Download ocean current data (u, v components)."""
+    """Download ocean current data — observation first, model fallback."""
     import copernicusmarine
 
     output_file = os.path.join(OUTPUT_DIR, "currents_raw.nc")
 
-    print(f"[Currents] Fetching for {date_str}...")
+    # Try observation product first (GlobCurrent/OSCAR), fall back to model
+    try:
+        print(f"[Currents] Fetching observation for {date_str}...")
+        copernicusmarine.subset(
+            dataset_id="cmems_obs-mob_glo_phy-cur_nrt_0.25deg_P1D-m",
+            variables=["uo", "vo"],
+            minimum_longitude=bbox["lon_min"],
+            maximum_longitude=bbox["lon_max"],
+            minimum_latitude=bbox["lat_min"],
+            maximum_latitude=bbox["lat_max"],
+            start_datetime=f"{date_str}T00:00:00",
+            end_datetime=f"{date_str}T23:59:59",
+            minimum_depth=0,
+            maximum_depth=15,
+            output_filename=output_file,
+            output_directory=".",
+            overwrite=True,
+        )
+        print(f"[Currents] Saved observation to {output_file}")
+        return output_file
+    except Exception as e:
+        print(f"[Currents] Observation unavailable ({str(e)[:60]}), falling back to model...")
+
     copernicusmarine.subset(
         dataset_id="cmems_mod_glo_phy-cur_anfc_0.083deg_P1D-m",
         variables=["uo", "vo"],
@@ -112,17 +134,37 @@ def fetch_copernicus_currents(date_str, bbox):
         output_directory=".",
         overwrite=True,
     )
-    print(f"[Currents] Saved to {output_file}")
+    print(f"[Currents] Saved model fallback to {output_file}")
     return output_file
 
 
 def fetch_copernicus_chlorophyll(date_str, bbox):
-    """Download chlorophyll-a data."""
+    """Download chlorophyll-a — observation first, model fallback."""
     import copernicusmarine
 
     output_file = os.path.join(OUTPUT_DIR, "chl_raw.nc")
 
-    print(f"[Chlorophyll] Fetching for {date_str}...")
+    # Try satellite observation L4 (GlobColour gapfree), fall back to model
+    try:
+        print(f"[Chlorophyll] Fetching observation L4 for {date_str}...")
+        copernicusmarine.subset(
+            dataset_id="cmems_obs-oc_glo_bgc-plankton_nrt_l4-gapfree-multi-4km_P1D",
+            variables=["CHL"],
+            minimum_longitude=bbox["lon_min"],
+            maximum_longitude=bbox["lon_max"],
+            minimum_latitude=bbox["lat_min"],
+            maximum_latitude=bbox["lat_max"],
+            start_datetime=f"{date_str}T00:00:00",
+            end_datetime=f"{date_str}T23:59:59",
+            output_filename=output_file,
+            output_directory=".",
+            overwrite=True,
+        )
+        print(f"[Chlorophyll] Saved observation to {output_file}")
+        return output_file
+    except Exception as e:
+        print(f"[Chlorophyll] Observation unavailable ({str(e)[:60]}), falling back to model...")
+
     copernicusmarine.subset(
         dataset_id="cmems_mod_glo_bgc-pft_anfc_0.25deg_P1D-m",
         variables=["chl"],
@@ -138,7 +180,7 @@ def fetch_copernicus_chlorophyll(date_str, bbox):
         output_directory=".",
         overwrite=True,
     )
-    print(f"[Chlorophyll] Saved to {output_file}")
+    print(f"[Chlorophyll] Saved model fallback to {output_file}")
     return output_file
 
 
