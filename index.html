@@ -296,7 +296,7 @@ function initMap(){
     {id:'mz-blue-good',type:'fill',source:'marlin-zones',filter:['all',['==',['get','species'],'blue'],['==',['get','tier'],'good']],paint:{'fill-color':'#22d3ee','fill-opacity':0}},
     {id:'mz-blue-prime',type:'fill',source:'marlin-zones',filter:['all',['==',['get','species'],'blue'],['==',['get','tier'],'prime']],paint:{'fill-color':'#06b6d4','fill-opacity':0}},
     {id:'mz-striped',type:'fill',source:'marlin-zones',filter:['==',['get','species'],'striped'],paint:{'fill-color':'#818cf8','fill-opacity':0}},
-    {id:'hs-blue',type:'fill',source:'blue-hotspots',paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.15,'#164e63',0.3,'#0e7490',0.45,'#0891b2',0.6,'#06b6d4',0.75,'#22d3ee',1.0,'#67e8f9'],'fill-opacity':0}},
+    {id:'hs-blue',type:'fill',source:'blue-hotspots',paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.15,'#a5f3fc',0.3,'#67e8f9',0.45,'#22d3ee',0.6,'#06b6d4',0.75,'#0e7490',1.0,'#164e63'],'fill-opacity':0}},
 {id:'spot-glow',type:'circle',source:'spots',layout:{visibility:'visible'},paint:{'circle-radius':16,'circle-color':'#f43f5e','circle-opacity':.15,'circle-blur':.8}},
     {id:'spot-dot',type:'circle',source:'spots',layout:{visibility:'visible'},paint:{'circle-radius':6,'circle-color':'#f43f5e','circle-stroke-width':2,'circle-stroke-color':'#fff','circle-opacity':.9}},
     {id:'spot-label',type:'symbol',source:'spots',layout:{visibility:'visible','text-field':['get','name'],'text-size':10,'text-offset':[0,1.5],'text-anchor':'top','text-font':['Open Sans Regular']},paint:{'text-color':'#fbbf24','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5}},
@@ -342,9 +342,9 @@ function initMap(){
   var hPop=new maplibregl.Popup({closeButton:false,closeOnClick:false,offset:12,maxWidth:'240px'});
   var hInfo={
     'hs-blue':function(p){return '<div class="hp-title">Blue Marlin Hotspot — '+Math.round(p.intensity*100)+'%</div><div class="hp-sub">Composite habitat score (SST + fronts + depth + eddies + MLD + O₂ + clarity + chl)</div>'},
-    'mz-blue-prime':function(p){return '<div class="hp-title">Blue Marlin Prime Zone</div><div class="hp-sub">SST 24–27°C — optimal habitat</div>'},
-    'mz-blue-good':function(p){return '<div class="hp-title">Blue Marlin Zone</div><div class="hp-sub">SST 22–30°C — acceptable range</div>'},
-    'mz-striped':function(p){return '<div class="hp-title">Striped Marlin Zone</div><div class="hp-sub">SST 21–24°C — preferred habitat</div>'},
+    'mz-blue-prime':function(p){return '<div class="hp-title">Blue Marlin Prime Zone — 70%</div><div class="hp-sub">SST 24–27°C — optimal habitat (SST score only)</div>'},
+    'mz-blue-good':function(p){return '<div class="hp-title">Blue Marlin Zone — 40%</div><div class="hp-sub">SST 22–30°C — acceptable range (SST score only)</div>'},
+    'mz-striped':function(p){return '<div class="hp-title">Striped Marlin Zone — 60%</div><div class="hp-sub">SST 21–24°C — preferred habitat (SST score only)</div>'},
     'sst-front-line':function(p){return '<div class="hp-title">SST Front</div><div class="hp-sub">Sharp temperature gradient — prey aggregation zone</div>'},
     'isotherm-blue-prime':function(p){return '<div class="hp-title">'+p.temperature+'\u00b0C Isotherm (Prime)</div><div class="hp-sub">Blue Marlin prime zone 24–27°C</div>'},
     'isotherm-blue-good':function(p){return '<div class="hp-title">'+p.temperature+'\u00b0C Isotherm (Good)</div><div class="hp-sub">Blue Marlin acceptable range 22–30°C</div>'},
@@ -460,7 +460,7 @@ function setBasemap(n){
   map.addLayer({id:'mz-blue-good',type:'fill',source:'marlin-zones',filter:['all',['==',['get','species'],'blue'],['==',['get','tier'],'good']],paint:{'fill-color':'#22d3ee','fill-opacity':LS.blue_marlin?.15:0}},bf);
   map.addLayer({id:'mz-blue-prime',type:'fill',source:'marlin-zones',filter:['all',['==',['get','species'],'blue'],['==',['get','tier'],'prime']],paint:{'fill-color':'#06b6d4','fill-opacity':LS.blue_marlin?.25:0}},bf);
   map.addLayer({id:'mz-striped',type:'fill',source:'marlin-zones',filter:['==',['get','species'],'striped'],paint:{'fill-color':'#818cf8','fill-opacity':LS.striped_marlin?.2:0}},bf);
-  map.addLayer({id:'hs-blue',type:'fill',source:'blue-hotspots',paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.15,'#164e63',0.3,'#0e7490',0.45,'#0891b2',0.6,'#06b6d4',0.75,'#22d3ee',1.0,'#67e8f9'],'fill-opacity':LS.blue_marlin?.45:0}},bf);
+  map.addLayer({id:'hs-blue',type:'fill',source:'blue-hotspots',paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.15,'#a5f3fc',0.3,'#67e8f9',0.45,'#22d3ee',0.6,'#06b6d4',0.75,'#0e7490',1.0,'#164e63'],'fill-opacity':LS.blue_marlin?.45:0}},bf);
   var mv=LS.seamark?'visible':'none';
   map.addLayer({id:'spot-glow',type:'circle',source:'spots',layout:{visibility:mv},paint:{'circle-radius':16,'circle-color':'#f43f5e','circle-opacity':.15,'circle-blur':.8}},bf);
   map.addLayer({id:'spot-dot',type:'circle',source:'spots',layout:{visibility:mv},paint:{'circle-radius':6,'circle-color':'#f43f5e','circle-stroke-width':2,'circle-stroke-color':'#fff','circle-opacity':.9}},bf);
