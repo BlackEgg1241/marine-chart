@@ -1,16 +1,16 @@
 {
-  "date": "2026-03-08",
+  "date": "2026-03-07",
   "region": {
     "lon_min": 113.5,
     "lon_max": 116.5,
     "lat_min": -33.5,
     "lat_max": -30.5
   },
-  "generated": "2026-03-09T18:56:16.874638Z",
+  "generated": "2026-03-09T18:51:23.176660Z",
   "sst": {
-    "min": 20.9,
-    "max": 25.0,
-    "mean": 22.6,
+    "min": 21.2,
+    "max": 25.2,
+    "mean": 22.7,
     "blue_marlin_prime": true,
     "blue_marlin_good": true,
     "striped_marlin_zone": true

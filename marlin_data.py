@@ -91,16 +91,16 @@ def fetch_copernicus_sst(date_str, bbox):
 
 
 def fetch_copernicus_currents(date_str, bbox):
-    """Download ocean current data — model first (0.083° finer grid for canyon-scale
+    """Download ocean current data — model first (0.083deg finer grid for canyon-scale
     features), observation fallback (0.25° coarser but satellite-derived)."""
     import copernicusmarine
 
     output_file = os.path.join(OUTPUT_DIR, "currents_raw.nc")
 
-    # Prefer model product: 0.083° (~9km) resolves Perth Canyon currents
+    # Prefer model product: 0.083deg (~9km) resolves Perth Canyon currents
     # much better than the 0.25° (~28km) observation product
     try:
-        print(f"[Currents] Fetching model 0.083° for {date_str}...")
+        print(f"[Currents] Fetching model 0.083deg for {date_str}...")
         copernicusmarine.subset(
             dataset_id="cmems_mod_glo_phy-cur_anfc_0.083deg_P1D-m",
             variables=["uo", "vo"],
@@ -116,7 +116,7 @@ def fetch_copernicus_currents(date_str, bbox):
             output_directory=".",
             overwrite=True,
         )
-        print(f"[Currents] Saved model 0.083° to {output_file}")
+        print(f"[Currents] Saved model 0.083deg to {output_file}")
         return output_file
     except Exception as e:
         print(f"[Currents] Model unavailable ({str(e)[:60]}), falling back to observation...")
@@ -417,7 +417,7 @@ def detect_sst_fronts(sst_file, threshold=SST_GRADIENT_THRESHOLD, deep_mask=None
     with open(output_path, "w") as f:
         json.dump(geojson, f)
 
-    print(f"[SST Fronts] {len(features)} front lines, {len(isotherm_features)} isotherms → {output_path}")
+    print(f"[SST Fronts] {len(features)} front lines, {len(isotherm_features)} isotherms ->{output_path}")
 
     # --- Generate filled marlin zone polygons ---
     zone_features = _generate_marlin_zones(iso_data, mask, lons, lats, deep_mask=deep_mask, tif_path=tif_path)
@@ -425,7 +425,7 @@ def detect_sst_fronts(sst_file, threshold=SST_GRADIENT_THRESHOLD, deep_mask=None
     zone_path = os.path.join(OUTPUT_DIR, "marlin_zones.geojson")
     with open(zone_path, "w") as f:
         json.dump(zone_geojson, f)
-    print(f"[Marlin Zones] {len(zone_features)} zone polygons → {zone_path}")
+    print(f"[Marlin Zones] {len(zone_features)} zone polygons ->{zone_path}")
 
     return output_path
 
@@ -548,18 +548,19 @@ def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None, tif_
 # Weights reflect relative importance for blue marlin habitat selection.
 BLUE_MARLIN_WEIGHTS = {
     # Dynamic ocean conditions (these determine the score)
-    "sst":        0.25,   # SST — primary habitat driver
-    "sst_front":  0.15,   # SST gradient — prey aggregation at fronts (modulated by SST)
-    "chl":        0.08,   # Chlorophyll — bait productivity indicator
-    "ssh":        0.15,   # Sea level anomaly — warm water mass + eddies (absolute + relative)
-    "current":    0.12,   # Current favorability — warm eastward/onshore flow into canyon
-    "convergence":0.10,   # Current convergence — bait aggregation at canyon head
-    "mld":        0.10,   # Mixed layer depth — shallow = catchable
-    "o2":         0.025,  # Dissolved oxygen at 100m (rarely limiting in this region)
-    "clarity":    0.025,  # Water clarity (rarely limiting offshore)
+    "sst":          0.22,   # SST — primary habitat driver
+    "sst_front":    0.12,   # SST gradient — prey aggregation at fronts (modulated by SST)
+    "sst_intrusion":0.08,   # Cross-shelf SST gradient — Leeuwin Current warm intrusion
+    "chl":          0.08,   # Chlorophyll — bait productivity indicator
+    "ssh":          0.15,   # Sea level anomaly — warm water mass + eddies (absolute + relative)
+    "current":      0.12,   # Current favorability — warm eastward/onshore flow into canyon
+    "convergence":  0.08,   # Current convergence — bait aggregation at canyon head
+    "mld":          0.10,   # Mixed layer depth — shallow = catchable
+    "o2":           0.025,  # Dissolved oxygen at 100m (rarely limiting in this region)
+    "clarity":      0.025,  # Water clarity (rarely limiting offshore)
     # Static factors applied as MULTIPLIERS, not additive:
-    # depth:       0→1 gate (zero if <100m)
-    # shelf_break: 1.0→1.5 boost (canyon walls get up to +50%)
+    # depth:       0->1 gate (zero if <100m)
+    # shelf_break: 1.0->1.5 boost (canyon walls get up to +50%)
 }
 
 # Intensity bands for contourf polygon export
@@ -616,6 +617,25 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
         lat_grid, lon_grid = np.meshgrid(lats, lons, indexing="ij")
         return interp((lat_grid, lon_grid))
 
+    def _maxpool_to_grid(data_hr, hr_lons, hr_lats):
+        """Max-pool a high-res array to the master grid.
+        For each coarse cell, take the max value from all high-res pixels
+        that fall within it. Prevents shelf-edge dilution from linear interp."""
+        result = np.zeros((ny, nx))
+        dlat = abs(lats[1] - lats[0]) / 2 if ny > 1 else 0.04
+        dlon = abs(lons[1] - lons[0]) / 2 if nx > 1 else 0.04
+        for yi in range(ny):
+            for xi in range(nx):
+                b_row = (hr_lats >= lats[yi] - dlat) & (hr_lats <= lats[yi] + dlat)
+                b_col = (hr_lons >= lons[xi] - dlon) & (hr_lons <= lons[xi] + dlon)
+                if np.any(b_row) and np.any(b_col):
+                    result[yi, xi] = np.max(data_hr[np.ix_(b_row, b_col)])
+                else:
+                    byi = np.argmin(np.abs(hr_lats - lats[yi]))
+                    bxi = np.argmin(np.abs(hr_lons - lons[xi]))
+                    result[yi, xi] = data_hr[byi, bxi]
+        return result
+
     def _add_score(name, values, mask=None):
         """Add a weighted sub-score. Values should be 0–1."""
         w = BLUE_MARLIN_WEIGHTS.get(name, 0)
@@ -629,14 +649,14 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
         weight_sum[valid] += w
         sub_scores[name] = v.copy()
 
-    # 1. SST score — Gaussian centered at 24.5°C (Perth blue marlin sweet spot), sigma=3°C
-    #    Perth marlin caught in 23-27°C, peak activity around 24-25°C
+    # 1. SST score — Gaussian centered at 23.5°C, sigma=2.0
+    #    Validated: 81% of 71 catches at 22-24°C, median 22.9°C
     sst_filled = sst.copy()
     sst_filled[land] = np.nanmean(sst)
     sst_smooth = gaussian_filter(sst_filled, sigma=0.5)
     sst_smooth[land] = np.nan
-    optimal_temp = 25.0
-    sst_score = np.exp(-0.5 * ((sst_smooth - optimal_temp) / 1.8) ** 2)
+    optimal_temp = 23.5
+    sst_score = np.exp(-0.5 * ((sst_smooth - optimal_temp) / 2.0) ** 2)
     _add_score("sst", sst_score)
 
     # 2. SST front score — Sobel gradient magnitude, modulated by SST suitability
@@ -649,14 +669,47 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
     from scipy.ndimage import binary_dilation
     coast_buf = binary_dilation(land, iterations=2)
     grad_mag[coast_buf] = 0
-    gmax = np.nanmax(grad_mag)
-    if gmax > 0:
-        front_score = np.clip(grad_mag / (gmax * 0.5), 0, 1)
+    # Normalize by 90th percentile (robust to outlier pixels, more
+    # temporally consistent than max-based normalization)
+    ocean_grad = grad_mag[~coast_buf & ~land]
+    g90 = np.nanpercentile(ocean_grad, 90) if len(ocean_grad) > 0 else 0
+    if g90 > 0:
+        front_score = np.clip(grad_mag / g90, 0, 1)
     else:
         front_score = np.zeros_like(grad_mag)
     # Modulate: fronts only count where SST is suitable for marlin
     front_score = front_score * sst_score
+    # Floor: warm water (SST score > 0.6) gets minimum front score of 0.15
+    # Validated: catches in warm water without fronts still productive (54%)
+    warm_mask = sst_score > 0.6
+    front_score = np.where(warm_mask, np.maximum(front_score, 0.15), front_score)
     _add_score("sst_front", front_score)
+
+    # 2b. Cross-shelf SST gradient — Leeuwin Current warm water intrusion
+    #     Positive = warmer inshore = active warm current. Validated: partial r=0.42
+    #     independent of SST score. Warm inshore catches score 88% vs 80%.
+    cross_grad = np.full((ny, nx), np.nan)
+    for yi in range(ny):
+        transect = sst_smooth[yi, :]
+        valid_mask = ~np.isnan(transect) & ~land[yi, :]
+        if np.sum(valid_mask) < 5:
+            continue
+        for xi in range(nx):
+            if land[yi, xi]:
+                continue
+            # Compare SST 2-3 cells east (inshore) vs 2-5 cells west (offshore)
+            east_end = min(nx, xi + 4)
+            west_start = max(0, xi - 5)
+            nearshore = transect[xi:east_end]
+            offshore = transect[west_start:xi]
+            ns_valid = nearshore[~np.isnan(nearshore)]
+            os_valid = offshore[~np.isnan(offshore)]
+            if len(ns_valid) > 0 and len(os_valid) > 0:
+                cross_grad[yi, xi] = np.mean(ns_valid) - np.mean(os_valid)
+    # Score: positive gradient (warm inshore) = good, 1.0 at +0.5°C
+    intrusion_score = np.clip(cross_grad / 0.5, 0, 1)
+    intrusion_score[land] = np.nan
+    _add_score("sst_intrusion", intrusion_score)
 
     # 3. Chlorophyll score — peaks at 0.15–0.30 mg/m³ (shelf edge bait zone)
     chl_file = os.path.join(OUTPUT_DIR, "chl_raw.nc")
@@ -693,35 +746,36 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
                 if nd is not None:
                     bathy[bathy == nd] = np.nan
 
-            # Shelf break: Sobel gradient on raw bathy (high res), then interpolate
+            # Shelf break: Sobel gradient on raw bathy (high res)
             bathy_filled = bathy.copy()
             bathy_filled[np.isnan(bathy_filled)] = 0
             dgx = sobel(bathy_filled, axis=1)
             dgy = sobel(bathy_filled, axis=0)
             depth_gradient = np.sqrt(dgx**2 + dgy**2)
-            # Zero out land areas
             depth_gradient[np.isnan(bathy)] = 0
-            shelf_break_hr = depth_gradient
-            # Interpolate to master grid
-            shelf_break = _interp_to_grid(shelf_break_hr, b_lons, b_lats)
-            # Shelf break: MULTIPLIER not additive score
-            # Canyon walls boost by up to +50%, flat seabed = 1.0 (no change)
-            shelf_score = np.clip(shelf_break / 400, 0, 1)
+            # Interpolate gradient to master grid (linear interp is fine for
+            # shelf break — we want the average steepness, not the max)
+            shelf_break = _interp_to_grid(depth_gradient, b_lons, b_lats)
+            shelf_score = np.clip(shelf_break / 100, 0, 1)
             shelf_score[land] = np.nan
             # Store for hover breakdown but don't add to weighted sum
             sub_scores["shelf_break"] = shelf_score.copy()
             sb_pct = np.sum(shelf_score[~np.isnan(shelf_score)] > 0.5) / np.sum(~np.isnan(shelf_score)) * 100
-            print(f"[Hotspots] Shelf break: {sb_pct:.0f}% of cells >50% (applied as ×1.0–1.5 multiplier)")
+            print(f"[Hotspots] Shelf break: {sb_pct:.0f}% of cells >50% (applied as x1.0-1.5 multiplier)")
 
-            depth = _interp_to_grid(bathy, b_lons, b_lats)
-            abs_depth = -depth  # positive meters of depth
-            # Depth: MULTIPLIER — marlin fishing peaks right at the shelf break
-            # (100-300m canyon head). Ramp: 0 at <50m, 1.0 at >=100m.
-            # Slight taper beyond 3000m (too far offshore, less bait aggregation)
-            depth_score = np.where(abs_depth < 50, 0,
-                          np.where(abs_depth < 100, (abs_depth - 50) / 50,
-                          np.where(abs_depth < 3000, 1.0,
-                          np.clip(1.0 - (abs_depth - 3000) / 2000, 0.5, 1.0))))
+            # Compute depth score at native bathy resolution FIRST, then
+            # max-pool to coarse grid. This prevents shelf-edge catches from
+            # being scored as shallow due to linear interpolation averaging
+            # deep water with nearby land/shallow cells.
+            abs_depth_hr = np.where(np.isnan(bathy), 0, -bathy)
+            depth_score_hr = np.where(abs_depth_hr < 50, 0,
+                             np.where(abs_depth_hr < 80, (abs_depth_hr - 50) / 30,
+                             np.where(abs_depth_hr < 800, 1.0,
+                             np.where(abs_depth_hr < 2000, 0.85 + 0.15 * (1.0 - (abs_depth_hr - 800) / 1200),
+                             0.7))))
+            depth_score_hr[np.isnan(bathy)] = 0
+            depth_score = _maxpool_to_grid(depth_score_hr, b_lons, b_lats)
+            depth_score[land] = np.nan
             # Store for hover but don't add to weighted sum
             sub_scores["depth"] = np.clip(depth_score, 0, 1)
         except Exception as e:
@@ -865,19 +919,22 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
                     upstream_sst[yi, xi] = t if not np.isnan(t) else sst_smooth[yi, xi]
 
             # Score upstream SST using same Gaussian as main SST score
-            upstream_temp_score = np.exp(-0.5 * ((upstream_sst - optimal_temp) / 1.8) ** 2)
+            upstream_temp_score = np.exp(-0.5 * ((upstream_sst - optimal_temp) / 2.0) ** 2)
             upstream_temp_score[land] = np.nan
 
-            # Combined: direction × speed × upstream warmth
-            # All three must be present: eastward + fast + warm = ideal
-            current_score = east_score * (0.4 * speed_score + 0.6 * upstream_temp_score)
+            # Combined: speed × upstream warmth, with eastward bonus
+            # Validated: catches occur in all current directions, not just eastward.
+            # Base score = speed × upstream_temp; eastward adds 30% bonus
+            east_bonus = 1.0 + 0.3 * east_score
+            current_score = speed_score * upstream_temp_score * east_bonus
+            current_score = np.clip(current_score, 0, 1)
             current_score[land] = np.nan
             _add_score("current", current_score)
 
             ocean = ~land & ~np.isnan(current_score)
             fav_pct = np.sum(current_score[ocean] > 0.3) / np.sum(ocean) * 100
             mean_up_sst = np.nanmean(upstream_sst[ocean])
-            print(f"[Hotspots] Current scoring: {fav_pct:.0f}% favorable, upstream SST mean {mean_up_sst:.1f}°C")
+            print(f"[Hotspots] Current scoring: {fav_pct:.0f}% favorable, upstream SST mean {mean_up_sst:.1f}C")
 
             # 10. Current convergence — negative divergence = converging flow
             #     Convergence concentrates bait (pilchards, squid) at canyon head,
@@ -894,8 +951,15 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
             conv_filled[np.isnan(conv_filled)] = 0
             conv_score = gaussian_filter(conv_filled, sigma=1.0)
             conv_score[land] = np.nan
-            _add_score("convergence", conv_score)
-            conv_pct = np.sum(conv_score[~np.isnan(conv_score) & ~land] > 0.3) / np.sum(~np.isnan(conv_score) & ~land) * 100
+
+            # Bait trap synergy: convergence is more effective with strong current
+            # (currents push bait into convergence zones = active aggregation)
+            # Validated: both high = 69%, neither = 53% at catch locations
+            synergy = 1.0 + 0.4 * np.clip(current_score, 0, 1)
+            conv_score_synergy = np.clip(conv_score * synergy, 0, 1)
+            conv_score_synergy[land] = np.nan
+            _add_score("convergence", conv_score_synergy)
+            conv_pct = np.sum(conv_score_synergy[~np.isnan(conv_score_synergy) & ~land] > 0.3) / np.sum(~np.isnan(conv_score_synergy) & ~land) * 100
             print(f"[Hotspots] Convergence scoring: {conv_pct:.0f}% of cells have bait-concentrating flow")
         except Exception as e:
             print(f"[Hotspots] Current scoring failed: {e}")
@@ -926,7 +990,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
     fmin = float(np.nanmin(final_smooth[~land & valid]))
     fmax = float(np.nanmax(final_smooth[~land & valid]))
     fmean = float(np.nanmean(final_smooth[~land & valid]))
-    print(f"[Hotspots] Score range: {fmin:.3f} – {fmax:.3f} (mean {fmean:.3f})")
+    print(f"[Hotspots] Score range: {fmin:.3f} - {fmax:.3f} (mean {fmean:.3f})")
 
     # --- Build depth mask for clipping to >100m ---
     clip_mask = None
@@ -1031,8 +1095,15 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
     with open(output_path, "w") as f:
         json.dump(geojson, f)
 
-    print(f"[Hotspots] {len(features)} polygons across {len(HOTSPOT_BANDS)} bands → {output_path}")
-    return output_path
+    print(f"[Hotspots] {len(features)} polygons across {len(HOTSPOT_BANDS)} bands ->{output_path}")
+    return {
+        "path": output_path,
+        "grid": final_smooth,
+        "lats": lats,
+        "lons": lons,
+        "sub_scores": sub_scores,
+        "weights": {k: v for k, v in BLUE_MARLIN_WEIGHTS.items()},
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -1108,7 +1179,7 @@ def detect_chlorophyll_edges(chl_file, threshold=CHL_GRADIENT_THRESHOLD):
     with open(output_path, "w") as f:
         json.dump(geojson, f)
 
-    print(f"[Chlorophyll] {len(all_features)} contours at {[l[0] for l in CHL_LEVELS]} mg/m³ → {output_path}")
+    print(f"[Chlorophyll] {len(all_features)} contours at {[l[0] for l in CHL_LEVELS]} mg/m³ ->{output_path}")
     return output_path
 
 
@@ -1170,7 +1241,7 @@ def process_water_clarity(kd490_file):
     with open(output_path, "w") as f:
         json.dump(geojson, f)
 
-    print(f"[Water Clarity] {len(all_features)} contours → {output_path}")
+    print(f"[Water Clarity] {len(all_features)} contours ->{output_path}")
     return output_path
 
 
@@ -1179,8 +1250,8 @@ def process_water_clarity(kd490_file):
 # ---------------------------------------------------------------------------
 # SLA contour levels (m): eddy structure boundaries
 # Positive SLA = warm-core anticyclonic eddy (clockwise in S. hemisphere)
-#   → traps warm water, marlin congregate on leading edge
-# Negative SLA = cold-core cyclonic eddy → upwelling, bait but cold
+#   ->traps warm water, marlin congregate on leading edge
+# Negative SLA = cold-core cyclonic eddy ->upwelling, bait but cold
 SLA_LEVELS = [
     (-0.01, "cold_eddy",  "#60a5fa"),   # blue — slight cold anomaly
     ( 0.03, "neutral",    "#94a3b8"),   # gray — eddy boundary
@@ -1236,7 +1307,7 @@ def process_ssh(ssh_file):
     with open(output_path, "w") as f:
         json.dump(geojson, f)
 
-    print(f"[SSH/Eddies] {len(all_features)} contours → {output_path}")
+    print(f"[SSH/Eddies] {len(all_features)} contours ->{output_path}")
     return output_path
 
 
@@ -1291,7 +1362,7 @@ def process_mld(mld_file):
     output_path = os.path.join(OUTPUT_DIR, "mld_contours.geojson")
     with open(output_path, "w") as f:
         json.dump(geojson, f)
-    print(f"[MLD] {len(all_features)} contours → {output_path}")
+    print(f"[MLD] {len(all_features)} contours ->{output_path}")
     return output_path
 
 
@@ -1346,7 +1417,7 @@ def process_oxygen(oxygen_file):
     output_path = os.path.join(OUTPUT_DIR, "oxygen_contours.geojson")
     with open(output_path, "w") as f:
         json.dump(geojson, f)
-    print(f"[Oxygen] {len(all_features)} contours → {output_path}")
+    print(f"[Oxygen] {len(all_features)} contours ->{output_path}")
     return output_path
 
 
@@ -1430,7 +1501,7 @@ def process_currents(currents_file):
     with open(output_path, "w") as f:
         json.dump(geojson, f)
 
-    print(f"[Currents] {len(features)} vectors → {output_path}")
+    print(f"[Currents] {len(features)} vectors ->{output_path}")
     return output_path
 
 
@@ -1503,7 +1574,7 @@ def extract_bathymetry_contours(gebco_file, depths=[-50, -100, -200, -500, -1000
     with open(output_path, "w") as f:
         json.dump(geojson, f)
 
-    print(f"[Bathymetry] {len(all_features)} contour segments → {output_path}")
+    print(f"[Bathymetry] {len(all_features)} contour segments ->{output_path}")
     return output_path
 
 
@@ -1521,7 +1592,7 @@ def extract_contours_gdal(gebco_file, depths=[-50, -100, -200, -500, -1000]):
     print(f"[Bathymetry] Running: {cmd}")
     subprocess.run(cmd, shell=True, check=True)
 
-    print(f"[Bathymetry] Contours → {output_path}")
+    print(f"[Bathymetry] Contours ->{output_path}")
     return output_path
 
 
@@ -1556,7 +1627,7 @@ def fetch_bathymetry_gmrt(bbox, depths=[-100, -200, -500, -1000]):
 
     with open(tif_path, "wb") as f:
         f.write(resp.content)
-    print(f"[Bathymetry] Downloaded {len(resp.content)//1024} KB → {tif_path}")
+    print(f"[Bathymetry] Downloaded {len(resp.content)//1024} KB ->{tif_path}")
 
     return extract_bathymetry_contours(tif_path, depths=depths)
 
@@ -1661,10 +1732,10 @@ def generate_report(date_str, bbox):
     print(f"{'='*50}")
     if "sst" in report:
         s = report["sst"]
-        print(f"SST Range: {s['min']}°C — {s['max']}°C (mean {s['mean']}°C)")
-        print(f"Blue Marlin Prime (24-27°C):   {'✅ YES' if s['blue_marlin_prime'] else '❌ NO'}")
-        print(f"Blue Marlin Good (22-30°C):    {'✅ YES' if s['blue_marlin_good'] else '❌ NO'}")
-        print(f"Striped Marlin Zone (21-24°C): {'✅ YES' if s['striped_marlin_zone'] else '❌ NO'}")
+        print(f"SST Range: {s['min']}C - {s['max']}C (mean {s['mean']}C)")
+        print(f"Blue Marlin Prime (24-27C):   {'YES' if s['blue_marlin_prime'] else 'NO'}")
+        print(f"Blue Marlin Good (22-30C):    {'YES' if s['blue_marlin_good'] else 'NO'}")
+        print(f"Striped Marlin Zone (21-24C): {'YES' if s['striped_marlin_zone'] else 'NO'}")
     print(f"{'='*50}\n")
 
     return output_path
@@ -1711,9 +1782,9 @@ def main():
     os.makedirs(dated_output, exist_ok=True)
     OUTPUT_DIR = dated_output
 
-    print(f"\n🐟 Marlin Zone Data Pipeline")
+    print(f"\nMarlin Zone Data Pipeline")
     print(f"   Date:   {date_str}")
-    print(f"   Region: {bbox['lon_min']}–{bbox['lon_max']}°E, {bbox['lat_min']}–{bbox['lat_max']}°S")
+    print(f"   Region: {bbox['lon_min']}-{bbox['lon_max']}E, {bbox['lat_min']}-{bbox['lat_max']}S")
     print(f"   Output: {OUTPUT_DIR}/\n")
 
     # Fetch data
@@ -1884,9 +1955,9 @@ def main():
             dst = os.path.join(base_output, fname)
             if os.path.exists(src):
                 shutil.copy2(src, dst)
-        print(f"✅ Done! GeoJSON files in {OUTPUT_DIR}/ and {base_output}/")
+        print(f"Done! GeoJSON files in {OUTPUT_DIR}/ and {base_output}/")
     else:
-        print(f"✅ Done! GeoJSON files in {OUTPUT_DIR}/ (base data/ not updated)")
+        print(f"Done! GeoJSON files in {OUTPUT_DIR}/ (base data/ not updated)")
     print(f"   Date folder: data/{date_str}/\n")
 
 
@@ -1971,7 +2042,7 @@ def save_deep_water_mask_geojson(mask, output_path):
         }
         with open(output_path, "w") as f:
             json.dump(gj, f)
-        print(f"[Depth mask] Saved deep water polygon → {output_path}")
+        print(f"[Depth mask] Saved deep water polygon ->{output_path}")
     except Exception as e:
         print(f"[Depth mask] Could not save GeoJSON: {e}")
 
