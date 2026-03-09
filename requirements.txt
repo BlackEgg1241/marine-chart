@@ -5,4 +5,5 @@ scipy
 netCDF4
 matplotlib
 rasterio
+shapely
 geojson

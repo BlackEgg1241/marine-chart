@@ -133,7 +133,7 @@
 
 <!-- Date picker -->
 
-<div class="date-bar" id="dateBar">
+<div class="date-bar active" id="dateBar">
   <label>Date</label>
   <button class="dn" onclick="shiftDate(-1)">◀</button>
   <input type="date" id="dateInput" onchange="onDateChange()">
@@ -189,21 +189,21 @@
     </div>
     <!-- Row 2: Satellite raster overlays (scrollable) -->
     <div class="layer-row">
-      <button class="layer-btn" id="btnSST" onclick="toggleLayer('sst')"><span class="icon">🌡️</span> SST</button>
+      <button class="layer-btn on-red" id="btnSST" onclick="toggleLayer('sst')"><span class="icon">🌡️</span> SST</button>
       <button class="layer-btn" id="btnChloro" onclick="toggleLayer('chlorophyll')"><span class="icon">🧬</span> Chlorophyll</button>
       <button class="layer-btn" id="btnTrueColor" onclick="toggleLayer('truecolor')"><span class="icon">🛰️</span> True Colour</button>
       <button class="layer-btn" id="btnSSHMap" onclick="toggleLayer('ssh_visual')"><span class="icon">🌊</span> Height Map</button>
     </div>
     <!-- Row 3: Analysis vector layers (scrollable) -->
     <div class="layer-row">
-      <button class="layer-btn" id="btnSSTFronts" onclick="toggleLayer('sst_fronts')"><span class="icon">🔥</span> SST Fronts</button>
-      <button class="layer-btn" id="btnChlEdges" onclick="toggleLayer('chl_edges')"><span class="icon">🌿</span> Chl Edges</button>
-      <button class="layer-btn" id="btnCurrents" onclick="toggleLayer('currents')"><span class="icon">💧</span> Currents</button>
-      <button class="layer-btn" id="btnBathy" onclick="toggleLayer('bathymetry')"><span class="icon">📐</span> Bathymetry</button>
-      <button class="layer-btn" id="btnClarity" onclick="toggleLayer('clarity')"><span class="icon">🔵</span> Clarity</button>
-      <button class="layer-btn" id="btnSSH" onclick="toggleLayer('ssh')"><span class="icon">🌀</span> Eddies</button>
-      <button class="layer-btn" id="btnMLD" onclick="toggleLayer('mld')"><span class="icon">🫧</span> MLD</button>
-      <button class="layer-btn" id="btnO2" onclick="toggleLayer('oxygen')"><span class="icon">💨</span> O₂</button>
+      <button class="layer-btn on-red" id="btnSSTFronts" onclick="toggleLayer('sst_fronts')"><span class="icon">🔥</span> SST Fronts</button>
+      <button class="layer-btn on-green" id="btnChlEdges" onclick="toggleLayer('chl_edges')"><span class="icon">🌿</span> Chl Edges</button>
+      <button class="layer-btn on" id="btnCurrents" onclick="toggleLayer('currents')"><span class="icon">💧</span> Currents</button>
+      <button class="layer-btn on-orange" id="btnBathy" onclick="toggleLayer('bathymetry')"><span class="icon">📐</span> Bathymetry</button>
+      <button class="layer-btn on" id="btnClarity" onclick="toggleLayer('clarity')"><span class="icon">🔵</span> Clarity</button>
+      <button class="layer-btn on-orange" id="btnSSH" onclick="toggleLayer('ssh')"><span class="icon">🌀</span> Eddies</button>
+      <button class="layer-btn on" id="btnMLD" onclick="toggleLayer('mld')"><span class="icon">🫧</span> MLD</button>
+      <button class="layer-btn on" id="btnO2" onclick="toggleLayer('oxygen')"><span class="icon">💨</span> O₂</button>
     </div>
   </div>
   <div class="gps-row">
@@ -247,7 +247,7 @@ var SPOTS=[
 ];
 
 var map,cBM='ocean',gpsWId=null,gM='off',cPos=null,fGPS=false,simI=null,trk=[],sIdx=0;
-var LS={seamark:true,blue_marlin:false,striped_marlin:false,chlorophyll:false,sst:false,truecolor:false,ssh_visual:false,sst_fronts:false,chl_edges:false,currents:false,bathymetry:false,clarity:false,ssh:false,mld:false,oxygen:false};
+var LS={seamark:true,blue_marlin:false,striped_marlin:false,chlorophyll:false,sst:true,truecolor:false,ssh_visual:false,sst_fronts:true,chl_edges:true,currents:true,bathymetry:true,clarity:true,ssh:true,mld:true,oxygen:true};
 // Opacity-based toggling for GeoJSON layers — tiles stay loaded, no cache purge on toggle
 var gLO={'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.5],'isotherm-striped':['line-opacity',.8],'isotherm-label':['text-opacity',1],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.9],'mld-deep':['line-opacity',.7],'o2-hypoxic':['line-opacity',.9],'o2-low':['line-opacity',.8],'o2-adequate':['line-opacity',.7],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.95],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'bathy-glow':['line-opacity',.12],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-label':['text-opacity',1],'mz-blue-good':['fill-opacity',.15],'mz-blue-prime':['fill-opacity',.25],'mz-striped':['fill-opacity',.2]};
 function sGL(id,on){if(!map.getLayer(id))return;var e=gLO[id];e?map.setPaintProperty(id,e[0],on?e[1]:0):map.setLayoutProperty(id,'visibility',on?'visible':'none')}
@@ -288,7 +288,7 @@ function initMap(){
     {id:'basemap-layer',type:'raster',source:'basemap'},
     {id:'ol-layer',type:'raster',source:'ol',paint:{'raster-opacity':0}},
     {id:'g-tc-layer',type:'raster',source:'g-tc',layout:{visibility:'none'},paint:{'raster-opacity':.85}},
-    {id:'g-sst-layer',type:'raster',source:'g-sst',layout:{visibility:'none'},paint:{'raster-opacity':.6}},
+    {id:'g-sst-layer',type:'raster',source:'g-sst',layout:{visibility:'visible'},paint:{'raster-opacity':.6}},
     {id:'g-chl-layer',type:'raster',source:'g-chl',layout:{visibility:'none'},paint:{'raster-opacity':.7}},
     {id:'g-ssh-layer',type:'raster',source:'g-ssh',layout:{visibility:'none'},paint:{'raster-opacity':.7}},
     {id:'mz-blue-good',type:'fill',source:'marlin-zones',filter:['all',['==',['get','species'],'blue'],['==',['get','tier'],'good']],paint:{'fill-color':'#fdba74','fill-opacity':0}},
@@ -297,33 +297,33 @@ function initMap(){
 {id:'spot-glow',type:'circle',source:'spots',layout:{visibility:'visible'},paint:{'circle-radius':16,'circle-color':'#f43f5e','circle-opacity':.15,'circle-blur':.8}},
     {id:'spot-dot',type:'circle',source:'spots',layout:{visibility:'visible'},paint:{'circle-radius':6,'circle-color':'#f43f5e','circle-stroke-width':2,'circle-stroke-color':'#fff','circle-opacity':.9}},
     {id:'spot-label',type:'symbol',source:'spots',layout:{visibility:'visible','text-field':['get','name'],'text-size':10,'text-offset':[0,1.5],'text-anchor':'top','text-font':['Open Sans Regular']},paint:{'text-color':'#fbbf24','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5}},
-    {id:'bathy-100',type:'line',source:'bathymetry',filter:['==',['get','depth'],-100],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':0}},
-    {id:'bathy-glow',type:'line',source:'bathymetry',filter:['==',['get','depth'],-200],paint:{'line-color':'#000000','line-width':8,'line-opacity':0,'line-blur':4}},
-    {id:'bathy-200',type:'line',source:'bathymetry',filter:['==',['get','depth'],-200],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':0}},
-    {id:'bathy-500',type:'line',source:'bathymetry',filter:['==',['get','depth'],-500],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':0}},
-    {id:'bathy-1000',type:'line',source:'bathymetry',filter:['==',['get','depth'],-1000],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':0}},
-    {id:'bathy-label',type:'symbol',source:'bathymetry',filter:['any',['==',['get','depth'],-100],['==',['get','depth'],-200],['==',['get','depth'],-500],['==',['get','depth'],-1000]],layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat',['to-string',['*',['get','depth'],-1]],'m'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#000000','text-halo-color':'rgba(255,255,255,0.85)','text-halo-width':1.5,'text-opacity':0}},
-    {id:'sst-front-glow',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],paint:{'line-color':'#ff6b35','line-width':['interpolate',['linear'],['zoom'],5,12,10,8,15,4],'line-opacity':0,'line-blur':4}},
-    {id:'sst-front-line',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],paint:{'line-color':'#ff6b35','line-width':['interpolate',['linear'],['zoom'],5,3.5,10,2.5,15,1.5],'line-opacity':0}},
+    {id:'bathy-100',type:'line',source:'bathymetry',filter:['==',['get','depth'],-100],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':.85}},
+    {id:'bathy-glow',type:'line',source:'bathymetry',filter:['==',['get','depth'],-200],paint:{'line-color':'#000000','line-width':8,'line-opacity':.12,'line-blur':4}},
+    {id:'bathy-200',type:'line',source:'bathymetry',filter:['==',['get','depth'],-200],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':.9}},
+    {id:'bathy-500',type:'line',source:'bathymetry',filter:['==',['get','depth'],-500],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':.75}},
+    {id:'bathy-1000',type:'line',source:'bathymetry',filter:['==',['get','depth'],-1000],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':.65}},
+    {id:'bathy-label',type:'symbol',source:'bathymetry',filter:['any',['==',['get','depth'],-100],['==',['get','depth'],-200],['==',['get','depth'],-500],['==',['get','depth'],-1000]],layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat',['to-string',['*',['get','depth'],-1]],'m'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#000000','text-halo-color':'rgba(255,255,255,0.85)','text-halo-width':1.5,'text-opacity':1}},
+    {id:'sst-front-glow',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],paint:{'line-color':'#ff6b35','line-width':['interpolate',['linear'],['zoom'],5,12,10,8,15,4],'line-opacity':.18,'line-blur':4}},
+    {id:'sst-front-line',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],paint:{'line-color':'#ff6b35','line-width':['interpolate',['linear'],['zoom'],5,3.5,10,2.5,15,1.5],'line-opacity':.9}},
     {id:'isotherm-blue-prime',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'prime']],paint:{'line-color':'#f97316','line-width':['interpolate',['linear'],['zoom'],5,3,10,2,15,1.5],'line-opacity':0}},
     {id:'isotherm-blue-good',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'good']],paint:{'line-color':'#fdba74','line-width':['interpolate',['linear'],['zoom'],5,2.5,10,1.5,15,1],'line-opacity':0,'line-dasharray':[6,3]}},
     {id:'isotherm-striped',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'striped']],paint:{'line-color':'#818cf8','line-width':['interpolate',['linear'],['zoom'],5,3,10,2,15,1.5],'line-opacity':0,'line-dasharray':[6,3]}},
     {id:'isotherm-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{'symbol-placement':'line','text-field':['concat',['to-string',['get','temperature']],'°'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#fcd34d','text-halo-color':'rgba(0,0,0,0.75)','text-halo-width':1.5,'text-opacity':0}},
-    {id:'chl-edge-line',type:'line',source:'chl-edges',paint:{'line-color':['step',['get','concentration'],'#86efac',0.15,'#4ade80',0.30,'#16a34a',0.60,'#14532d'],'line-width':['step',['get','concentration'],1,0.15,1.5,0.30,2,0.60,2.5],'line-opacity':0}},
-    {id:'current-line',type:'line',source:'currents',paint:{'line-color':'#000000','line-width':1,'line-opacity':0}},
-    {id:'ssh-cold',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'cold_eddy'],paint:{'line-color':'#60a5fa','line-width':2,'line-opacity':0,'line-dasharray':[5,3]}},
-    {id:'ssh-neutral',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'neutral'],paint:{'line-color':'#94a3b8','line-width':1,'line-opacity':0,'line-dasharray':[2,3]}},
-    {id:'ssh-warm',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'warm_eddy'],paint:{'line-color':'#fb923c','line-width':2.5,'line-opacity':0}},
-    {id:'ssh-warm-core',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'warm_core'],paint:{'line-color':'#ef4444','line-width':3,'line-opacity':0}},
-    {id:'clarity-clean',type:'line',source:'water-clarity',filter:['==',['get','label'],'clean'],paint:{'line-color':'#38bdf8','line-width':2,'line-opacity':0}},
-    {id:'clarity-turbid',type:'line',source:'water-clarity',filter:['==',['get','label'],'turbid'],paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':0,'line-dasharray':[4,2]}},
-    {id:'clarity-bloom',type:'line',source:'water-clarity',filter:['==',['get','label'],'bloom'],paint:{'line-color':'#dc2626','line-width':2,'line-opacity':0,'line-dasharray':[4,2]}},
-    {id:'mld-shallow',type:'line',source:'mld',filter:['==',['get','label'],'shallow'],paint:{'line-color':'#22d3ee','line-width':1.5,'line-opacity':0}},
-    {id:'mld-moderate',type:'line',source:'mld',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#0ea5e9','line-width':2,'line-opacity':0}},
-    {id:'mld-deep',type:'line',source:'mld',filter:['==',['get','label'],'deep'],paint:{'line-color':'#6366f1','line-width':1.5,'line-opacity':0,'line-dasharray':[4,2]}},
-    {id:'o2-hypoxic',type:'line',source:'oxygen',filter:['==',['get','label'],'hypoxic'],paint:{'line-color':'#ef4444','line-width':2,'line-opacity':0}},
-    {id:'o2-low',type:'line',source:'oxygen',filter:['==',['get','label'],'low'],paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':0,'line-dasharray':[4,2]}},
-    {id:'o2-adequate',type:'line',source:'oxygen',filter:['==',['get','label'],'adequate'],paint:{'line-color':'#22c55e','line-width':1.5,'line-opacity':0}},
+    {id:'chl-edge-line',type:'line',source:'chl-edges',paint:{'line-color':['step',['get','concentration'],'#86efac',0.15,'#4ade80',0.30,'#16a34a',0.60,'#14532d'],'line-width':['step',['get','concentration'],1,0.15,1.5,0.30,2,0.60,2.5],'line-opacity':.8}},
+    {id:'current-line',type:'line',source:'currents',paint:{'line-color':'#000000','line-width':1,'line-opacity':.75}},
+    {id:'ssh-cold',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'cold_eddy'],paint:{'line-color':'#60a5fa','line-width':2,'line-opacity':.8,'line-dasharray':[5,3]}},
+    {id:'ssh-neutral',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'neutral'],paint:{'line-color':'#94a3b8','line-width':1,'line-opacity':.5,'line-dasharray':[2,3]}},
+    {id:'ssh-warm',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'warm_eddy'],paint:{'line-color':'#fb923c','line-width':2.5,'line-opacity':.9}},
+    {id:'ssh-warm-core',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'warm_core'],paint:{'line-color':'#ef4444','line-width':3,'line-opacity':.95}},
+    {id:'clarity-clean',type:'line',source:'water-clarity',filter:['==',['get','label'],'clean'],paint:{'line-color':'#38bdf8','line-width':2,'line-opacity':.9}},
+    {id:'clarity-turbid',type:'line',source:'water-clarity',filter:['==',['get','label'],'turbid'],paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':.85,'line-dasharray':[4,2]}},
+    {id:'clarity-bloom',type:'line',source:'water-clarity',filter:['==',['get','label'],'bloom'],paint:{'line-color':'#dc2626','line-width':2,'line-opacity':.9,'line-dasharray':[4,2]}},
+    {id:'mld-shallow',type:'line',source:'mld',filter:['==',['get','label'],'shallow'],paint:{'line-color':'#22d3ee','line-width':1.5,'line-opacity':.8}},
+    {id:'mld-moderate',type:'line',source:'mld',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#0ea5e9','line-width':2,'line-opacity':.9}},
+    {id:'mld-deep',type:'line',source:'mld',filter:['==',['get','label'],'deep'],paint:{'line-color':'#6366f1','line-width':1.5,'line-opacity':.7,'line-dasharray':[4,2]}},
+    {id:'o2-hypoxic',type:'line',source:'oxygen',filter:['==',['get','label'],'hypoxic'],paint:{'line-color':'#ef4444','line-width':2,'line-opacity':.9}},
+    {id:'o2-low',type:'line',source:'oxygen',filter:['==',['get','label'],'low'],paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':.8,'line-dasharray':[4,2]}},
+    {id:'o2-adequate',type:'line',source:'oxygen',filter:['==',['get','label'],'adequate'],paint:{'line-color':'#22c55e','line-width':1.5,'line-opacity':.7}},
     {id:'sm-layer',type:'raster',source:'sm',paint:{'raster-opacity':.85}}
   ];
   map=new maplibregl.Map({container:'map',style:{version:8,sources:src,layers:ly,glyphs:'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf'},center:[115.35,-31.97],zoom:10,maxZoom:18,minZoom:3,attributionControl:true});
@@ -364,9 +364,12 @@ function initMap(){
     'o2-low':function(p){return '<div class="hp-title">Low O₂ ('+p.o2+' mmol/m³)</div><div class="hp-sub">Borderline oxygen at 100m — marlin vertical habitat compressed</div>'},
     'o2-adequate':function(p){return '<div class="hp-title">Adequate O₂ ('+p.o2+' mmol/m³)</div><div class="hp-sub">Good dissolved oxygen at 100m — full diving range</div>'}
   };
+  // Map layer IDs to their LS toggle key so hovers respect visibility
+  var hVis={'mz-blue-good':'blue_marlin','mz-blue-prime':'blue_marlin','mz-striped':'striped_marlin','isotherm-blue-prime':'blue_marlin','isotherm-blue-good':'blue_marlin','isotherm-striped':'striped_marlin','sst-front-glow':'sst_fronts','sst-front-line':'sst_fronts','chl-edge-line':'chl_edges','current-line':'currents','bathy-100':'bathymetry','bathy-200':'bathymetry','bathy-500':'bathymetry','bathy-1000':'bathymetry','clarity-clean':'clarity','clarity-turbid':'clarity','clarity-bloom':'clarity','ssh-cold':'ssh','ssh-neutral':'ssh','ssh-warm':'ssh','ssh-warm-core':'ssh','mld-shallow':'mld','mld-moderate':'mld','mld-deep':'mld','o2-hypoxic':'oxygen','o2-low':'oxygen','o2-adequate':'oxygen'};
   Object.keys(hInfo).forEach(function(lid){
     map.on('mousemove',lid,function(e){
       if(!e.features||!e.features.length)return;
+      var vk=hVis[lid];if(vk&&!LS[vk])return;
       map.getCanvas().style.cursor='crosshair';
       hPop.setLngLat(e.lngLat).setHTML(hInfo[lid](e.features[0].properties)).addTo(map);
     });
@@ -407,7 +410,7 @@ var ML=['spot-glow','spot-dot','spot-label'];
 function toggleLayer(n){
   LS[n]=!LS[n];var a=LS[n];
   var lm={seamark:['sm-layer','spot-glow','spot-dot','spot-label'],chlorophyll:'g-chl-layer',sst:'g-sst-layer',truecolor:'g-tc-layer',ssh_visual:'g-ssh-layer',
-    sst_fronts:['sst-front-glow','sst-front-line','isotherm-blue-prime','isotherm-blue-good','isotherm-striped','isotherm-label'],
+    sst_fronts:['sst-front-glow','sst-front-line'],
     chl_edges:'chl-edge-line',currents:'current-line',
     bathymetry:['bathy-100','bathy-glow','bathy-200','bathy-500','bathy-1000','bathy-label'],
     clarity:['clarity-clean','clarity-turbid','clarity-bloom'],
@@ -417,29 +420,17 @@ function toggleLayer(n){
   var bm={seamark:{id:'btnSeamarks',c:'on'},chlorophyll:{id:'btnChloro',c:'on-green'},sst:{id:'btnSST',c:'on-red'},truecolor:{id:'btnTrueColor',c:'on-purple'},ssh_visual:{id:'btnSSHMap',c:'on'},blue_marlin:{id:'btnBlueMarlin',c:'on-orange'},striped_marlin:{id:'btnStripedMarlin',c:'on-purple'},sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},currents:{id:'btnCurrents',c:'on'},bathymetry:{id:'btnBathy',c:'on-orange'},clarity:{id:'btnClarity',c:'on'},ssh:{id:'btnSSH',c:'on-orange'},mld:{id:'btnMLD',c:'on'},oxygen:{id:'btnO2',c:'on'}};
   if(n==='blue_marlin'||n==='striped_marlin'){
     var isBlue=(n==='blue_marlin'),anyMarlin=(LS.blue_marlin||LS.striped_marlin);
-    // Sync SST on with any marlin mode
-    if(anyMarlin&&!LS.sst){LS.sst=true;document.getElementById('btnSST').classList.add('on-red')}
-    if(map.getLayer('g-sst-layer'))map.setLayoutProperty('g-sst-layer','visibility',LS.sst?'visible':'none');
     document.getElementById('marlinLegend').classList.toggle('active',anyMarlin);
-    // Toggle species-specific zone fills and isotherms
+    // Toggle only species-specific zone fills and isotherms
     if(isBlue){sGL('mz-blue-good',a);sGL('mz-blue-prime',a);sGL('isotherm-blue-prime',a);sGL('isotherm-blue-good',a)}
     else{sGL('mz-striped',a);sGL('isotherm-striped',a)}
     sGL('isotherm-label',anyMarlin);
-    // Shared analytical layers — turn on with first marlin, off only when both off
-    var mSub={sst_fronts:['sst-front-glow','sst-front-line'],chl_edges:'chl-edge-line',bathymetry:['bathy-100','bathy-glow','bathy-200','bathy-500','bathy-1000','bathy-label'],clarity:['clarity-clean','clarity-turbid','clarity-bloom'],ssh:['ssh-cold','ssh-neutral','ssh-warm','ssh-warm-core'],currents:'current-line',mld:['mld-shallow','mld-moderate','mld-deep'],oxygen:['o2-hypoxic','o2-low','o2-adequate']};
-    var mBtns={sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},bathymetry:{id:'btnBathy',c:'on-orange'},clarity:{id:'btnClarity',c:'on'},ssh:{id:'btnSSH',c:'on-orange'},currents:{id:'btnCurrents',c:'on'},mld:{id:'btnMLD',c:'on'},oxygen:{id:'btnO2',c:'on'}};
-    for(var k in mSub){
-      LS[k]=anyMarlin;
-      var ids2=Array.isArray(mSub[k])?mSub[k]:[mSub[k]];
-      for(var j=0;j<ids2.length;j++){sGL(ids2[j],anyMarlin)}
-      var sb=mBtns[k];if(sb){var el2=document.getElementById(sb.id);anyMarlin?el2.classList.add(sb.c):el2.classList.remove(sb.c)}
-    }
   } else {
     var ln=lm[n];
     if(ln){var ids=Array.isArray(ln)?ln:[ln];for(var i=0;i<ids.length;i++){sGL(ids[i],a)}}
   }
   var b=bm[n];if(b){var el=document.getElementById(b.id);a?el.classList.add(b.c):el.classList.remove(b.c)}
-  var any=LS.chlorophyll||LS.sst||LS.truecolor||LS.ssh_visual||(LS.blue_marlin||LS.striped_marlin);
+  var any=LS.chlorophyll||LS.sst||LS.truecolor||LS.ssh_visual||LS.blue_marlin||LS.striped_marlin;
   document.getElementById('dateBar').classList.toggle('active',any);
 }
 
