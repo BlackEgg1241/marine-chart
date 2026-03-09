@@ -497,11 +497,11 @@ def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None, tif_
 # Composite score 0–1 per grid cell based on all available ocean variables.
 # Weights reflect relative importance for blue marlin habitat selection.
 BLUE_MARLIN_WEIGHTS = {
-    "sst":       0.30,   # SST — primary habitat driver
+    "sst":       0.25,   # SST — primary habitat driver
     "sst_front": 0.15,   # SST gradient — prey aggregation at fronts
     "chl":       0.10,   # Chlorophyll — bait productivity indicator
     "depth":     0.15,   # Bathymetry — pelagic species needs >200m
-    "ssh":       0.10,   # Sea level anomaly — warm-core eddies
+    "ssh":       0.15,   # Sea level anomaly — warm-core eddies (relative)
     "mld":       0.10,   # Mixed layer depth — shallow = catchable
     "o2":        0.05,   # Dissolved oxygen at 100m
     "clarity":   0.05,   # Water clarity (KD490)
@@ -644,7 +644,8 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
         except Exception as e:
             print(f"[Hotspots] Depth scoring failed: {e}")
 
-    # 5. SSH score — positive SLA = warm-core eddy = good
+    # 5. SSH score — warm-core eddies: use RELATIVE SLA (above local mean)
+    #    so localized positive anomalies (eddies) score high, flat areas score low
     ssh_file = os.path.join(OUTPUT_DIR, "ssh_raw.nc")
     if os.path.exists(ssh_file):
         try:
@@ -654,9 +655,17 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
             s_lons = sla_da.longitude.values if "longitude" in sla_da.dims else sla_da.lon.values
             s_lats = sla_da.latitude.values if "latitude" in sla_da.dims else sla_da.lat.values
             sla_data = _interp_to_grid(sla_da.values.astype(float), s_lons, s_lats)
-            # Score: 0 at SLA<-0.02, ramps to 1.0 at SLA=+0.10
-            ssh_score = np.clip((sla_data + 0.02) / 0.12, 0, 1)
+            # Relative anomaly: subtract heavily smoothed background to isolate eddies
+            sla_filled = sla_data.copy()
+            sla_filled[np.isnan(sla_filled)] = np.nanmean(sla_data)
+            sla_bg = gaussian_filter(sla_filled, sigma=4)  # broad spatial mean
+            sla_relative = sla_data - sla_bg  # positive = local high (eddy)
+            # Score: 0 at relative SLA<=0, 1.0 at +0.04m above background
+            ssh_score = np.clip(sla_relative / 0.04, 0, 1)
+            ssh_score[land] = np.nan
             _add_score("ssh", ssh_score)
+            pct_high = np.sum(ssh_score[~np.isnan(ssh_score)] > 0.5) / np.sum(~np.isnan(ssh_score)) * 100
+            print(f"[Hotspots] SSH relative scoring: {pct_high:.0f}% of cells >50%")
         except Exception as e:
             print(f"[Hotspots] SSH scoring failed: {e}")
 
