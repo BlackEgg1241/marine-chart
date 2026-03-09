@@ -40,8 +40,8 @@ DEFAULT_BBOX = {
 
 # Marlin temperature preferences (°C) — based on Dale et al. (2022) IGFA tagging study
 MARLIN_TEMPS = {
-    "blue_prime": {"min": 24, "max": 27, "color": "#06b6d4", "species": "blue", "tier": "prime", "min_depth": 200},
-    "blue_good":  {"min": 22, "max": 30, "color": "#22d3ee", "species": "blue", "tier": "good", "min_depth": 200},
+    "blue_prime": {"min": 24, "max": 27, "color": "#06b6d4", "species": "blue", "tier": "prime", "min_depth": 100},
+    "blue_good":  {"min": 22, "max": 30, "color": "#22d3ee", "species": "blue", "tier": "good", "min_depth": 100},
     "striped":    {"min": 21, "max": 24, "color": "#6366f1", "species": "striped", "tier": "prime", "min_depth": 100},
 }
 
@@ -545,14 +545,15 @@ def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None, tif_
 # Composite score 0–1 per grid cell based on all available ocean variables.
 # Weights reflect relative importance for blue marlin habitat selection.
 BLUE_MARLIN_WEIGHTS = {
-    "sst":       0.25,   # SST — primary habitat driver
-    "sst_front": 0.15,   # SST gradient — prey aggregation at fronts
-    "chl":       0.10,   # Chlorophyll — bait productivity indicator
-    "depth":     0.15,   # Bathymetry — pelagic species needs >200m
-    "ssh":       0.15,   # Sea level anomaly — warm-core eddies (relative)
-    "mld":       0.10,   # Mixed layer depth — shallow = catchable
-    "o2":        0.05,   # Dissolved oxygen at 100m
-    "clarity":   0.05,   # Water clarity (KD490)
+    "sst":        0.20,   # SST — primary habitat driver
+    "sst_front":  0.12,   # SST gradient — prey aggregation at fronts
+    "chl":        0.08,   # Chlorophyll — bait productivity indicator
+    "depth":      0.10,   # Bathymetry — pelagic species needs >100m
+    "shelf_break":0.15,   # Bathymetric gradient — canyon walls, shelf edge = upwelling
+    "ssh":        0.15,   # Sea level anomaly — warm-core eddies (relative)
+    "mld":        0.10,   # Mixed layer depth — shallow = catchable
+    "o2":         0.05,   # Dissolved oxygen at 100m
+    "clarity":    0.05,   # Water clarity (KD490)
 }
 
 # Intensity bands for contourf polygon export
@@ -622,13 +623,14 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
         weight_sum[valid] += w
         sub_scores[name] = v.copy()
 
-    # 1. SST score — Gaussian centered at 25.5°C (blue prime center), sigma=2.5°C
+    # 1. SST score — Gaussian centered at 24.5°C (Perth blue marlin sweet spot), sigma=3°C
+    #    Perth marlin caught in 23-27°C, peak activity around 24-25°C
     sst_filled = sst.copy()
     sst_filled[land] = np.nanmean(sst)
     sst_smooth = gaussian_filter(sst_filled, sigma=0.5)
     sst_smooth[land] = np.nan
-    optimal_temp = 25.5
-    sst_score = np.exp(-0.5 * ((sst_smooth - optimal_temp) / 2.5) ** 2)
+    optimal_temp = 24.5
+    sst_score = np.exp(-0.5 * ((sst_smooth - optimal_temp) / 3.0) ** 2)
     _add_score("sst", sst_score)
 
     # 2. SST front score — Sobel gradient magnitude, normalized
@@ -667,7 +669,8 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
         except Exception as e:
             print(f"[Hotspots] Chl scoring failed: {e}")
 
-    # 4. Depth score — peaks at 200–1000m, zero below 200m
+    # 4. Depth score — peaks at 100–2000m, zero below 100m
+    # 4b. Shelf break score — steep bathymetric gradient = canyon walls, upwelling
     if tif_path and os.path.exists(tif_path):
         try:
             import rasterio
@@ -680,17 +683,37 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
                 nd = src.nodata
                 if nd is not None:
                     bathy[bathy == nd] = np.nan
+
+            # Shelf break: Sobel gradient on raw bathy (high res), then interpolate
+            bathy_filled = bathy.copy()
+            bathy_filled[np.isnan(bathy_filled)] = 0
+            dgx = sobel(bathy_filled, axis=1)
+            dgy = sobel(bathy_filled, axis=0)
+            depth_gradient = np.sqrt(dgx**2 + dgy**2)
+            # Zero out land areas
+            depth_gradient[np.isnan(bathy)] = 0
+            shelf_break_hr = depth_gradient
+            # Interpolate to master grid
+            shelf_break = _interp_to_grid(shelf_break_hr, b_lons, b_lats)
+            # Normalize: score peaks where gradient is steep (canyon walls, shelf edge)
+            # Typical shelf break gradient: 100-500, canyon wall: 500-1500
+            shelf_score = np.clip(shelf_break / 400, 0, 1)
+            shelf_score[land] = np.nan
+            _add_score("shelf_break", shelf_score)
+            sb_pct = np.sum(shelf_score[~np.isnan(shelf_score)] > 0.5) / np.sum(~np.isnan(shelf_score)) * 100
+            print(f"[Hotspots] Shelf break scoring: {sb_pct:.0f}% of cells >50%")
+
             depth = _interp_to_grid(bathy, b_lons, b_lats)
-            # depth is negative (elevation): -200m = 200m deep
+            # depth is negative (elevation): -100m = 100m deep
             abs_depth = -depth  # positive meters of depth
-            # Score: 0 at <200m, ramps to 1.0 at 400m, stays 1.0 to 2000m, tapers off
-            depth_score = np.where(abs_depth < 200, 0,
-                          np.where(abs_depth < 400, (abs_depth - 200) / 200,
+            # Score: 0 at <100m, ramps to 1.0 at 300m, stays 1.0 to 2000m, tapers off
+            depth_score = np.where(abs_depth < 100, 0,
+                          np.where(abs_depth < 300, (abs_depth - 100) / 200,
                           np.where(abs_depth < 2000, 1.0,
                           np.clip(1.0 - (abs_depth - 2000) / 3000, 0.3, 1.0))))
             _add_score("depth", depth_score)
         except Exception as e:
-            print(f"[Hotspots] Depth scoring failed: {e}")
+            print(f"[Hotspots] Depth/shelf scoring failed: {e}")
 
     # 5. SSH score — warm-core eddies: use RELATIVE SLA (above local mean)
     #    so localized positive anomalies (eddies) score high, flat areas score low
@@ -785,12 +808,12 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
     fmean = float(np.nanmean(final_smooth[~land & valid]))
     print(f"[Hotspots] Score range: {fmin:.3f} – {fmax:.3f} (mean {fmean:.3f})")
 
-    # --- Build depth mask for clipping to >200m ---
+    # --- Build depth mask for clipping to >100m ---
     clip_mask = None
     if tif_path and os.path.exists(tif_path):
         try:
             from shapely.geometry import Polygon as ShapelyPolygon, mapping
-            clip_mask = build_deep_water_mask(tif_path, depth_threshold=-200)
+            clip_mask = build_deep_water_mask(tif_path, depth_threshold=-100)
         except ImportError:
             pass
 
