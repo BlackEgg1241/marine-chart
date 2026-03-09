@@ -545,15 +545,17 @@ def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None, tif_
 # Composite score 0–1 per grid cell based on all available ocean variables.
 # Weights reflect relative importance for blue marlin habitat selection.
 BLUE_MARLIN_WEIGHTS = {
-    "sst":        0.20,   # SST — primary habitat driver
-    "sst_front":  0.12,   # SST gradient — prey aggregation at fronts
-    "chl":        0.08,   # Chlorophyll — bait productivity indicator
-    "depth":      0.10,   # Bathymetry — pelagic species needs >100m
-    "shelf_break":0.15,   # Bathymetric gradient — canyon walls, shelf edge = upwelling
-    "ssh":        0.15,   # Sea level anomaly — warm-core eddies (relative)
+    # Dynamic ocean conditions (these determine the score)
+    "sst":        0.35,   # SST — primary habitat driver
+    "sst_front":  0.20,   # SST gradient — prey aggregation at fronts (modulated by SST)
+    "chl":        0.10,   # Chlorophyll — bait productivity indicator
+    "ssh":        0.20,   # Sea level anomaly — warm-core eddies (relative)
     "mld":        0.10,   # Mixed layer depth — shallow = catchable
-    "o2":         0.05,   # Dissolved oxygen at 100m
-    "clarity":    0.05,   # Water clarity (KD490)
+    "o2":         0.025,  # Dissolved oxygen at 100m (rarely limiting in this region)
+    "clarity":    0.025,  # Water clarity (rarely limiting offshore)
+    # Static factors applied as MULTIPLIERS, not additive:
+    # depth:       0→1 gate (zero if <100m)
+    # shelf_break: 1.0→1.5 boost (canyon walls get up to +50%)
 }
 
 # Intensity bands for contourf polygon export
@@ -629,11 +631,12 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
     sst_filled[land] = np.nanmean(sst)
     sst_smooth = gaussian_filter(sst_filled, sigma=0.5)
     sst_smooth[land] = np.nan
-    optimal_temp = 24.5
-    sst_score = np.exp(-0.5 * ((sst_smooth - optimal_temp) / 3.0) ** 2)
+    optimal_temp = 25.0
+    sst_score = np.exp(-0.5 * ((sst_smooth - optimal_temp) / 1.8) ** 2)
     _add_score("sst", sst_score)
 
-    # 2. SST front score — Sobel gradient magnitude, normalized
+    # 2. SST front score — Sobel gradient magnitude, modulated by SST suitability
+    #    A front at 20°C is useless for marlin — only score fronts in warm water
     sst_for_grad = sst_filled.copy()
     sst_grad = gaussian_filter(sst_for_grad, sigma=1.5)
     gx = sobel(sst_grad, axis=1)
@@ -644,9 +647,11 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
     grad_mag[coast_buf] = 0
     gmax = np.nanmax(grad_mag)
     if gmax > 0:
-        front_score = np.clip(grad_mag / (gmax * 0.5), 0, 1)  # saturate at 50% of max
+        front_score = np.clip(grad_mag / (gmax * 0.5), 0, 1)
     else:
         front_score = np.zeros_like(grad_mag)
+    # Modulate: fronts only count where SST is suitable for marlin
+    front_score = front_score * sst_score
     _add_score("sst_front", front_score)
 
     # 3. Chlorophyll score — peaks at 0.15–0.30 mg/m³ (shelf edge bait zone)
@@ -695,23 +700,24 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
             shelf_break_hr = depth_gradient
             # Interpolate to master grid
             shelf_break = _interp_to_grid(shelf_break_hr, b_lons, b_lats)
-            # Normalize: score peaks where gradient is steep (canyon walls, shelf edge)
-            # Typical shelf break gradient: 100-500, canyon wall: 500-1500
+            # Shelf break: MULTIPLIER not additive score
+            # Canyon walls boost by up to +50%, flat seabed = 1.0 (no change)
             shelf_score = np.clip(shelf_break / 400, 0, 1)
             shelf_score[land] = np.nan
-            _add_score("shelf_break", shelf_score)
+            # Store for hover breakdown but don't add to weighted sum
+            sub_scores["shelf_break"] = shelf_score.copy()
             sb_pct = np.sum(shelf_score[~np.isnan(shelf_score)] > 0.5) / np.sum(~np.isnan(shelf_score)) * 100
-            print(f"[Hotspots] Shelf break scoring: {sb_pct:.0f}% of cells >50%")
+            print(f"[Hotspots] Shelf break: {sb_pct:.0f}% of cells >50% (applied as ×1.0–1.5 multiplier)")
 
             depth = _interp_to_grid(bathy, b_lons, b_lats)
-            # depth is negative (elevation): -100m = 100m deep
             abs_depth = -depth  # positive meters of depth
-            # Score: 0 at <100m, ramps to 1.0 at 300m, stays 1.0 to 2000m, tapers off
+            # Depth: MULTIPLIER — 0 if too shallow, 1 if deep enough
             depth_score = np.where(abs_depth < 100, 0,
                           np.where(abs_depth < 300, (abs_depth - 100) / 200,
                           np.where(abs_depth < 2000, 1.0,
                           np.clip(1.0 - (abs_depth - 2000) / 3000, 0.3, 1.0))))
-            _add_score("depth", depth_score)
+            # Store for hover but don't add to weighted sum
+            sub_scores["depth"] = np.clip(depth_score, 0, 1)
         except Exception as e:
             print(f"[Hotspots] Depth/shelf scoring failed: {e}")
 
@@ -797,6 +803,17 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
     final[valid] = score[valid] / weight_sum[valid]
     final[land] = np.nan
 
+    # Apply static multipliers: depth gates, shelf break boosts
+    if "depth" in sub_scores:
+        depth_mult = sub_scores["depth"]
+        dmask = ~np.isnan(depth_mult) & valid
+        final[dmask] *= depth_mult[dmask]  # zero out shallow water
+    if "shelf_break" in sub_scores:
+        shelf_mult = 1.0 + 0.5 * sub_scores["shelf_break"]  # 1.0 to 1.5
+        smask = ~np.isnan(shelf_mult) & valid
+        final[smask] *= shelf_mult[smask]  # boost canyon walls up to +50%
+        final = np.clip(final, 0, 1)  # cap at 1.0
+
     # Light spatial smoothing to reduce pixelation
     final_filled = final.copy()
     final_filled[np.isnan(final_filled)] = 0
@@ -836,7 +853,15 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
             valid = region[~np.isnan(region)]
             if len(valid) > 0:
                 w = BLUE_MARLIN_WEIGHTS.get(name, 0)
-                result[name] = {"score": round(float(np.mean(valid)), 2), "weight": w}
+                mean_score = round(float(np.mean(valid)), 2)
+                if name == "depth":
+                    # Depth is a gate multiplier: show as ×N
+                    result[name] = {"score": mean_score, "weight": -1}
+                elif name == "shelf_break":
+                    # Shelf break is a boost multiplier: show as ×N
+                    result[name] = {"score": round(1.0 + 0.5 * mean_score, 2), "weight": -2}
+                else:
+                    result[name] = {"score": mean_score, "weight": w}
         return actual_intensity, result
 
     # --- Export as filled contour polygons with intensity bands ---
