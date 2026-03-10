@@ -24,27 +24,6 @@
         "sst_min|momentum": 0.0008253386820068319
       }
     },
-    "sst_range": {
-      "weight": 0.0909,
-      "evidence_score": 0.6,
-      "evidence": {
-        "paired": "decreases (-7.1%, p=0.0315)",
-        "trajectory": "slope=-0.02118/day (p=0.0000)"
-      },
-      "direction": "decreases",
-      "early_baseline": 1.55874254663543,
-      "late_target": 1.4473991145084544,
-      "expected_change": -0.11134343212697564,
-      "catch_day_mean": 1.4222459078925411,
-      "catch_day_std": 0.4126156514751663,
-      "pop_mean": 1.5147594196903633,
-      "pop_std": 0.44148875241263763,
-      "expected_slope": -0.021177293486140333,
-      "slope_std": 0.05637871066613204,
-      "ml_features": {
-        "sst_range|r2": 0.0008114778984840039
-      }
-    },
     "sst_skew": {
       "weight": 0.0909,
       "evidence_score": 0.6,
@@ -85,6 +64,27 @@
       "slope_std": 0.08341802373986788,
       "ml_features": {
         "sst_p25|r2": 0.00037283842970474044
+      }
+    },
+    "sst_range": {
+      "weight": 0.0909,
+      "evidence_score": 0.6,
+      "evidence": {
+        "paired": "decreases (-7.1%, p=0.0315)",
+        "trajectory": "slope=-0.02118/day (p=0.0000)"
+      },
+      "direction": "decreases",
+      "early_baseline": 1.55874254663543,
+      "late_target": 1.4473991145084544,
+      "expected_change": -0.11134343212697564,
+      "catch_day_mean": 1.4222459078925411,
+      "catch_day_std": 0.4126156514751663,
+      "pop_mean": 1.5147594196903633,
+      "pop_std": 0.44148875241263763,
+      "expected_slope": -0.021177293486140333,
+      "slope_std": 0.05637871066613204,
+      "ml_features": {
+        "sst_range|r2": 0.0008114778984840039
       }
     },
     "sst_std": {
@@ -171,84 +171,24 @@
         "sst_mean|last": 0.0009021171401471596
       }
     },
-    "vorticity": {
+    "sst_iqr": {
       "weight": 0.0455,
       "evidence_score": 0.3,
       "evidence": {
-        "trajectory": "slope=-0.00121/day (p=0.0352)"
-      },
-      "direction": "increases",
-      "early_baseline": 0.02916288054888931,
-      "late_target": 0.02361970307396316,
-      "expected_change": -0.005543177474926159,
-      "catch_day_mean": 0.019808784302142335,
-      "catch_day_std": 0.03178999823496336,
-      "pop_mean": 0.02647747282767895,
-      "pop_std": 0.031089625636061585,
-      "expected_slope": -0.0012148763948205631,
-      "slope_std": 0.006130679892859118,
-      "ml_features": {
-        "vorticity|r2": 0.0006342278384280747
-      }
-    },
-    "leeuwin": {
-      "weight": 0.0455,
-      "evidence_score": 0.3,
-      "evidence": {
-        "trajectory": "slope=+0.00640/day (p=0.0084)"
-      },
-      "direction": "increases",
-      "early_baseline": 0.11075912817737193,
-      "late_target": 0.14269643359764564,
-      "expected_change": 0.03193730542027369,
-      "catch_day_mean": 0.15613185478510655,
-      "catch_day_std": 0.11012974156338752,
-      "pop_mean": 0.12495586273442137,
-      "pop_std": 0.1362655535960586,
-      "expected_slope": 0.006398047579714159,
-      "slope_std": 0.029692184107792476,
-      "ml_features": {
-        "leeuwin|last": 0.00023611960783728362
-      }
-    },
-    "anticyc_frac": {
-      "weight": 0.0455,
-      "evidence_score": 0.3,
-      "evidence": {
-        "trajectory": "slope=+0.00618/day (p=0.0092)"
-      },
-      "direction": "increases",
-      "early_baseline": 0.3246341463414634,
-      "late_target": 0.3540650406504065,
-      "expected_change": 0.029430894308943092,
-      "catch_day_mean": 0.3765853658536586,
-      "catch_day_std": 0.10955808696754477,
-      "pop_mean": 0.3377439024390244,
-      "pop_std": 0.11497786753891098,
-      "expected_slope": 0.006178861788617885,
-      "slope_std": 0.027695509283978785,
-      "ml_features": {
-        "anticyc_frac|std": 0.0007199201203429648
-      }
-    },
-    "blue_water_frac": {
-      "weight": 0.0455,
-      "evidence_score": 0.3,
-      "evidence": {
-        "trajectory": "slope=-0.00502/day (p=0.0096)"
+        "trajectory": "slope=-0.00984/day (p=0.0004)"
       },
       "direction": "decreases",
-      "early_baseline": 0.09440803549309731,
-      "late_target": 0.06832871652816251,
-      "expected_change": -0.026079318964934803,
-      "catch_day_mean": 0.06607661644483481,
-      "catch_day_std": 0.12037808436972017,
-      "pop_mean": 0.08257043443010607,
-      "pop_std": 0.15639267931625953,
-      "expected_slope": -0.005021378864362446,
-      "slope_std": 0.019669992251079006,
+      "early_baseline": 0.6254120923397017,
+      "late_target": 0.5757592218223868,
+      "expected_change": -0.049652870517314936,
+      "catch_day_mean": 0.5505658200964695,
+      "catch_day_std": 0.23943701144385046,
+      "pop_mean": 0.6031320917351943,
+      "pop_std": 0.26897323673172074,
+      "expected_slope": -0.009844292854104932,
+      "slope_std": 0.03638958869696038,
       "ml_features": {
-        "blue_water_frac|last": 0.00023645059289050408
+        "sst_iqr|slope3": 0.0009025164099798375
       }
     },
     "sst_front_frac": {
@@ -271,24 +211,64 @@
         "sst_front_frac|std": 0.00066430160913498
       }
     },
-    "sst_iqr": {
+    "blue_water_frac": {
       "weight": 0.0455,
       "evidence_score": 0.3,
       "evidence": {
-        "trajectory": "slope=-0.00984/day (p=0.0004)"
+        "trajectory": "slope=-0.00502/day (p=0.0096)"
       },
       "direction": "decreases",
-      "early_baseline": 0.6254120923397017,
-      "late_target": 0.5757592218223868,
-      "expected_change": -0.049652870517314936,
-      "catch_day_mean": 0.5505658200964695,
-      "catch_day_std": 0.23943701144385046,
-      "pop_mean": 0.6031320917351943,
-      "pop_std": 0.26897323673172074,
-      "expected_slope": -0.009844292854104932,
-      "slope_std": 0.03638958869696038,
+      "early_baseline": 0.09440803549309731,
+      "late_target": 0.06832871652816251,
+      "expected_change": -0.026079318964934803,
+      "catch_day_mean": 0.06607661644483481,
+      "catch_day_std": 0.12037808436972017,
+      "pop_mean": 0.08257043443010607,
+      "pop_std": 0.15639267931625953,
+      "expected_slope": -0.005021378864362446,
+      "slope_std": 0.019669992251079006,
       "ml_features": {
-        "sst_iqr|slope3": 0.0009025164099798375
+        "blue_water_frac|last": 0.00023645059289050408
+      }
+    },
+    "anticyc_frac": {
+      "weight": 0.0455,
+      "evidence_score": 0.3,
+      "evidence": {
+        "trajectory": "slope=+0.00618/day (p=0.0092)"
+      },
+      "direction": "increases",
+      "early_baseline": 0.3246341463414634,
+      "late_target": 0.3540650406504065,
+      "expected_change": 0.029430894308943092,
+      "catch_day_mean": 0.3765853658536586,
+      "catch_day_std": 0.10955808696754477,
+      "pop_mean": 0.3377439024390244,
+      "pop_std": 0.11497786753891098,
+      "expected_slope": 0.006178861788617885,
+      "slope_std": 0.027695509283978785,
+      "ml_features": {
+        "anticyc_frac|std": 0.0007199201203429648
+      }
+    },
+    "leeuwin": {
+      "weight": 0.0455,
+      "evidence_score": 0.3,
+      "evidence": {
+        "trajectory": "slope=+0.00640/day (p=0.0084)"
+      },
+      "direction": "increases",
+      "early_baseline": 0.11075912817737193,
+      "late_target": 0.14269643359764564,
+      "expected_change": 0.03193730542027369,
+      "catch_day_mean": 0.15613185478510655,
+      "catch_day_std": 0.11012974156338752,
+      "pop_mean": 0.12495586273442137,
+      "pop_std": 0.1362655535960586,
+      "expected_slope": 0.006398047579714159,
+      "slope_std": 0.029692184107792476,
+      "ml_features": {
+        "leeuwin|last": 0.00023611960783728362
       }
     },
     "sst_p75": {
@@ -309,6 +289,26 @@
       "slope_std": 0.09162962277898318,
       "ml_features": {
         "sst_p75|volatility": 0.00048603289429783767
+      }
+    },
+    "vorticity": {
+      "weight": 0.0455,
+      "evidence_score": 0.3,
+      "evidence": {
+        "trajectory": "slope=-0.00121/day (p=0.0352)"
+      },
+      "direction": "increases",
+      "early_baseline": 0.02916288054888931,
+      "late_target": 0.02361970307396316,
+      "expected_change": -0.005543177474926159,
+      "catch_day_mean": 0.019808784302142335,
+      "catch_day_std": 0.03178999823496336,
+      "pop_mean": 0.02647747282767895,
+      "pop_std": 0.031089625636061585,
+      "expected_slope": -0.0012148763948205631,
+      "slope_std": 0.006130679892859118,
+      "ml_features": {
+        "vorticity|r2": 0.0006342278384280747
       }
     },
     "sst_max": {

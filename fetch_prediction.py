@@ -151,12 +151,12 @@ def fetch_copernicus_forecast(date_str, out_dir, variable_set="all"):
     os.makedirs(out_dir, exist_ok=True)
     results = {}
 
-    # --- SST (from ANFC physics model) ---
+    # --- SST (from ANFC temperature model) ---
     sst_path = os.path.join(out_dir, "sst_raw.nc")
     if not os.path.exists(sst_path):
         for ds_id in [
+            "cmems_mod_glo_phy-thetao_anfc_0.083deg_P1D-m",
             "cmems_mod_glo_phy_anfc_0.083deg_P1D-m",
-            "cmems_mod_glo_phy-cur_anfc_0.083deg_P1D-m",
         ]:
             try:
                 print(f"    [SST] ANFC forecast: {date_str}...")
