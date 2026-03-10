@@ -21,7 +21,7 @@
 .brand-title{font-size:14px;font-weight:700;color:#e2e8f0;letter-spacing:.08em;text-transform:uppercase}
 .brand-badge{font-size:8px;padding:2px 5px;border-radius:3px;background:rgba(56,189,248,.15);color:#38bdf8;font-weight:600;letter-spacing:.1em}
 .cursor-coord{font-size:10px;color:#475569;letter-spacing:.03em;padding-top:3px}
-.top-gradient{position:absolute;top:0;left:0;width:280px;height:50px;background:linear-gradient(to right,rgba(2,6,23,.85) 65%,transparent);z-index:9;pointer-events:none}
+.top-gradient{position:absolute;top:0;left:0;width:280px;height:calc(env(safe-area-inset-top,8px)+56px);background:linear-gradient(to right,rgba(2,6,23,.85) 65%,transparent);z-index:9;pointer-events:none}
 
 /* GPS panel - top left under brand */
 .gps-panel{position:absolute;top:calc(env(safe-area-inset-top,8px)+44px);left:10px;background:rgba(2,6,23,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:10px;padding:10px 14px;z-index:10;border:1px solid rgba(56,189,248,.15);min-width:180px;display:none}
@@ -50,6 +50,9 @@
 .date-row input[type=date]{background:rgba(15,23,42,.8);border:1px solid rgba(255,255,255,.1);border-radius:5px;color:#e2e8f0;font-family:’JetBrains Mono’,monospace;font-size:11px;padding:3px 5px;outline:none;color-scheme:dark}
 .date-row .dn{background:none;border:1px solid rgba(255,255,255,.1);border-radius:5px;color:#94a3b8;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;flex-shrink:0}
 .date-row .dn.today-btn{width:auto;padding:0 8px;font-size:9px;font-weight:600;letter-spacing:.04em}
+.date-indicator{font-size:7px;font-weight:700;letter-spacing:.06em;padding:2px 6px;border-radius:3px;white-space:nowrap}
+.date-indicator.obs{background:rgba(34,197,94,.15);color:#86efac}
+.date-indicator.forecast{background:rgba(251,146,60,.15);color:#fdba74}
 
 /* Marlin legend - right side, above bottom controls */
 .marlin-legend{position:absolute;right:0;bottom:140px;z-index:10;background:rgba(2,6,23,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:10px 0 0 10px;padding:10px 12px;border:1px solid rgba(251,146,60,.25);border-right:none;width:175px;transform:translateX(calc(100% + 2px));transition:transform .3s ease}
@@ -88,16 +91,15 @@
 .layer-btn.primary{padding:9px 14px;font-size:12px;font-weight:600}
 .layer-btn .icon{font-size:13px}
 
-/* GPS control - styled like MapLibre controls, positioned below zoom */
-.gps-ctrl{position:absolute;top:calc(env(safe-area-inset-top,8px)+165px);right:10px;z-index:9;display:flex;flex-direction:column;gap:4px}
-.gps-ctrl-btn{width:32px!important;height:32px!important;border:none;background:rgba(15,23,42,.8)!important;color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;border:1px solid rgba(255,255,255,.06)!important;border-radius:8px!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;box-shadow:0 2px 12px rgba(0,0,0,.4)!important}
-.gps-ctrl-btn:hover{background:rgba(56,189,248,.1)!important}
-.gps-ctrl-btn.tracking{background:rgba(34,197,94,.15)!important;color:#86efac;border-color:rgba(34,197,94,.3)!important}
-.gps-ctrl-btn.following{background:rgba(56,189,248,.15)!important;color:#7dd3fc;border-color:rgba(56,189,248,.3)!important}
-.gps-ctrl-btn.hidden{display:none}
+/* GPS buttons injected into MapLibre nav control via JS */
+.gps-nav-btn{width:32px!important;height:32px!important;border:none!important;background:transparent!important;color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;border-top:1px solid rgba(255,255,255,.04)!important}
+.gps-nav-btn:hover{background:rgba(56,189,248,.1)!important}
+.gps-nav-btn.tracking{background:rgba(34,197,94,.15)!important;color:#86efac}
+.gps-nav-btn.following{background:rgba(56,189,248,.15)!important;color:#7dd3fc}
+.gps-nav-btn.hidden{display:none}
 
 /* Catch panel */
-.catch-panel{position:absolute;top:calc(env(safe-area-inset-top,8px)+56px);left:10px;z-index:10;display:none;background:rgba(2,6,23,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:10px;padding:10px 14px;border:1px solid rgba(251,191,36,.3);min-width:240px;max-width:320px}
+.catch-panel{position:absolute;top:calc(env(safe-area-inset-top,8px)+90px);left:10px;z-index:10;display:none;background:rgba(2,6,23,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:10px;padding:10px 14px;border:1px solid rgba(251,191,36,.3);min-width:240px;max-width:320px}
 .catch-panel.active{display:block}
 .catch-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .catch-title{font-size:10px;color:#fbbf24;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
@@ -120,6 +122,8 @@
 .maplibregl-ctrl button .maplibregl-ctrl-icon{filter:invert(.65)!important}
 .maplibregl-ctrl-scale{background:transparent!important;color:#000!important;border:none!important;border-bottom:2px solid #000!important;border-left:2px solid #000!important;border-right:2px solid #000!important;font-family:’JetBrains Mono’,monospace!important;font-size:9px!important;font-weight:700!important;border-radius:0!important;padding:1px 0!important;z-index:5!important;text-shadow:0 0 4px rgba(255,255,255,.9)!important}
 .maplibregl-ctrl-bottom-left{display:none!important}
+.maplibregl-ctrl-attrib-button{display:none!important}
+.maplibregl-ctrl-attrib.maplibregl-compact .maplibregl-ctrl-attrib-inner{display:block!important}
 .maplibregl-popup-content{background:rgba(2,6,23,.92)!important;color:#e2e8f0!important;font-family:’JetBrains Mono’,monospace!important;font-size:11px!important;border-radius:8px!important;padding:8px 12px!important;border:1px solid rgba(251,146,60,.2)!important;box-shadow:0 4px 20px rgba(0,0,0,.5)!important}
 .maplibregl-popup-tip{border-top-color:rgba(2,6,23,.92)!important}
 .maplibregl-popup-close-button{color:#94a3b8!important;font-size:16px!important}
@@ -133,6 +137,15 @@
 .info-content{padding:6px 12px 8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#e2e8f0}
 .info-tip{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid rgba(2,6,23,.92)}
 .info-dot{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:#fb923c;box-shadow:0 0 6px rgba(251,146,60,.5)}
+/* Context menu */
+.ctx-menu{position:absolute;z-index:20;display:none;background:rgba(2,6,23,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:8px;border:1px solid rgba(255,255,255,.12);box-shadow:0 4px 20px rgba(0,0,0,.6);overflow:hidden;min-width:160px}
+.ctx-menu.active{display:block}
+.ctx-menu button{display:block;width:100%;padding:10px 14px;border:none;background:transparent;color:#e2e8f0;font-family:inherit;font-size:11px;font-weight:500;text-align:left;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04)}
+.ctx-menu button:last-child{border-bottom:none}
+.ctx-menu button:hover{background:rgba(251,146,60,.12);color:#fbbf24}
+/* Measurement overlay */
+.measure-total{position:absolute;top:calc(env(safe-area-inset-top,8px)+44px);left:50%;transform:translateX(-50%);z-index:10;display:none;background:rgba(2,6,23,.9);backdrop-filter:blur(16px);border-radius:8px;padding:6px 14px;border:1px solid rgba(251,146,60,.3);font-size:11px;color:#fbbf24;font-weight:600;white-space:nowrap}
+.measure-total.active{display:block}
 </style>
 
 </head>
@@ -214,11 +227,10 @@
   <div class="ml-note">Money zone: SST front + Chl edge at the 200m shelf = bait stacks, marlin follows</div>
 </div>
 
-<!-- GPS control - below zoom, top right -->
-<div class="gps-ctrl">
-  <button class="gps-ctrl-btn" id="btnGPS" onclick="toggleGPS()" title="Start GPS"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
-  <button class="gps-ctrl-btn hidden" id="btnCenter" onclick="centerOnGPS()" title="Center on GPS"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg></button>
-</div>
+<!-- Context menu -->
+<div class="ctx-menu" id="ctxMenu"></div>
+<!-- Measurement total -->
+<div class="measure-total" id="measureTotal"></div>
 
 <!-- Draggable info panel -->
 <div class="info-panel" id="infoPanel">
@@ -262,6 +274,7 @@
       <input type="date" id="dateInput" onchange="onDateChange()">
       <button class="dn" onclick="shiftDate(1)">▶</button>
       <button class="dn today-btn" onclick="setToday()">Today</button>
+      <span class="date-indicator obs" id="dateIndicator">OBS</span>
     </div>
   </div>
 </div>
@@ -383,6 +396,9 @@ function initMap(){
   ];
   map=new maplibregl.Map({container:'map',style:{version:8,sources:src,layers:ly,glyphs:'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf'},center:[115.35,-31.97],zoom:10,maxZoom:18,minZoom:3,attributionControl:true});
   map.addControl(new maplibregl.NavigationControl({showCompass:true}),'top-right');
+  // GPS as MapLibre control (guarantees position below zoom)
+  var gpsc={onAdd:function(){var d=document.createElement('div');d.className='maplibregl-ctrl maplibregl-ctrl-group';d.innerHTML='<button class="gps-nav-btn" id="btnGPS" onclick="toggleGPS()" title="GPS"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button><button class="gps-nav-btn hidden" id="btnCenter" onclick="centerOnGPS()" title="Center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg></button>';return d},onRemove:function(){}};
+  map.addControl(gpsc,'top-right');
   map.addControl(new maplibregl.ScaleControl({maxWidth:130,unit:'nautical'}),'bottom-left');
   // Move scale bar into toolbar row after render
   setTimeout(function(){var sc=document.querySelector('.maplibregl-ctrl-scale');if(sc){document.getElementById('toolbarRow').appendChild(sc);sc.style.display='block'}},100);
@@ -429,12 +445,30 @@ function initMap(){
       if(!e.features||!e.features.length)return;
       var vk=hVis[lid];if(vk&&!LS[vk])return;
       map.getCanvas().style.cursor='crosshair';
-      if(!infoPinned){infoCt.innerHTML=hInfo[lid](e.features[0].properties);infoEl.style.left=(e.point.x+15)+'px';infoEl.style.top=(e.point.y-15)+'px';infoEl.classList.add('active')}
+      if(!infoPinned){infoCt.innerHTML=hInfo[lid](e.features[0].properties);var pw=infoEl.offsetWidth||200,ph=infoEl.offsetHeight||60;infoEl.style.left=(e.point.x-pw/2)+'px';infoEl.style.top=(e.point.y-ph-14)+'px';infoEl.classList.add('active')}
     });
     map.on('mouseleave',lid,function(){map.getCanvas().style.cursor='';if(!infoPinned)infoEl.classList.remove('active')});
   });
-  // Click to pin/unpin info panel
-  map.on('click',function(e){var lids=Object.keys(hInfo).filter(function(l){return map.getLayer(l)});var fs=map.queryRenderedFeatures(e.point,{layers:lids});if(fs.length){var f=fs[0],lid=f.layer.id;var vk=hVis[lid];if((!vk||LS[vk])&&hInfo[lid]){infoCt.innerHTML=hInfo[lid](f.properties);infoEl.style.left=(e.point.x+15)+'px';infoEl.style.top=(e.point.y-15)+'px';infoEl.classList.add('active');infoPinned=true}}else{infoPinned=false;infoEl.classList.remove('active')}});
+  // Click/tap to show info panel at any point
+  map.on('click',function(e){
+    if(mActive)return; // don't interfere with measurement
+    var lids=Object.keys(hInfo).filter(function(l){return map.getLayer(l)});
+    var fs=map.queryRenderedFeatures(e.point,{layers:lids});
+    var html='<div class="hp-title">'+fc(e.lngLat.lat,e.lngLat.lng)+'</div>';
+    // Always show coordinate info
+    var visFs=fs.filter(function(f){var vk=hVis[f.layer.id];return !vk||LS[vk]});
+    if(visFs.length){
+      for(var i=0;i<Math.min(visFs.length,3);i++){var f=visFs[i],lid=f.layer.id;if(hInfo[lid])html+=hInfo[lid](f.properties)}
+    } else {
+      html+='<div class="hp-sub">Tap features for details</div>';
+    }
+    infoCt.innerHTML=html;
+    // Position so the dot (bottom-center) is at the click point
+    var pw=infoEl.offsetWidth||200,ph=infoEl.offsetHeight||60;
+    infoEl.style.left=(e.point.x-pw/2)+'px';
+    infoEl.style.top=(e.point.y-ph-14)+'px';
+    infoEl.classList.add('active');infoPinned=true;
+  });
   document.getElementById('dateInput').value=cDate;
   map.once('load',function(){loadDatedGeoJSON()});
 }
@@ -457,7 +491,7 @@ function loadDatedGeoJSON(){
   });
 }
 
-function onDateChange(){cDate=document.getElementById('dateInput').value;rG()}
+function onDateChange(){cDate=document.getElementById('dateInput').value;rG();updateDateInd()}
 function shiftDate(d){var dt=new Date(cDate);dt.setDate(dt.getDate()+d);cDate=dt.toISOString().split('T')[0];document.getElementById('dateInput').value=cDate;rG()}
 
 function rG(){
@@ -474,6 +508,7 @@ function rG(){
   var ord=['g-sst','g-chl','g-ssh'];
   for(var i=0;i<ord.length;i++){var k=ord[i],c=cfg[k];var tiles=k==='g-ssh'?[guSLA(cDate)]:[gu(c.l,gDate)];map.addSource(k,{type:'raster',tiles:tiles,tileSize:256,maxzoom:c.z});map.addLayer({id:k+'-layer',type:'raster',source:k,layout:{visibility:c.v?'visible':'none'},paint:{'raster-opacity':c.o}},bef)}
   loadDatedGeoJSON();
+  updateDateInd();
 }
 
 var ML=['spot-glow','spot-dot','spot-label'];
@@ -589,7 +624,8 @@ function toggleGPS(){if(gM==='live'){sL();return}if(!navigator.geolocation){sE('
 function sL(){if(gpsWId!==null){navigator.geolocation.clearWatch(gpsWId);gpsWId=null}gM='off';fGPS=false;document.getElementById('btnGPS').classList.remove('tracking');document.getElementById('gpsPanel').classList.remove('active');document.getElementById('btnCenter').classList.add('hidden')}
 function centerOnGPS(){if(cPos){map.flyTo({center:[cPos.lng,cPos.lat],zoom:14,duration:1200});fGPS=true;document.getElementById('btnCenter').classList.add('following')}}
 function togglePanel(){var p=document.getElementById('bottomPanel');p.classList.toggle('collapsed');var c=p.classList.contains('collapsed');document.getElementById('panelChevron').textContent=c?'▲':'▼'}
-function setToday(){var t=new Date();cDate=t.toISOString().split('T')[0];document.getElementById('dateInput').value=cDate;rG()}
+function setToday(){var t=new Date();var y=t.getFullYear(),m=String(t.getMonth()+1).padStart(2,'0'),d=String(t.getDate()).padStart(2,'0');cDate=y+'-'+m+'-'+d;document.getElementById('dateInput').value=cDate;rG()}
+function updateDateInd(){var t=new Date();t.setHours(0,0,0,0);var s=new Date(cDate+'T00:00:00');var ind=document.getElementById('dateIndicator');if(s>t){ind.textContent='FORECAST';ind.className='date-indicator forecast'}else{ind.textContent='OBS';ind.className='date-indicator obs'}}
 function toggleLegend(){var l=document.getElementById('marlinLegend');l.classList.toggle('active');var tab=document.getElementById('legendTab');tab.textContent=l.classList.contains('active')?'▶':'◀'}
 
 // --- Historical catch browser ---
@@ -717,9 +753,126 @@ function showAllCatches(){
   }
 }
 
+// --- Measurement tool ---
+var mPins=[],mActive=false,mDragIdx=-1,mLongTimer=null,mCtxCoord=null;
+
+function nmDist(a,b){var R=3440.065,dLat=(b[1]-a[1])*Math.PI/180,dLon=(b[0]-a[0])*Math.PI/180,la=a[1]*Math.PI/180,lb=b[1]*Math.PI/180;var s=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(la)*Math.cos(lb)*Math.sin(dLon/2)*Math.sin(dLon/2);return 2*R*Math.atan2(Math.sqrt(s),Math.sqrt(1-s))}
+function offsetNm(c,nm,brng){var R=3440.065,la=c[1]*Math.PI/180,lo=c[0]*Math.PI/180,b=brng*Math.PI/180,d=nm/R;var la2=Math.asin(Math.sin(la)*Math.cos(d)+Math.cos(la)*Math.sin(d)*Math.cos(b));var lo2=lo+Math.atan2(Math.sin(b)*Math.sin(d)*Math.cos(la),Math.cos(d)-Math.sin(la)*Math.sin(la2));return[lo2*180/Math.PI,la2*180/Math.PI]}
+
+function updateMeasure(){
+  if(!map.getSource('m-src'))return;
+  // Lines
+  var lineCoords=mPins.map(function(p){return p});
+  map.getSource('m-src').setData({type:'FeatureCollection',features:[
+    {type:'Feature',geometry:{type:'LineString',coordinates:lineCoords},properties:{}}
+  ]});
+  // Pins
+  var pinFeats=mPins.map(function(p,i){return{type:'Feature',geometry:{type:'Point',coordinates:p},properties:{idx:i,label:i===0?'A':String.fromCharCode(65+i)}}});
+  map.getSource('m-pins').setData({type:'FeatureCollection',features:pinFeats});
+  // Labels at midpoints
+  var lblFeats=[],total=0;
+  for(var i=1;i<mPins.length;i++){
+    var d=nmDist(mPins[i-1],mPins[i]);total+=d;
+    var mid=[(mPins[i-1][0]+mPins[i][0])/2,(mPins[i-1][1]+mPins[i][1])/2];
+    lblFeats.push({type:'Feature',geometry:{type:'Point',coordinates:mid},properties:{dist:d.toFixed(1)+' nm'}});
+  }
+  map.getSource('m-labels').setData({type:'FeatureCollection',features:lblFeats});
+  // Total overlay
+  var el=document.getElementById('measureTotal');
+  if(mPins.length>=2){el.textContent='Total: '+total.toFixed(1)+' nm';el.classList.add('active')}else{el.classList.remove('active')}
+}
+
+function startMeasure(coord){
+  mActive=true;mPins=[coord,offsetNm(coord,5,0)];
+  hideCtx();
+  if(!map.getSource('m-src')){
+    map.addSource('m-src',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+    map.addSource('m-pins',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+    map.addSource('m-labels',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+    map.addLayer({id:'m-line',type:'line',source:'m-src',paint:{'line-color':'#fbbf24','line-width':2.5,'line-dasharray':[4,3],'line-opacity':.9}});
+    map.addLayer({id:'m-pin',type:'circle',source:'m-pins',paint:{'circle-radius':7,'circle-color':'#fbbf24','circle-stroke-width':2.5,'circle-stroke-color':'#fff','circle-opacity':1}});
+    map.addLayer({id:'m-label',type:'symbol',source:'m-labels',layout:{'text-field':['get','dist'],'text-size':11,'text-offset':[0,-1.2],'text-anchor':'bottom','text-font':['Open Sans Regular']},paint:{'text-color':'#fbbf24','text-halo-color':'rgba(0,0,0,0.9)','text-halo-width':2}});
+  }
+  updateMeasure();
+  // Enable pin dragging
+  map.on('mousedown','m-pin',onMPinDown);
+  map.on('touchstart','m-pin',onMPinDown);
+}
+
+function onMPinDown(e){
+  if(!mActive||!e.features||!e.features.length)return;
+  e.preventDefault();
+  mDragIdx=e.features[0].properties.idx;
+  map.getCanvas().style.cursor='grabbing';
+  map.on('mousemove',onMDrag);map.on('touchmove',onMDrag);
+  map.once('mouseup',onMDragEnd);map.once('touchend',onMDragEnd);
+  map.dragPan.disable();
+}
+function onMDrag(e){if(mDragIdx<0)return;mPins[mDragIdx]=[e.lngLat.lng,e.lngLat.lat];updateMeasure()}
+function onMDragEnd(){mDragIdx=-1;map.getCanvas().style.cursor='';map.off('mousemove',onMDrag);map.off('touchmove',onMDrag);map.dragPan.enable()}
+
+function addMeasurePin(){
+  hideCtx();
+  var last=mPins[mPins.length-1];
+  var prev=mPins.length>=2?mPins[mPins.length-2]:null;
+  var brng=0;
+  if(prev){var dLon=(last[0]-prev[0])*Math.PI/180,y=Math.sin(dLon)*Math.cos(last[1]*Math.PI/180),x=Math.cos(prev[1]*Math.PI/180)*Math.sin(last[1]*Math.PI/180)-Math.sin(prev[1]*Math.PI/180)*Math.cos(last[1]*Math.PI/180)*Math.cos(dLon);brng=Math.atan2(y,x)*180/Math.PI}
+  mPins.push(offsetNm(last,5,brng));
+  updateMeasure();
+}
+
+function endMeasure(){hideCtx();mActive=false}
+function clearMeasure(){
+  hideCtx();mActive=false;mPins=[];
+  if(map.getSource('m-src')){map.getSource('m-src').setData({type:'FeatureCollection',features:[]});map.getSource('m-pins').setData({type:'FeatureCollection',features:[]});map.getSource('m-labels').setData({type:'FeatureCollection',features:[]})}
+  document.getElementById('measureTotal').classList.remove('active');
+  map.off('mousedown','m-pin',onMPinDown);map.off('touchstart','m-pin',onMPinDown);
+}
+
+function showCtx(x,y,items){
+  var el=document.getElementById('ctxMenu');
+  el.innerHTML=items.map(function(it){return'<button onclick="'+it[1]+'">'+it[0]+'</button>'}).join('');
+  el.style.left=x+'px';el.style.top=y+'px';el.classList.add('active');
+}
+function hideCtx(){document.getElementById('ctxMenu').classList.remove('active')}
+
 document.addEventListener('DOMContentLoaded',function(){
   initMap();
   loadCatchData();
+  updateDateInd();
+  // Context menu: right-click (PC) or long-press (touch)
+  document.getElementById('map').addEventListener('contextmenu',function(e){
+    e.preventDefault();
+    var r=map.getCanvas().getBoundingClientRect();
+    var pt=[e.clientX-r.left,e.clientY-r.top];
+    mCtxCoord=[map.unproject(pt).lng,map.unproject(pt).lat];
+    if(!mActive){
+      showCtx(e.clientX,e.clientY,[['Start Measurement','startMeasure(mCtxCoord)']]);
+    } else {
+      // Check if near last pin
+      showCtx(e.clientX,e.clientY,[['Add Pin','addMeasurePin()'],['End Measurement','endMeasure()'],['Clear','clearMeasure()']]);
+    }
+  });
+  // Long press for touch
+  var lpTimer=null,lpXY=null;
+  document.getElementById('map').addEventListener('touchstart',function(e){
+    if(e.touches.length!==1)return;
+    lpXY={x:e.touches[0].clientX,y:e.touches[0].clientY};
+    lpTimer=setTimeout(function(){
+      var r=map.getCanvas().getBoundingClientRect();
+      var pt=[lpXY.x-r.left,lpXY.y-r.top];
+      mCtxCoord=[map.unproject(pt).lng,map.unproject(pt).lat];
+      if(!mActive){
+        showCtx(lpXY.x,lpXY.y,[['Start Measurement','startMeasure(mCtxCoord)']]);
+      } else {
+        showCtx(lpXY.x,lpXY.y,[['Add Pin','addMeasurePin()'],['End Measurement','endMeasure()'],['Clear','clearMeasure()']]);
+      }
+    },600);
+  },{passive:true});
+  document.getElementById('map').addEventListener('touchmove',function(){if(lpTimer){clearTimeout(lpTimer);lpTimer=null}},{passive:true});
+  document.getElementById('map').addEventListener('touchend',function(){if(lpTimer){clearTimeout(lpTimer);lpTimer=null}},{passive:true});
+  // Dismiss context menu on map click
+  map.on('click',function(){hideCtx()});
 });
 </script>
 
