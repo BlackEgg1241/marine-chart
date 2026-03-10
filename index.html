@@ -112,7 +112,8 @@
 .maplibregl-ctrl-group button{width:32px!important;height:32px!important;border-color:rgba(255,255,255,.04)!important}
 .maplibregl-ctrl-group button:hover{background:rgba(56,189,248,.1)!important}
 .maplibregl-ctrl button .maplibregl-ctrl-icon{filter:invert(.65)!important}
-.maplibregl-ctrl-scale{background:rgba(2,6,23,.5)!important;color:#94a3b8!important;border-color:#475569!important;font-family:‘JetBrains Mono’,monospace!important;font-size:9px!important;border-radius:3px!important;padding:1px 5px!important;border-width:1px!important;border-top:none!important}
+.maplibregl-ctrl-scale{background:rgba(2,6,23,.75)!important;color:#e2e8f0!important;border-color:#64748b!important;font-family:’JetBrains Mono’,monospace!important;font-size:10px!important;font-weight:600!important;border-radius:4px!important;padding:2px 8px!important;border-width:1.5px!important;border-top:none!important;z-index:5!important}
+.maplibregl-ctrl-bottom-left{bottom:130px!important}
 .maplibregl-popup-content{background:rgba(2,6,23,.92)!important;color:#e2e8f0!important;font-family:’JetBrains Mono’,monospace!important;font-size:11px!important;border-radius:8px!important;padding:8px 12px!important;border:1px solid rgba(251,146,60,.2)!important;box-shadow:0 4px 20px rgba(0,0,0,.5)!important}
 .maplibregl-popup-tip{border-top-color:rgba(2,6,23,.92)!important}
 .maplibregl-popup-close-button{color:#94a3b8!important;font-size:16px!important}
@@ -336,7 +337,7 @@ function initMap(){
     {id:'catch-dot',type:'circle',source:'catch-marker',paint:{'circle-radius':5,'circle-color':'#fbbf24','circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':1}},
     {id:'catch-label',type:'symbol',source:'catch-marker',layout:{'text-field':['get','tag'],'text-size':10,'text-offset':[0,-2],'text-anchor':'bottom','text-font':['Open Sans Regular']},paint:{'text-color':'#fbbf24','text-halo-color':'rgba(0,0,0,0.9)','text-halo-width':2}},
     {id:'all-catches-glow',type:'circle',source:'all-catches',paint:{'circle-radius':12,'circle-color':['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24'],'circle-opacity':0,'circle-blur':.6}},
-    {id:'all-catches-dot',type:'circle',source:'all-catches',paint:{'circle-radius':5,'circle-color':['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24'],'circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':0}},
+    {id:'all-catches-dot',type:'circle',source:'all-catches',paint:{'circle-radius':5,'circle-color':['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24'],'circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':0,'circle-stroke-opacity':0}},
     {id:'bathy-100',type:'line',source:'bathymetry',filter:['==',['get','depth'],-100],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':.85}},
     {id:'bathy-glow',type:'line',source:'bathymetry',filter:['==',['get','depth'],-200],paint:{'line-color':'#000000','line-width':8,'line-opacity':.12,'line-blur':4}},
     {id:'bathy-200',type:'line',source:'bathymetry',filter:['==',['get','depth'],-200],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':.9}},
@@ -423,9 +424,16 @@ function loadDatedGeoJSON(){
   Object.keys(gj).forEach(function(src){
     if(!map.getSource(src))return;
     var dated='data/'+cDate+'/'+gj[src],fallback='data/'+gj[src];
-    fetch(dated,{method:'HEAD'}).then(function(r){
-      map.getSource(src).setData(r.ok?dated:fallback);
-    }).catch(function(){map.getSource(src).setData(fallback)});
+    fetch(dated).then(function(r){
+      if(!r.ok)throw new Error('not found');
+      return r.json();
+    }).then(function(data){
+      map.getSource(src).setData(data);
+    }).catch(function(){
+      fetch(fallback).then(function(r){return r.json()}).then(function(data){
+        map.getSource(src).setData(data);
+      }).catch(function(){});
+    });
   });
 }
 
@@ -436,15 +444,15 @@ function rG(){
   // Update GIBS date (2-day latency from selected date)
   var gd=new Date(cDate);gd.setDate(gd.getDate()-2);gDate=gd.toISOString().split('T')[0];
   // Reload WMS raster tiles for the new date
-  var ids=['g-tc','g-sst','g-chl'];
-  var cfg={'g-tc':{l:GL.tc,z:9,o:.85,v:LS.truecolor},'g-sst':{l:GL.sst,z:7,o:.6,v:LS.sst||(LS.blue_marlin||LS.striped_marlin)},'g-chl':{l:GL.chl,z:7,o:.7,v:LS.chlorophyll}};
+  var ids=['g-tc','g-sst','g-chl','g-ssh'];
+  var cfg={'g-tc':{l:GL.tc,z:9,o:.85,v:LS.truecolor},'g-sst':{l:GL.sst,z:7,o:.6,v:LS.sst||(LS.blue_marlin||LS.striped_marlin)},'g-chl':{l:GL.chl,z:7,o:.7,v:LS.chlorophyll},'g-ssh':{l:null,z:8,o:.7,v:LS.ssh_visual}};
   for(var i=0;i<ids.length;i++){if(map.getLayer(ids[i]+'-layer'))map.removeLayer(ids[i]+'-layer')}
   for(var i=0;i<ids.length;i++){if(map.getSource(ids[i]))map.removeSource(ids[i])}
   // Insert rasters below first GeoJSON layer so they don't cover overlays
   var firstGJ=['mz-striped','hs-blue','spot-glow'];var bef;
   for(var j=0;j<firstGJ.length;j++){if(map.getLayer(firstGJ[j])){bef=firstGJ[j];break}}
-  var ord=['g-tc','g-sst','g-chl'];
-  for(var i=0;i<ord.length;i++){var k=ord[i],c=cfg[k];map.addSource(k,{type:'raster',tiles:[gu(c.l,gDate)],tileSize:256,maxzoom:c.z});map.addLayer({id:k+'-layer',type:'raster',source:k,layout:{visibility:c.v?'visible':'none'},paint:{'raster-opacity':c.o}},bef)}
+  var ord=['g-tc','g-sst','g-chl','g-ssh'];
+  for(var i=0;i<ord.length;i++){var k=ord[i],c=cfg[k];var tiles=k==='g-ssh'?[guSLA(cDate)]:[gu(c.l,gDate)];map.addSource(k,{type:'raster',tiles:tiles,tileSize:256,maxzoom:c.z});map.addLayer({id:k+'-layer',type:'raster',source:k,layout:{visibility:c.v?'visible':'none'},paint:{'raster-opacity':c.o}},bef)}
   loadDatedGeoJSON();
 }
 
@@ -546,7 +554,7 @@ function setBasemap(n){
   map.addLayer({id:'catch-label',type:'symbol',source:'catch-marker',layout:{'text-field':['get','tag'],'text-size':10,'text-offset':[0,-2],'text-anchor':'bottom','text-font':['Open Sans Regular']},paint:{'text-color':'#fbbf24','text-halo-color':'rgba(0,0,0,0.9)','text-halo-width':2}},bf);
   var aco=allCatchesOn;
   map.addLayer({id:'all-catches-glow',type:'circle',source:'all-catches',paint:{'circle-radius':12,'circle-color':['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24'],'circle-opacity':aco?.15:0,'circle-blur':.6}},bf);
-  map.addLayer({id:'all-catches-dot',type:'circle',source:'all-catches',paint:{'circle-radius':5,'circle-color':['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24'],'circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':aco?.9:0}},bf);
+  map.addLayer({id:'all-catches-dot',type:'circle',source:'all-catches',paint:{'circle-radius':5,'circle-color':['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24'],'circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':aco?.9:0,'circle-stroke-opacity':aco?1:0}},bf);
   document.querySelectorAll('.bm-btn').forEach(function(b){b.classList.remove('active')});
   document.getElementById(bm.btn).classList.add('active');
 }
@@ -575,8 +583,8 @@ var catchData=null,catchIdx=-1,catchActive=false,allCatchesOn=false;
 
 function loadCatchData(){
   fetch('data/marlin_catches.geojson').then(function(r){return r.json()}).then(function(gj){
-    catchData=gj.features;
-    console.log('Loaded '+catchData.length+' historical catches');
+    catchData=gj.features.filter(function(f){return f.properties.species==='BLUE MARLIN'});
+    console.log('Loaded '+catchData.length+' blue marlin catches');
   }).catch(function(e){console.error('Failed to load catches:',e)});
 }
 
@@ -649,7 +657,7 @@ function toggleAllCatches(){
     if(!catchData){
       // Load data first, then show
       fetch('data/marlin_catches.geojson').then(function(r){return r.json()}).then(function(gj){
-        catchData=gj.features;
+        catchData=gj.features.filter(function(f){return f.properties.species==='BLUE MARLIN'});
         showAllCatches();
       });
       return;
@@ -659,6 +667,7 @@ function toggleAllCatches(){
     btn.classList.remove('on-orange');
     sGL('all-catches-glow',false);
     sGL('all-catches-dot',false);
+    if(map.getLayer('all-catches-dot'))map.setPaintProperty('all-catches-dot','circle-stroke-opacity',0);
   }
 }
 
@@ -672,6 +681,7 @@ function showAllCatches(){
   }
   sGL('all-catches-glow',true);
   sGL('all-catches-dot',true);
+  if(map.getLayer('all-catches-dot'))map.setPaintProperty('all-catches-dot','circle-stroke-opacity',1);
 
   // Add click handler if not already added
   if(!toggleAllCatches._clickBound){
