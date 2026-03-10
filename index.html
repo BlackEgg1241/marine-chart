@@ -217,6 +217,7 @@
       <button class="layer-btn primary" id="btnStripedMarlin" onclick="toggleLayer('striped_marlin')"><span class="icon">🐟</span> Striped Marlin</button>
       <button class="layer-btn on" id="btnSeamarks" onclick="toggleLayer('seamark')"><span class="icon">🚩</span> Sea Marks</button>
       <button class="layer-btn" id="btnCatches" onclick="toggleCatches()"><span class="icon">🎣</span> Catches</button>
+      <button class="layer-btn" id="btnAllCatches" onclick="toggleAllCatches()"><span class="icon">📍</span> All Catches</button>
     </div>
     <!-- Row 2: Satellite raster overlays (scrollable) -->
     <div class="layer-row">
@@ -280,7 +281,7 @@ var SPOTS=[
 var map,cBM='ocean',gpsWId=null,gM='off',cPos=null,fGPS=false,simI=null,trk=[],sIdx=0;
 var LS={seamark:true,blue_marlin:false,striped_marlin:false,chlorophyll:false,sst:true,truecolor:false,ssh_visual:false,sst_fronts:true,chl_edges:true,currents:true,bathymetry:true,clarity:true,ssh:true,mld:true,oxygen:true};
 // Opacity-based toggling for GeoJSON layers — tiles stay loaded, no cache purge on toggle
-var gLO={'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.5],'isotherm-striped':['line-opacity',.8],'isotherm-label':['text-opacity',1],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.9],'mld-deep':['line-opacity',.7],'o2-hypoxic':['line-opacity',.9],'o2-low':['line-opacity',.8],'o2-adequate':['line-opacity',.7],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.95],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'bathy-glow':['line-opacity',.12],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-label':['text-opacity',1],'mz-striped':['fill-opacity',.2],'hs-blue':['fill-opacity',.45]};
+var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.5],'isotherm-striped':['line-opacity',.8],'isotherm-label':['text-opacity',1],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.9],'mld-deep':['line-opacity',.7],'o2-hypoxic':['line-opacity',.9],'o2-low':['line-opacity',.8],'o2-adequate':['line-opacity',.7],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.95],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'bathy-glow':['line-opacity',.12],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-label':['text-opacity',1],'mz-striped':['fill-opacity',.2],'hs-blue':['fill-opacity',.45]};
 function sGL(id,on){if(!map.getLayer(id))return;var e=gLO[id];e?map.setPaintProperty(id,e[0],on?e[1]:0):map.setLayoutProperty(id,'visibility',on?'visible':'none')}
 var iD=new Date();iD.setDate(iD.getDate()-1);var cDate=iD.toISOString().split('T')[0];
 var iG=new Date();iG.setDate(iG.getDate()-3);var gDate=iG.toISOString().split('T')[0];
@@ -315,7 +316,8 @@ function initMap(){
     'ssh-eddies':{type:'geojson',data:'data/ssh_eddies.geojson'},
     'marlin-zones':{type:'geojson',data:'data/marlin_zones.geojson'},
     'blue-hotspots':{type:'geojson',data:'data/blue_marlin_hotspots.geojson'},
-    'catch-marker':{type:'geojson',data:{type:'FeatureCollection',features:[]}}
+    'catch-marker':{type:'geojson',data:{type:'FeatureCollection',features:[]}},
+    'all-catches':{type:'geojson',data:{type:'FeatureCollection',features:[]}}
   };
   var ly=[
     {id:'basemap-layer',type:'raster',source:'basemap'},
@@ -333,6 +335,8 @@ function initMap(){
     {id:'catch-ring',type:'circle',source:'catch-marker',paint:{'circle-radius':10,'circle-color':'transparent','circle-stroke-width':3,'circle-stroke-color':'#fbbf24','circle-opacity':1}},
     {id:'catch-dot',type:'circle',source:'catch-marker',paint:{'circle-radius':5,'circle-color':'#fbbf24','circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':1}},
     {id:'catch-label',type:'symbol',source:'catch-marker',layout:{'text-field':['get','tag'],'text-size':10,'text-offset':[0,-2],'text-anchor':'bottom','text-font':['Open Sans Regular']},paint:{'text-color':'#fbbf24','text-halo-color':'rgba(0,0,0,0.9)','text-halo-width':2}},
+    {id:'all-catches-glow',type:'circle',source:'all-catches',paint:{'circle-radius':12,'circle-color':['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24'],'circle-opacity':0,'circle-blur':.6}},
+    {id:'all-catches-dot',type:'circle',source:'all-catches',paint:{'circle-radius':5,'circle-color':['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24'],'circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':0}},
     {id:'bathy-100',type:'line',source:'bathymetry',filter:['==',['get','depth'],-100],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':.85}},
     {id:'bathy-glow',type:'line',source:'bathymetry',filter:['==',['get','depth'],-200],paint:{'line-color':'#000000','line-width':8,'line-opacity':.12,'line-blur':4}},
     {id:'bathy-200',type:'line',source:'bathymetry',filter:['==',['get','depth'],-200],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':.9}},
@@ -477,7 +481,7 @@ function setBasemap(n){
   if(n===cBM)return;cBM=n;var bm=BM[n];
   var gL=['gps-track-line','gps-acc-fill','gps-acc-line','gps-glow','gps-outer','gps-inner','gps-heading-line'];
   var fg=null;for(var i=0;i<gL.length;i++){if(map.getLayer(gL[i])){fg=gL[i];break}}
-  var rm=['catch-label','catch-dot','catch-ring','catch-glow','sm-layer','clarity-bloom','clarity-turbid','clarity-clean','ssh-warm-core','ssh-warm','ssh-neutral','ssh-cold','current-line','chl-edge-line','isotherm-label','isotherm-striped','isotherm-blue-prime','isotherm-blue-good','sst-front-line','sst-front-glow','mld-shallow','mld-moderate','mld-deep','o2-hypoxic','o2-low','o2-adequate','bathy-1000','bathy-500','bathy-200','bathy-glow','bathy-100','bathy-label','mz-blue-good','mz-blue-prime','mz-striped','spot-label','spot-dot','spot-glow','g-chl-layer','g-sst-layer','g-tc-layer','g-ssh-layer','ol-layer','basemap-layer'];
+  var rm=['all-catches-dot','all-catches-glow','catch-label','catch-dot','catch-ring','catch-glow','sm-layer','clarity-bloom','clarity-turbid','clarity-clean','ssh-warm-core','ssh-warm','ssh-neutral','ssh-cold','current-line','chl-edge-line','isotherm-label','isotherm-striped','isotherm-blue-prime','isotherm-blue-good','sst-front-line','sst-front-glow','mld-shallow','mld-moderate','mld-deep','o2-hypoxic','o2-low','o2-adequate','bathy-1000','bathy-500','bathy-200','bathy-glow','bathy-100','bathy-label','mz-blue-good','mz-blue-prime','mz-striped','spot-label','spot-dot','spot-glow','g-chl-layer','g-sst-layer','g-tc-layer','g-ssh-layer','ol-layer','basemap-layer'];
   for(var i=0;i<rm.length;i++){if(map.getLayer(rm[i]))map.removeLayer(rm[i])}
   var rs=['basemap','ol','g-chl','g-sst','g-tc','g-ssh'];
   for(var i=0;i<rs.length;i++){if(map.getSource(rs[i]))map.removeSource(rs[i])}
@@ -540,6 +544,9 @@ function setBasemap(n){
   map.addLayer({id:'catch-ring',type:'circle',source:'catch-marker',paint:{'circle-radius':10,'circle-color':'transparent','circle-stroke-width':3,'circle-stroke-color':'#fbbf24','circle-opacity':1}},bf);
   map.addLayer({id:'catch-dot',type:'circle',source:'catch-marker',paint:{'circle-radius':5,'circle-color':'#fbbf24','circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':1}},bf);
   map.addLayer({id:'catch-label',type:'symbol',source:'catch-marker',layout:{'text-field':['get','tag'],'text-size':10,'text-offset':[0,-2],'text-anchor':'bottom','text-font':['Open Sans Regular']},paint:{'text-color':'#fbbf24','text-halo-color':'rgba(0,0,0,0.9)','text-halo-width':2}},bf);
+  var aco=allCatchesOn;
+  map.addLayer({id:'all-catches-glow',type:'circle',source:'all-catches',paint:{'circle-radius':12,'circle-color':['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24'],'circle-opacity':aco?.15:0,'circle-blur':.6}},bf);
+  map.addLayer({id:'all-catches-dot',type:'circle',source:'all-catches',paint:{'circle-radius':5,'circle-color':['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24'],'circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':aco?.9:0}},bf);
   document.querySelectorAll('.bm-btn').forEach(function(b){b.classList.remove('active')});
   document.getElementById(bm.btn).classList.add('active');
 }
@@ -564,7 +571,7 @@ function sS(){if(simI){clearInterval(simI);simI=null}gM='off';fGPS=false;documen
 function centerOnGPS(){if(cPos){map.flyTo({center:[cPos.lng,cPos.lat],zoom:14,duration:1200});fGPS=true;document.getElementById('btnCenter').classList.add('following')}}
 
 // --- Historical catch browser ---
-var catchData=null,catchIdx=-1,catchActive=false;
+var catchData=null,catchIdx=-1,catchActive=false,allCatchesOn=false;
 
 function loadCatchData(){
   fetch('data/marlin_catches.geojson').then(function(r){return r.json()}).then(function(gj){
@@ -632,9 +639,58 @@ function showCatch(idx){
   cDate=p.date;
   document.getElementById('dateInput').value=cDate;
   rG();
+}
 
-  // Fly to catch location
-  map.flyTo({center:coords,zoom:11,duration:1500});
+function toggleAllCatches(){
+  allCatchesOn=!allCatchesOn;
+  var btn=document.getElementById('btnAllCatches');
+  if(allCatchesOn){
+    btn.classList.add('on-orange');
+    if(!catchData){
+      // Load data first, then show
+      fetch('data/marlin_catches.geojson').then(function(r){return r.json()}).then(function(gj){
+        catchData=gj.features;
+        showAllCatches();
+      });
+      return;
+    }
+    showAllCatches();
+  } else {
+    btn.classList.remove('on-orange');
+    sGL('all-catches-glow',false);
+    sGL('all-catches-dot',false);
+  }
+}
+
+function showAllCatches(){
+  if(!catchData)return;
+  var gj={type:'FeatureCollection',features:catchData.map(function(f){
+    return {type:'Feature',geometry:f.geometry,properties:f.properties};
+  })};
+  if(map.getSource('all-catches')){
+    map.getSource('all-catches').setData(gj);
+  }
+  sGL('all-catches-glow',true);
+  sGL('all-catches-dot',true);
+
+  // Add click handler if not already added
+  if(!toggleAllCatches._clickBound){
+    toggleAllCatches._clickBound=true;
+    map.on('click','all-catches-dot',function(e){
+      var f=e.features[0],p=f.properties;
+      var html='<div class="hp-title">'+p.species+'</div>';
+      html+='<div class="hp-sub">';
+      html+='Tag: '+p.tag+'<br>';
+      html+='Date: '+p.date+'<br>';
+      html+='Position: '+p.lat+' '+p.lon+'<br>';
+      if(p.length)html+='Length: '+p.length+' cm<br>';
+      if(p.weight)html+='Weight: '+p.weight+' kg';
+      html+='</div>';
+      new maplibregl.Popup({offset:12}).setLngLat(f.geometry.coordinates).setHTML(html).addTo(map);
+    });
+    map.on('mouseenter','all-catches-dot',function(){map.getCanvas().style.cursor='pointer'});
+    map.on('mouseleave','all-catches-dot',function(){map.getCanvas().style.cursor=''});
+  }
 }
 
 document.addEventListener('DOMContentLoaded',function(){
