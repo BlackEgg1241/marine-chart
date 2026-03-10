@@ -1,0 +1,360 @@
+{
+  "version": 2,
+  "description": "Blue marlin activity predictor \u2014 Perth Canyon, WA",
+  "design": "Paired within-event + permutation-tested trajectories",
+  "parameters": {
+    "sst_min": {
+      "weight": 0.0909,
+      "evidence_score": 0.6,
+      "evidence": {
+        "paired": "increases (+0.8%, p=0.0384)",
+        "trajectory": "slope=+0.03721/day (p=0.0000)"
+      },
+      "direction": "increases",
+      "early_baseline": 21.980379574909442,
+      "late_target": 22.149913616660164,
+      "expected_change": 0.16953404175072181,
+      "catch_day_mean": 22.26216218311612,
+      "catch_day_std": 1.1464540400298096,
+      "pop_mean": 22.063354935974065,
+      "pop_std": 1.1647470143734784,
+      "expected_slope": 0.03720599745857799,
+      "slope_std": 0.08207766241030244,
+      "ml_features": {
+        "sst_min|momentum": 0.0008253386820068319
+      }
+    },
+    "sst_range": {
+      "weight": 0.0909,
+      "evidence_score": 0.6,
+      "evidence": {
+        "paired": "decreases (-7.1%, p=0.0315)",
+        "trajectory": "slope=-0.02118/day (p=0.0000)"
+      },
+      "direction": "decreases",
+      "early_baseline": 1.55874254663543,
+      "late_target": 1.4473991145084544,
+      "expected_change": -0.11134343212697564,
+      "catch_day_mean": 1.4222459078925411,
+      "catch_day_std": 0.4126156514751663,
+      "pop_mean": 1.5147594196903633,
+      "pop_std": 0.44148875241263763,
+      "expected_slope": -0.021177293486140333,
+      "slope_std": 0.05637871066613204,
+      "ml_features": {
+        "sst_range|r2": 0.0008114778984840039
+      }
+    },
+    "sst_skew": {
+      "weight": 0.0909,
+      "evidence_score": 0.6,
+      "evidence": {
+        "paired": "decreases (+265.2%, p=0.0360)",
+        "trajectory": "slope=-0.03354/day (p=0.0000)"
+      },
+      "direction": "decreases",
+      "early_baseline": -0.06956137146045853,
+      "late_target": -0.25404874160757973,
+      "expected_change": -0.18448737014712127,
+      "catch_day_mean": -0.2679598836890828,
+      "catch_day_std": 0.49938890325599206,
+      "pop_mean": -0.11997116822371523,
+      "pop_std": 0.5690038431553943,
+      "expected_slope": -0.033537776592431096,
+      "slope_std": 0.09662280112820718,
+      "ml_features": {
+        "sst_skew|slope7": 0.0008524998853421854
+      }
+    },
+    "sst_p25": {
+      "weight": 0.0909,
+      "evidence_score": 0.6,
+      "evidence": {
+        "paired": "increases (+0.8%, p=0.0230)",
+        "trajectory": "slope=+0.03799/day (p=0.0000)"
+      },
+      "direction": "increases",
+      "early_baseline": 22.49671404836018,
+      "late_target": 22.67116975802474,
+      "expected_change": 0.17445570966455995,
+      "catch_day_mean": 22.777601943192323,
+      "catch_day_std": 1.1156820698335441,
+      "pop_mean": 22.57910564988738,
+      "pop_std": 1.1238011918691757,
+      "expected_slope": 0.037987196865047,
+      "slope_std": 0.08341802373986788,
+      "ml_features": {
+        "sst_p25|r2": 0.00037283842970474044
+      }
+    },
+    "sst_std": {
+      "weight": 0.0682,
+      "evidence_score": 0.45,
+      "evidence": {
+        "paired": "decreases (-7.0%, p=0.0673)",
+        "trajectory": "slope=-0.00530/day (p=0.0000)"
+      },
+      "direction": "decreases",
+      "early_baseline": 0.39440184095155917,
+      "late_target": 0.36692377839766266,
+      "expected_change": -0.027478062553896464,
+      "catch_day_mean": 0.3552962470065043,
+      "catch_day_std": 0.1178767311782112,
+      "pop_mean": 0.3829813711429981,
+      "pop_std": 0.13839581095425216,
+      "expected_slope": -0.005298334150300303,
+      "slope_std": 0.0165581330122471,
+      "ml_features": {
+        "sst_std|last": 0.0008487941148366682
+      }
+    },
+    "sst_warm_frac": {
+      "weight": 0.0682,
+      "evidence_score": 0.45,
+      "evidence": {
+        "paired": "increases (+11.1%, p=0.0711)",
+        "trajectory": "slope=+0.01114/day (p=0.0028)"
+      },
+      "direction": "increases",
+      "early_baseline": 0.3996747967479676,
+      "late_target": 0.44390243902439014,
+      "expected_change": 0.044227642276422764,
+      "catch_day_mean": 0.4629268292682927,
+      "catch_day_std": 0.397278816526477,
+      "pop_mean": 0.43201219512195116,
+      "pop_std": 0.40569900514803864,
+      "expected_slope": 0.011138211382113822,
+      "slope_std": 0.03338243074870542,
+      "ml_features": {
+        "sst_warm_frac|volatility": 0.00044260254410657935
+      }
+    },
+    "sst_gradient": {
+      "weight": 0.0682,
+      "evidence_score": 0.45,
+      "evidence": {
+        "paired": "decreases (-5.8%, p=0.0949)",
+        "trajectory": "slope=-0.00212/day (p=0.0004)"
+      },
+      "direction": "decreases",
+      "early_baseline": 0.18237605656164896,
+      "late_target": 0.171772415589059,
+      "expected_change": -0.010603640972589963,
+      "catch_day_mean": 0.16475741357994714,
+      "catch_day_std": 0.04109889999100684,
+      "pop_mean": 0.1786646317437652,
+      "pop_std": 0.04659346753593546,
+      "expected_slope": -0.0021151157412601282,
+      "slope_std": 0.007793546023530473,
+      "ml_features": {
+        "sst_gradient|volatility": 0.0006139205172399031
+      }
+    },
+    "sst_mean": {
+      "weight": 0.0682,
+      "evidence_score": 0.45,
+      "evidence": {
+        "paired": "increases (+0.6%, p=0.0779)",
+        "trajectory": "slope=+0.03221/day (p=0.0000)"
+      },
+      "direction": "increases",
+      "early_baseline": 22.807945321056902,
+      "late_target": 22.951774500637516,
+      "expected_change": 0.14382917958061908,
+      "catch_day_mean": 23.050947806228226,
+      "catch_day_std": 1.1206780350205134,
+      "pop_mean": 22.877396799167393,
+      "pop_std": 1.1102151220258496,
+      "expected_slope": 0.03220788652706856,
+      "slope_std": 0.08542918042046117,
+      "ml_features": {
+        "sst_mean|last": 0.0009021171401471596
+      }
+    },
+    "vorticity": {
+      "weight": 0.0455,
+      "evidence_score": 0.3,
+      "evidence": {
+        "trajectory": "slope=-0.00121/day (p=0.0352)"
+      },
+      "direction": "increases",
+      "early_baseline": 0.02916288054888931,
+      "late_target": 0.02361970307396316,
+      "expected_change": -0.005543177474926159,
+      "catch_day_mean": 0.019808784302142335,
+      "catch_day_std": 0.03178999823496336,
+      "pop_mean": 0.02647747282767895,
+      "pop_std": 0.031089625636061585,
+      "expected_slope": -0.0012148763948205631,
+      "slope_std": 0.006130679892859118,
+      "ml_features": {
+        "vorticity|r2": 0.0006342278384280747
+      }
+    },
+    "leeuwin": {
+      "weight": 0.0455,
+      "evidence_score": 0.3,
+      "evidence": {
+        "trajectory": "slope=+0.00640/day (p=0.0084)"
+      },
+      "direction": "increases",
+      "early_baseline": 0.11075912817737193,
+      "late_target": 0.14269643359764564,
+      "expected_change": 0.03193730542027369,
+      "catch_day_mean": 0.15613185478510655,
+      "catch_day_std": 0.11012974156338752,
+      "pop_mean": 0.12495586273442137,
+      "pop_std": 0.1362655535960586,
+      "expected_slope": 0.006398047579714159,
+      "slope_std": 0.029692184107792476,
+      "ml_features": {
+        "leeuwin|last": 0.00023611960783728362
+      }
+    },
+    "anticyc_frac": {
+      "weight": 0.0455,
+      "evidence_score": 0.3,
+      "evidence": {
+        "trajectory": "slope=+0.00618/day (p=0.0092)"
+      },
+      "direction": "increases",
+      "early_baseline": 0.3246341463414634,
+      "late_target": 0.3540650406504065,
+      "expected_change": 0.029430894308943092,
+      "catch_day_mean": 0.3765853658536586,
+      "catch_day_std": 0.10955808696754477,
+      "pop_mean": 0.3377439024390244,
+      "pop_std": 0.11497786753891098,
+      "expected_slope": 0.006178861788617885,
+      "slope_std": 0.027695509283978785,
+      "ml_features": {
+        "anticyc_frac|std": 0.0007199201203429648
+      }
+    },
+    "blue_water_frac": {
+      "weight": 0.0455,
+      "evidence_score": 0.3,
+      "evidence": {
+        "trajectory": "slope=-0.00502/day (p=0.0096)"
+      },
+      "direction": "decreases",
+      "early_baseline": 0.09440803549309731,
+      "late_target": 0.06832871652816251,
+      "expected_change": -0.026079318964934803,
+      "catch_day_mean": 0.06607661644483481,
+      "catch_day_std": 0.12037808436972017,
+      "pop_mean": 0.08257043443010607,
+      "pop_std": 0.15639267931625953,
+      "expected_slope": -0.005021378864362446,
+      "slope_std": 0.019669992251079006,
+      "ml_features": {
+        "blue_water_frac|last": 0.00023645059289050408
+      }
+    },
+    "sst_front_frac": {
+      "weight": 0.0455,
+      "evidence_score": 0.3,
+      "evidence": {
+        "trajectory": "slope=-0.00662/day (p=0.0036)"
+      },
+      "direction": "decreases",
+      "early_baseline": 0.5111382113821138,
+      "late_target": 0.4790243902439025,
+      "expected_change": -0.0321138211382114,
+      "catch_day_mean": 0.4609756097560975,
+      "catch_day_std": 0.1503784636573511,
+      "pop_mean": 0.4988109756097561,
+      "pop_std": 0.15527744917082908,
+      "expected_slope": -0.006623112659698027,
+      "slope_std": 0.025465045215034374,
+      "ml_features": {
+        "sst_front_frac|std": 0.00066430160913498
+      }
+    },
+    "sst_iqr": {
+      "weight": 0.0455,
+      "evidence_score": 0.3,
+      "evidence": {
+        "trajectory": "slope=-0.00984/day (p=0.0004)"
+      },
+      "direction": "decreases",
+      "early_baseline": 0.6254120923397017,
+      "late_target": 0.5757592218223868,
+      "expected_change": -0.049652870517314936,
+      "catch_day_mean": 0.5505658200964695,
+      "catch_day_std": 0.23943701144385046,
+      "pop_mean": 0.6031320917351943,
+      "pop_std": 0.26897323673172074,
+      "expected_slope": -0.009844292854104932,
+      "slope_std": 0.03638958869696038,
+      "ml_features": {
+        "sst_iqr|slope3": 0.0009025164099798375
+      }
+    },
+    "sst_p75": {
+      "weight": 0.0455,
+      "evidence_score": 0.3,
+      "evidence": {
+        "trajectory": "slope=+0.02814/day (p=0.0000)"
+      },
+      "direction": "increases",
+      "early_baseline": 23.12212614069988,
+      "late_target": 23.246928979847127,
+      "expected_change": 0.124802839147245,
+      "catch_day_mean": 23.328167763288793,
+      "catch_day_std": 1.1234954250859985,
+      "pop_mean": 23.182237741622576,
+      "pop_std": 1.1026060364761068,
+      "expected_slope": 0.02814290401094207,
+      "slope_std": 0.09162962277898318,
+      "ml_features": {
+        "sst_p75|volatility": 0.00048603289429783767
+      }
+    },
+    "sst_max": {
+      "weight": 0.0227,
+      "evidence_score": 0.15,
+      "evidence": {
+        "trajectory": "slope=+0.01603/day (p=0.0536)"
+      },
+      "direction": "increases",
+      "early_baseline": 23.539122121544874,
+      "late_target": 23.597312731168618,
+      "expected_change": 0.05819060962374618,
+      "catch_day_mean": 23.684408091008663,
+      "catch_day_std": 1.1094844100271264,
+      "pop_mean": 23.57811435566443,
+      "pop_std": 1.0792327847289047,
+      "expected_slope": 0.016028703972437653,
+      "slope_std": 0.10211458161830828,
+      "ml_features": {
+        "sst_max|last": 0.0007261663903078556
+      }
+    },
+    "mld_mean": {
+      "weight": 0.0227,
+      "evidence_score": 0.15,
+      "evidence": {
+        "trajectory": "slope=-0.33444/day (p=0.0688)"
+      },
+      "direction": "decreases",
+      "early_baseline": 22.260969648817934,
+      "late_target": 20.822226292298332,
+      "expected_change": -1.438743356519598,
+      "catch_day_mean": 18.968299957622843,
+      "catch_day_std": 7.986285709758996,
+      "pop_mean": 21.57374236074844,
+      "pop_std": 9.84482129255774,
+      "expected_slope": -0.33443686138648154,
+      "slope_std": 1.873191046555835,
+      "ml_features": {
+        "mld_mean|r2": 0.0008651309681480222
+      }
+    }
+  },
+  "ml_performance": {
+    "rf_auc": 0.07292687908496732,
+    "gb_auc": 0.25037785947712415,
+    "note": "AUC from real vs temporally-shuffled classification"
+  }
+}

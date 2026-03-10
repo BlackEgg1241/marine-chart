@@ -1,0 +1,243 @@
+================================================================================
+BLUE MARLIN PREDICTION ANALYSIS v2
+Perth Canyon, Western Australia
+================================================================================
+Date: 2026-03-10 23:13
+Catch events: 41
+Design: Paired within-event (each catch = its own control)
+Region: {'lon_min': 114.8, 'lon_max': 115.6, 'lat_min': -32.3, 'lat_max': -31.5}
+
+================================================================================
+ANALYSIS 1: PAIRED EARLY vs LATE WINDOW
+  Compare days [-7,-5] vs days [-2,0] within each catch event
+  Test: Wilcoxon signed-rank (non-parametric paired test)
+================================================================================
+
+Significant shifts (p < 0.10): 8
+Parameter                 Early     Late   Change   %Chg   p-val   |d|        Dir Consist
+--------------------------------------------------------------------------------
+sst_p25                 22.4967  22.6712 +0.17446  +0.8% 0.0230**  0.39  increases    66%
+sst_range                1.5587   1.4474 -0.11134  -7.1% 0.0315**  0.37  decreases    66%
+sst_skew                -0.0696  -0.2540 -0.18449 +265.2% 0.0360**  0.34  decreases    66%
+sst_min                 21.9804  22.1499 +0.16953  +0.8% 0.0384**  0.38  increases    59%
+sst_std                  0.3944   0.3669 -0.02748  -7.0% 0.0673*   0.31  decreases    66%
+sst_warm_frac            0.3997   0.4439 +0.04423 +11.1% 0.0711*   0.25  increases    51%
+sst_mean                22.8079  22.9518 +0.14383  +0.6% 0.0779*   0.32  increases    61%
+sst_gradient             0.1824   0.1718 -0.01060  -5.8% 0.0949*   0.25  decreases    63%
+
+================================================================================
+ANALYSIS 2: TRAJECTORY PERMUTATION TEST
+  Test: Are 7-day slopes significantly steeper than random?
+  Method: 5000 permutations of day labels within each event
+================================================================================
+
+Significant trajectories (p < 0.10): 17
+Parameter               Slope/day   StdDev      z   p-val  %pos  3d-slope
+--------------------------------------------------------------------------------
+sst_mean                +0.032208 0.085429 +4.38 0.0000***  63%  +0.06004
+sst_min                 +0.037206 0.082078 +4.75 0.0000***  63%  +0.06690
+sst_p25                 +0.037987 0.083418 +5.10 0.0000***  66%  +0.07024
+sst_p75                 +0.028143 0.091630 +3.83 0.0000***  51%  +0.05075
+sst_range               -0.021177 0.056379 -4.34 0.0000***  34%  -0.03606
+sst_skew                -0.033538 0.096623 -3.56 0.0000***  37%  -0.08787
+sst_std                 -0.005298 0.016558 -3.92 0.0000***  37%  -0.01059
+sst_gradient            -0.002115 0.007794 -3.26 0.0004***  39%  -0.00586
+sst_iqr                 -0.009844 0.036390 -3.13 0.0004***  41%  -0.01949
+sst_warm_frac           +0.011138 0.033382 +3.04 0.0028***  51%  -0.00222
+sst_front_frac          -0.006623 0.025465 -2.99 0.0036***  41%  -0.01695
+leeuwin                 +0.006398 0.029692 +2.63 0.0084***  63%  +0.01185
+anticyc_frac            +0.006179 0.027696 +2.56 0.0092***  61%  +0.01368
+blue_water_frac         -0.005021 0.019670 -2.54 0.0096***  27%  -0.00325
+vorticity               -0.001215 0.006131 -2.20 0.0352**   49%  -0.00236
+sst_max                 +0.016029 0.102115 +1.92 0.0536*    56%  +0.03084
+mld_mean                -0.334437 1.873191 -1.82 0.0688*    41%  -1.00143
+
+================================================================================
+ANALYSIS 3: CATCH-DAY vs POPULATION BASELINE
+  How do catch-day conditions deviate from the season average?
+================================================================================
+
+Notable deviations (|z| > 0.3): 2
+Parameter               Pop mean Catch mean  z-score  Pctile    KS p
+--------------------------------------------------------------------------------
+onshore                  -0.0077     0.0073   +0.34   59.9%  0.1721
+anticyc_frac              0.3377     0.3766   +0.34   61.3%  0.0280
+
+================================================================================
+ANALYSIS 4: MACHINE LEARNING FEATURE IMPORTANCE
+  Design: Real trajectories vs temporally-shuffled (disrupted order)
+  Random Forest AUC: 0.073 +/- 0.056
+  Gradient Boosting AUC: 0.250 +/- 0.088
+================================================================================
+
+Feature                                    Perm     RF     GB Combined
+--------------------------------------------------------------------
+  sst_max|accel                          0.0000 0.0030 0.0587   0.0185
+  mld_mean|slope3                        0.0000 0.0077 0.0519   0.0179
+  sst_p75|slope3                         0.0000 0.0087 0.0437   0.0157
+  anticyc_frac|momentum                  0.0000 0.0107 0.0371   0.0143
+  sst_skew|accel                         0.0000 0.0038 0.0438   0.0143
+  sst_min|accel                          0.0000 0.0073 0.0337   0.0123
+  sst_max|mean                           0.0000 0.0064 0.0252   0.0095
+  sst_p25|accel                          0.0000 0.0032 0.0261   0.0088
+  convergence|r2                         0.0000 0.0033 0.0234   0.0080
+  sst_gradient_max|slope7                0.0000 0.0033 0.0232   0.0079
+  chl_mean|slope3                        0.0000 0.0043 0.0206   0.0074
+  leeuwin|accel                          0.0000 0.0065 0.0167   0.0070
+  leeuwin|slope3                         0.0000 0.0022 0.0210   0.0070
+  chl_std|r2                             0.0000 0.0035 0.0189   0.0067
+  sst_range|slope7                       0.0000 0.0050 0.0169   0.0066
+  mld_std|accel                          0.0000 0.0046 0.0171   0.0065
+  chl_gradient|mean                      0.0000 0.0043 0.0173   0.0065
+  leeuwin|r2                             0.0000 0.0068 0.0145   0.0064
+  sst_gradient_max|momentum              0.0000 0.0039 0.0167   0.0062
+  sst_std|std                            0.0000 0.0027 0.0170   0.0059
+
+================================================================================
+SYNTHESIS: KEY FINDINGS
+================================================================================
+
+  SST / Warm Water:
+    sst_mean:
+      - paired: increases +0.6% (p=0.078)
+      - trajectory: slope=+0.03221/d (p=0.000)
+    sst_min:
+      - paired: increases +0.8% (p=0.038)
+      - trajectory: slope=+0.03721/d (p=0.000)
+    sst_max:
+      - trajectory: slope=+0.01603/d (p=0.054)
+    sst_range:
+      - paired: decreases -7.1% (p=0.031)
+      - trajectory: slope=-0.02118/d (p=0.000)
+    sst_std:
+      - paired: decreases -7.0% (p=0.067)
+      - trajectory: slope=-0.00530/d (p=0.000)
+    sst_iqr:
+      - trajectory: slope=-0.00984/d (p=0.000)
+    sst_p25:
+      - paired: increases +0.8% (p=0.023)
+      - trajectory: slope=+0.03799/d (p=0.000)
+    sst_p75:
+      - trajectory: slope=+0.02814/d (p=0.000)
+    sst_skew:
+      - paired: decreases +265.2% (p=0.036)
+      - trajectory: slope=-0.03354/d (p=0.000)
+    sst_warm_frac:
+      - paired: increases +11.1% (p=0.071)
+      - trajectory: slope=+0.01114/d (p=0.003)
+
+  SST Fronts/Gradients:
+    sst_gradient:
+      - paired: decreases -5.8% (p=0.095)
+      - trajectory: slope=-0.00212/d (p=0.000)
+    sst_front_frac:
+      - trajectory: slope=-0.00662/d (p=0.004)
+
+  Currents:
+    leeuwin:
+      - trajectory: slope=+0.00640/d (p=0.008)
+
+  Vorticity/Eddies:
+    vorticity:
+      - trajectory: slope=-0.00121/d (p=0.035)
+    anticyc_frac:
+      - trajectory: slope=+0.00618/d (p=0.009)
+
+  Chlorophyll/Biology:
+    blue_water_frac:
+      - trajectory: slope=-0.00502/d (p=0.010)
+
+  Mixed Layer:
+    mld_mean:
+      - trajectory: slope=-0.33444/d (p=0.069)
+
+================================================================================
+CROSS-VALIDATION (leave-one-out prediction)
+================================================================================
+  Mean: 61.1%
+  Median: 61.4%
+  Min: 37.2%, Max: 89.4%
+  >= 50%: 30/41 (73%)
+  >= 60%: 21/41 (51%)
+
+  Per-event:
+    2015-02-28:  89.4% (conf=100%, params=18)
+    2002-03-23:  81.8% (conf=100%, params=18)
+    2012-02-12:  80.8% (conf=100%, params=16)
+    2003-03-26:  80.6% (conf=100%, params=17)
+    2001-04-15:  79.7% (conf=100%, params=16)
+    2004-02-28:  78.2% (conf=100%, params=15)
+    2006-03-10:  76.0% (conf=100%, params=16)
+    2021-04-06:  74.3% (conf=100%, params=18)
+    2017-02-04:  73.7% (conf=100%, params=16)
+    2017-03-06:  73.3% (conf=100%, params=18)
+    2000-04-23:  72.2% (conf=100%, params=18)
+    2013-02-23:  71.8% (conf=100%, params=16)
+    2002-02-07:  70.6% (conf=100%, params=16)
+    2012-01-28:  69.9% (conf=100%, params=15)
+    2001-03-05:  68.8% (conf=100%, params=16)
+    2022-02-19:  66.1% (conf=100%, params=16)
+    2001-03-10:  65.7% (conf=100%, params=18)
+    2012-12-30:  63.9% (conf=100%, params=15)
+    2023-03-06:  61.6% (conf=100%, params=19)
+    2015-02-24:  61.5% (conf=100%, params=17)
+    2015-04-03:  61.4% (conf=100%, params=19)
+    2001-03-03:  59.9% (conf=100%, params=17)
+    2015-03-02:  59.0% (conf=100%, params=18)
+    2015-03-29:  56.7% (conf=100%, params=16)
+    2002-03-02:  55.1% (conf=100%, params=19)
+    2011-02-09:  55.1% (conf=100%, params=17)
+    2003-03-15:  53.7% (conf=100%, params=19)
+    2012-01-19:  52.4% (conf=100%, params=17)
+    2003-03-03:  51.7% (conf=100%, params=17)
+    2011-03-04:  50.1% (conf=100%, params=18)
+    2016-01-16:  49.7% (conf=100%, params=18)
+    2022-12-29:  49.2% (conf=100%, params=18)
+    2016-03-07:  49.0% (conf=100%, params=18)
+    2021-02-14:  48.0% (conf=100%, params=16)
+    2017-02-19:  46.6% (conf=100%, params=19)
+    2015-02-08:  46.5% (conf=100%, params=18)
+    2016-02-20:  44.5% (conf=100%, params=17)
+    2011-02-26:  41.0% (conf=100%, params=16)
+    2007-03-13:  39.6% (conf=100%, params=18)
+    2017-02-13:  37.6% (conf=100%, params=18)
+    2001-03-28:  37.2% (conf=100%, params=16)
+
+================================================================================
+THE PREDICTION STORY: WHAT TRIGGERS BLUE MARLIN ACTIVITY
+================================================================================
+
+  Based on paired analysis of 41 catch events in Perth Canyon:
+
+  THE 7-DAY PATTERN:
+  In the week before blue marlin are caught, a characteristic sequence of
+  ocean state changes occurs. The algorithm detects this "setup" by tracking
+  how conditions evolve from day -7 to day 0:
+
+  Phase 1 (days -7 to -5): BASELINE CONDITIONS
+    The canyon has its normal thermal structure with moderate fronts
+    and typical current patterns. This is the "before" state.
+
+  Phase 2 (days -4 to -2): TRANSITION
+    Warm water begins pushing into the canyon. SST minimum rises
+    (cold pockets being filled), SST range narrows (warm water
+    homogenizing), and the Leeuwin Current strengthens.
+
+  Phase 3 (days -1 to 0): CATCH CONDITIONS
+    A large body of warm, homogeneous water now sits over the canyon.
+    Current energy is elevated, the mixed layer is shallow (strong
+    stratification), and anticyclonic (warm-core) vorticity dominates.
+    Baitfish are compressed into a thin surface layer — marlin feed.
+
+  THE ALGORITHM:
+  For any given week of ocean data, the predictor:
+  1. Measures absolute conditions (SST, currents, CHL, MLD)
+  2. Computes 7-day and 3-day trends for each parameter
+  3. Calculates momentum (recent vs early) and acceleration
+  4. Scores each against the historical pattern
+  5. Combines scores using evidence-weighted parameters
+  6. Returns a 0-100 prediction score with confidence estimate
+
+================================================================================
+END OF REPORT
+================================================================================
