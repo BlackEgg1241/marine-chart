@@ -21,12 +21,12 @@
 .brand{display:flex;align-items:center;gap:8px;pointer-events:auto}
 .brand-title{font-size:14px;font-weight:700;color:#e2e8f0;letter-spacing:.08em;text-transform:uppercase}
 .brand-badge{font-size:8px;padding:2px 5px;border-radius:3px;background:rgba(56,189,248,.15);color:#38bdf8;font-weight:600;letter-spacing:.1em}
-.top-gradient{position:absolute;top:0;left:0;right:0;height:140px;background:linear-gradient(to bottom,#020617 0%,rgba(2,6,23,.92) 50%,rgba(2,6,23,0) 100%);z-index:9;pointer-events:none}
-@supports(padding-top:env(safe-area-inset-top)){.top-gradient{height:calc(env(safe-area-inset-top) + 140px)}}
+.top-gradient{position:absolute;top:0;left:0;right:0;height:70px;background:linear-gradient(to bottom,#020617 0%,rgba(2,6,23,.92) 60%,rgba(2,6,23,0) 100%);z-index:9;pointer-events:none}
+@supports(padding-top:env(safe-area-inset-top)){.top-gradient{height:calc(env(safe-area-inset-top) + 70px)}}
 
 /* GPS panel - top left under brand */
-.gps-panel{position:absolute;top:100px;left:10px;background:rgba(2,6,23,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:10px;padding:10px 14px;z-index:10;border:1px solid rgba(56,189,248,.15);min-width:180px;display:none}
-@supports(padding-top:env(safe-area-inset-top)){.gps-panel{top:calc(env(safe-area-inset-top) + 100px)}}
+.gps-panel{position:absolute;top:60px;left:10px;background:rgba(2,6,23,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:10px;padding:10px 14px;z-index:10;border:1px solid rgba(56,189,248,.15);min-width:180px;display:none}
+@supports(padding-top:env(safe-area-inset-top)){.gps-panel{top:calc(env(safe-area-inset-top) + 60px)}}
 .gps-panel.active{display:block}
 .gps-panel-header{font-size:11px;color:#38bdf8;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:6px}
 .gps-dot-live{width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 2s ease-in-out infinite}
@@ -34,13 +34,12 @@
 .gps-coords{font-size:11px;color:#cbd5e1;line-height:1.7}
 .gps-meta{display:flex;gap:14px;color:#94a3b8;font-size:10px}
 .gps-accuracy{color:#475569;font-size:9px}
-.gps-error{position:absolute;top:100px;left:10px;background:rgba(127,29,29,.85);backdrop-filter:blur(12px);border-radius:8px;padding:8px 12px;z-index:10;font-size:10px;color:#fca5a5;border:1px solid rgba(239,68,68,.3);max-width:240px;display:none}
-@supports(padding-top:env(safe-area-inset-top)){.gps-error{top:calc(env(safe-area-inset-top) + 100px)}}
+.gps-error{position:absolute;top:60px;left:10px;background:rgba(127,29,29,.85);backdrop-filter:blur(12px);border-radius:8px;padding:8px 12px;z-index:10;font-size:10px;color:#fca5a5;border:1px solid rgba(239,68,68,.3);max-width:240px;display:none}
+@supports(padding-top:env(safe-area-inset-top)){.gps-error{top:calc(env(safe-area-inset-top) + 60px)}}
 .gps-error.active{display:block}
 
-/* Basemap - compact row at top right */
-.basemap-sw{position:absolute;top:52px;right:54px;z-index:9;display:flex;gap:4px}
-@supports(padding-top:env(safe-area-inset-top)){.basemap-sw{top:calc(env(safe-area-inset-top) + 44px)}}
+/* Basemap - inline in top bar */
+.basemap-sw{display:flex;gap:4px;pointer-events:auto;margin-right:46px}
 .bm-btn{width:38px;height:38px;border-radius:7px;border:2px solid rgba(255,255,255,.1);cursor:pointer;overflow:hidden;position:relative;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.4)}
 .bm-btn.active{border-color:#38bdf8}
 .bm-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.75);color:#e2e8f0;font-size:6px;font-family:‘JetBrains Mono’,monospace;text-align:center;padding:1px 0;letter-spacing:.04em;font-weight:600;text-transform:uppercase}
@@ -103,8 +102,8 @@
 .gps-nav-btn.hidden{display:none}
 
 /* Catch panel */
-.catch-panel{position:absolute;top:100px;left:10px;z-index:10;display:none;background:rgba(2,6,23,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:10px;padding:10px 14px;border:1px solid rgba(251,191,36,.3);min-width:240px;max-width:320px}
-@supports(padding-top:env(safe-area-inset-top)){.catch-panel{top:calc(env(safe-area-inset-top) + 100px)}}
+.catch-panel{position:absolute;top:60px;left:10px;z-index:10;display:none;background:rgba(2,6,23,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:10px;padding:10px 14px;border:1px solid rgba(251,191,36,.3);min-width:240px;max-width:320px}
+@supports(padding-top:env(safe-area-inset-top)){.catch-panel{top:calc(env(safe-area-inset-top) + 60px)}}
 .catch-panel.active{display:block}
 .catch-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .catch-title{font-size:10px;color:#fbbf24;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
@@ -164,6 +163,11 @@
 <div class="top-gradient"></div>
 <div class="top-bar">
   <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">PROTO</span></div>
+  <div class="basemap-sw">
+    <div class="bm-btn active" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#1e5a8a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🗺️</span></div><div class="bm-label">Ocean</div></div>
+    <div class="bm-btn" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
+    <div class="bm-btn" id="bmStreet" onclick="setBasemap('street')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#d4cbb8,#bfb5a0);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🏙️</span></div><div class="bm-label">Street</div></div>
+  </div>
 </div>
 
 <!-- GPS info -->
@@ -173,14 +177,6 @@
   <div class="gps-coords" id="gpsCoords"></div>
 </div>
 <div class="gps-error" id="gpsError"></div>
-
-<!-- Basemap switcher - compact horizontal row -->
-
-<div class="basemap-sw">
-  <div class="bm-btn active" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#1e5a8a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🗺️</span></div><div class="bm-label">Ocean</div></div>
-  <div class="bm-btn" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
-  <div class="bm-btn" id="bmStreet" onclick="setBasemap('street')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#d4cbb8,#bfb5a0);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🏙️</span></div><div class="bm-label">Street</div></div>
-</div>
 
 
 <!-- Catch browser -->
