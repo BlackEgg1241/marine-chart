@@ -21,6 +21,7 @@
 .brand-title{font-size:14px;font-weight:700;color:#e2e8f0;letter-spacing:.08em;text-transform:uppercase}
 .brand-badge{font-size:8px;padding:2px 5px;border-radius:3px;background:rgba(56,189,248,.15);color:#38bdf8;font-weight:600;letter-spacing:.1em}
 .cursor-coord{font-size:10px;color:#475569;letter-spacing:.03em;padding-top:3px}
+.top-gradient{position:absolute;top:0;left:0;width:280px;height:50px;background:linear-gradient(to right,rgba(2,6,23,.85) 65%,transparent);z-index:9;pointer-events:none}
 
 /* GPS panel - top left under brand */
 .gps-panel{position:absolute;top:calc(env(safe-area-inset-top,8px)+44px);left:10px;background:rgba(2,6,23,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:10px;padding:10px 14px;z-index:10;border:1px solid rgba(56,189,248,.15);min-width:180px;display:none}
@@ -40,16 +41,21 @@
 .bm-btn.active{border-color:#38bdf8}
 .bm-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.75);color:#e2e8f0;font-size:6px;font-family:‘JetBrains Mono’,monospace;text-align:center;padding:1px 0;letter-spacing:.04em;font-weight:600;text-transform:uppercase}
 
-/* Date row - inline in bottom panel */
+/* Toolbar row - date bar + scale bar, outside collapsible panel */
+.toolbar-row{display:flex;align-items:center;justify-content:space-between;padding:2px 10px;pointer-events:auto}
+/* Date row */
 .date-row{display:none;align-items:center;gap:6px;background:rgba(2,6,23,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:8px;padding:5px 10px;border:1px solid rgba(139,92,246,.25);flex-shrink:0}
 .date-row.active{display:flex}
 .date-row label{font-size:8px;color:#a78bfa;font-weight:600;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
 .date-row input[type=date]{background:rgba(15,23,42,.8);border:1px solid rgba(255,255,255,.1);border-radius:5px;color:#e2e8f0;font-family:’JetBrains Mono’,monospace;font-size:11px;padding:3px 5px;outline:none;color-scheme:dark}
 .date-row .dn{background:none;border:1px solid rgba(255,255,255,.1);border-radius:5px;color:#94a3b8;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;flex-shrink:0}
+.date-row .dn.today-btn{width:auto;padding:0 8px;font-size:9px;font-weight:600;letter-spacing:.04em}
 
 /* Marlin legend - right side, above bottom controls */
-.marlin-legend{position:absolute;right:10px;bottom:175px;z-index:10;background:rgba(2,6,23,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:10px;padding:10px 12px;border:1px solid rgba(251,146,60,.25);display:none;width:175px}
-.marlin-legend.active{display:block}
+.marlin-legend{position:absolute;right:0;bottom:140px;z-index:10;background:rgba(2,6,23,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:10px 0 0 10px;padding:10px 12px;border:1px solid rgba(251,146,60,.25);border-right:none;width:175px;transform:translateX(calc(100% + 2px));transition:transform .3s ease}
+.marlin-legend.active{transform:translateX(0)}
+.ml-tab{position:absolute;left:-28px;top:50%;transform:translateY(-50%);width:28px;height:44px;background:rgba(2,6,23,.9);border:1px solid rgba(251,146,60,.25);border-right:none;border-radius:8px 0 0 8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fb923c;font-size:14px;transition:color .2s}
+.ml-tab:hover{color:#fbbf24}
 .marlin-legend h3{font-size:10px;color:#fb923c;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:5px}
 .ml-close{position:absolute;top:6px;right:8px;background:none;border:none;color:#64748b;font-size:16px;cursor:pointer;padding:2px}
 .ml-row{display:flex;align-items:center;gap:7px;margin-bottom:4px}
@@ -78,12 +84,7 @@
 .layer-row:last-child{margin-bottom:0}
 
 .layer-btn{display:flex;align-items:center;gap:5px;padding:8px 11px;border-radius:8px;border:1.5px solid rgba(255,255,255,.08);background:rgba(15,23,42,.78);color:#64748b;font-size:11px;font-family:inherit;font-weight:500;cursor:pointer;transition:all .2s;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);white-space:nowrap;flex-shrink:0}
-.layer-btn.on{border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.1);color:#7dd3fc}
-.layer-btn.on-green{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.1);color:#86efac}
-.layer-btn.on-red{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.1);color:#fca5a5}
-.layer-btn.on-purple{border-color:rgba(139,92,246,.35);background:rgba(139,92,246,.1);color:#c4b5fd}
-.layer-btn.on-orange{border-color:rgba(251,146,60,.4);background:rgba(251,146,60,.12);color:#fdba74}
-.layer-btn.on-cyan{border-color:rgba(6,182,212,.4);background:rgba(6,182,212,.12);color:#22d3ee}
+.layer-btn.on,.layer-btn.on-green,.layer-btn.on-red,.layer-btn.on-purple,.layer-btn.on-orange,.layer-btn.on-cyan{border-color:rgba(251,146,60,.45);background:rgba(251,146,60,.2);color:#000;font-weight:600}
 .layer-btn.primary{padding:9px 14px;font-size:12px;font-weight:600}
 .layer-btn .icon{font-size:13px}
 
@@ -117,13 +118,21 @@
 .maplibregl-ctrl-group button{width:32px!important;height:32px!important;border-color:rgba(255,255,255,.04)!important}
 .maplibregl-ctrl-group button:hover{background:rgba(56,189,248,.1)!important}
 .maplibregl-ctrl button .maplibregl-ctrl-icon{filter:invert(.65)!important}
-.maplibregl-ctrl-scale{background:rgba(2,6,23,.75)!important;color:#e2e8f0!important;border-color:#64748b!important;font-family:’JetBrains Mono’,monospace!important;font-size:10px!important;font-weight:600!important;border-radius:4px!important;padding:2px 8px!important;border-width:1.5px!important;border-top:none!important;z-index:5!important}
-.maplibregl-ctrl-bottom-left{bottom:var(--scale-bottom,180px)!important;transition:bottom .3s ease!important}
+.maplibregl-ctrl-scale{background:transparent!important;color:#000!important;border:none!important;border-bottom:2px solid #000!important;border-left:2px solid #000!important;border-right:2px solid #000!important;font-family:’JetBrains Mono’,monospace!important;font-size:9px!important;font-weight:700!important;border-radius:0!important;padding:1px 0!important;z-index:5!important;text-shadow:0 0 4px rgba(255,255,255,.9)!important}
+.maplibregl-ctrl-bottom-left{display:none!important}
 .maplibregl-popup-content{background:rgba(2,6,23,.92)!important;color:#e2e8f0!important;font-family:’JetBrains Mono’,monospace!important;font-size:11px!important;border-radius:8px!important;padding:8px 12px!important;border:1px solid rgba(251,146,60,.2)!important;box-shadow:0 4px 20px rgba(0,0,0,.5)!important}
 .maplibregl-popup-tip{border-top-color:rgba(2,6,23,.92)!important}
 .maplibregl-popup-close-button{color:#94a3b8!important;font-size:16px!important}
 .hp-title{font-weight:700;color:#fbbf24;font-size:11px;margin-bottom:2px}
 .hp-sub{font-size:9px;color:#94a3b8;line-height:1.4}
+/* Draggable info panel */
+.info-panel{position:absolute;z-index:15;display:none;background:rgba(2,6,23,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:8px;padding:0;border:1px solid rgba(251,146,60,.2);box-shadow:0 4px 20px rgba(0,0,0,.5);min-width:180px;max-width:260px;touch-action:none;user-select:none}
+.info-panel.active{display:block}
+.info-handle{display:flex;align-items:center;justify-content:center;padding:4px 12px 2px;cursor:grab;color:#64748b;font-size:10px;letter-spacing:3px;border-bottom:1px solid rgba(255,255,255,.04)}
+.info-handle:active{cursor:grabbing}
+.info-content{padding:6px 12px 8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#e2e8f0}
+.info-tip{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid rgba(2,6,23,.92)}
+.info-dot{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:#fb923c;box-shadow:0 0 6px rgba(251,146,60,.5)}
 </style>
 
 </head>
@@ -132,6 +141,7 @@
 
 <!-- Top bar -->
 
+<div class="top-gradient"></div>
 <div class="top-bar">
   <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">PROTO</span></div>
   <div class="cursor-coord" id="cursorCoord"></div>
@@ -171,10 +181,11 @@
 <!-- Marlin legend -->
 
 <div class="marlin-legend" id="marlinLegend">
-  <button class="ml-close" onclick="document.getElementById('marlinLegend').classList.remove('active')">✕</button>
+  <div class="ml-tab" id="legendTab" onclick="toggleLegend()">◀</div>
+  <button class="ml-close" onclick="toggleLegend()">✕</button>
   <h3>🐟 Marlin Zones</h3>
-  <div class="ml-row"><div class="ml-swatch" style="background:#06b6d4"></div><div class="ml-text"><span class="ml-species">Blue Prime</span> 24–27°C</div></div>
-  <div class="ml-row"><div class="ml-swatch" style="background:#22d3ee"></div><div class="ml-text"><span class="ml-species">Blue Good</span> 22–30°C</div></div>
+  <div class="ml-row"><div class="ml-swatch" style="height:12px;width:100%;background:linear-gradient(to right,#a5f3fc,#67e8f9,#22d3ee,#06b6d4,#0e7490,#164e63);border-radius:3px"></div></div>
+  <div class="ml-row" style="justify-content:space-between;gap:0"><div class="ml-text" style="font-size:7px;color:#94a3b8">15%</div><div class="ml-text" style="font-size:8px;color:#fbbf24;font-weight:600">Habitat Score</div><div class="ml-text" style="font-size:7px;color:#94a3b8">100%</div></div>
   <div class="ml-divider"></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#ff6b35;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">SST front (temp break)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#06b6d4;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Isotherm — blue prime (24–27°C)</div></div>
@@ -209,19 +220,29 @@
   <button class="gps-ctrl-btn hidden" id="btnCenter" onclick="centerOnGPS()" title="Center on GPS"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg></button>
 </div>
 
+<!-- Draggable info panel -->
+<div class="info-panel" id="infoPanel">
+  <div class="info-handle" id="infoHandle">⠿⠿⠿</div>
+  <div class="info-content" id="infoContent"></div>
+  <div class="info-tip"></div>
+  <div class="info-dot"></div>
+</div>
+
 <!-- Bottom controls -->
 <div class="bottom-controls" id="bottomPanel">
+  <div class="toolbar-row" id="toolbarRow">
+    <div class="date-row active" id="dateBar">
+      <label>Date</label>
+      <button class="dn" onclick="shiftDate(-1)">◀</button>
+      <input type="date" id="dateInput" onchange="onDateChange()">
+      <button class="dn" onclick="shiftDate(1)">▶</button>
+      <button class="dn today-btn" onclick="setToday()">Today</button>
+    </div>
+  </div>
   <div class="panel-toggle"><button class="panel-toggle-btn" onclick="togglePanel()" id="panelChevron">▼</button></div>
   <div class="panel-content" id="panelContent">
     <div class="layer-rows">
-      <!-- Date row -->
       <div class="layer-row">
-        <div class="date-row active" id="dateBar">
-          <label>Date</label>
-          <button class="dn" onclick="shiftDate(-1)">◀</button>
-          <input type="date" id="dateInput" onchange="onDateChange()">
-          <button class="dn" onclick="shiftDate(1)">▶</button>
-        </div>
         <button class="layer-btn primary" id="btnBlueMarlin" onclick="toggleLayer('blue_marlin')"><span class="icon">🐟</span> Blue Marlin</button>
         <button class="layer-btn on" id="btnSeamarks" onclick="toggleLayer('seamark')"><span class="icon">🚩</span> Marks</button>
         <button class="layer-btn" id="btnCatches" onclick="toggleCatches()"><span class="icon">🎣</span> Catches</button>
@@ -363,14 +384,20 @@ function initMap(){
   map=new maplibregl.Map({container:'map',style:{version:8,sources:src,layers:ly,glyphs:'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf'},center:[115.35,-31.97],zoom:10,maxZoom:18,minZoom:3,attributionControl:true});
   map.addControl(new maplibregl.NavigationControl({showCompass:true}),'top-right');
   map.addControl(new maplibregl.ScaleControl({maxWidth:130,unit:'nautical'}),'bottom-left');
+  // Move scale bar into toolbar row after render
+  setTimeout(function(){var sc=document.querySelector('.maplibregl-ctrl-scale');if(sc){document.getElementById('toolbarRow').appendChild(sc);sc.style.display='block'}},100);
   map.on('mousemove',function(e){document.getElementById('cursorCoord').textContent=fc(e.lngLat.lat,e.lngLat.lng)});
   map.on('moveend',function(){var c=map.getCenter();document.getElementById('cursorCoord').textContent=fc(c.lat,c.lng)});
   map.on('dragstart',function(){fGPS=false;document.getElementById('btnCenter').classList.remove('following')});
   map.on('click','spot-dot',function(e){var f=e.features[0];new maplibregl.Popup({offset:12}).setLngLat(f.geometry.coordinates).setHTML('<div style="font-weight:700;color:#fb923c;margin-bottom:3px">'+f.properties.name+'</div><div style="font-size:10px;color:#94a3b8;line-height:1.4">'+f.properties.desc+'</div>').addTo(map)});
   map.on('mouseenter','spot-dot',function(){map.getCanvas().style.cursor='pointer'});
   map.on('mouseleave','spot-dot',function(){map.getCanvas().style.cursor=''});
-  // Hover labels for all analytical line layers
-  var hPop=new maplibregl.Popup({closeButton:false,closeOnClick:false,offset:12,maxWidth:'240px'});
+  // Info panel - draggable, replaces hover popup
+  var infoEl=document.getElementById('infoPanel'),infoCt=document.getElementById('infoContent');
+  var infoPinned=false,iDrag=false,iDX=0,iDY=0;
+  infoEl.addEventListener('pointerdown',function(e){iDrag=true;iDX=e.clientX-infoEl.offsetLeft;iDY=e.clientY-infoEl.offsetTop;infoEl.setPointerCapture(e.pointerId);e.stopPropagation()});
+  document.addEventListener('pointermove',function(e){if(!iDrag)return;var x=e.clientX-iDX,y=e.clientY-iDY;infoEl.style.left=x+'px';infoEl.style.top=y+'px';var qx=x+infoEl.offsetWidth/2,qy=y+infoEl.offsetHeight+10;var lids=Object.keys(hInfo).filter(function(l){return map.getLayer(l)});var fs=map.queryRenderedFeatures([qx,qy],{layers:lids});if(fs.length){var f=fs[0],lid=f.layer.id;var vk=hVis[lid];if((!vk||LS[vk])&&hInfo[lid])infoCt.innerHTML=hInfo[lid](f.properties)}});
+  document.addEventListener('pointerup',function(){iDrag=false});
   var hInfo={
     'hs-blue':function(p){var h='<div class="hp-title">Blue Marlin Habitat — '+Math.round(p.intensity*100)+'%</div>';var items=[];var keys=[['s_sst','w_sst','SST'],['s_sst_front','w_sst_front','Fronts'],['s_sst_intrusion','w_sst_intrusion','LC'],['s_chl','w_chl','Chl'],['s_ssh','w_ssh','SSH'],['s_current','w_current','Current'],['s_convergence','w_convergence','Conv'],['s_mld','w_mld','MLD'],['s_o2','w_o2','O₂'],['s_clarity','w_clarity','Clarity']];for(var i=0;i<keys.length;i++){var k=keys[i];if(p[k[0]]!=null){items.push(k[2]+' '+Math.round(p[k[0]]*p[k[1]]*100)+'%')}}var mults=[];if(p.s_depth!=null)mults.push('Depth \u00d7'+Math.round(p.s_depth*100)+'%');if(p.s_shelf_break!=null)mults.push('Canyon \u00d7'+p.s_shelf_break);var sub=items.join(' \u00b7 ');if(mults.length)sub+=' | '+mults.join(' \u00b7 ');return h+'<div class="hp-sub">'+sub+'</div>'},
     'sst-front-line':function(p){return '<div class="hp-title">SST Front</div><div class="hp-sub">Sharp temperature gradient — prey aggregation zone</div>'},
@@ -402,10 +429,12 @@ function initMap(){
       if(!e.features||!e.features.length)return;
       var vk=hVis[lid];if(vk&&!LS[vk])return;
       map.getCanvas().style.cursor='crosshair';
-      hPop.setLngLat(e.lngLat).setHTML(hInfo[lid](e.features[0].properties)).addTo(map);
+      if(!infoPinned){infoCt.innerHTML=hInfo[lid](e.features[0].properties);infoEl.style.left=(e.point.x+15)+'px';infoEl.style.top=(e.point.y-15)+'px';infoEl.classList.add('active')}
     });
-    map.on('mouseleave',lid,function(){map.getCanvas().style.cursor='';hPop.remove()});
+    map.on('mouseleave',lid,function(){map.getCanvas().style.cursor='';if(!infoPinned)infoEl.classList.remove('active')});
   });
+  // Click to pin/unpin info panel
+  map.on('click',function(e){var lids=Object.keys(hInfo).filter(function(l){return map.getLayer(l)});var fs=map.queryRenderedFeatures(e.point,{layers:lids});if(fs.length){var f=fs[0],lid=f.layer.id;var vk=hVis[lid];if((!vk||LS[vk])&&hInfo[lid]){infoCt.innerHTML=hInfo[lid](f.properties);infoEl.style.left=(e.point.x+15)+'px';infoEl.style.top=(e.point.y-15)+'px';infoEl.classList.add('active');infoPinned=true}}else{infoPinned=false;infoEl.classList.remove('active')}});
   document.getElementById('dateInput').value=cDate;
   map.once('load',function(){loadDatedGeoJSON()});
 }
@@ -461,7 +490,7 @@ function toggleLayer(n){
     oxygen:['o2-hypoxic','o2-low','o2-adequate']};
   var bm={seamark:{id:'btnSeamarks',c:'on'},chlorophyll:{id:'btnChloro',c:'on-green'},sst:{id:'btnSST',c:'on-red'},ssh_visual:{id:'btnSSHMap',c:'on'},blue_marlin:{id:'btnBlueMarlin',c:'on-cyan'},sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},currents:{id:'btnCurrents',c:'on'},bathymetry:{id:'btnBathy',c:'on-orange'},clarity:{id:'btnClarity',c:'on'},ssh:{id:'btnSSH',c:'on-orange'},mld:{id:'btnMLD',c:'on'},oxygen:{id:'btnO2',c:'on'}};
   if(n==='blue_marlin'){
-    document.getElementById('marlinLegend').classList.toggle('active',a);
+    var ml=document.getElementById('marlinLegend');if(a){ml.classList.add('active');document.getElementById('legendTab').textContent='▶'}else{ml.classList.remove('active');document.getElementById('legendTab').textContent='◀'}
     sGL('hs-blue',a);sGL('isotherm-blue-prime',a);sGL('isotherm-blue-good',a);
     sGL('isotherm-label',a);
   } else {
@@ -559,7 +588,9 @@ function uM(p){
 function toggleGPS(){if(gM==='live'){sL();return}if(!navigator.geolocation){sE('Not supported');return}gM='live';fGPS=true;trk=[];hE();document.getElementById('btnGPS').classList.add('tracking');document.getElementById('gpsPanel').classList.add('active');document.getElementById('gpsDot').className='gps-dot-live';document.getElementById('gpsLabel').textContent='GPS ACTIVE';document.getElementById('btnCenter').classList.remove('hidden');gpsWId=navigator.geolocation.watchPosition(function(p){cPos={lat:p.coords.latitude,lng:p.coords.longitude,accuracy:p.coords.accuracy,heading:p.coords.heading,speed:p.coords.speed};uM(cPos)},function(e){sE(e.message);sL()},{enableHighAccuracy:true,maximumAge:3000,timeout:15000})}
 function sL(){if(gpsWId!==null){navigator.geolocation.clearWatch(gpsWId);gpsWId=null}gM='off';fGPS=false;document.getElementById('btnGPS').classList.remove('tracking');document.getElementById('gpsPanel').classList.remove('active');document.getElementById('btnCenter').classList.add('hidden')}
 function centerOnGPS(){if(cPos){map.flyTo({center:[cPos.lng,cPos.lat],zoom:14,duration:1200});fGPS=true;document.getElementById('btnCenter').classList.add('following')}}
-function togglePanel(){var p=document.getElementById('bottomPanel');p.classList.toggle('collapsed');var c=p.classList.contains('collapsed');document.getElementById('panelChevron').textContent=c?'▲':'▼';document.documentElement.style.setProperty('--scale-bottom',c?'35px':'180px')}
+function togglePanel(){var p=document.getElementById('bottomPanel');p.classList.toggle('collapsed');var c=p.classList.contains('collapsed');document.getElementById('panelChevron').textContent=c?'▲':'▼'}
+function setToday(){var t=new Date();cDate=t.toISOString().split('T')[0];document.getElementById('dateInput').value=cDate;rG()}
+function toggleLegend(){var l=document.getElementById('marlinLegend');l.classList.toggle('active');var tab=document.getElementById('legendTab');tab.textContent=l.classList.contains('active')?'▶':'◀'}
 
 // --- Historical catch browser ---
 var catchData=null,catchIdx=-1,catchActive=false,allCatchesOn=false;
