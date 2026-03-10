@@ -1,0 +1,259 @@
+{
+  "description": "Blue marlin activity prediction model for Perth Canyon, WA",
+  "basis": "Trained on 41 historical blue marlin catch events",
+  "lookback_days": 7,
+  "parameters": {
+    "sst_min": {
+      "predictive_power": 0.5116,
+      "weight": 0.1722,
+      "condition_on_catch_day": {
+        "mean": 22.26216218311612,
+        "std": 1.1464540400298096
+      },
+      "ideal_trend": {
+        "direction": "increasing",
+        "slope_mean": 0.03720599745857799,
+        "slope_std": 0.08207766241030244
+      },
+      "momentum": {
+        "mean": 0.08055695527937354,
+        "std": 0.37866034298090306
+      },
+      "significance": {
+        "p_value": 0.0065813294179615555,
+        "sign_consistency": 0.6341463414634146
+      }
+    },
+    "sst_range": {
+      "predictive_power": 0.4678,
+      "weight": 0.1574,
+      "condition_on_catch_day": {
+        "mean": 1.4222459078925411,
+        "std": 0.4126156514751663
+      },
+      "ideal_trend": {
+        "direction": "decreasing",
+        "slope_mean": -0.021177293486140333,
+        "slope_std": 0.05637871066613204
+      },
+      "momentum": {
+        "mean": -0.07864992061584461,
+        "std": 0.24549284361165744
+      },
+      "significance": {
+        "p_value": 0.02239708778256033,
+        "sign_consistency": 0.6585365853658536
+      }
+    },
+    "sst_mean": {
+      "predictive_power": 0.4578,
+      "weight": 0.1541,
+      "condition_on_catch_day": {
+        "mean": 23.050947806228226,
+        "std": 1.1206780350205134
+      },
+      "ideal_trend": {
+        "direction": "increasing",
+        "slope_mean": 0.03220788652706856,
+        "slope_std": 0.08542918042046117
+      },
+      "momentum": {
+        "mean": 0.06529929347290887,
+        "std": 0.36658327026504167
+      },
+      "significance": {
+        "p_value": 0.0219366476046921,
+        "sign_consistency": 0.6341463414634146
+      }
+    },
+    "sst_std": {
+      "predictive_power": 0.3697,
+      "weight": 0.1244,
+      "condition_on_catch_day": {
+        "mean": 0.3552962470065043,
+        "std": 0.1178767311782112
+      },
+      "ideal_trend": {
+        "direction": "decreasing",
+        "slope_mean": -0.005298334150300303,
+        "slope_std": 0.0165581330122471
+      },
+      "momentum": {
+        "mean": -0.016478755999898915,
+        "std": 0.07241671193674658
+      },
+      "significance": {
+        "p_value": 0.0497112302545709,
+        "sign_consistency": 0.6341463414634146
+      }
+    },
+    "sst_gradient": {
+      "predictive_power": 0.1942,
+      "weight": 0.0654,
+      "condition_on_catch_day": {
+        "mean": 0.16475741357994714,
+        "std": 0.04109889999100684
+      },
+      "ideal_trend": {
+        "direction": "decreasing",
+        "slope_mean": -0.0021151157412601282,
+        "slope_std": 0.007793546023530473
+      },
+      "momentum": {
+        "mean": -0.0053730275006332855,
+        "std": 0.033795902910943476
+      },
+      "significance": {
+        "p_value": 0.09381726677134047,
+        "sign_consistency": 0.6097560975609756
+      }
+    },
+    "leeuwin_strength": {
+      "predictive_power": 0.1914,
+      "weight": 0.0644,
+      "condition_on_catch_day": {
+        "mean": 0.15613185478510655,
+        "std": 0.11012974156338752
+      },
+      "ideal_trend": {
+        "direction": "increasing",
+        "slope_mean": 0.006398047579714159,
+        "slope_std": 0.029692184107792476
+      },
+      "momentum": {
+        "mean": 0.01913237282324855,
+        "std": 0.13718157044272228
+      },
+      "significance": {
+        "p_value": 0.18056589777125157,
+        "sign_consistency": 0.6341463414634146
+      }
+    },
+    "current_speed_max": {
+      "predictive_power": 0.1593,
+      "weight": 0.0536,
+      "condition_on_catch_day": {
+        "mean": 0.830987013980308,
+        "std": 0.20526228195405352
+      },
+      "ideal_trend": {
+        "direction": "increasing",
+        "slope_mean": 0.0051763344121960085,
+        "slope_std": 0.02278779201465722
+      },
+      "momentum": {
+        "mean": 0.017266057312146435,
+        "std": 0.10328719163404741
+      },
+      "significance": {
+        "p_value": 0.15859433643498236,
+        "sign_consistency": 0.6097560975609756
+      }
+    },
+    "current_dir_degrees": {
+      "predictive_power": 0.1415,
+      "weight": 0.0476,
+      "condition_on_catch_day": {
+        "mean": 180.16011946452704,
+        "std": 38.643229668542475
+      },
+      "ideal_trend": {
+        "direction": "decreasing",
+        "slope_mean": -3.223120302315008,
+        "slope_std": 14.019894870118936
+      },
+      "momentum": {
+        "mean": -7.07167687175495,
+        "std": 72.60252621110905
+      },
+      "significance": {
+        "p_value": 0.15375073384124854,
+        "sign_consistency": 0.5853658536585367
+      }
+    },
+    "sst_max": {
+      "predictive_power": 0.1245,
+      "weight": 0.0419,
+      "condition_on_catch_day": {
+        "mean": 23.684408091008663,
+        "std": 1.1094844100271264
+      },
+      "ideal_trend": {
+        "direction": "increasing",
+        "slope_mean": 0.016028703972437653,
+        "slope_std": 0.10211458161830828
+      },
+      "momentum": {
+        "mean": 0.0019070346635289307,
+        "std": 0.4538225725265234
+      },
+      "significance": {
+        "p_value": 0.3267987254249385,
+        "sign_consistency": 0.5609756097560976
+      }
+    },
+    "mld_mean": {
+      "predictive_power": 0.1202,
+      "weight": 0.0405,
+      "condition_on_catch_day": {
+        "mean": 18.968299957622843,
+        "std": 7.986285709758996
+      },
+      "ideal_trend": {
+        "direction": "decreasing",
+        "slope_mean": -0.33443686138648154,
+        "slope_std": 1.873191046555835
+      },
+      "momentum": {
+        "mean": -0.31852194758722685,
+        "std": 9.397636921885859
+      },
+      "significance": {
+        "p_value": 0.26554968151056463,
+        "sign_consistency": 0.5853658536585367
+      }
+    },
+    "mld_std": {
+      "predictive_power": 0.1173,
+      "weight": 0.0395,
+      "condition_on_catch_day": {
+        "mean": 4.531429410851611,
+        "std": 4.090117987671702
+      },
+      "ideal_trend": {
+        "direction": "decreasing",
+        "slope_mean": -0.11119671443551636,
+        "slope_std": 0.7218061587036441
+      },
+      "momentum": {
+        "mean": 0.0077941209386608885,
+        "std": 3.7121467415941294
+      },
+      "significance": {
+        "p_value": 0.33575360902983997,
+        "sign_consistency": 0.5853658536585367
+      }
+    },
+    "current_speed_mean": {
+      "predictive_power": 0.116,
+      "weight": 0.039,
+      "condition_on_catch_day": {
+        "mean": 0.24903713889786022,
+        "std": 0.07478381176891351
+      },
+      "ideal_trend": {
+        "direction": "increasing",
+        "slope_mean": -0.0004363777646683553,
+        "slope_std": 0.014576431039779392
+      },
+      "momentum": {
+        "mean": -0.0021175936321388617,
+        "std": 0.05781523429489075
+      },
+      "significance": {
+        "p_value": 0.850784174958103,
+        "sign_consistency": 0.5365853658536586
+      }
+    }
+  }
+}
