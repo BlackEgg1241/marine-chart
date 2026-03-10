@@ -400,7 +400,7 @@ function initMap(){
   map.addControl(gpsc,'top-right');
   map.addControl(new maplibregl.ScaleControl({maxWidth:130,unit:'nautical'}),'bottom-left');
   // Move scale bar into toolbar row after render
-  setTimeout(function(){var sc=document.querySelector('.maplibregl-ctrl-scale');if(sc){document.getElementById('toolbarRow').appendChild(sc);sc.style.display='block'}},100);
+  setTimeout(function(){var sc=document.querySelector('.maplibregl-ctrl-scale');if(sc){document.getElementById('toolbarRow').appendChild(sc);sc.style.display='block'}var bsw=document.querySelector('.basemap-sw');var tg=document.querySelector('.top-gradient');if(bsw&&tg){tg.style.width=(bsw.getBoundingClientRect().left-4)+'px'}},100);
   map.on('dragstart',function(){fGPS=false;document.getElementById('btnCenter').classList.remove('following')});
   map.on('click','spot-dot',function(e){var f=e.features[0];var c=f.geometry.coordinates;new maplibregl.Popup({offset:12}).setLngLat(c).setHTML('<div style="font-weight:700;color:#fb923c;margin-bottom:3px">'+f.properties.name+'</div><div style="font-size:10px;color:#94a3b8;line-height:1.4">'+f.properties.desc+'</div><div style="font-size:9px;color:#64748b;margin-top:4px">'+fc(c[1],c[0])+'</div>').addTo(map)});
   map.on('mouseenter','spot-dot',function(){map.getCanvas().style.cursor='pointer'});
