@@ -21,8 +21,8 @@
 .brand{display:flex;align-items:center;gap:8px;pointer-events:auto}
 .brand-title{font-size:14px;font-weight:700;color:#e2e8f0;letter-spacing:.08em;text-transform:uppercase}
 .brand-badge{font-size:8px;padding:2px 5px;border-radius:3px;background:rgba(56,189,248,.15);color:#38bdf8;font-weight:600;letter-spacing:.1em}
-.top-gradient{position:absolute;top:0;left:0;right:0;height:70px;background:linear-gradient(to bottom,#020617 0%,rgba(2,6,23,.92) 60%,rgba(2,6,23,0) 100%);z-index:9;pointer-events:none}
-@supports(padding-top:env(safe-area-inset-top)){.top-gradient{height:calc(env(safe-area-inset-top) + 70px)}}
+.top-gradient{position:absolute;top:0;left:0;width:calc(100% - 50px);height:60px;background:linear-gradient(180deg,rgba(2,6,23,.88) 0%,rgba(2,6,23,.5) 65%,rgba(2,6,23,0) 100%);z-index:9;pointer-events:none}
+@supports(padding-top:env(safe-area-inset-top)){.top-gradient{height:calc(env(safe-area-inset-top) + 60px)}}
 
 /* GPS panel - top left under brand */
 .gps-panel{position:absolute;top:60px;left:10px;background:rgba(2,6,23,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:10px;padding:10px 14px;z-index:10;border:1px solid rgba(56,189,248,.15);min-width:180px;display:none}
