@@ -89,7 +89,7 @@
 .layer-btn .icon{font-size:13px}
 
 /* GPS control - styled like MapLibre controls, positioned below zoom */
-.gps-ctrl{position:absolute;top:calc(env(safe-area-inset-top,8px)+120px);right:10px;z-index:9;display:flex;flex-direction:column;gap:4px}
+.gps-ctrl{position:absolute;top:calc(env(safe-area-inset-top,8px)+165px);right:10px;z-index:9;display:flex;flex-direction:column;gap:4px}
 .gps-ctrl-btn{width:32px!important;height:32px!important;border:none;background:rgba(15,23,42,.8)!important;color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;border:1px solid rgba(255,255,255,.06)!important;border-radius:8px!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;box-shadow:0 2px 12px rgba(0,0,0,.4)!important}
 .gps-ctrl-btn:hover{background:rgba(56,189,248,.1)!important}
 .gps-ctrl-btn.tracking{background:rgba(34,197,94,.15)!important;color:#86efac;border-color:rgba(34,197,94,.3)!important}
@@ -97,7 +97,7 @@
 .gps-ctrl-btn.hidden{display:none}
 
 /* Catch panel */
-.catch-panel{position:absolute;top:calc(env(safe-area-inset-top,8px)+90px);left:50%;transform:translateX(-50%);z-index:10;display:none;background:rgba(2,6,23,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:10px;padding:10px 14px;border:1px solid rgba(251,191,36,.3);min-width:240px;max-width:320px}
+.catch-panel{position:absolute;top:calc(env(safe-area-inset-top,8px)+56px);left:10px;z-index:10;display:none;background:rgba(2,6,23,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:10px;padding:10px 14px;border:1px solid rgba(251,191,36,.3);min-width:240px;max-width:320px}
 .catch-panel.active{display:block}
 .catch-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .catch-title{font-size:10px;color:#fbbf24;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
@@ -230,15 +230,6 @@
 
 <!-- Bottom controls -->
 <div class="bottom-controls" id="bottomPanel">
-  <div class="toolbar-row" id="toolbarRow">
-    <div class="date-row active" id="dateBar">
-      <label>Date</label>
-      <button class="dn" onclick="shiftDate(-1)">◀</button>
-      <input type="date" id="dateInput" onchange="onDateChange()">
-      <button class="dn" onclick="shiftDate(1)">▶</button>
-      <button class="dn today-btn" onclick="setToday()">Today</button>
-    </div>
-  </div>
   <div class="panel-toggle"><button class="panel-toggle-btn" onclick="togglePanel()" id="panelChevron">▼</button></div>
   <div class="panel-content" id="panelContent">
     <div class="layer-rows">
@@ -262,6 +253,15 @@
         <button class="layer-btn on" id="btnMLD" onclick="toggleLayer('mld')"><span class="icon">🫧</span> MLD</button>
         <button class="layer-btn on" id="btnO2" onclick="toggleLayer('oxygen')"><span class="icon">💨</span> O₂</button>
       </div>
+    </div>
+  </div>
+  <div class="toolbar-row" id="toolbarRow">
+    <div class="date-row active" id="dateBar">
+      <label>Date</label>
+      <button class="dn" onclick="shiftDate(-1)">◀</button>
+      <input type="date" id="dateInput" onchange="onDateChange()">
+      <button class="dn" onclick="shiftDate(1)">▶</button>
+      <button class="dn today-btn" onclick="setToday()">Today</button>
     </div>
   </div>
 </div>
