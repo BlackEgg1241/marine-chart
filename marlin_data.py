@@ -547,21 +547,21 @@ def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None, tif_
 # Composite score 0–1 per grid cell based on all available ocean variables.
 # Weights reflect relative importance for blue marlin habitat selection.
 BLUE_MARLIN_WEIGHTS = {
-    # Optimized by Optuna (100 trials, 71 historical catches, 53 dates).
-    # Result: mean 89%, median 92%, 97% >= 70%, min floor 68%.
-    "sst":          0.29,   # SST — primary habitat driver
-    "sst_front":    0.16,   # SST gradient — prey aggregation at fronts
-    "sst_intrusion":0.08,   # Cross-shelf SST gradient — Leeuwin Current
-    "chl":          0.06,   # Chlorophyll — bait productivity indicator
-    "ssh":          0.10,   # Sea level anomaly — warm water mass + eddies
-    "current":      0.10,   # Current favorability — warm water advection
+    # Optimized by Optuna (200 trials, 45 blue marlin catches, corrected DDM coords).
+    # Result: mean 90%, median 93%, 99% >= 70%, min floor 65%.
+    "sst":          0.31,   # SST — primary habitat driver
+    "sst_front":    0.09,   # SST gradient — prey aggregation at fronts
+    "sst_intrusion":0.03,   # Cross-shelf SST gradient — Leeuwin Current
+    "chl":          0.08,   # Chlorophyll — bait productivity indicator
+    "ssh":          0.19,   # Sea level anomaly — warm water mass + eddies
+    "current":      0.12,   # Current favorability — warm water advection
     "convergence":  0.04,   # Current convergence — bait aggregation
-    "mld":          0.12,   # Mixed layer depth — shallow = catchable
-    "o2":           0.02,   # Dissolved oxygen at 100m (rarely limiting)
-    "clarity":      0.02,   # Water clarity (rarely limiting offshore)
+    "mld":          0.08,   # Mixed layer depth — shallow = catchable
+    "o2":           0.04,   # Dissolved oxygen at 100m
+    "clarity":      0.04,   # Water clarity
     # Static factors applied as MULTIPLIERS, not additive:
     # depth:       0->1 gate (zero if <100m)
-    # shelf_break: 1.0->1.6 boost (canyon walls get up to +60%)
+    # shelf_break: 1.0->1.53 boost (canyon walls get up to +53%)
 }
 
 # Intensity bands for contourf polygon export
@@ -656,8 +656,8 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
     sst_filled[land] = np.nanmean(sst)
     sst_smooth = gaussian_filter(sst_filled, sigma=0.5)
     sst_smooth[land] = np.nan
-    optimal_temp = getattr(sys.modules[__name__], '_opt_sst_optimal', 24.0)
-    sst_sigma = getattr(sys.modules[__name__], '_opt_sst_sigma', 3.0)
+    optimal_temp = getattr(sys.modules[__name__], '_opt_sst_optimal', 23.4)
+    sst_sigma = getattr(sys.modules[__name__], '_opt_sst_sigma', 2.97)
     sst_score = np.exp(-0.5 * ((sst_smooth - optimal_temp) / sst_sigma) ** 2)
     _add_score("sst", sst_score)
 
@@ -683,7 +683,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
     front_score = front_score * sst_score
     # Floor: warm water (SST score > 0.6) gets minimum front score
     # Validated: catches in warm water without fronts still productive (54%)
-    _front_floor = getattr(sys.modules[__name__], '_opt_front_floor', 0.15)
+    _front_floor = getattr(sys.modules[__name__], '_opt_front_floor', 0.07)
     warm_mask = sst_score > 0.6
     front_score = np.where(warm_mask, np.maximum(front_score, _front_floor), front_score)
     _add_score("sst_front", front_score)
@@ -710,8 +710,8 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
             if len(ns_valid) > 0 and len(os_valid) > 0:
                 cross_grad[yi, xi] = np.mean(ns_valid) - np.mean(os_valid)
     # Score: positive gradient (warm inshore) = good
-    _intrusion_thresh = getattr(sys.modules[__name__], '_opt_intrusion_threshold', 0.17)
-    _intrusion_baseline = getattr(sys.modules[__name__], '_opt_intrusion_baseline', 0.18)
+    _intrusion_thresh = getattr(sys.modules[__name__], '_opt_intrusion_threshold', 0.50)
+    _intrusion_baseline = getattr(sys.modules[__name__], '_opt_intrusion_baseline', 0.24)
     intrusion_score = np.clip(cross_grad / _intrusion_thresh, 0, 1)
     # Warm-water baseline: if SST is suitable, give minimum score even without
     # a clear cross-shelf gradient (LC may be present without E-W gradient)
@@ -733,8 +733,8 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
             chl_lats = chl_da.latitude.values if "latitude" in chl_da.dims else chl_da.lat.values
             chl_data = _interp_to_grid(chl_da.values.astype(float), chl_lons, chl_lats)
             # Peak score at optimal CHL, Gaussian falloff in log space
-            _chl_opt = getattr(sys.modules[__name__], '_opt_chl_optimal', 0.18)
-            _chl_sig = getattr(sys.modules[__name__], '_opt_chl_sigma', 0.58)
+            _chl_opt = getattr(sys.modules[__name__], '_opt_chl_optimal', 0.22)
+            _chl_sig = getattr(sys.modules[__name__], '_opt_chl_sigma', 0.79)
             chl_log = np.log10(np.clip(chl_data, 0.01, 10))
             optimal_chl = np.log10(_chl_opt)
             chl_score = np.exp(-0.5 * ((chl_log - optimal_chl) / _chl_sig) ** 2)
@@ -936,7 +936,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
             # Combined: speed × upstream warmth, with eastward bonus
             # Validated: catches occur in all current directions, not just eastward.
             # Base score = speed × upstream_temp; eastward adds 30% bonus
-            _east_bonus_factor = getattr(sys.modules[__name__], '_opt_east_bonus', 0.29)
+            _east_bonus_factor = getattr(sys.modules[__name__], '_opt_east_bonus', 0.18)
             east_bonus = 1.0 + _east_bonus_factor * east_score
             current_score = speed_score * upstream_temp_score * east_bonus
             current_score = np.clip(current_score, 0, 1)
@@ -967,7 +967,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
             # Bait trap synergy: convergence is more effective with strong current
             # (currents push bait into convergence zones = active aggregation)
             # Validated: both high = 69%, neither = 53% at catch locations
-            _synergy = getattr(sys.modules[__name__], '_opt_synergy_factor', 0.45)
+            _synergy = getattr(sys.modules[__name__], '_opt_synergy_factor', 0.36)
             synergy = 1.0 + _synergy * np.clip(current_score, 0, 1)
             conv_score_synergy = np.clip(conv_score * synergy, 0, 1)
             conv_score_synergy[land] = np.nan
@@ -989,7 +989,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
         dmask = ~np.isnan(depth_mult) & valid
         final[dmask] *= depth_mult[dmask]  # zero out shallow water
     if "shelf_break" in sub_scores:
-        _shelf_boost = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.60)
+        _shelf_boost = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.53)
         shelf_mult = 1.0 + _shelf_boost * sub_scores["shelf_break"]
         smask = ~np.isnan(shelf_mult) & valid
         final[smask] *= shelf_mult[smask]
@@ -1040,7 +1040,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
                     result[name] = {"score": mean_score, "weight": -1}
                 elif name == "shelf_break":
                     # Shelf break is a boost multiplier: show as ×N
-                    _sb = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.60)
+                    _sb = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.53)
                     result[name] = {"score": round(1.0 + _sb * mean_score, 2), "weight": -2}
                 else:
                     result[name] = {"score": mean_score, "weight": w}

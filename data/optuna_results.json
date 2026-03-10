@@ -1,48 +1,48 @@
 {
-  "best_objective": 0.8967126180954412,
+  "best_objective": 0.9083997096635456,
   "metrics": {
-    "mean": 0.8906,
-    "median": 0.9194,
+    "mean": 0.9124,
+    "median": 0.9428,
     "pct50": 1.0,
-    "pct70": 0.9718,
-    "min": 0.6798
+    "pct70": 0.9859,
+    "min": 0.6378
   },
   "weights": {
-    "w_sst": 0.2896,
-    "w_sst_front": 0.1595,
-    "w_sst_intrusion": 0.0813,
-    "w_chl": 0.0639,
-    "w_ssh": 0.1008,
-    "w_current": 0.0992,
-    "w_convergence": 0.0432,
-    "w_mld": 0.1231,
-    "w_o2": 0.0211,
-    "w_clarity": 0.0185
+    "w_sst": 0.3054,
+    "w_sst_front": 0.0887,
+    "w_sst_intrusion": 0.0258,
+    "w_chl": 0.0784,
+    "w_ssh": 0.1873,
+    "w_current": 0.1188,
+    "w_convergence": 0.0379,
+    "w_mld": 0.0795,
+    "w_o2": 0.039,
+    "w_clarity": 0.0393
   },
   "params": {
-    "chl_optimal": 0.1815,
-    "chl_sigma": 0.5793,
-    "east_bonus": 0.2934,
-    "front_floor": 0.1469,
-    "intrusion_baseline": 0.1807,
-    "intrusion_threshold": 0.1675,
-    "shelf_boost": 0.5972,
-    "sst_optimal": 24.0388,
-    "sst_sigma": 2.9992,
-    "synergy_factor": 0.4508
+    "chl_optimal": 0.2154,
+    "chl_sigma": 0.7869,
+    "east_bonus": 0.1817,
+    "front_floor": 0.0736,
+    "intrusion_baseline": 0.2409,
+    "intrusion_threshold": 0.4973,
+    "shelf_boost": 0.533,
+    "sst_optimal": 23.4447,
+    "sst_sigma": 2.9705,
+    "synergy_factor": 0.3572
   },
   "raw_weights": {
-    "w_sst": 0.2539,
-    "w_sst_front": 0.1398,
-    "w_sst_intrusion": 0.0712,
-    "w_chl": 0.056,
-    "w_ssh": 0.0883,
-    "w_current": 0.0869,
-    "w_convergence": 0.0379,
-    "w_mld": 0.1079,
-    "w_o2": 0.0185,
-    "w_clarity": 0.0162
+    "w_sst": 0.2637,
+    "w_sst_front": 0.0766,
+    "w_sst_intrusion": 0.0223,
+    "w_chl": 0.0677,
+    "w_ssh": 0.1618,
+    "w_current": 0.1026,
+    "w_convergence": 0.0327,
+    "w_mld": 0.0686,
+    "w_o2": 0.0337,
+    "w_clarity": 0.0339
   },
-  "n_trials": 100,
-  "timestamp": "2026-03-09T20:48:58.797804Z"
+  "n_trials": 200,
+  "timestamp": "2026-03-10T02:25:58.548172Z"
 }
