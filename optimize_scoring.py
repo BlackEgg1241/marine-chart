@@ -38,12 +38,21 @@ CSV_PATH = r"C:\Users\User\Downloads\Export.csv"
 BASE_DIR = "data"
 
 
+def ddm_to_dd(raw_str, negative=False):
+    """Convert degrees.minutes string (e.g. '31.49') to decimal degrees."""
+    val = float(raw_str)
+    degrees = int(val)
+    minutes = (val - degrees) * 100
+    dd = degrees + minutes / 60.0
+    return -dd if negative else dd
+
+
 def load_catches():
     catches = []
     with open(CSV_PATH, encoding="utf-8") as f:
         for r in csv.DictReader(f):
-            lat = -float(r["Latitude"].strip().replace("S", ""))
-            lon = float(r["Longitude"].strip().replace("E", ""))
+            lat = ddm_to_dd(r["Latitude"].strip().replace("S", ""), negative=True)
+            lon = ddm_to_dd(r["Longitude"].strip().replace("E", ""), negative=False)
             catches.append({
                 "date": r["Release_Date"][:10], "lat": lat, "lon": lon,
                 "species": r["Species_Name"],
