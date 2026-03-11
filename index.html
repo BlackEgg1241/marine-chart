@@ -152,6 +152,23 @@
 .measure-total{position:absolute;top:44px;left:14px;z-index:10;display:none;background:rgba(2,6,23,.9);backdrop-filter:blur(16px);border-radius:8px;padding:6px 14px;border:1px solid rgba(251,146,60,.3);font-size:11px;color:#fbbf24;font-weight:600;white-space:nowrap}
 @supports(padding-top:env(safe-area-inset-top)){.measure-total{top:calc(env(safe-area-inset-top) + 36px)}}
 .measure-total.active{display:block}
+/* Forecast panel */
+.fc-panel{position:absolute;bottom:0;left:0;right:0;z-index:12;display:none;background:rgba(2,6,23,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(139,92,246,.3);padding:0;transition:transform .3s ease;max-height:55vh;overflow-y:auto}
+.fc-panel.active{display:block}
+.fc-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 6px}
+.fc-title{font-size:11px;color:#a78bfa;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.fc-close{background:none;border:none;color:#64748b;font-size:16px;cursor:pointer;padding:2px 6px}
+.fc-close:hover{color:#e2e8f0}
+.fc-chart-wrap{padding:0 14px;height:120px;position:relative}
+.fc-chart-wrap canvas{width:100%;height:100%}
+.fc-info{padding:8px 14px 6px;display:flex;gap:12px}
+.fc-info-block{flex:1;background:rgba(15,23,42,.6);border-radius:8px;padding:8px 10px;border:1px solid rgba(255,255,255,.06)}
+.fc-info-label{font-size:7px;color:#64748b;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.fc-info-val{font-size:18px;font-weight:700;color:#e2e8f0}
+.fc-info-sub{font-size:8px;color:#94a3b8;margin-top:2px}
+.fc-trend{padding:4px 14px 10px}
+.fc-trend-text{font-size:9px;color:#94a3b8;line-height:1.5}
+.fc-trend-text strong{color:#e2e8f0;font-weight:600}
 </style>
 
 </head>
@@ -239,6 +256,33 @@
   <div class="info-dot"></div>
 </div>
 
+<!-- Forecast panel -->
+<div class="fc-panel" id="fcPanel">
+  <div class="fc-header">
+    <span class="fc-title">7-Day Forecast — Accessible Trench Zone</span>
+    <button class="fc-close" onclick="closeForecast()">✕</button>
+  </div>
+  <div class="fc-chart-wrap"><canvas id="fcChart"></canvas></div>
+  <div class="fc-info">
+    <div class="fc-info-block">
+      <div class="fc-info-label">Zone Peak</div>
+      <div class="fc-info-val" id="fcZoneMax">—</div>
+      <div class="fc-info-sub" id="fcZoneDate"></div>
+    </div>
+    <div class="fc-info-block">
+      <div class="fc-info-label">Conditions</div>
+      <div class="fc-info-val" id="fcModel">—</div>
+      <div class="fc-info-sub" id="fcModelSub"></div>
+    </div>
+    <div class="fc-info-block">
+      <div class="fc-info-label">7-Day Trend</div>
+      <div class="fc-info-val" id="fcTrend">—</div>
+      <div class="fc-info-sub" id="fcTrendSub"></div>
+    </div>
+  </div>
+  <div class="fc-trend"><div class="fc-trend-text" id="fcTrendText"></div></div>
+</div>
+
 <!-- Bottom controls -->
 <div class="bottom-controls" id="bottomPanel">
   <div class="panel-toggle"><button class="panel-toggle-btn" onclick="togglePanel()" id="panelChevron">▼</button></div>
@@ -273,7 +317,7 @@
       <input type="date" id="dateInput" onchange="onDateChange()">
       <button class="dn" onclick="shiftDate(1)">▶</button>
       <button class="dn today-btn" onclick="setToday()">Today</button>
-      <span class="date-indicator obs" id="dateIndicator">OBS</span>
+      <span class="date-indicator obs" id="dateIndicator" onclick="onDateIndClick()" style="cursor:pointer">OBS</span>
     </div>
   </div>
 </div>
@@ -476,22 +520,32 @@ function loadDatedGeoJSON(){
   var gj={'sst-fronts':'sst_fronts.geojson','chl-edges':'chl_edges.geojson','currents':'currents.geojson','water-clarity':'water_clarity.geojson','ssh-eddies':'ssh_eddies.geojson','mld':'mld_contours.geojson','oxygen':'oxygen_contours.geojson','blue-hotspots':'blue_marlin_hotspots.geojson'};
   Object.keys(gj).forEach(function(src){
     if(!map.getSource(src))return;
-    var dated='data/'+cDate+'/'+gj[src],fallback='data/'+gj[src];
+    var dated='data/'+cDate+'/'+gj[src];
+    var pred='data/prediction/'+cDate+'/'+gj[src];
+    var fallback='data/'+gj[src];
+    // Try dated obs first, then prediction, then fallback
     fetch(dated).then(function(r){
       if(!r.ok)throw new Error('not found');
       return r.json();
     }).then(function(data){
       map.getSource(src).setData(data);
     }).catch(function(){
-      fetch(fallback).then(function(r){return r.json()}).then(function(data){
+      fetch(pred).then(function(r){
+        if(!r.ok)throw new Error('not found');
+        return r.json();
+      }).then(function(data){
         map.getSource(src).setData(data);
-      }).catch(function(){});
+      }).catch(function(){
+        fetch(fallback).then(function(r){return r.json()}).then(function(data){
+          map.getSource(src).setData(data);
+        }).catch(function(){});
+      });
     });
   });
 }
 
-function onDateChange(){cDate=document.getElementById('dateInput').value;rG();updateDateInd()}
-function shiftDate(d){var dt=new Date(cDate);dt.setDate(dt.getDate()+d);cDate=dt.toISOString().split('T')[0];document.getElementById('dateInput').value=cDate;rG()}
+function onDateChange(){cDate=document.getElementById('dateInput').value;if(fcMaxDate&&cDate>fcMaxDate)cDate=fcMaxDate;document.getElementById('dateInput').value=cDate;rG();updateDateInd();if(fcOpen){drawForecastChart();updateForecastInfo()}}
+function shiftDate(d){var dt=new Date(cDate);dt.setDate(dt.getDate()+d);var nd=dt.toISOString().split('T')[0];if(d>0&&fcMaxDate&&nd>fcMaxDate)return;cDate=nd;document.getElementById('dateInput').value=cDate;rG();if(fcOpen){drawForecastChart();updateForecastInfo()}}
 
 function rG(){
   // Update GIBS date (2-day latency from selected date)
@@ -832,9 +886,167 @@ function showCtx(x,y,items){
 }
 function hideCtx(){document.getElementById('ctxMenu').classList.remove('active')}
 
+// --- Forecast panel ---
+var fcData=null,fcOpen=false,fcMaxDate=null;
+
+function loadForecast(){
+  fetch('data/prediction/forecast_summary.json').then(function(r){return r.json()}).then(function(d){
+    fcData=d;
+    // Set max forward date to last forecast day with zone data
+    for(var i=d.days.length-1;i>=0;i--){if(d.days[i].zone_max!=null){fcMaxDate=d.days[i].date;break}}
+    if(fcMaxDate){document.getElementById('dateInput').setAttribute('max',fcMaxDate)}
+    console.log('Forecast loaded: '+d.days.length+' days, max date '+fcMaxDate);
+  }).catch(function(e){console.warn('No forecast data:',e)});
+}
+
+function onDateIndClick(){
+  var ind=document.getElementById('dateIndicator');
+  if(ind.textContent==='FORECAST'||fcData){toggleForecast()}
+}
+
+function toggleForecast(){
+  fcOpen=!fcOpen;
+  var el=document.getElementById('fcPanel');
+  if(fcOpen){
+    el.classList.add('active');
+    document.getElementById('bottomPanel').style.display='none';
+    showZoneBoundary(true);
+    drawForecastChart();
+    updateForecastInfo();
+  } else {
+    closeForecast();
+  }
+}
+
+function closeForecast(){
+  fcOpen=false;
+  document.getElementById('fcPanel').classList.remove('active');
+  document.getElementById('bottomPanel').style.display='';
+  showZoneBoundary(false);
+}
+
+function showZoneBoundary(show){
+  if(!map)return;
+  if(show){
+    fetch('data/prediction/forecast_zone.geojson').then(function(r){return r.json()}).then(function(d){
+      if(map.getSource('fc-zone')){map.getSource('fc-zone').setData(d)}
+      else{
+        map.addSource('fc-zone',{type:'geojson',data:d});
+        map.addLayer({id:'fc-zone-line',type:'line',source:'fc-zone',paint:{'line-color':'#a78bfa','line-width':2.5,'line-opacity':.8,'line-dasharray':[6,3]}});
+        map.addLayer({id:'fc-zone-fill',type:'fill',source:'fc-zone',paint:{'fill-color':'#a78bfa','fill-opacity':.06}});
+      }
+      sGL('fc-zone-line',true);sGL('fc-zone-fill',true);
+    });
+  } else {
+    if(map.getLayer('fc-zone-line')){map.setPaintProperty('fc-zone-line','line-opacity',0)}
+    if(map.getLayer('fc-zone-fill')){map.setPaintProperty('fc-zone-fill','fill-opacity',0)}
+  }
+}
+
+function drawForecastChart(){
+  if(!fcData)return;
+  var canvas=document.getElementById('fcChart');
+  var dpr=window.devicePixelRatio||1;
+  var rect=canvas.parentElement.getBoundingClientRect();
+  canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;
+  canvas.style.width=rect.width+'px';canvas.style.height=rect.height+'px';
+  var ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
+  var W=rect.width,H=rect.height;
+  var pad={t:20,b:24,l:36,r:16};
+  var gW=W-pad.l-pad.r,gH=H-pad.t-pad.b;
+  var days=fcData.days.filter(function(d){return d.zone_max!=null});
+  if(!days.length)return;
+  // Find current day index
+  var curIdx=-1;
+  for(var i=0;i<days.length;i++){if(days[i].date===cDate)curIdx=i}
+  // Y range 0-100
+  var yMin=0,yMax=100;
+  function xP(i){return pad.l+(i/(days.length-1))*gW}
+  function yP(v){return pad.t+(1-(v-yMin)/(yMax-yMin))*gH}
+  // Clear
+  ctx.clearRect(0,0,W,H);
+  // Grid lines
+  ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;
+  for(var v=0;v<=100;v+=25){ctx.beginPath();ctx.moveTo(pad.l,yP(v));ctx.lineTo(W-pad.r,yP(v));ctx.stroke();ctx.fillStyle='#475569';ctx.font='8px JetBrains Mono';ctx.textAlign='right';ctx.fillText(v+'%',pad.l-4,yP(v)+3)}
+  // Date labels
+  ctx.textAlign='center';ctx.fillStyle='#64748b';ctx.font='8px JetBrains Mono';
+  for(var i=0;i<days.length;i++){var dl=days[i].date.slice(5);ctx.fillText(dl,xP(i),H-4)}
+  // Zone max line
+  ctx.beginPath();ctx.strokeStyle='#a78bfa';ctx.lineWidth=2.5;
+  for(var i=0;i<days.length;i++){var x=xP(i),y=yP(days[i].zone_max);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}
+  ctx.stroke();
+  // Zone max fill
+  ctx.beginPath();
+  for(var i=0;i<days.length;i++){var x=xP(i),y=yP(days[i].zone_max);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}
+  ctx.lineTo(xP(days.length-1),yP(0));ctx.lineTo(xP(0),yP(0));ctx.closePath();
+  ctx.fillStyle='rgba(167,139,250,.08)';ctx.fill();
+  // Model score line
+  ctx.beginPath();ctx.strokeStyle='#fb923c';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
+  for(var i=0;i<days.length;i++){var x=xP(i),y=yP(days[i].model_score);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}
+  ctx.stroke();ctx.setLineDash([]);
+  // Dots
+  for(var i=0;i<days.length;i++){
+    var x=xP(i),y=yP(days[i].zone_max);
+    var isCur=(i===curIdx);
+    ctx.beginPath();ctx.arc(x,y,isCur?6:3.5,0,Math.PI*2);
+    ctx.fillStyle=isCur?'#a78bfa':'rgba(167,139,250,.7)';ctx.fill();
+    if(isCur){ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+      // Label
+      ctx.fillStyle='#e2e8f0';ctx.font='bold 10px JetBrains Mono';ctx.textAlign='center';
+      ctx.fillText(days[i].zone_max+'%',x,y-10);
+    }
+    // Model dot
+    var ym=yP(days[i].model_score);
+    ctx.beginPath();ctx.arc(x,ym,isCur?4:2.5,0,Math.PI*2);
+    ctx.fillStyle=isCur?'#fb923c':'rgba(251,146,60,.5)';ctx.fill();
+  }
+  // Legend
+  ctx.font='8px JetBrains Mono';ctx.textAlign='left';
+  ctx.fillStyle='#a78bfa';ctx.fillRect(pad.l,2,12,2);ctx.fillText('Zone Peak',pad.l+16,6);
+  ctx.fillStyle='#fb923c';ctx.setLineDash([3,2]);ctx.beginPath();ctx.moveTo(pad.l+80,3);ctx.lineTo(pad.l+92,3);ctx.strokeStyle='#fb923c';ctx.lineWidth=1.5;ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#fb923c';ctx.fillText('Conditions',pad.l+96,6);
+}
+
+function updateForecastInfo(){
+  if(!fcData)return;
+  var days=fcData.days.filter(function(d){return d.zone_max!=null});
+  var cur=null;
+  for(var i=0;i<days.length;i++){if(days[i].date===cDate){cur=days[i];break}}
+  if(!cur)cur=days[0];
+  // Zone Peak for selected day
+  document.getElementById('fcZoneMax').textContent=cur.zone_max+'%';
+  document.getElementById('fcZoneMax').style.color=cur.zone_max>=70?'#86efac':cur.zone_max>=50?'#fbbf24':'#f87171';
+  var dd=new Date(cur.date+'T00:00:00');
+  document.getElementById('fcZoneDate').textContent=dd.toLocaleDateString('en-AU',{weekday:'short',month:'short',day:'numeric'});
+  // Model score
+  document.getElementById('fcModel').textContent=cur.model_score+'%';
+  document.getElementById('fcModel').style.color=cur.model_score>=70?'#86efac':cur.model_score>=50?'#fbbf24':'#f87171';
+  var tp=cur.top_params?Object.keys(cur.top_params).slice(0,2).join(', '):'';
+  document.getElementById('fcModelSub').textContent=tp?'Driven by '+tp:'';
+  // 7-day trend
+  var first=days[0],last=days[days.length-1];
+  var diff=last.zone_max-first.zone_max;
+  var tEl=document.getElementById('fcTrend');
+  var arrow=diff>2?'+'+diff.toFixed(0):diff<-2?diff.toFixed(0):'Stable';
+  tEl.textContent=arrow+(diff>2||diff<-2?'%':'');
+  tEl.style.color=diff>2?'#86efac':diff<-2?'#f87171':'#fbbf24';
+  // Best day
+  var best=days[0];for(var i=1;i<days.length;i++){if(days[i].zone_max>best.zone_max)best=days[i]}
+  var worst=days[0];for(var i=1;i<days.length;i++){if(days[i].zone_max<worst.zone_max)worst=days[i]}
+  var bd=new Date(best.date+'T00:00:00');
+  document.getElementById('fcTrendSub').textContent='Best: '+bd.toLocaleDateString('en-AU',{weekday:'short'});
+  // Trend narrative
+  var txt='<strong>Best day:</strong> '+bd.toLocaleDateString('en-AU',{weekday:'long',month:'short',day:'numeric'})+' at '+best.zone_max+'% zone peak.';
+  if(worst.zone_max<60)txt+=' <strong>Avoid:</strong> '+new Date(worst.date+'T00:00:00').toLocaleDateString('en-AU',{weekday:'long'})+' drops to '+worst.zone_max+'%.';
+  if(diff<-5)txt+=' Conditions trending down over the week.';
+  else if(diff>5)txt+=' Conditions improving through the week.';
+  document.getElementById('fcTrendText').innerHTML=txt;
+}
+
 document.addEventListener('DOMContentLoaded',function(){
   initMap();
   loadCatchData();
+  loadForecast();
   updateDateInd();
   // Context menu: right-click (PC) or long-press (touch)
   document.getElementById('map').addEventListener('contextmenu',function(e){

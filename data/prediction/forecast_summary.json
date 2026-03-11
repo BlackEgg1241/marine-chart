@@ -1,0 +1,170 @@
+{
+  "generated": "2026-03-10 23:44",
+  "zone_center": [
+    115.05,
+    -31.95
+  ],
+  "zone_radius_nm": 30,
+  "days": [
+    {
+      "date": "2026-03-10",
+      "model_score": 78.6,
+      "label": "TODAY",
+      "top_params": {
+        "mld_mean": 93.9,
+        "sst_max": 91.9,
+        "sst_min": 91.2,
+        "sst_std": 89.9,
+        "sst_p25": 87.5
+      },
+      "bottom_params": {
+        "anticyc_frac": 43.8,
+        "blue_water_frac": 45.5,
+        "vorticity": 46.7
+      },
+      "zone_max": 68.0,
+      "zone_mean": 56.8,
+      "zone_cells": 5
+    },
+    {
+      "date": "2026-03-11",
+      "model_score": 77.8,
+      "label": "FORECAST",
+      "top_params": {
+        "sst_std": 95.2,
+        "sst_iqr": 93.2,
+        "sst_max": 92.5,
+        "sst_range": 89.6,
+        "sst_min": 89.5
+      },
+      "bottom_params": {
+        "anticyc_frac": 28.8,
+        "mld_mean": 30.1,
+        "vorticity": 32.8
+      },
+      "zone_max": 71.0,
+      "zone_mean": 55.4,
+      "zone_cells": 9
+    },
+    {
+      "date": "2026-03-12",
+      "model_score": 73.4,
+      "label": "FORECAST",
+      "top_params": {
+        "sst_std": 93.3,
+        "sst_max": 93.3,
+        "sst_range": 92.0,
+        "sst_min": 89.1,
+        "sst_mean": 84.4
+      },
+      "bottom_params": {
+        "mld_mean": 13.6,
+        "vorticity": 23.5,
+        "anticyc_frac": 26.4
+      },
+      "zone_max": 70.0,
+      "zone_mean": 55.4,
+      "zone_cells": 8
+    },
+    {
+      "date": "2026-03-13",
+      "model_score": 69.6,
+      "label": "FORECAST",
+      "top_params": {
+        "sst_std": 88.2,
+        "sst_range": 85.7,
+        "sst_max": 85.4,
+        "sst_mean": 85.3,
+        "sst_p25": 84.4
+      },
+      "bottom_params": {
+        "mld_mean": 2.0,
+        "vorticity": 20.3,
+        "leeuwin": 28.8
+      },
+      "zone_max": 69.0,
+      "zone_mean": 56.4,
+      "zone_cells": 9
+    },
+    {
+      "date": "2026-03-14",
+      "model_score": 62.1,
+      "label": "FORECAST",
+      "top_params": {
+        "sst_p75": 80.3,
+        "sst_warm_frac": 79.1,
+        "sst_std": 76.6,
+        "sst_mean": 75.8,
+        "sst_max": 75.6
+      },
+      "bottom_params": {
+        "mld_mean": 6.6,
+        "leeuwin": 24.5,
+        "vorticity": 24.5
+      },
+      "zone_max": 70.0,
+      "zone_mean": 58.5,
+      "zone_cells": 8
+    },
+    {
+      "date": "2026-03-15",
+      "model_score": 44.3,
+      "label": "FORECAST",
+      "top_params": {
+        "anticyc_frac": 90.6,
+        "blue_water_frac": 46.7,
+        "vorticity": 31.0,
+        "leeuwin": 22.5,
+        "mld_mean": 17.1
+      },
+      "bottom_params": {
+        "mld_mean": 17.1,
+        "leeuwin": 22.5,
+        "vorticity": 31.0
+      },
+      "zone_max": 70.0,
+      "zone_mean": 53.9,
+      "zone_cells": 12
+    },
+    {
+      "date": "2026-03-16",
+      "model_score": 60.6,
+      "label": "FORECAST",
+      "top_params": {
+        "anticyc_frac": 90.0,
+        "vorticity": 83.6,
+        "mld_mean": 76.4,
+        "blue_water_frac": 36.3,
+        "leeuwin": 24.6
+      },
+      "bottom_params": {
+        "leeuwin": 24.6,
+        "blue_water_frac": 36.3,
+        "mld_mean": 76.4
+      },
+      "zone_max": 74.0,
+      "zone_mean": 49.5,
+      "zone_cells": 11
+    },
+    {
+      "date": "2026-03-17",
+      "model_score": 67.9,
+      "label": "FORECAST",
+      "top_params": {
+        "anticyc_frac": 89.2,
+        "vorticity": 82.9,
+        "leeuwin": 78.5,
+        "mld_mean": 76.8,
+        "blue_water_frac": 16.6
+      },
+      "bottom_params": {
+        "blue_water_frac": 16.6,
+        "mld_mean": 76.8,
+        "leeuwin": 78.5
+      },
+      "zone_max": 66.0,
+      "zone_mean": 48.5,
+      "zone_cells": 6
+    }
+  ]
+}
