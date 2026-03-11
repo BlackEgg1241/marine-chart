@@ -1,10 +1,11 @@
 {
   "generated": "2026-03-10 23:44",
-  "zone_center": [
-    115.05,
-    -31.95
+  "zone_bounds": [
+    114.98,
+    -32.1667,
+    115.3333,
+    -31.7287
   ],
-  "zone_radius_nm": 30,
   "days": [
     {
       "date": "2026-03-10",
@@ -22,9 +23,9 @@
         "blue_water_frac": 45.5,
         "vorticity": 46.7
       },
-      "zone_max": 68.0,
-      "zone_mean": 56.8,
-      "zone_cells": 5
+      "zone_max": 53.0,
+      "zone_mean": 53.0,
+      "zone_cells": 1
     },
     {
       "date": "2026-03-11",
@@ -42,9 +43,9 @@
         "mld_mean": 30.1,
         "vorticity": 32.8
       },
-      "zone_max": 71.0,
-      "zone_mean": 55.4,
-      "zone_cells": 9
+      "zone_max": 57.0,
+      "zone_mean": 57.0,
+      "zone_cells": 1
     },
     {
       "date": "2026-03-12",
@@ -62,9 +63,9 @@
         "vorticity": 23.5,
         "anticyc_frac": 26.4
       },
-      "zone_max": 70.0,
-      "zone_mean": 55.4,
-      "zone_cells": 8
+      "zone_max": 52.0,
+      "zone_mean": 52.0,
+      "zone_cells": 1
     },
     {
       "date": "2026-03-13",
@@ -82,9 +83,9 @@
         "vorticity": 20.3,
         "leeuwin": 28.8
       },
-      "zone_max": 69.0,
-      "zone_mean": 56.4,
-      "zone_cells": 9
+      "zone_max": 53.0,
+      "zone_mean": 53.0,
+      "zone_cells": 1
     },
     {
       "date": "2026-03-14",
@@ -102,9 +103,9 @@
         "leeuwin": 24.5,
         "vorticity": 24.5
       },
-      "zone_max": 70.0,
+      "zone_max": 60.0,
       "zone_mean": 58.5,
-      "zone_cells": 8
+      "zone_cells": 2
     },
     {
       "date": "2026-03-15",
@@ -122,9 +123,9 @@
         "leeuwin": 22.5,
         "vorticity": 31.0
       },
-      "zone_max": 70.0,
-      "zone_mean": 53.9,
-      "zone_cells": 12
+      "zone_max": 60.0,
+      "zone_mean": 58.0,
+      "zone_cells": 2
     },
     {
       "date": "2026-03-16",
@@ -142,9 +143,9 @@
         "blue_water_frac": 36.3,
         "mld_mean": 76.4
       },
-      "zone_max": 74.0,
-      "zone_mean": 49.5,
-      "zone_cells": 11
+      "zone_max": 52.0,
+      "zone_mean": 52.0,
+      "zone_cells": 1
     },
     {
       "date": "2026-03-17",
@@ -162,9 +163,9 @@
         "mld_mean": 76.8,
         "leeuwin": 78.5
       },
-      "zone_max": 66.0,
-      "zone_mean": 48.5,
-      "zone_cells": 6
+      "zone_max": 0,
+      "zone_mean": 0,
+      "zone_cells": 0
     }
   ]
 }

@@ -1,23 +1,21 @@
 """Generate forecast summary with Accessible Trench Zone max scores."""
-import json, math, os
+import json, os
 
-# Accessible Trench Zone: circle around Perth Canyon fishing grounds
-CENTER = [115.05, -31.95]
-RADIUS_NM = 30
+# Accessible Trench Zone: bounding rectangle defined by key marks
+# North Metro 04: [115.1754, -31.7287]  (north)
+# Rottnest Trench: [114.98, -32.01]     (west)
+# Fibrelite Boats: [115.1667, -32.1667] (south)
+# Club Marine: [115.3333, -32.05]       (east)
+ZONE_W = 114.98
+ZONE_E = 115.3333
+ZONE_S = -32.1667
+ZONE_N = -31.7287
 
-def make_circle(center, radius_nm, n=64):
-    coords = []
-    for i in range(n + 1):
-        angle = (i / n) * 2 * math.pi
-        dlat = (radius_nm / 60.0) * math.sin(angle)
-        dlon = (radius_nm / (60.0 * math.cos(math.radians(center[1])))) * math.cos(angle)
-        coords.append([round(center[0] + dlon, 6), round(center[1] + dlat, 6)])
-    return coords
+def make_rect():
+    return [[ZONE_W, ZONE_N], [ZONE_E, ZONE_N], [ZONE_E, ZONE_S], [ZONE_W, ZONE_S], [ZONE_W, ZONE_N]]
 
 def in_zone(lon, lat):
-    dlat = (lat - CENTER[1]) * 60
-    dlon = (lon - CENTER[0]) * 60 * math.cos(math.radians(CENTER[1]))
-    return math.sqrt(dlat**2 + dlon**2) <= RADIUS_NM
+    return ZONE_W <= lon <= ZONE_E and ZONE_S <= lat <= ZONE_N
 
 def centroid(coords):
     n = len(coords)
@@ -28,8 +26,8 @@ zone_geojson = {
     "type": "FeatureCollection",
     "features": [{
         "type": "Feature",
-        "geometry": {"type": "Polygon", "coordinates": [make_circle(CENTER, RADIUS_NM)]},
-        "properties": {"name": "Accessible Trench Zone", "radius_nm": RADIUS_NM}
+        "geometry": {"type": "Polygon", "coordinates": [make_rect()]},
+        "properties": {"name": "Accessible Trench Zone"}
     }]
 }
 
@@ -40,8 +38,7 @@ with open(pred_path) as f:
 
 summary = {
     "generated": pred["generated"],
-    "zone_center": CENTER,
-    "zone_radius_nm": RADIUS_NM,
+    "zone_bounds": [ZONE_W, ZONE_S, ZONE_E, ZONE_N],
     "days": []
 }
 
