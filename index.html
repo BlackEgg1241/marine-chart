@@ -181,8 +181,14 @@
 .wx-loc-btn.active{border-color:rgba(56,189,248,.5);background:rgba(56,189,248,.15);color:#38bdf8}
 .wx-section{padding:4px 14px}
 .wx-section-title{font-size:8px;color:#64748b;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
-.wx-chart-wrap{height:100px;position:relative}
+.wx-chart-wrap{height:100px;position:relative;touch-action:none}
 .wx-chart-wrap canvas{width:100%;height:100%}
+.wx-cursor{position:absolute;top:0;bottom:18px;width:1px;background:rgba(255,255,255,.5);pointer-events:none;display:none;z-index:2}
+.wx-cursor.active{display:block}
+.wx-tooltip{position:absolute;top:4px;background:rgba(2,6,23,.92);border:1px solid rgba(56,189,248,.3);border-radius:5px;padding:4px 7px;pointer-events:none;display:none;z-index:3;white-space:nowrap;font-size:9px;color:#e2e8f0;font-family:'JetBrains Mono',monospace;line-height:1.5}
+.wx-tooltip.active{display:block}
+.wx-tooltip .wx-tt-time{color:#38bdf8;font-weight:600;margin-bottom:1px}
+.wx-tooltip .wx-tt-row{color:#cbd5e1}
 .wx-summary{display:flex;gap:8px;padding:6px 14px 10px;flex-wrap:wrap}
 .wx-sum-block{flex:1;min-width:70px;background:rgba(15,23,42,.6);border-radius:6px;padding:6px 8px;border:1px solid rgba(255,255,255,.06)}
 .wx-sum-label{font-size:7px;color:#64748b;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
@@ -351,11 +357,11 @@
     </div>
     <div class="wx-section">
       <div class="wx-section-title">Wind Speed (kn) &amp; Gusts</div>
-      <div class="wx-chart-wrap"><canvas id="wxWindChart"></canvas></div>
+      <div class="wx-chart-wrap" id="wxWindWrap"><canvas id="wxWindChart"></canvas><div class="wx-cursor" id="wxWindCursor"></div><div class="wx-tooltip" id="wxWindTip"></div></div>
     </div>
     <div class="wx-section">
       <div class="wx-section-title">Swell Height (m) &amp; Period</div>
-      <div class="wx-chart-wrap"><canvas id="wxSwellChart"></canvas></div>
+      <div class="wx-chart-wrap" id="wxSwellWrap"><canvas id="wxSwellChart"></canvas><div class="wx-cursor" id="wxSwellCursor"></div><div class="wx-tooltip" id="wxSwellTip"></div></div>
     </div>
     <div class="wx-summary" id="wxSummary"></div>
   </div>
@@ -1136,6 +1142,7 @@ function drawWeatherCharts(){
   var hrs=getWxHours();if(!hrs.length)return;
   // Filter to ~3 days (72 hours) for readability
   var show=hrs.slice(0,72);
+  wxCursorHours=show;
   drawWindChart(show);
   drawSwellChart(show);
 }
@@ -1360,11 +1367,114 @@ function updateWeatherSummary(){
     (sst!=null?'<div class="wx-sum-block"><div class="wx-sum-label">SST</div><div class="wx-sum-val">'+sst.toFixed(1)+'°</div><div class="wx-sum-sub">sea surface</div></div>':'');
 }
 
+// --- Weather cursor sync ---
+var wxCursorHours=null;
+var wxPad={t:14,b:18,l:30,r:8};
+
+function wxPosToIndex(clientX,wrapEl){
+  var rect=wrapEl.getBoundingClientRect();
+  var x=clientX-rect.left;
+  var gW=rect.width-wxPad.l-wxPad.r;
+  var frac=(x-wxPad.l)/gW;
+  if(frac<0)frac=0;if(frac>1)frac=1;
+  if(!wxCursorHours||!wxCursorHours.length)return-1;
+  return Math.round(frac*(wxCursorHours.length-1));
+}
+
+function wxShowCursor(idx){
+  if(!wxCursorHours||idx<0||idx>=wxCursorHours.length)return;
+  var h=wxCursorHours[idx];
+  var windWrap=document.getElementById('wxWindWrap');
+  var swellWrap=document.getElementById('wxSwellWrap');
+  var wW=windWrap.getBoundingClientRect().width;
+  var gW=wW-wxPad.l-wxPad.r;
+  var xPos=wxPad.l+(idx/(wxCursorHours.length-1))*gW;
+
+  // Position cursors
+  var wc=document.getElementById('wxWindCursor');
+  var sc=document.getElementById('wxSwellCursor');
+  wc.style.left=xPos+'px';wc.classList.add('active');
+  sc.style.left=xPos+'px';sc.classList.add('active');
+
+  // Time label
+  var t=h.time;
+  var tp=t.split('T');
+  var dp=tp[0].split('-');
+  var timeStr=dp[2]+'-'+dp[1]+' '+tp[1].substring(0,5);
+
+  // Compass direction
+  var compass=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+  function dirStr(d){return d!=null?compass[Math.round(d/22.5)%16]:'—'}
+
+  // Wind tooltip
+  var wt=document.getElementById('wxWindTip');
+  var ws=h.wind_speed_10m!=null?Math.round(h.wind_speed_10m):'—';
+  var wg=h.wind_gusts_10m!=null?Math.round(h.wind_gusts_10m):'—';
+  var wd=dirStr(h.wind_direction_10m);
+  wt.innerHTML='<div class="wx-tt-time">'+timeStr+'</div><div class="wx-tt-row">'+ws+' kn '+wd+'</div><div class="wx-tt-row">Gusts '+wg+' kn</div>';
+  wt.classList.add('active');
+  // Position tooltip - flip side if past midpoint
+  var flip=xPos>wW/2;
+  wt.style.left=flip?'':(xPos+6)+'px';
+  wt.style.right=flip?(wW-xPos+6)+'px':'';
+  if(!flip)wt.style.removeProperty('right');
+  if(flip)wt.style.removeProperty('left');
+
+  // Swell tooltip
+  var st=document.getElementById('wxSwellTip');
+  var sh=h.swell_wave_height!=null?h.swell_wave_height.toFixed(1):'—';
+  var sp=h.swell_wave_period!=null?Math.round(h.swell_wave_period)+'s':'—';
+  var sd=dirStr(h.swell_wave_direction);
+  var wh=h.wave_height!=null?h.wave_height.toFixed(1):'—';
+  st.innerHTML='<div class="wx-tt-time">'+timeStr+'</div><div class="wx-tt-row">Swell '+sh+' m '+sd+'</div><div class="wx-tt-row">Period '+sp+'</div><div class="wx-tt-row">Wave '+wh+' m</div>';
+  st.classList.add('active');
+  st.style.left=flip?'':(xPos+6)+'px';
+  st.style.right=flip?(wW-xPos+6)+'px':'';
+  if(!flip)st.style.removeProperty('right');
+  if(flip)st.style.removeProperty('left');
+}
+
+function wxHideCursor(){
+  document.getElementById('wxWindCursor').classList.remove('active');
+  document.getElementById('wxSwellCursor').classList.remove('active');
+  document.getElementById('wxWindTip').classList.remove('active');
+  document.getElementById('wxSwellTip').classList.remove('active');
+}
+
+function wxInitCursorEvents(){
+  var wraps=['wxWindWrap','wxSwellWrap'];
+  wraps.forEach(function(id){
+    var el=document.getElementById(id);
+    // Mouse
+    el.addEventListener('mousemove',function(e){
+      var idx=wxPosToIndex(e.clientX,el);
+      if(idx>=0)wxShowCursor(idx);
+    });
+    el.addEventListener('mouseleave',function(){wxHideCursor()});
+    // Touch
+    el.addEventListener('touchstart',function(e){
+      if(e.touches.length!==1)return;
+      e.preventDefault();
+      var idx=wxPosToIndex(e.touches[0].clientX,el);
+      if(idx>=0)wxShowCursor(idx);
+    },{passive:false});
+    el.addEventListener('touchmove',function(e){
+      if(e.touches.length!==1)return;
+      e.preventDefault();
+      var idx=wxPosToIndex(e.touches[0].clientX,el);
+      if(idx>=0)wxShowCursor(idx);
+    },{passive:false});
+    el.addEventListener('touchend',function(){wxHideCursor()});
+    el.addEventListener('touchcancel',function(){wxHideCursor()});
+  });
+}
+
 document.addEventListener('DOMContentLoaded',function(){
   initMap();
   loadCatchData();
   loadForecast();
   loadWeather();
+  wxInitCursorEvents();
   updateDateInd();
   // Context menu: right-click (PC) or long-press (touch)
   document.getElementById('map').addEventListener('contextmenu',function(e){
