@@ -354,6 +354,9 @@
     <div class="wx-loc-toggle">
       <button class="wx-loc-btn active" id="wxLocRott" onclick="setWxLoc('rottnest')">Rottnest Island</button>
       <button class="wx-loc-btn" id="wxLocHill" onclick="setWxLoc('hillarys')">Hillarys</button>
+      <span style="width:1px;background:rgba(255,255,255,.1);margin:0 4px"></span>
+      <button class="wx-loc-btn active" id="wxRange3" onclick="setWxRange(3)">3 Day</button>
+      <button class="wx-loc-btn" id="wxRange7" onclick="setWxRange(7)">7 Day</button>
     </div>
     <div class="wx-section">
       <div class="wx-section-title">Wind Speed (kn) &amp; Gusts</div>
@@ -1095,7 +1098,7 @@ function updateForecastInfo(){
 }
 
 // --- Weather panel ---
-var wxData=null,wxOpen=false,wxLoc='rottnest';
+var wxData=null,wxOpen=false,wxLoc='rottnest',wxRangeDays=3;
 
 function loadWeather(){
   fetch('data/marine_weather.json').then(function(r){return r.json()}).then(function(d){
@@ -1132,6 +1135,13 @@ function setWxLoc(loc){
   updateWeatherSummary();
 }
 
+function setWxRange(days){
+  wxRangeDays=days;
+  document.getElementById('wxRange3').classList.toggle('active',days===3);
+  document.getElementById('wxRange7').classList.toggle('active',days===7);
+  drawWeatherCharts();
+}
+
 function getWxHours(){
   if(!wxData||!wxData.locations[wxLoc])return[];
   return wxData.locations[wxLoc].hourly;
@@ -1140,8 +1150,7 @@ function getWxHours(){
 function drawWeatherCharts(){
   if(!wxData)return;
   var hrs=getWxHours();if(!hrs.length)return;
-  // Filter to ~3 days (72 hours) for readability
-  var show=hrs.slice(0,72);
+  var show=hrs.slice(0,wxRangeDays*24);
   wxCursorHours=show;
   drawWindChart(show);
   drawSwellChart(show);
