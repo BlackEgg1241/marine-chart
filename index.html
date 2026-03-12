@@ -975,7 +975,7 @@ function drawForecastChart(){
   for(var v=0;v<=100;v+=25){ctx.beginPath();ctx.moveTo(pad.l,yP(v));ctx.lineTo(W-pad.r,yP(v));ctx.stroke();ctx.fillStyle='#475569';ctx.font='8px JetBrains Mono';ctx.textAlign='right';ctx.fillText(v+'%',pad.l-4,yP(v)+3)}
   // Date labels
   ctx.textAlign='center';ctx.fillStyle='#64748b';ctx.font='8px JetBrains Mono';
-  for(var i=0;i<days.length;i++){var dl=days[i].date.slice(5);ctx.fillText(dl,xP(i),H-4)}
+  for(var i=0;i<days.length;i++){var dp=days[i].date.split('-');var dl=dp[2]+'-'+dp[1];ctx.fillText(dl,xP(i),H-4)}
   // Zone max line
   ctx.beginPath();ctx.strokeStyle='#a78bfa';ctx.lineWidth=2.5;
   for(var i=0;i<days.length;i++){var x=xP(i),y=yP(days[i].zone_max);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}
