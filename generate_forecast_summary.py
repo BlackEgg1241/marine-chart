@@ -14,12 +14,17 @@ ZONE_N = -31.7287
 def make_rect():
     return [[ZONE_W, ZONE_N], [ZONE_E, ZONE_N], [ZONE_E, ZONE_S], [ZONE_W, ZONE_S], [ZONE_W, ZONE_N]]
 
-def in_zone(lon, lat):
-    return ZONE_W <= lon <= ZONE_E and ZONE_S <= lat <= ZONE_N
-
-def centroid(coords):
-    n = len(coords)
-    return sum(c[0] for c in coords) / n, sum(c[1] for c in coords) / n
+def poly_intersects_zone(ring):
+    """Check if any vertex of the polygon is inside the zone,
+    or if the polygon's bounding box overlaps the zone."""
+    lons = [c[0] for c in ring]
+    lats = [c[1] for c in ring]
+    # Bounding box overlap test
+    if max(lons) < ZONE_W or min(lons) > ZONE_E:
+        return False
+    if max(lats) < ZONE_S or min(lats) > ZONE_N:
+        return False
+    return True
 
 # Zone boundary GeoJSON
 zone_geojson = {
@@ -59,8 +64,7 @@ for p in pred["predictions"]:
         zone_vals = []
         for feat in hs["features"]:
             rings = feat["geometry"]["coordinates"]
-            cx, cy = centroid(rings[0])
-            if in_zone(cx, cy):
+            if poly_intersects_zone(rings[0]):
                 v = feat["properties"]["intensity"]
                 zone_vals.append(v)
                 zone_max = max(zone_max, v)
