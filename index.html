@@ -1270,7 +1270,7 @@ function drawSwellChart(hours){
 
   var maxSw=0;
   for(var i=0;i<hours.length;i++){
-    var s=hours[i].swell_wave_height||0;
+    var s=hours[i].total_swell_height||hours[i].swell_wave_height||0;
     var w=hours[i].wave_height||0;
     var v=Math.max(s,w);
     if(v>maxSw)maxSw=v;
@@ -1291,10 +1291,10 @@ function drawSwellChart(hours){
   ctx.lineTo(pad.l+gW,pad.t+gH);ctx.lineTo(pad.l,pad.t+gH);ctx.closePath();
   ctx.fillStyle='rgba(56,189,248,.1)';ctx.fill();
 
-  // Swell line
+  // Combined swell line (RSS of primary + secondary)
   ctx.beginPath();ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;
   for(var i=0;i<hours.length;i++){
-    var s=hours[i].swell_wave_height||0;
+    var s=hours[i].total_swell_height||hours[i].swell_wave_height||0;
     var x=pad.l+(i/(hours.length-1))*gW;
     var y=pad.t+(1-s/yMax)*gH;
     i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
@@ -1311,12 +1311,12 @@ function drawSwellChart(hours){
   }
   ctx.stroke();ctx.setLineDash([]);
 
-  // Swell period labels every 6 hours
+  // Dominant swell period labels every 6 hours
   ctx.fillStyle='#94a3b8';ctx.font='7px JetBrains Mono';ctx.textAlign='center';
   for(var i=0;i<hours.length;i+=6){
-    var sp=hours[i].swell_wave_period;
+    var sp=hours[i].dominant_swell_period||hours[i].swell_wave_period;
     if(sp==null)continue;
-    var s=hours[i].swell_wave_height||0;
+    var s=hours[i].total_swell_height||hours[i].swell_wave_height||0;
     var x=pad.l+(i/(hours.length-1))*gW;
     var y=pad.t+(1-s/yMax)*gH;
     ctx.fillText(Math.round(sp)+'s',x,y-6);
@@ -1339,8 +1339,10 @@ function updateWeatherSummary(){
     if(h.wind_speed_10m>maxWind)maxWind=h.wind_speed_10m;
     if(h.wind_gusts_10m>maxGust)maxGust=h.wind_gusts_10m;
     if(h.wind_direction_10m!=null)dirs.push(h.wind_direction_10m);
-    if(h.swell_wave_height!=null){avgSwell+=h.swell_wave_height;if(h.swell_wave_height>maxSwell)maxSwell=h.swell_wave_height;swN++}
-    if(h.swell_wave_period!=null)avgPeriod+=h.swell_wave_period;
+    var swH=h.total_swell_height!=null?h.total_swell_height:(h.swell_wave_height!=null?h.swell_wave_height:null);
+    if(swH!=null){avgSwell+=swH;if(swH>maxSwell)maxSwell=swH;swN++}
+    var swP=h.dominant_swell_period!=null?h.dominant_swell_period:(h.swell_wave_period!=null?h.swell_wave_period:null);
+    if(swP!=null)avgPeriod+=swP;
   }
   if(swN>0){avgSwell/=swN;avgPeriod/=swN}
   // Average wind direction -> compass
@@ -1355,7 +1357,7 @@ function updateWeatherSummary(){
 
   // Swell direction
   var swDirs=[];
-  for(var i=0;i<h24.length;i++){if(h24[i].swell_wave_direction!=null)swDirs.push(h24[i].swell_wave_direction)}
+  for(var i=0;i<h24.length;i++){var dsd=h24[i].dominant_swell_direction!=null?h24[i].dominant_swell_direction:h24[i].swell_wave_direction;if(dsd!=null)swDirs.push(dsd)}
   var swDirStr='';
   if(swDirs.length){
     var ssx=0,ssy=0;
@@ -1429,13 +1431,13 @@ function wxShowCursor(idx){
   if(!flip)wt.style.removeProperty('right');
   if(flip)wt.style.removeProperty('left');
 
-  // Swell tooltip
+  // Swell tooltip — use total swell height and dominant period
   var st=document.getElementById('wxSwellTip');
-  var sh=h.swell_wave_height!=null?h.swell_wave_height.toFixed(1):'—';
-  var sp=h.swell_wave_period!=null?Math.round(h.swell_wave_period)+'s':'—';
-  var sd=dirStr(h.swell_wave_direction);
+  var tsh=h.total_swell_height!=null?h.total_swell_height.toFixed(1):(h.swell_wave_height!=null?h.swell_wave_height.toFixed(1):'—');
+  var dsp=h.dominant_swell_period!=null?Math.round(h.dominant_swell_period)+'s':(h.swell_wave_period!=null?Math.round(h.swell_wave_period)+'s':'—');
+  var dsd=dirStr(h.dominant_swell_direction!=null?h.dominant_swell_direction:h.swell_wave_direction);
   var wh=h.wave_height!=null?h.wave_height.toFixed(1):'—';
-  st.innerHTML='<div class="wx-tt-time">'+timeStr+'</div><div class="wx-tt-row">Swell '+sh+' m '+sd+'</div><div class="wx-tt-row">Period '+sp+'</div><div class="wx-tt-row">Wave '+wh+' m</div>';
+  st.innerHTML='<div class="wx-tt-time">'+timeStr+'</div><div class="wx-tt-row">Swell '+tsh+' m '+dsd+'</div><div class="wx-tt-row">Period '+dsp+'</div><div class="wx-tt-row">Wave '+wh+' m</div>';
   st.classList.add('active');
   st.style.left=flip?'':(xPos+6)+'px';
   st.style.right=flip?(wW-xPos+6)+'px':'';

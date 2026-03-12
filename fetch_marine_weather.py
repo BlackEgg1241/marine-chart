@@ -10,6 +10,8 @@ LOCATIONS = {
 MARINE_PARAMS = [
     "wave_height", "wave_period", "wave_direction",
     "swell_wave_height", "swell_wave_period", "swell_wave_direction",
+    "secondary_swell_wave_height", "secondary_swell_wave_period", "secondary_swell_wave_direction",
+    "wind_wave_height", "wind_wave_period", "wind_wave_direction",
     "sea_surface_temperature",
 ]
 WEATHER_PARAMS = [
@@ -58,6 +60,32 @@ def fetch_location(name, loc):
         # Weather times should align
         for p in WEATHER_PARAMS:
             row[p] = weather["hourly"][p][i] if i < len(weather["hourly"][p]) else None
+
+        # Compute dominant swell using wave energy proxy (H^2 * T)
+        # This resolves the period bias vs BOM/Seabreeze/Willyweather:
+        # a smaller-height but longer-period groundswell carries more energy
+        ph = row.get("swell_wave_height") or 0
+        pp = row.get("swell_wave_period") or 0
+        pd = row.get("swell_wave_direction")
+        sh = row.get("secondary_swell_wave_height") or 0
+        sp = row.get("secondary_swell_wave_period") or 0
+        sd = row.get("secondary_swell_wave_direction")
+        pe = ph * ph * pp  # primary energy proxy
+        se = sh * sh * sp  # secondary energy proxy
+        if se > pe and sp > 0:
+            row["dominant_swell_height"] = sh
+            row["dominant_swell_period"] = sp
+            row["dominant_swell_direction"] = sd
+        else:
+            row["dominant_swell_height"] = ph
+            row["dominant_swell_period"] = pp
+            row["dominant_swell_direction"] = pd
+        # Combined swell height (RSS of components)
+        row["total_swell_height"] = round((ph**2 + sh**2) ** 0.5, 2)
+        # Max period across all components for groundswell detection
+        periods = [p for p in [pp, sp] if p and p > 0]
+        row["max_swell_period"] = max(periods) if periods else None
+
         hourly.append(row)
 
     return {
