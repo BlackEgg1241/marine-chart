@@ -1255,14 +1255,14 @@ function wxDrawSunStrip(ctx,W,H,pad,hours){
     var date=t.split('T')[0];
     var timeMin=parseInt(t.split('T')[1].split(':')[0])*60+parseInt(t.split('T')[1].split(':')[1]||'0');
     var sd=sunMap[date];
-    if(!sd){ctx.fillStyle='rgba(15,23,42,.8)';} else {
+    if(!sd){ctx.fillStyle='#0f172a';} else {
       var fl=_tMin(sd.first_light),sr=_tMin(sd.sunrise),ss=_tMin(sd.sunset),ll=_tMin(sd.last_light);
-      if(timeMin<fl||timeMin>=ll)ctx.fillStyle='rgba(15,23,42,.9)'; // night
-      else if(timeMin<sr)ctx.fillStyle='rgba(251,146,60,.15)'; // first light/dawn
-      else if(timeMin<sr+30)ctx.fillStyle='rgba(251,146,60,.3)'; // sunrise glow
-      else if(timeMin>=ss-30&&timeMin<ss)ctx.fillStyle='rgba(251,146,60,.3)'; // sunset glow
-      else if(timeMin>=ss)ctx.fillStyle='rgba(251,146,60,.15)'; // dusk
-      else ctx.fillStyle='rgba(56,189,248,.12)'; // daytime
+      if(timeMin<fl||timeMin>=ll)ctx.fillStyle='#0f172a'; // night
+      else if(timeMin<sr)ctx.fillStyle='#c2410c'; // first light/dawn
+      else if(timeMin<sr+30)ctx.fillStyle='#fb923c'; // sunrise glow
+      else if(timeMin>=ss-30&&timeMin<ss)ctx.fillStyle='#fb923c'; // sunset glow
+      else if(timeMin>=ss)ctx.fillStyle='#c2410c'; // dusk
+      else ctx.fillStyle='#38bdf8'; // daytime
     }
     var x1=pad.l+(i/(hours.length-1))*gW;
     var x2=(i+1<hours.length)?pad.l+((i+1)/(hours.length-1))*gW:x1+gW/hours.length;
@@ -1598,11 +1598,13 @@ function wxShowCursor(idx){
   sc.style.left=xPos+'px';sc.classList.add('active');
   cc.style.left=xPos+'px';cc.classList.add('active');
 
-  // Time label
+  // Time label with day name
   var t=h.time;
   var tp=t.split('T');
   var dp=tp[0].split('-');
-  var timeStr=dp[2]+'-'+dp[1]+' '+tp[1].substring(0,5);
+  var dt=new Date(h.time);
+  var dayName=WX_DAYS[dt.getDay()];
+  var timeStr=dayName+' '+dp[2]+'-'+dp[1]+' '+tp[1].substring(0,5);
 
   // Compass direction
   var compass=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
