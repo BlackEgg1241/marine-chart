@@ -189,6 +189,9 @@
 .wx-tooltip.active{display:block}
 .wx-tooltip .wx-tt-time{color:#38bdf8;font-weight:600;margin-bottom:1px}
 .wx-tooltip .wx-tt-row{color:#cbd5e1}
+.wx-comfort-wrap{height:28px;position:relative;touch-action:none}
+.wx-comfort-wrap canvas{width:100%;height:100%}
+.wx-comfort-label{font-size:8px;color:#64748b;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px;padding:0 14px}
 .wx-summary{display:flex;gap:8px;padding:6px 14px 10px;flex-wrap:wrap}
 .wx-sum-block{flex:1;min-width:70px;background:rgba(15,23,42,.6);border-radius:6px;padding:6px 8px;border:1px solid rgba(255,255,255,.06)}
 .wx-sum-label{font-size:7px;color:#64748b;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
@@ -365,6 +368,10 @@
     <div class="wx-section">
       <div class="wx-section-title">Swell Height (m) &amp; Period</div>
       <div class="wx-chart-wrap" id="wxSwellWrap"><canvas id="wxSwellChart"></canvas><div class="wx-cursor" id="wxSwellCursor"></div><div class="wx-tooltip" id="wxSwellTip"></div></div>
+    </div>
+    <div class="wx-section">
+      <div class="wx-comfort-label">Boating Comfort (5.2m)</div>
+      <div class="wx-comfort-wrap" id="wxComfortWrap"><canvas id="wxComfortChart"></canvas><div class="wx-cursor" id="wxComfortCursor"></div><div class="wx-tooltip" id="wxComfortTip"></div></div>
     </div>
     <div class="wx-summary" id="wxSummary"></div>
   </div>
@@ -1154,6 +1161,7 @@ function drawWeatherCharts(){
   wxCursorHours=show;
   drawWindChart(show);
   drawSwellChart(show);
+  drawComfortChart(show);
 }
 
 function wxSetupCanvas(canvasId){
@@ -1327,6 +1335,65 @@ function drawSwellChart(hours){
   ctx.fillText('Swell  |  Wave (dashed)',pad.l+2,pad.t-4);
 }
 
+function comfortColor(v){
+  if(v>=75)return'#22c55e';
+  if(v>=55)return'#86efac';
+  if(v>=35)return'#fbbf24';
+  if(v>=20)return'#fb923c';
+  return'#ef4444';
+}
+function comfortLabel(v){
+  if(v>=75)return'GREAT';
+  if(v>=55)return'GOOD';
+  if(v>=35)return'FAIR';
+  if(v>=20)return'POOR';
+  return'STAY IN';
+}
+
+function drawComfortChart(hours){
+  var canvas=document.getElementById('wxComfortChart');
+  var dpr=window.devicePixelRatio||1;
+  var rect=canvas.parentElement.getBoundingClientRect();
+  canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;
+  canvas.style.width=rect.width+'px';canvas.style.height=rect.height+'px';
+  var ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
+  var W=rect.width,H=rect.height;
+  var pad={t:2,b:12,l:30,r:8};
+  var gW=W-pad.l-pad.r,gH=H-pad.t-pad.b;
+  ctx.clearRect(0,0,W,H);
+
+  var bw=Math.max(2,gW/hours.length);
+  for(var i=0;i<hours.length;i++){
+    var v=hours[i].comfort||0;
+    var x=pad.l+(i/(hours.length-1))*gW-bw/2;
+    ctx.fillStyle=comfortColor(v);
+    ctx.globalAlpha=0.85;
+    ctx.fillRect(x,pad.t,bw+0.5,gH);
+    ctx.globalAlpha=1;
+  }
+
+  // Date labels at midnight
+  ctx.textAlign='center';ctx.fillStyle='#64748b';ctx.font='7px JetBrains Mono';
+  for(var i=0;i<hours.length;i++){
+    var t=hours[i].time;
+    var hh=parseInt(t.split('T')[1].split(':')[0]);
+    if(hh===0||i===0){
+      var x=pad.l+(i/(hours.length-1))*gW;
+      var dp=t.split('T')[0].split('-');
+      ctx.fillText(dp[2]+'-'+dp[1],x,H-1);
+    }
+    if(hh%6===0&&hh!==0){
+      var x=pad.l+(i/(hours.length-1))*gW;
+      ctx.fillStyle='#334155';ctx.fillText(hh+'h',x,H-1);ctx.fillStyle='#64748b';
+    }
+  }
+
+  // Y-axis label
+  ctx.fillStyle='#475569';ctx.font='7px JetBrains Mono';ctx.textAlign='right';
+  ctx.fillText('100%',pad.l-4,pad.t+6);
+  ctx.fillText('0%',pad.l-4,pad.t+gH);
+}
+
 function updateWeatherSummary(){
   if(!wxData)return;
   var hrs=getWxHours();if(!hrs.length)return;
@@ -1376,6 +1443,30 @@ function updateWeatherSummary(){
     '<div class="wx-sum-block"><div class="wx-sum-label">Swell</div><div class="wx-sum-val">'+avgSwell.toFixed(1)+' m</div><div class="wx-sum-sub">'+Math.round(avgPeriod)+'s period, '+swDirStr+'</div></div>'+
     '<div class="wx-sum-block"><div class="wx-sum-label">Max Swell</div><div class="wx-sum-val">'+maxSwell.toFixed(1)+' m</div><div class="wx-sum-sub">next 24h</div></div>'+
     (sst!=null?'<div class="wx-sum-block"><div class="wx-sum-label">SST</div><div class="wx-sum-val">'+sst.toFixed(1)+'°</div><div class="wx-sum-sub">sea surface</div></div>':'');
+
+  // Find best fishing window (highest avg comfort over 4+ consecutive hours, 6am-6pm)
+  var allHrs=getWxHours();
+  var bestScore=0,bestStart='',bestEnd='',bestAvg=0;
+  for(var d=0;d<7;d++){
+    var dayStart=d*24+6,dayEnd=d*24+18; // 6am-6pm
+    if(dayEnd>allHrs.length)break;
+    for(var s=dayStart;s<=dayEnd-4;s++){
+      var sum=0,cnt=0;
+      for(var j=s;j<Math.min(s+6,dayEnd);j++){
+        sum+=(allHrs[j].comfort||0);cnt++;
+      }
+      var avg=sum/cnt;
+      if(avg>bestScore){bestScore=avg;bestAvg=avg;bestStart=allHrs[s].time;bestEnd=allHrs[Math.min(s+cnt-1,allHrs.length-1)].time}
+    }
+  }
+  if(bestStart){
+    var bs=bestStart.split('T'),be=bestEnd.split('T');
+    var bday=bs[0].split('-');
+    var dd=new Date(bestStart);
+    var dayName=dd.toLocaleDateString('en-AU',{weekday:'short'});
+    var clr=comfortColor(Math.round(bestAvg));
+    el.innerHTML+='<div class="wx-sum-block" style="border-color:'+clr+'44"><div class="wx-sum-label">Best Window</div><div class="wx-sum-val" style="color:'+clr+'">'+Math.round(bestAvg)+'%</div><div class="wx-sum-sub">'+dayName+' '+bs[1].substring(0,5)+'-'+be[1].substring(0,5)+'</div></div>';
+  }
 }
 
 // --- Weather cursor sync ---
@@ -1401,11 +1492,13 @@ function wxShowCursor(idx){
   var gW=wW-wxPad.l-wxPad.r;
   var xPos=wxPad.l+(idx/(wxCursorHours.length-1))*gW;
 
-  // Position cursors
+  // Position cursors (all three synced)
   var wc=document.getElementById('wxWindCursor');
   var sc=document.getElementById('wxSwellCursor');
+  var cc=document.getElementById('wxComfortCursor');
   wc.style.left=xPos+'px';wc.classList.add('active');
   sc.style.left=xPos+'px';sc.classList.add('active');
+  cc.style.left=xPos+'px';cc.classList.add('active');
 
   // Time label
   var t=h.time;
@@ -1443,17 +1536,31 @@ function wxShowCursor(idx){
   st.style.right=flip?(wW-xPos+6)+'px':'';
   if(!flip)st.style.removeProperty('right');
   if(flip)st.style.removeProperty('left');
+
+  // Comfort tooltip
+  var ct=document.getElementById('wxComfortTip');
+  var cv=h.comfort!=null?h.comfort:0;
+  var cl=comfortLabel(cv);
+  var clr=comfortColor(cv);
+  ct.innerHTML='<div class="wx-tt-time">'+timeStr+'</div><div class="wx-tt-row" style="color:'+clr+';font-weight:700">'+cv+'% '+cl+'</div>';
+  ct.classList.add('active');
+  ct.style.left=flip?'':(xPos+6)+'px';
+  ct.style.right=flip?(wW-xPos+6)+'px':'';
+  if(!flip)ct.style.removeProperty('right');
+  if(flip)ct.style.removeProperty('left');
 }
 
 function wxHideCursor(){
   document.getElementById('wxWindCursor').classList.remove('active');
   document.getElementById('wxSwellCursor').classList.remove('active');
+  document.getElementById('wxComfortCursor').classList.remove('active');
   document.getElementById('wxWindTip').classList.remove('active');
   document.getElementById('wxSwellTip').classList.remove('active');
+  document.getElementById('wxComfortTip').classList.remove('active');
 }
 
 function wxInitCursorEvents(){
-  var wraps=['wxWindWrap','wxSwellWrap'];
+  var wraps=['wxWindWrap','wxSwellWrap','wxComfortWrap'];
   wraps.forEach(function(id){
     var el=document.getElementById(id);
     // Mouse

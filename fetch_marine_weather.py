@@ -28,6 +28,84 @@ def fetch_json(url):
         return json.loads(resp.read().decode())
 
 
+def rate_comfort(h):
+    """Rate hourly boating comfort 0-100 for a 5.2m boat off Perth.
+
+    Scoring (weights sum to 1.0):
+      Wind speed  (0.35) — <10kn ideal, 15kn marginal, >20kn poor
+      Wind gusts  (0.15) — gusts matter more on small boats
+      Swell height(0.25) — <1m ideal, 1.5m marginal, >2m poor
+      Wave height (0.15) — total sea state including wind chop
+      Wind dir    (0.10) — E/NE/SE give lee from coast; W/SW worst
+    """
+    ws = h.get("wind_speed_10m") or 0
+    wg = h.get("wind_gusts_10m") or 0
+    wd = h.get("wind_direction_10m")
+    sw = h.get("total_swell_height") or h.get("swell_wave_height") or 0
+    wh = h.get("wave_height") or 0
+
+    def clamp(v):
+        return max(0, min(100, v))
+
+    # Wind speed: 100 at 0kn, 80 at 10kn, 40 at 15kn, 0 at 25kn
+    if ws <= 10:
+        s_ws = 100 - (ws / 10) * 20
+    elif ws <= 15:
+        s_ws = 80 - ((ws - 10) / 5) * 40
+    elif ws <= 25:
+        s_ws = 40 - ((ws - 15) / 10) * 40
+    else:
+        s_ws = 0
+
+    # Gusts: 100 at 0kn, 70 at 15kn, 0 at 30kn
+    if wg <= 15:
+        s_wg = 100 - (wg / 15) * 30
+    elif wg <= 30:
+        s_wg = 70 - ((wg - 15) / 15) * 70
+    else:
+        s_wg = 0
+
+    # Swell: 100 at 0m, 80 at 0.5m, 50 at 1m, 20 at 1.5m, 0 at 2.5m
+    if sw <= 0.5:
+        s_sw = 100 - (sw / 0.5) * 20
+    elif sw <= 1.0:
+        s_sw = 80 - ((sw - 0.5) / 0.5) * 30
+    elif sw <= 1.5:
+        s_sw = 50 - ((sw - 1.0) / 0.5) * 30
+    elif sw <= 2.5:
+        s_sw = 20 - ((sw - 1.5) / 1.0) * 20
+    else:
+        s_sw = 0
+
+    # Wave height (total sea state): 100 at 0m, 60 at 1m, 0 at 2m
+    if wh <= 1.0:
+        s_wh = 100 - (wh / 1.0) * 40
+    elif wh <= 2.0:
+        s_wh = 60 - ((wh - 1.0) / 1.0) * 60
+    else:
+        s_wh = 0
+
+    # Wind direction: E/NE/SE best (sheltered by coast), W/SW worst (open ocean)
+    # Perth coast runs roughly N-S, so easterlies give a lee
+    if wd is not None:
+        # Score based on how "easterly" the wind is
+        # E=90 best, W=270 worst
+        # Use cosine of angle from east: cos(wd - 90)
+        dir_cos = math.cos(math.radians(wd - 90))  # 1.0 at E, -1.0 at W
+        s_wd = clamp(50 + dir_cos * 50)  # 100 at E, 0 at W
+    else:
+        s_wd = 50
+
+    score = (
+        0.35 * clamp(s_ws) +
+        0.15 * clamp(s_wg) +
+        0.25 * clamp(s_sw) +
+        0.15 * clamp(s_wh) +
+        0.10 * clamp(s_wd)
+    )
+    return round(score)
+
+
 def fetch_location(name, loc):
     lat, lon = loc["lat"], loc["lon"]
 
@@ -99,6 +177,9 @@ def fetch_location(name, loc):
         # Max period across components (for groundswell alerts)
         periods = [p for p in [pp, sp] if p and p > 0]
         row["max_swell_period"] = max(periods) if periods else None
+
+        # Boating comfort rating for 5.2m boat
+        row["comfort"] = rate_comfort(row)
 
         hourly.append(row)
 
