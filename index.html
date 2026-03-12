@@ -169,6 +169,25 @@
 .fc-trend{padding:4px 14px 10px}
 .fc-trend-text{font-size:9px;color:#94a3b8;line-height:1.5}
 .fc-trend-text strong{color:#e2e8f0;font-weight:600}
+/* Weather panel */
+.wx-panel{display:none;background:rgba(2,6,23,.95);border-top:1px solid rgba(56,189,248,.3);padding:0;max-height:55vh;overflow-y:auto;pointer-events:auto}
+.wx-panel.active{display:block}
+.wx-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 6px}
+.wx-title{font-size:11px;color:#38bdf8;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.wx-close{background:none;border:none;color:#64748b;font-size:16px;cursor:pointer;padding:2px 6px}
+.wx-close:hover{color:#e2e8f0}
+.wx-loc-toggle{display:flex;gap:4px;padding:0 14px 6px}
+.wx-loc-btn{padding:4px 10px;border-radius:5px;border:1px solid rgba(255,255,255,.1);background:rgba(15,23,42,.8);color:#64748b;font-size:9px;font-family:inherit;font-weight:600;cursor:pointer;transition:all .15s}
+.wx-loc-btn.active{border-color:rgba(56,189,248,.5);background:rgba(56,189,248,.15);color:#38bdf8}
+.wx-section{padding:4px 14px}
+.wx-section-title{font-size:8px;color:#64748b;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.wx-chart-wrap{height:100px;position:relative}
+.wx-chart-wrap canvas{width:100%;height:100%}
+.wx-summary{display:flex;gap:8px;padding:6px 14px 10px;flex-wrap:wrap}
+.wx-sum-block{flex:1;min-width:70px;background:rgba(15,23,42,.6);border-radius:6px;padding:6px 8px;border:1px solid rgba(255,255,255,.06)}
+.wx-sum-label{font-size:7px;color:#64748b;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+.wx-sum-val{font-size:14px;font-weight:700;color:#e2e8f0}
+.wx-sum-sub{font-size:8px;color:#94a3b8;margin-top:1px}
 </style>
 
 </head>
@@ -266,6 +285,7 @@
         <button class="layer-btn on" id="btnSeamarks" onclick="toggleLayer('seamark')"><span class="icon">🚩</span> Marks</button>
         <button class="layer-btn" id="btnCatches" onclick="toggleCatches()"><span class="icon">🎣</span> Catches</button>
         <button class="layer-btn" id="btnAllCatches" onclick="toggleAllCatches()"><span class="icon">📍</span> All Catches</button>
+        <button class="layer-btn" id="btnWeather" onclick="toggleWeather()"><span class="icon">💨</span> Weather</button>
       </div>
       <!-- Row 2: Satellite raster overlays -->
       <div class="layer-row">
@@ -318,6 +338,26 @@
       </div>
     </div>
     <div class="fc-trend"><div class="fc-trend-text" id="fcTrendText"></div></div>
+  </div>
+  <!-- Weather panel -->
+  <div class="wx-panel" id="wxPanel">
+    <div class="wx-header">
+      <span class="wx-title">Wind &amp; Swell Forecast</span>
+      <button class="wx-close" onclick="closeWeather()">&times;</button>
+    </div>
+    <div class="wx-loc-toggle">
+      <button class="wx-loc-btn active" id="wxLocRott" onclick="setWxLoc('rottnest')">Rottnest Island</button>
+      <button class="wx-loc-btn" id="wxLocHill" onclick="setWxLoc('hillarys')">Hillarys</button>
+    </div>
+    <div class="wx-section">
+      <div class="wx-section-title">Wind Speed (kn) &amp; Gusts</div>
+      <div class="wx-chart-wrap"><canvas id="wxWindChart"></canvas></div>
+    </div>
+    <div class="wx-section">
+      <div class="wx-section-title">Swell Height (m) &amp; Period</div>
+      <div class="wx-chart-wrap"><canvas id="wxSwellChart"></canvas></div>
+    </div>
+    <div class="wx-summary" id="wxSummary"></div>
   </div>
 </div>
 
@@ -1048,10 +1088,283 @@ function updateForecastInfo(){
   document.getElementById('fcTrendText').innerHTML=txt;
 }
 
+// --- Weather panel ---
+var wxData=null,wxOpen=false,wxLoc='rottnest';
+
+function loadWeather(){
+  fetch('data/marine_weather.json').then(function(r){return r.json()}).then(function(d){
+    wxData=d;
+    console.log('Weather loaded for',Object.keys(d.locations).join(', '));
+  }).catch(function(e){console.warn('No weather data:',e)});
+}
+
+function toggleWeather(){
+  wxOpen=!wxOpen;
+  var el=document.getElementById('wxPanel');
+  var btn=document.getElementById('btnWeather');
+  if(wxOpen){
+    el.classList.add('active');
+    btn.classList.add('on-cyan');
+    drawWeatherCharts();
+    updateWeatherSummary();
+  } else {
+    closeWeather();
+  }
+}
+
+function closeWeather(){
+  wxOpen=false;
+  document.getElementById('wxPanel').classList.remove('active');
+  document.getElementById('btnWeather').classList.remove('on-cyan');
+}
+
+function setWxLoc(loc){
+  wxLoc=loc;
+  document.getElementById('wxLocRott').classList.toggle('active',loc==='rottnest');
+  document.getElementById('wxLocHill').classList.toggle('active',loc==='hillarys');
+  drawWeatherCharts();
+  updateWeatherSummary();
+}
+
+function getWxHours(){
+  if(!wxData||!wxData.locations[wxLoc])return[];
+  return wxData.locations[wxLoc].hourly;
+}
+
+function drawWeatherCharts(){
+  if(!wxData)return;
+  var hrs=getWxHours();if(!hrs.length)return;
+  // Filter to ~3 days (72 hours) for readability
+  var show=hrs.slice(0,72);
+  drawWindChart(show);
+  drawSwellChart(show);
+}
+
+function wxSetupCanvas(canvasId){
+  var canvas=document.getElementById(canvasId);
+  var dpr=window.devicePixelRatio||1;
+  var rect=canvas.parentElement.getBoundingClientRect();
+  canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;
+  canvas.style.width=rect.width+'px';canvas.style.height=rect.height+'px';
+  var ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
+  return{ctx:ctx,W:rect.width,H:rect.height};
+}
+
+function wxDrawGrid(ctx,W,H,pad,yMax,unit,hours){
+  // Y grid
+  var steps=4;
+  for(var i=0;i<=steps;i++){
+    var v=(yMax/steps)*i;
+    var y=pad.t+(1-v/yMax)*(H-pad.t-pad.b);
+    ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    ctx.fillStyle='#475569';ctx.font='8px JetBrains Mono';ctx.textAlign='right';
+    ctx.fillText(Math.round(v)+unit,pad.l-4,y+3);
+  }
+  // Date labels at midnight boundaries
+  ctx.textAlign='center';ctx.fillStyle='#64748b';ctx.font='8px JetBrains Mono';
+  var gW=W-pad.l-pad.r;
+  for(var i=0;i<hours.length;i++){
+    var t=hours[i].time;
+    var hh=parseInt(t.split('T')[1].split(':')[0]);
+    if(hh===0||i===0){
+      var x=pad.l+(i/(hours.length-1))*gW;
+      var dp=t.split('T')[0].split('-');
+      ctx.fillText(dp[2]+'-'+dp[1],x,H-2);
+    }
+    // 6-hour ticks
+    if(hh%6===0&&hh!==0){
+      var x=pad.l+(i/(hours.length-1))*gW;
+      ctx.fillStyle='#334155';ctx.fillText(hh+'h',x,H-2);ctx.fillStyle='#64748b';
+    }
+  }
+}
+
+function windColor(kn){
+  if(kn<=10)return'#22c55e';
+  if(kn<=15)return'#fbbf24';
+  if(kn<=20)return'#fb923c';
+  if(kn<=25)return'#ef4444';
+  return'#dc2626';
+}
+
+function drawWindChart(hours){
+  var c=wxSetupCanvas('wxWindChart');
+  var ctx=c.ctx,W=c.W,H=c.H;
+  var pad={t:14,b:18,l:30,r:8};
+  var gW=W-pad.l-pad.r,gH=H-pad.t-pad.b;
+  ctx.clearRect(0,0,W,H);
+
+  var maxG=0;
+  for(var i=0;i<hours.length;i++){
+    var g=hours[i].wind_gusts_10m||0;
+    if(g>maxG)maxG=g;
+  }
+  var yMax=Math.ceil(maxG/5)*5+5;
+  if(yMax<25)yMax=25;
+
+  wxDrawGrid(ctx,W,H,pad,yMax,' kn',hours);
+
+  var bw=Math.max(1,gW/hours.length-1);
+  // Gust bars (lighter)
+  for(var i=0;i<hours.length;i++){
+    var g=hours[i].wind_gusts_10m||0;
+    var x=pad.l+(i/(hours.length-1))*gW-bw/2;
+    var bh=(g/yMax)*gH;
+    ctx.fillStyle='rgba(251,146,60,.2)';
+    ctx.fillRect(x,pad.t+gH-bh,bw,bh);
+  }
+  // Wind speed bars
+  for(var i=0;i<hours.length;i++){
+    var ws=hours[i].wind_speed_10m||0;
+    var x=pad.l+(i/(hours.length-1))*gW-bw/2;
+    var bh=(ws/yMax)*gH;
+    ctx.fillStyle=windColor(ws);
+    ctx.globalAlpha=0.8;
+    ctx.fillRect(x,pad.t+gH-bh,bw,bh);
+    ctx.globalAlpha=1;
+  }
+
+  // Wind direction arrows every 3 hours
+  ctx.fillStyle='#94a3b8';ctx.font='7px JetBrains Mono';ctx.textAlign='center';
+  for(var i=0;i<hours.length;i+=3){
+    var dir=hours[i].wind_direction_10m;
+    if(dir==null)continue;
+    var x=pad.l+(i/(hours.length-1))*gW;
+    // Draw small arrow
+    ctx.save();
+    ctx.translate(x,pad.t+2);
+    ctx.rotate((dir+180)*Math.PI/180);
+    ctx.beginPath();ctx.moveTo(0,-4);ctx.lineTo(-2,3);ctx.lineTo(2,3);ctx.closePath();
+    ctx.fillStyle='#94a3b8';ctx.fill();
+    ctx.restore();
+  }
+
+  // Legend
+  ctx.font='7px JetBrains Mono';ctx.textAlign='left';ctx.fillStyle='#64748b';
+  ctx.fillText('Wind  |  Gusts (faded)',pad.l+2,pad.t-4);
+}
+
+function drawSwellChart(hours){
+  var c=wxSetupCanvas('wxSwellChart');
+  var ctx=c.ctx,W=c.W,H=c.H;
+  var pad={t:14,b:18,l:30,r:8};
+  var gW=W-pad.l-pad.r,gH=H-pad.t-pad.b;
+  ctx.clearRect(0,0,W,H);
+
+  var maxSw=0;
+  for(var i=0;i<hours.length;i++){
+    var s=hours[i].swell_wave_height||0;
+    var w=hours[i].wave_height||0;
+    var v=Math.max(s,w);
+    if(v>maxSw)maxSw=v;
+  }
+  var yMax=Math.ceil(maxSw)+0.5;
+  if(yMax<2)yMax=2;
+
+  wxDrawGrid(ctx,W,H,pad,yMax,' m',hours);
+
+  // Total wave height area fill
+  ctx.beginPath();
+  for(var i=0;i<hours.length;i++){
+    var w=hours[i].wave_height||0;
+    var x=pad.l+(i/(hours.length-1))*gW;
+    var y=pad.t+(1-w/yMax)*gH;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.lineTo(pad.l+gW,pad.t+gH);ctx.lineTo(pad.l,pad.t+gH);ctx.closePath();
+  ctx.fillStyle='rgba(56,189,248,.1)';ctx.fill();
+
+  // Swell line
+  ctx.beginPath();ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;
+  for(var i=0;i<hours.length;i++){
+    var s=hours[i].swell_wave_height||0;
+    var x=pad.l+(i/(hours.length-1))*gW;
+    var y=pad.t+(1-s/yMax)*gH;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // Wave height line (lighter)
+  ctx.beginPath();ctx.strokeStyle='rgba(56,189,248,.4)';ctx.lineWidth=1;ctx.setLineDash([3,2]);
+  for(var i=0;i<hours.length;i++){
+    var w=hours[i].wave_height||0;
+    var x=pad.l+(i/(hours.length-1))*gW;
+    var y=pad.t+(1-w/yMax)*gH;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.stroke();ctx.setLineDash([]);
+
+  // Swell period labels every 6 hours
+  ctx.fillStyle='#94a3b8';ctx.font='7px JetBrains Mono';ctx.textAlign='center';
+  for(var i=0;i<hours.length;i+=6){
+    var sp=hours[i].swell_wave_period;
+    if(sp==null)continue;
+    var s=hours[i].swell_wave_height||0;
+    var x=pad.l+(i/(hours.length-1))*gW;
+    var y=pad.t+(1-s/yMax)*gH;
+    ctx.fillText(Math.round(sp)+'s',x,y-6);
+  }
+
+  // Legend
+  ctx.font='7px JetBrains Mono';ctx.textAlign='left';ctx.fillStyle='#64748b';
+  ctx.fillText('Swell  |  Wave (dashed)',pad.l+2,pad.t-4);
+}
+
+function updateWeatherSummary(){
+  if(!wxData)return;
+  var hrs=getWxHours();if(!hrs.length)return;
+  // Next 24h summary
+  var h24=hrs.slice(0,24);
+  var maxWind=0,maxGust=0,avgSwell=0,maxSwell=0,avgPeriod=0,swN=0;
+  var dirs=[];
+  for(var i=0;i<h24.length;i++){
+    var h=h24[i];
+    if(h.wind_speed_10m>maxWind)maxWind=h.wind_speed_10m;
+    if(h.wind_gusts_10m>maxGust)maxGust=h.wind_gusts_10m;
+    if(h.wind_direction_10m!=null)dirs.push(h.wind_direction_10m);
+    if(h.swell_wave_height!=null){avgSwell+=h.swell_wave_height;if(h.swell_wave_height>maxSwell)maxSwell=h.swell_wave_height;swN++}
+    if(h.swell_wave_period!=null)avgPeriod+=h.swell_wave_period;
+  }
+  if(swN>0){avgSwell/=swN;avgPeriod/=swN}
+  // Average wind direction -> compass
+  var avgDir=0;
+  if(dirs.length){
+    var sx=0,sy=0;
+    for(var i=0;i<dirs.length;i++){sx+=Math.sin(dirs[i]*Math.PI/180);sy+=Math.cos(dirs[i]*Math.PI/180)}
+    avgDir=Math.atan2(sx,sy)*180/Math.PI;if(avgDir<0)avgDir+=360;
+  }
+  var compass=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+  var dirStr=compass[Math.round(avgDir/22.5)%16];
+
+  // Swell direction
+  var swDirs=[];
+  for(var i=0;i<h24.length;i++){if(h24[i].swell_wave_direction!=null)swDirs.push(h24[i].swell_wave_direction)}
+  var swDirStr='';
+  if(swDirs.length){
+    var ssx=0,ssy=0;
+    for(var i=0;i<swDirs.length;i++){ssx+=Math.sin(swDirs[i]*Math.PI/180);ssy+=Math.cos(swDirs[i]*Math.PI/180)}
+    var asd=Math.atan2(ssx,ssy)*180/Math.PI;if(asd<0)asd+=360;
+    swDirStr=compass[Math.round(asd/22.5)%16];
+  }
+
+  // SST
+  var sst=null;
+  for(var i=0;i<h24.length;i++){if(h24[i].sea_surface_temperature!=null){sst=h24[i].sea_surface_temperature;break}}
+
+  var el=document.getElementById('wxSummary');
+  el.innerHTML=
+    '<div class="wx-sum-block"><div class="wx-sum-label">Wind</div><div class="wx-sum-val">'+Math.round(maxWind)+' kn</div><div class="wx-sum-sub">'+dirStr+', gusts '+Math.round(maxGust)+' kn</div></div>'+
+    '<div class="wx-sum-block"><div class="wx-sum-label">Swell</div><div class="wx-sum-val">'+avgSwell.toFixed(1)+' m</div><div class="wx-sum-sub">'+Math.round(avgPeriod)+'s period, '+swDirStr+'</div></div>'+
+    '<div class="wx-sum-block"><div class="wx-sum-label">Max Swell</div><div class="wx-sum-val">'+maxSwell.toFixed(1)+' m</div><div class="wx-sum-sub">next 24h</div></div>'+
+    (sst!=null?'<div class="wx-sum-block"><div class="wx-sum-label">SST</div><div class="wx-sum-val">'+sst.toFixed(1)+'°</div><div class="wx-sum-sub">sea surface</div></div>':'');
+}
+
 document.addEventListener('DOMContentLoaded',function(){
   initMap();
   loadCatchData();
   loadForecast();
+  loadWeather();
   updateDateInd();
   // Context menu: right-click (PC) or long-press (touch)
   document.getElementById('map').addEventListener('contextmenu',function(e){
