@@ -153,7 +153,7 @@
 @supports(padding-top:env(safe-area-inset-top)){.measure-total{top:calc(env(safe-area-inset-top) + 36px)}}
 .measure-total.active{display:block}
 /* Forecast panel */
-.fc-panel{position:absolute;bottom:0;left:0;right:0;z-index:12;display:none;background:rgba(2,6,23,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(139,92,246,.3);padding:0;transition:transform .3s ease;max-height:55vh;overflow-y:auto}
+.fc-panel{display:none;background:rgba(2,6,23,.95);border-top:1px solid rgba(139,92,246,.3);padding:0;max-height:45vh;overflow-y:auto;pointer-events:auto}
 .fc-panel.active{display:block}
 .fc-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 6px}
 .fc-title{font-size:11px;color:#a78bfa;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
@@ -256,33 +256,6 @@
   <div class="info-dot"></div>
 </div>
 
-<!-- Forecast panel -->
-<div class="fc-panel" id="fcPanel">
-  <div class="fc-header">
-    <span class="fc-title">7-Day Forecast — Accessible Trench Zone</span>
-    <button class="fc-close" onclick="closeForecast()">✕</button>
-  </div>
-  <div class="fc-chart-wrap"><canvas id="fcChart"></canvas></div>
-  <div class="fc-info">
-    <div class="fc-info-block">
-      <div class="fc-info-label">Zone Peak</div>
-      <div class="fc-info-val" id="fcZoneMax">—</div>
-      <div class="fc-info-sub" id="fcZoneDate"></div>
-    </div>
-    <div class="fc-info-block">
-      <div class="fc-info-label">Conditions</div>
-      <div class="fc-info-val" id="fcModel">—</div>
-      <div class="fc-info-sub" id="fcModelSub"></div>
-    </div>
-    <div class="fc-info-block">
-      <div class="fc-info-label">7-Day Trend</div>
-      <div class="fc-info-val" id="fcTrend">—</div>
-      <div class="fc-info-sub" id="fcTrendSub"></div>
-    </div>
-  </div>
-  <div class="fc-trend"><div class="fc-trend-text" id="fcTrendText"></div></div>
-</div>
-
 <!-- Bottom controls -->
 <div class="bottom-controls" id="bottomPanel">
   <div class="panel-toggle"><button class="panel-toggle-btn" onclick="togglePanel()" id="panelChevron">▼</button></div>
@@ -319,6 +292,32 @@
       <button class="dn today-btn" onclick="setToday()">Today</button>
       <span class="date-indicator obs" id="dateIndicator" onclick="onDateIndClick()" style="cursor:pointer">OBS</span>
     </div>
+  </div>
+  <!-- Forecast panel (inside bottom-controls so it pushes content up) -->
+  <div class="fc-panel" id="fcPanel">
+    <div class="fc-header">
+      <span class="fc-title">7-Day Forecast — Accessible Trench Zone</span>
+      <button class="fc-close" onclick="closeForecast()">✕</button>
+    </div>
+    <div class="fc-chart-wrap"><canvas id="fcChart"></canvas></div>
+    <div class="fc-info">
+      <div class="fc-info-block">
+        <div class="fc-info-label">Zone Peak</div>
+        <div class="fc-info-val" id="fcZoneMax">—</div>
+        <div class="fc-info-sub" id="fcZoneDate"></div>
+      </div>
+      <div class="fc-info-block">
+        <div class="fc-info-label">Conditions</div>
+        <div class="fc-info-val" id="fcModel">—</div>
+        <div class="fc-info-sub" id="fcModelSub"></div>
+      </div>
+      <div class="fc-info-block">
+        <div class="fc-info-label">7-Day Trend</div>
+        <div class="fc-info-val" id="fcTrend">—</div>
+        <div class="fc-info-sub" id="fcTrendSub"></div>
+      </div>
+    </div>
+    <div class="fc-trend"><div class="fc-trend-text" id="fcTrendText"></div></div>
   </div>
 </div>
 
@@ -658,6 +657,8 @@ function setBasemap(n){
   map.addLayer({id:'all-catches-dot',type:'circle',source:'all-catches',paint:{'circle-radius':5,'circle-color':['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24'],'circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':aco?.9:0,'circle-stroke-opacity':aco?1:0}},bf);
   document.querySelectorAll('.bm-btn').forEach(function(b){b.classList.remove('active')});
   document.getElementById(bm.btn).classList.add('active');
+  // Re-show forecast zone if panel is open (layers survive but may need z-order fix)
+  if(fcOpen)showZoneBoundary(true);
 }
 
 function mkC(c,r){var p=48,co=[],k=r/1000;for(var i=0;i<=p;i++){var a=(i/p)*2*Math.PI;co.push([c[0]+(k*Math.cos(a))/(111.32*Math.cos(c[1]*Math.PI/180)),c[1]+(k*Math.sin(a))/111.32])}return{type:'Feature',geometry:{type:'Polygon',coordinates:[co]}}}
@@ -909,7 +910,6 @@ function toggleForecast(){
   var el=document.getElementById('fcPanel');
   if(fcOpen){
     el.classList.add('active');
-    document.getElementById('bottomPanel').style.display='none';
     showZoneBoundary(true);
     drawForecastChart();
     updateForecastInfo();
@@ -921,25 +921,30 @@ function toggleForecast(){
 function closeForecast(){
   fcOpen=false;
   document.getElementById('fcPanel').classList.remove('active');
-  document.getElementById('bottomPanel').style.display='';
   showZoneBoundary(false);
 }
 
 function showZoneBoundary(show){
   if(!map)return;
   if(show){
+    // If layers already exist, just restore opacity
+    if(map.getLayer('fc-zone-line')){
+      map.setPaintProperty('fc-zone-line','line-opacity',.8);
+      map.setPaintProperty('fc-zone-fill','fill-opacity',.06);
+      return;
+    }
     fetch('data/prediction/forecast_zone.geojson').then(function(r){return r.json()}).then(function(d){
-      if(map.getSource('fc-zone')){map.getSource('fc-zone').setData(d)}
-      else{
+      if(!map.getSource('fc-zone')){
         map.addSource('fc-zone',{type:'geojson',data:d});
-        map.addLayer({id:'fc-zone-line',type:'line',source:'fc-zone',paint:{'line-color':'#a78bfa','line-width':2.5,'line-opacity':.8,'line-dasharray':[6,3]}});
-        map.addLayer({id:'fc-zone-fill',type:'fill',source:'fc-zone',paint:{'fill-color':'#a78bfa','fill-opacity':.06}});
+      } else {
+        map.getSource('fc-zone').setData(d);
       }
-      sGL('fc-zone-line',true);sGL('fc-zone-fill',true);
+      if(!map.getLayer('fc-zone-fill'))map.addLayer({id:'fc-zone-fill',type:'fill',source:'fc-zone',paint:{'fill-color':'#a78bfa','fill-opacity':.06}});
+      if(!map.getLayer('fc-zone-line'))map.addLayer({id:'fc-zone-line',type:'line',source:'fc-zone',paint:{'line-color':'#a78bfa','line-width':2.5,'line-opacity':.8,'line-dasharray':[6,3]}});
     });
   } else {
-    if(map.getLayer('fc-zone-line')){map.setPaintProperty('fc-zone-line','line-opacity',0)}
-    if(map.getLayer('fc-zone-fill')){map.setPaintProperty('fc-zone-fill','fill-opacity',0)}
+    if(map.getLayer('fc-zone-line'))map.setPaintProperty('fc-zone-line','line-opacity',0);
+    if(map.getLayer('fc-zone-fill'))map.setPaintProperty('fc-zone-fill','fill-opacity',0);
   }
 }
 
