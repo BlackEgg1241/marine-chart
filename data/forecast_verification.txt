@@ -1,0 +1,74 @@
+============================================================
+FORECAST VERIFICATION REPORT
+============================================================
+Generated: 2026-03-13T02:01:40
+Period: 2025-12-10 to 2026-03-12 (92 days)
+Location: Rottnest Island (-32.0, 115.5)
+
+------------------------------------------------------------
+WIND VERIFICATION (BOM Rottnest 009193)
+------------------------------------------------------------
+Forecast model: Open-Meteo ECMWF IFS
+Observations: BOM 9am/3pm synoptic + daily max gust
+
+  Wind Speed (all):
+    Bias:     -1.12  (forecast - observed)
+    RMSE:      2.78
+    MAE:       2.11
+    Corr:     0.852
+    Correction factor: 1.109 (multiply forecast by this)
+    N:          126 paired observations
+
+  Wind Speed (9am):
+    Bias:     -0.68  (forecast - observed)
+    RMSE:      2.72
+    MAE:       2.11
+    Corr:      0.81
+    Correction factor: 1.1 (multiply forecast by this)
+    N:           63 paired observations
+
+  Wind Speed (3pm):
+    Bias:     -1.56  (forecast - observed)
+    RMSE:      2.84
+    MAE:       2.11
+    Corr:     0.843
+    Correction factor: 1.118 (multiply forecast by this)
+    N:           63 paired observations
+
+  Max Gust:
+    Bias:      -0.4  (forecast - observed)
+    RMSE:      3.02
+    MAE:       2.37
+    Corr:     0.852
+    Correction factor: 1.024 (multiply forecast by this)
+    N:           63 paired observations
+
+  Wind Direction:
+    Bias:       0.0  (forecast - observed)
+    RMSE:      18.5
+    MAE:       12.2
+    Corr:     0.958
+    Correction offset: -0.0 deg (add to forecast)
+    N:          126 paired observations
+
+------------------------------------------------------------
+WAVE VERIFICATION (Rottnest wave buoy 56005)
+------------------------------------------------------------
+Forecast model: Open-Meteo ECMWF WAM
+Observations: Transport WA / EPA WA wave buoy
+
+  Wave Height: insufficient data
+
+  Swell Period: insufficient data
+
+  Wave Direction: insufficient data
+
+============================================================
+INTERPRETATION
+============================================================
+Bias > 0: forecast over-predicts; < 0: under-predicts
+RMSE: overall error magnitude (lower is better)
+MAE:  average absolute error (lower is better)
+Corr: 1.0 = perfect correlation (higher is better)
+Correction factor: multiply raw forecast by this value
+Correction offset: add this value to raw forecast direction

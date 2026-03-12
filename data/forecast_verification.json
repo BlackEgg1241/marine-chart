@@ -1,0 +1,56 @@
+{
+  "generated": "2026-03-13T02:01:40",
+  "period": {
+    "start": "2025-12-10",
+    "end": "2026-03-12",
+    "days": 92
+  },
+  "location": {
+    "name": "Rottnest Island",
+    "lat": -32.0,
+    "lon": 115.5
+  },
+  "wind": {
+    "speed_kn": {
+      "bias": -1.12,
+      "mae": 2.11,
+      "rmse": 2.78,
+      "r": 0.852,
+      "correction_factor": 1.109,
+      "n": 126
+    },
+    "speed_9am_kn": {
+      "bias": -0.68,
+      "mae": 2.11,
+      "rmse": 2.72,
+      "r": 0.81,
+      "correction_factor": 1.1,
+      "n": 63
+    },
+    "speed_3pm_kn": {
+      "bias": -1.56,
+      "mae": 2.11,
+      "rmse": 2.84,
+      "r": 0.843,
+      "correction_factor": 1.118,
+      "n": 63
+    },
+    "direction_deg": {
+      "bias": 0.0,
+      "mae": 12.2,
+      "rmse": 18.5,
+      "r": 0.958,
+      "correction_deg": -0.0,
+      "n": 126
+    },
+    "max_gust_kn": {
+      "bias": -0.4,
+      "mae": 2.37,
+      "rmse": 3.02,
+      "r": 0.852,
+      "correction_factor": 1.024,
+      "n": 63
+    }
+  },
+  "waves": {}
+}

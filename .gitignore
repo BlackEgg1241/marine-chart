@@ -15,6 +15,10 @@ data/*.tif
 !data/*.geojson
 !data/*/*.geojson
 
+# Pipeline outputs
+data/forecast_archive/
+data/logs/
+
 # OS
 .DS_Store
 Thumbs.db
