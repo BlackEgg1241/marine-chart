@@ -181,17 +181,18 @@
 .wx-loc-btn.active{border-color:rgba(56,189,248,.5);background:rgba(56,189,248,.15);color:#38bdf8}
 .wx-section{padding:4px 14px}
 .wx-section-title{font-size:8px;color:#64748b;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
-.wx-chart-wrap{height:100px;position:relative;touch-action:none}
+.wx-chart-wrap{height:110px;position:relative;touch-action:none}
 .wx-chart-wrap canvas{width:100%;height:100%}
-.wx-cursor{position:absolute;top:0;bottom:18px;width:1px;background:rgba(255,255,255,.5);pointer-events:none;display:none;z-index:2}
+.wx-cursor{position:absolute;top:0;bottom:0;width:1px;background:rgba(255,255,255,.5);pointer-events:none;display:none;z-index:2}
 .wx-cursor.active{display:block}
 .wx-tooltip{position:absolute;top:4px;background:rgba(2,6,23,.92);border:1px solid rgba(56,189,248,.3);border-radius:5px;padding:4px 7px;pointer-events:none;display:none;z-index:3;white-space:nowrap;font-size:9px;color:#e2e8f0;font-family:'JetBrains Mono',monospace;line-height:1.5}
 .wx-tooltip.active{display:block}
 .wx-tooltip .wx-tt-time{color:#38bdf8;font-weight:600;margin-bottom:1px}
 .wx-tooltip .wx-tt-row{color:#cbd5e1}
-.wx-comfort-wrap{height:28px;position:relative;touch-action:none}
+.wx-comfort-wrap{height:32px;position:relative;touch-action:none}
 .wx-comfort-wrap canvas{width:100%;height:100%}
 .wx-comfort-label{font-size:8px;color:#64748b;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px;padding:0 14px}
+@media(orientation:landscape){.wx-chart-wrap{height:120px}.wx-comfort-wrap{height:36px}}
 .wx-summary{display:flex;gap:8px;padding:6px 14px 10px;flex-wrap:wrap}
 .wx-sum-block{flex:1;min-width:70px;background:rgba(15,23,42,.6);border-radius:6px;padding:6px 8px;border:1px solid rgba(255,255,255,.06)}
 .wx-sum-label{font-size:7px;color:#64748b;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
@@ -1144,10 +1145,26 @@ function setWxLoc(loc){
 
 function setWxRange(days){
   wxRangeDays=days;
+  wxManualRange=true;
   document.getElementById('wxRange3').classList.toggle('active',days===3);
   document.getElementById('wxRange7').classList.toggle('active',days===7);
   drawWeatherCharts();
+  updateWeatherSummary();
 }
+var wxManualRange=false;
+// Auto-switch range on orientation change
+function wxCheckOrientation(){
+  if(wxManualRange)return;
+  var landscape=window.innerWidth>window.innerHeight;
+  var newRange=landscape?7:3;
+  if(newRange!==wxRangeDays){
+    wxRangeDays=newRange;
+    document.getElementById('wxRange3').classList.toggle('active',newRange===3);
+    document.getElementById('wxRange7').classList.toggle('active',newRange===7);
+    if(wxOpen){drawWeatherCharts();updateWeatherSummary();}
+  }
+}
+window.addEventListener('resize',function(){wxCheckOrientation();if(wxOpen){drawWeatherCharts();updateWeatherSummary()}});
 
 function getWxHours(){
   if(!wxData||!wxData.locations[wxLoc])return[];
@@ -1174,34 +1191,103 @@ function wxSetupCanvas(canvasId){
   return{ctx:ctx,W:rect.width,H:rect.height};
 }
 
+var WX_DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
 function wxDrawGrid(ctx,W,H,pad,yMax,unit,hours){
+  var gW=W-pad.l-pad.r,gH=H-pad.t-pad.b;
   // Y grid
   var steps=4;
   for(var i=0;i<=steps;i++){
     var v=(yMax/steps)*i;
-    var y=pad.t+(1-v/yMax)*(H-pad.t-pad.b);
+    var y=pad.t+(1-v/yMax)*gH;
     ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;
     ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
     ctx.fillStyle='#475569';ctx.font='8px JetBrains Mono';ctx.textAlign='right';
     ctx.fillText(Math.round(v)+unit,pad.l-4,y+3);
   }
-  // Date labels at midnight boundaries
-  ctx.textAlign='center';ctx.fillStyle='#64748b';ctx.font='8px JetBrains Mono';
+  // Find day boundaries (midnight hours) and draw vertical lines + day labels
+  var dayStarts=[];
+  for(var i=0;i<hours.length;i++){
+    var hh=parseInt(hours[i].time.split('T')[1].split(':')[0]);
+    if(hh===0||i===0)dayStarts.push(i);
+  }
+  // Vertical midnight lines
+  ctx.strokeStyle='rgba(255,255,255,.12)';ctx.lineWidth=1;
+  for(var d=1;d<dayStarts.length;d++){
+    var x=pad.l+(dayStarts[d]/(hours.length-1))*gW;
+    ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,pad.t+gH);ctx.stroke();
+  }
+  // Day name + date centered in each day's span
+  ctx.textAlign='center';
+  for(var d=0;d<dayStarts.length;d++){
+    var si=dayStarts[d];
+    var ei=(d+1<dayStarts.length)?dayStarts[d+1]:hours.length;
+    var midI=(si+ei)/2;
+    var cx=pad.l+(midI/(hours.length-1))*gW;
+    var dt=new Date(hours[si].time);
+    var dayName=WX_DAYS[dt.getDay()];
+    var dp=hours[si].time.split('T')[0].split('-');
+    ctx.fillStyle='#94a3b8';ctx.font='bold 8px JetBrains Mono';
+    ctx.fillText(dayName,cx,H-8);
+    ctx.fillStyle='#64748b';ctx.font='7px JetBrains Mono';
+    ctx.fillText(dp[2]+'-'+dp[1],cx,H-1);
+  }
+}
+
+function wxGetSun(){
+  if(!wxData||!wxData.locations[wxLoc])return[];
+  return wxData.locations[wxLoc].sun||[];
+}
+
+function wxDrawSunStrip(ctx,W,H,pad,hours){
+  // Draw daylight gradient strip at bottom of chart area
   var gW=W-pad.l-pad.r;
+  var stripH=6;
+  var stripY=H-pad.b-stripH;
+  var sun=wxGetSun();
+  if(!sun.length)return;
+  // Build lookup: date -> sun times
+  var sunMap={};
+  for(var s=0;s<sun.length;s++)sunMap[sun[s].date]=sun[s];
+  // Draw hour by hour
   for(var i=0;i<hours.length;i++){
     var t=hours[i].time;
-    var hh=parseInt(t.split('T')[1].split(':')[0]);
-    if(hh===0||i===0){
-      var x=pad.l+(i/(hours.length-1))*gW;
-      var dp=t.split('T')[0].split('-');
-      ctx.fillText(dp[2]+'-'+dp[1],x,H-2);
+    var date=t.split('T')[0];
+    var timeMin=parseInt(t.split('T')[1].split(':')[0])*60+parseInt(t.split('T')[1].split(':')[1]||'0');
+    var sd=sunMap[date];
+    if(!sd){ctx.fillStyle='rgba(15,23,42,.8)';} else {
+      var fl=_tMin(sd.first_light),sr=_tMin(sd.sunrise),ss=_tMin(sd.sunset),ll=_tMin(sd.last_light);
+      if(timeMin<fl||timeMin>=ll)ctx.fillStyle='rgba(15,23,42,.9)'; // night
+      else if(timeMin<sr)ctx.fillStyle='rgba(251,146,60,.15)'; // first light/dawn
+      else if(timeMin<sr+30)ctx.fillStyle='rgba(251,146,60,.3)'; // sunrise glow
+      else if(timeMin>=ss-30&&timeMin<ss)ctx.fillStyle='rgba(251,146,60,.3)'; // sunset glow
+      else if(timeMin>=ss)ctx.fillStyle='rgba(251,146,60,.15)'; // dusk
+      else ctx.fillStyle='rgba(56,189,248,.12)'; // daytime
     }
-    // 6-hour ticks
-    if(hh%6===0&&hh!==0){
-      var x=pad.l+(i/(hours.length-1))*gW;
-      ctx.fillStyle='#334155';ctx.fillText(hh+'h',x,H-2);ctx.fillStyle='#64748b';
-    }
+    var x1=pad.l+(i/(hours.length-1))*gW;
+    var x2=(i+1<hours.length)?pad.l+((i+1)/(hours.length-1))*gW:x1+gW/hours.length;
+    ctx.fillRect(x1,stripY,x2-x1+0.5,stripH);
   }
+  // Draw sunrise/sunset markers
+  ctx.fillStyle='#fb923c';ctx.font='6px JetBrains Mono';ctx.textAlign='center';
+  for(var s=0;s<sun.length;s++){
+    var sd=sun[s];
+    var srI=_timeToIdx(sd.sunrise,hours);
+    var ssI=_timeToIdx(sd.sunset,hours);
+    if(srI>=0){var x=pad.l+(srI/(hours.length-1))*gW;ctx.fillText('\u2600',x,stripY+stripH-1)}
+    if(ssI>=0){var x=pad.l+(ssI/(hours.length-1))*gW;ctx.fillText('\u263D',x,stripY+stripH-1)}
+  }
+}
+function _tMin(iso){var p=iso.split('T')[1].split(':');return parseInt(p[0])*60+parseInt(p[1]||'0')}
+function _timeToIdx(iso,hours){
+  // Find closest hour index to an ISO time
+  var target=new Date(iso).getTime();
+  var best=-1,bestD=Infinity;
+  for(var i=0;i<hours.length;i++){
+    var d=Math.abs(new Date(hours[i].time).getTime()-target);
+    if(d<bestD){bestD=d;best=i}
+  }
+  return bestD<3600000?best:-1; // within 1 hour
 }
 
 function windColor(kn){
@@ -1215,7 +1301,7 @@ function windColor(kn){
 function drawWindChart(hours){
   var c=wxSetupCanvas('wxWindChart');
   var ctx=c.ctx,W=c.W,H=c.H;
-  var pad={t:14,b:18,l:30,r:8};
+  var pad={t:14,b:26,l:30,r:8};
   var gW=W-pad.l-pad.r,gH=H-pad.t-pad.b;
   ctx.clearRect(0,0,W,H);
 
@@ -1267,12 +1353,13 @@ function drawWindChart(hours){
   // Legend
   ctx.font='7px JetBrains Mono';ctx.textAlign='left';ctx.fillStyle='#64748b';
   ctx.fillText('Wind  |  Gusts (faded)',pad.l+2,pad.t-4);
+  wxDrawSunStrip(ctx,W,H,pad,hours);
 }
 
 function drawSwellChart(hours){
   var c=wxSetupCanvas('wxSwellChart');
   var ctx=c.ctx,W=c.W,H=c.H;
-  var pad={t:14,b:18,l:30,r:8};
+  var pad={t:14,b:26,l:30,r:8};
   var gW=W-pad.l-pad.r,gH=H-pad.t-pad.b;
   ctx.clearRect(0,0,W,H);
 
@@ -1333,6 +1420,7 @@ function drawSwellChart(hours){
   // Legend
   ctx.font='7px JetBrains Mono';ctx.textAlign='left';ctx.fillStyle='#64748b';
   ctx.fillText('Swell  |  Wave (dashed)',pad.l+2,pad.t-4);
+  wxDrawSunStrip(ctx,W,H,pad,hours);
 }
 
 function comfortColor(v){
@@ -1358,7 +1446,7 @@ function drawComfortChart(hours){
   canvas.style.width=rect.width+'px';canvas.style.height=rect.height+'px';
   var ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
   var W=rect.width,H=rect.height;
-  var pad={t:2,b:12,l:30,r:8};
+  var pad={t:2,b:16,l:30,r:8};
   var gW=W-pad.l-pad.r,gH=H-pad.t-pad.b;
   ctx.clearRect(0,0,W,H);
 
@@ -1372,20 +1460,30 @@ function drawComfortChart(hours){
     ctx.globalAlpha=1;
   }
 
-  // Date labels at midnight
-  ctx.textAlign='center';ctx.fillStyle='#64748b';ctx.font='7px JetBrains Mono';
+  // Midnight vertical lines
+  for(var i=1;i<hours.length;i++){
+    var hh=parseInt(hours[i].time.split('T')[1].split(':')[0]);
+    if(hh===0){
+      var x=pad.l+(i/(hours.length-1))*gW;
+      ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,pad.t+gH);ctx.stroke();
+    }
+  }
+
+  // Day names centered
+  var dayStarts=[];
   for(var i=0;i<hours.length;i++){
-    var t=hours[i].time;
-    var hh=parseInt(t.split('T')[1].split(':')[0]);
-    if(hh===0||i===0){
-      var x=pad.l+(i/(hours.length-1))*gW;
-      var dp=t.split('T')[0].split('-');
-      ctx.fillText(dp[2]+'-'+dp[1],x,H-1);
-    }
-    if(hh%6===0&&hh!==0){
-      var x=pad.l+(i/(hours.length-1))*gW;
-      ctx.fillStyle='#334155';ctx.fillText(hh+'h',x,H-1);ctx.fillStyle='#64748b';
-    }
+    var hh=parseInt(hours[i].time.split('T')[1].split(':')[0]);
+    if(hh===0||i===0)dayStarts.push(i);
+  }
+  ctx.textAlign='center';ctx.fillStyle='#94a3b8';ctx.font='bold 7px JetBrains Mono';
+  for(var d=0;d<dayStarts.length;d++){
+    var si=dayStarts[d];
+    var ei=(d+1<dayStarts.length)?dayStarts[d+1]:hours.length;
+    var midI=(si+ei)/2;
+    var cx=pad.l+(midI/(hours.length-1))*gW;
+    var dt=new Date(hours[si].time);
+    ctx.fillText(WX_DAYS[dt.getDay()],cx,H-2);
   }
 
   // Y-axis label
@@ -1471,7 +1569,7 @@ function updateWeatherSummary(){
 
 // --- Weather cursor sync ---
 var wxCursorHours=null;
-var wxPad={t:14,b:18,l:30,r:8};
+var wxPad={t:14,b:26,l:30,r:8};
 
 function wxPosToIndex(clientX,wrapEl){
   var rect=wrapEl.getBoundingClientRect();
@@ -1593,6 +1691,7 @@ document.addEventListener('DOMContentLoaded',function(){
   loadForecast();
   loadWeather();
   wxInitCursorEvents();
+  wxCheckOrientation();
   updateDateInd();
   // Context menu: right-click (PC) or long-press (touch)
   document.getElementById('map').addEventListener('contextmenu',function(e){

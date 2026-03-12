@@ -28,6 +28,14 @@ def fetch_json(url):
         return json.loads(resp.read().decode())
 
 
+def _offset_time(iso_str, minutes):
+    """Offset an ISO time string by N minutes. e.g. '2026-03-13T06:16' + (-27)."""
+    dt = datetime.strptime(iso_str, "%Y-%m-%dT%H:%M")
+    from datetime import timedelta
+    dt += timedelta(minutes=minutes)
+    return dt.strftime("%Y-%m-%dT%H:%M")
+
+
 def rate_comfort(h):
     """Rate hourly boating comfort 0-100 for a 5.2m boat off Perth.
 
@@ -119,6 +127,7 @@ def fetch_location(name, loc):
         f"https://api.open-meteo.com/v1/forecast"
         f"?latitude={lat}&longitude={lon}"
         f"&hourly={','.join(WEATHER_PARAMS)}"
+        f"&daily=sunrise,sunset"
         f"&forecast_days={FORECAST_DAYS}&timezone=Australia%2FPerth"
         f"&wind_speed_unit=kn"
     )
@@ -183,11 +192,26 @@ def fetch_location(name, loc):
 
         hourly.append(row)
 
+    # Build sun data with civil twilight (~27 min offset for Perth latitude)
+    sun = []
+    daily = weather.get("daily", {})
+    for i, d in enumerate(daily.get("time", [])):
+        sr = daily["sunrise"][i]  # e.g. "2026-03-13T06:16"
+        ss = daily["sunset"][i]
+        sun.append({
+            "date": d,
+            "first_light": _offset_time(sr, -27),
+            "sunrise": sr,
+            "sunset": ss,
+            "last_light": _offset_time(ss, 27),
+        })
+
     return {
         "label": loc["label"],
         "lat": lat,
         "lon": lon,
         "hourly": hourly,
+        "sun": sun,
     }
 
 
