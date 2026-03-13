@@ -1,30 +1,9 @@
 {
-  "generated": "2026-03-13 08:38",
+  "generated": "2026-03-14 04:00",
   "model_version": 2,
   "lookback_days": 8,
   "forecast_days": 7,
   "predictions": [
-    {
-      "score": 37.5,
-      "confidence": 100.0,
-      "n_params": 17,
-      "top_params": {
-        "sst_skew": 80.2,
-        "sst_range": 65.5,
-        "blue_water_frac": 46.4,
-        "sst_p75": 39.4,
-        "sst_max": 36.6
-      },
-      "bottom_params": {
-        "mld_mean": 2.0,
-        "sst_gradient": 9.5,
-        "sst_front_frac": 12.0
-      },
-      "date": "2026-03-13",
-      "offset": 0,
-      "label": "TODAY",
-      "map_path": "data\\prediction\\2026-03-13\\blue_marlin_hotspots.geojson"
-    },
     {
       "score": 36.8,
       "confidence": 100.0,
@@ -42,8 +21,8 @@
         "sst_front_frac": 15.6
       },
       "date": "2026-03-14",
-      "offset": 1,
-      "label": "FORECAST",
+      "offset": 0,
+      "label": "TODAY",
       "map_path": "data\\prediction\\2026-03-14\\blue_marlin_hotspots.geojson"
     },
     {
@@ -63,7 +42,7 @@
         "sst_front_frac": 19.3
       },
       "date": "2026-03-15",
-      "offset": 2,
+      "offset": 1,
       "label": "FORECAST",
       "map_path": "data\\prediction\\2026-03-15\\blue_marlin_hotspots.geojson"
     },
@@ -84,7 +63,7 @@
         "sst_gradient": 26.8
       },
       "date": "2026-03-16",
-      "offset": 3,
+      "offset": 2,
       "label": "FORECAST",
       "map_path": "data\\prediction\\2026-03-16\\blue_marlin_hotspots.geojson"
     },
@@ -105,7 +84,7 @@
         "sst_mean": 33.8
       },
       "date": "2026-03-17",
-      "offset": 4,
+      "offset": 3,
       "label": "FORECAST",
       "map_path": "data\\prediction\\2026-03-17\\blue_marlin_hotspots.geojson"
     },
@@ -126,7 +105,7 @@
         "sst_warm_frac": 36.9
       },
       "date": "2026-03-18",
-      "offset": 5,
+      "offset": 4,
       "label": "FORECAST",
       "map_path": "data\\prediction\\2026-03-18\\blue_marlin_hotspots.geojson"
     },
@@ -147,7 +126,7 @@
         "anticyc_frac": 79.9
       },
       "date": "2026-03-19",
-      "offset": 6,
+      "offset": 5,
       "label": "FORECAST",
       "map_path": "data\\prediction\\2026-03-19\\blue_marlin_hotspots.geojson"
     },
@@ -168,9 +147,30 @@
         "sst_range": 70.2
       },
       "date": "2026-03-20",
-      "offset": 7,
+      "offset": 6,
       "label": "FORECAST",
       "map_path": "data\\prediction\\2026-03-20\\blue_marlin_hotspots.geojson"
+    },
+    {
+      "score": 76.7,
+      "confidence": 100.0,
+      "n_params": 17,
+      "top_params": {
+        "anticyc_frac": 98.1,
+        "vorticity": 93.8,
+        "leeuwin": 93.2,
+        "sst_gradient": 90.7,
+        "sst_min": 89.5
+      },
+      "bottom_params": {
+        "sst_skew": 31.3,
+        "sst_std": 47.9,
+        "sst_range": 49.5
+      },
+      "date": "2026-03-21",
+      "offset": 7,
+      "label": "FORECAST",
+      "map_path": "data\\prediction\\2026-03-21\\blue_marlin_hotspots.geojson"
     }
   ]
 }

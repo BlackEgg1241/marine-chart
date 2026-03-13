@@ -1,5 +1,5 @@
 {
-  "generated": "2026-03-13 08:38",
+  "generated": "2026-03-14 04:00",
   "zone_bounds": [
     114.98,
     -32.1667,
@@ -8,29 +8,9 @@
   ],
   "days": [
     {
-      "date": "2026-03-13",
-      "model_score": 37.5,
-      "label": "TODAY",
-      "top_params": {
-        "sst_skew": 80.2,
-        "sst_range": 65.5,
-        "blue_water_frac": 46.4,
-        "sst_p75": 39.4,
-        "sst_max": 36.6
-      },
-      "bottom_params": {
-        "mld_mean": 2.0,
-        "sst_gradient": 9.5,
-        "sst_front_frac": 12.0
-      },
-      "zone_max": 69.0,
-      "zone_mean": 60.0,
-      "zone_cells": 5
-    },
-    {
       "date": "2026-03-14",
       "model_score": 36.8,
-      "label": "FORECAST",
+      "label": "TODAY",
       "top_params": {
         "sst_skew": 67.8,
         "sst_range": 67.5,
@@ -166,6 +146,26 @@
       "zone_max": 75.0,
       "zone_mean": 61.4,
       "zone_cells": 5
+    },
+    {
+      "date": "2026-03-21",
+      "model_score": 76.7,
+      "label": "FORECAST",
+      "top_params": {
+        "anticyc_frac": 98.1,
+        "vorticity": 93.8,
+        "leeuwin": 93.2,
+        "sst_gradient": 90.7,
+        "sst_min": 89.5
+      },
+      "bottom_params": {
+        "sst_skew": 31.3,
+        "sst_std": 47.9,
+        "sst_range": 49.5
+      },
+      "zone_max": 76.0,
+      "zone_mean": 62.3,
+      "zone_cells": 4
     }
   ]
 }
