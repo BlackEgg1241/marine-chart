@@ -103,6 +103,8 @@ def evaluate_params(params):
         "mld":          params["w_mld"],
         "o2":           params["w_o2"],
         "clarity":      params["w_clarity"],
+        "ssta":         params["w_ssta"],
+        "boundary":     params["w_boundary"],
     }
 
     # Store tunable params as module-level attributes for the scoring function
@@ -116,6 +118,10 @@ def evaluate_params(params):
     marlin_data._opt_synergy_factor = params["synergy_factor"]
     marlin_data._opt_chl_optimal = params["chl_optimal"]
     marlin_data._opt_chl_sigma = params["chl_sigma"]
+    marlin_data._opt_boundary_threshold = params["boundary_threshold"]
+    marlin_data._opt_boundary_blend = params["boundary_blend"]
+    marlin_data._opt_ssta_optimal = params["ssta_optimal"]
+    marlin_data._opt_ssta_sigma = params["ssta_sigma"]
 
     # Suppress all print output from scoring pipeline
     import io
@@ -133,7 +139,7 @@ def evaluate_params(params):
                 shutil.copy2(TIF_PATH, dated_tif)
 
             try:
-                result = generate_blue_marlin_hotspots(BBOX, tif_path=dated_tif)
+                result = generate_blue_marlin_hotspots(BBOX, tif_path=dated_tif, date_str=date_str)
             except Exception:
                 continue
 
@@ -181,10 +187,12 @@ def objective(trial):
     raw_mld = trial.suggest_float("w_mld", 0.02, 0.12)
     raw_o2 = trial.suggest_float("w_o2", 0.01, 0.05)
     raw_clarity = trial.suggest_float("w_clarity", 0.01, 0.05)
+    raw_ssta = trial.suggest_float("w_ssta", 0.02, 0.10)
+    raw_boundary = trial.suggest_float("w_boundary", 0.02, 0.15)
 
     total = (raw_sst + raw_sst_front + raw_sst_intrusion + raw_chl +
              raw_ssh + raw_current + raw_convergence + raw_mld +
-             raw_o2 + raw_clarity)
+             raw_o2 + raw_clarity + raw_ssta + raw_boundary)
 
     # --- Scoring function parameters ---
     params = {
@@ -198,6 +206,8 @@ def objective(trial):
         "w_mld":          round(raw_mld / total, 4),
         "w_o2":           round(raw_o2 / total, 4),
         "w_clarity":      round(raw_clarity / total, 4),
+        "w_ssta":         round(raw_ssta / total, 4),
+        "w_boundary":     round(raw_boundary / total, 4),
         "sst_optimal":       trial.suggest_float("sst_optimal", 22.0, 25.0),
         "sst_sigma":         trial.suggest_float("sst_sigma", 1.5, 3.0),
         "front_floor":       trial.suggest_float("front_floor", 0.0, 0.3),
@@ -208,6 +218,10 @@ def objective(trial):
         "synergy_factor":    trial.suggest_float("synergy_factor", 0.0, 0.8),
         "chl_optimal":       trial.suggest_float("chl_optimal", 0.10, 0.40),
         "chl_sigma":         trial.suggest_float("chl_sigma", 0.2, 0.8),
+        "boundary_threshold": trial.suggest_float("boundary_threshold", 0.15, 0.50),
+        "boundary_blend":    trial.suggest_float("boundary_blend", 0.3, 0.8),
+        "ssta_optimal":      trial.suggest_float("ssta_optimal", 0.5, 2.0),
+        "ssta_sigma":        trial.suggest_float("ssta_sigma", 0.5, 2.5),
     }
 
     metrics = evaluate_params(params)

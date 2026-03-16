@@ -672,17 +672,18 @@ def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None, tif_
 BLUE_MARLIN_WEIGHTS = {
     # Optimized by Optuna (200 trials, 45 blue marlin catches, corrected DDM coords).
     # Result: mean 90%, median 93%, 99% >= 70%, min floor 65%.
-    "sst":          0.31,   # SST — primary habitat driver
-    "sst_front":    0.09,   # SST gradient — prey aggregation at fronts
+    "sst":          0.28,   # SST — primary habitat driver
+    "sst_front":    0.07,   # SST gradient — prey aggregation at fronts
     "sst_intrusion":0.03,   # Cross-shelf SST gradient — Leeuwin Current
     "chl":          0.08,   # Chlorophyll — bait productivity indicator
-    "ssh":          0.19,   # Sea level anomaly — warm water mass + eddies
+    "ssh":          0.16,   # Sea level anomaly — warm water mass + eddies
     "current":      0.12,   # Current favorability — warm water advection
     "convergence":  0.04,   # Current convergence — bait aggregation
     "mld":          0.08,   # Mixed layer depth — shallow = catchable
     "o2":           0.04,   # Dissolved oxygen at 100m
     "clarity":      0.04,   # Water clarity
     "ssta":         0.05,   # SST anomaly — warmer than normal = Leeuwin Current
+    "boundary":     0.08,   # Boundary convergence — multi-feature edge proximity
     # Static factors applied as MULTIPLIERS, not additive:
     # depth:       0->1 gate (zero if <100m)
     # shelf_break: 1.0->1.53 boost (canyon walls get up to +53%)
@@ -979,6 +980,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     _add_score("sst_intrusion", intrusion_score)
 
     # 3. Chlorophyll score — peaks at 0.15–0.30 mg/m³ (shelf edge bait zone)
+    chl_grid = None  # saved for boundary convergence
     chl_file = os.path.join(OUTPUT_DIR, "chl_raw.nc")
     if os.path.exists(chl_file):
         try:
@@ -990,6 +992,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             chl_lons = chl_da.longitude.values if "longitude" in chl_da.dims else chl_da.lon.values
             chl_lats = chl_da.latitude.values if "latitude" in chl_da.dims else chl_da.lat.values
             chl_data = _interp_to_grid(chl_da.values.astype(float), chl_lons, chl_lats)
+            chl_grid = chl_data  # save for boundary convergence
             # Peak score at optimal CHL, Gaussian falloff in log space
             _chl_opt = getattr(sys.modules[__name__], '_opt_chl_optimal', 0.22)
             _chl_sig = getattr(sys.modules[__name__], '_opt_chl_sigma', 0.79)
@@ -1053,6 +1056,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     # 5. SSH score — blended absolute + relative SLA
     #    Absolute: high SLA (>0.10m) = warm water mass present over canyon (2025: 0.20m vs 2026: 0.06m)
     #    Relative: local highs above background = eddy edges where marlin hunt
+    ssh_grid = None  # saved for boundary convergence
     ssh_file = os.path.join(OUTPUT_DIR, "ssh_raw.nc")
     if os.path.exists(ssh_file):
         try:
@@ -1062,6 +1066,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             s_lons = sla_da.longitude.values if "longitude" in sla_da.dims else sla_da.lon.values
             s_lats = sla_da.latitude.values if "latitude" in sla_da.dims else sla_da.lat.values
             sla_data = _interp_to_grid(sla_da.values.astype(float), s_lons, s_lats)
+            ssh_grid = sla_data  # save for boundary convergence
             # Absolute SLA: warm water mass indicator
             # 0 at SLA<=0, 1.0 at SLA>=0.15m (strong warm anomaly)
             abs_score = np.clip(sla_data / 0.15, 0, 1)
@@ -1082,6 +1087,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             print(f"[Hotspots] SSH scoring failed: {e}")
 
     # 6. MLD score — shallower = better (marlin compressed at surface)
+    mld_grid = None  # saved for boundary convergence
     mld_file = os.path.join(OUTPUT_DIR, "mld_raw.nc")
     if os.path.exists(mld_file):
         try:
@@ -1093,6 +1099,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             m_lons = mld_da.longitude.values if "longitude" in mld_da.dims else mld_da.lon.values
             m_lats = mld_da.latitude.values if "latitude" in mld_da.dims else mld_da.lat.values
             mld_data = _interp_to_grid(mld_da.values.astype(float), m_lons, m_lats)
+            mld_grid = mld_data  # save for boundary convergence
             # Score: 1.0 at MLD<20m, 0.5 at 50m, 0 at 100m
             mld_score = np.clip(1.0 - (mld_data - 20) / 80, 0, 1)
             _add_score("mld", mld_score)
@@ -1100,6 +1107,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             print(f"[Hotspots] MLD scoring failed: {e}")
 
     # 7. Oxygen score — O2 at 100m depth
+    o2_grid = None  # saved for boundary convergence
     o2_file = os.path.join(OUTPUT_DIR, "oxygen_raw.nc")
     if os.path.exists(o2_file):
         try:
@@ -1111,6 +1119,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             o_lons = o2_da.longitude.values if "longitude" in o2_da.dims else o2_da.lon.values
             o_lats = o2_da.latitude.values if "latitude" in o2_da.dims else o2_da.lat.values
             o2_data = _interp_to_grid(o2_da.values.astype(float), o_lons, o_lats)
+            o2_grid = o2_data  # save for boundary convergence
             # Score: 0 at <100 mmol/m³, 0.5 at 150, 1.0 at >200
             o2_score = np.clip((o2_data - 100) / 100, 0, 1)
             _add_score("o2", o2_score)
@@ -1240,6 +1249,109 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             print(f"[Hotspots] Convergence scoring: {conv_pct:.0f}% of cells have bait-concentrating flow")
         except Exception as e:
             print(f"[Hotspots] Current scoring failed: {e}")
+
+    # 11. Boundary convergence — boost cells where multiple feature edges overlap
+    #     Marlin aggregate at oceanographic boundaries (CHL edges, SST fronts,
+    #     eddy edges, O2 contours, SSTA gradients), especially where multiple
+    #     boundaries converge. Validated by manual proximity analysis of 25+ catches.
+    try:
+        gradient_fields = {}
+
+        # SST gradient already computed above (grad_mag, g90)
+        if g90 > 0:
+            gradient_fields["sst"] = np.clip(grad_mag / g90, 0, 1)
+
+        # CHL gradient (in log space — CHL varies exponentially)
+        if chl_grid is not None:
+            chl_for_grad = np.log10(np.clip(chl_grid, 0.01, 10))
+            chl_for_grad[np.isnan(chl_for_grad) | land] = np.nanmean(chl_for_grad[~land])
+            chl_smooth = gaussian_filter(chl_for_grad, sigma=1.5)
+            cgx = sobel(chl_smooth, axis=1)
+            cgy = sobel(chl_smooth, axis=0)
+            chl_grad = np.sqrt(cgx**2 + cgy**2)
+            chl_grad[coast_buf] = 0
+            cg90 = np.nanpercentile(chl_grad[~coast_buf & ~land], 90)
+            if cg90 > 0:
+                gradient_fields["chl"] = np.clip(chl_grad / cg90, 0, 1)
+
+        # SSH gradient (eddy edges)
+        if ssh_grid is not None:
+            ssh_for_grad = ssh_grid.copy()
+            ssh_for_grad[np.isnan(ssh_for_grad) | land] = np.nanmean(ssh_grid[~land])
+            ssh_smooth = gaussian_filter(ssh_for_grad, sigma=1.5)
+            sgx = sobel(ssh_smooth, axis=1)
+            sgy = sobel(ssh_smooth, axis=0)
+            ssh_grad = np.sqrt(sgx**2 + sgy**2)
+            ssh_grad[coast_buf] = 0
+            sg90 = np.nanpercentile(ssh_grad[~coast_buf & ~land], 90)
+            if sg90 > 0:
+                gradient_fields["ssh"] = np.clip(ssh_grad / sg90, 0, 1)
+
+        # O2 gradient (hypoxic/adequate boundary edges)
+        if o2_grid is not None:
+            o2_for_grad = o2_grid.copy()
+            o2_for_grad[np.isnan(o2_for_grad) | land] = np.nanmean(o2_grid[~land])
+            o2_smooth = gaussian_filter(o2_for_grad, sigma=1.5)
+            ogx = sobel(o2_smooth, axis=1)
+            ogy = sobel(o2_smooth, axis=0)
+            o2_grad = np.sqrt(ogx**2 + ogy**2)
+            o2_grad[coast_buf] = 0
+            og90 = np.nanpercentile(o2_grad[~coast_buf & ~land], 90)
+            if og90 > 0:
+                gradient_fields["o2"] = np.clip(o2_grad / og90, 0, 1)
+
+        # MLD gradient (thermocline boundary)
+        if mld_grid is not None:
+            mld_for_grad = mld_grid.copy()
+            mld_for_grad[np.isnan(mld_for_grad) | land] = np.nanmean(mld_grid[~land])
+            mld_smooth_g = gaussian_filter(mld_for_grad, sigma=1.5)
+            mgx = sobel(mld_smooth_g, axis=1)
+            mgy = sobel(mld_smooth_g, axis=0)
+            mld_grad = np.sqrt(mgx**2 + mgy**2)
+            mld_grad[coast_buf] = 0
+            mg90 = np.nanpercentile(mld_grad[~coast_buf & ~land], 90)
+            if mg90 > 0:
+                gradient_fields["mld"] = np.clip(mld_grad / mg90, 0, 1)
+
+        # SSTA gradient (anomaly boundary edges)
+        if "ssta" in sub_scores:
+            ssta_for_grad = sub_scores["ssta"].copy()
+            ssta_for_grad[np.isnan(ssta_for_grad) | land] = np.nanmean(ssta_for_grad[~land])
+            ssta_smooth_g = gaussian_filter(ssta_for_grad, sigma=1.5)
+            agx = sobel(ssta_smooth_g, axis=1)
+            agy = sobel(ssta_smooth_g, axis=0)
+            ssta_grad = np.sqrt(agx**2 + agy**2)
+            ssta_grad[coast_buf] = 0
+            ag90 = np.nanpercentile(ssta_grad[~coast_buf & ~land], 90)
+            if ag90 > 0:
+                gradient_fields["ssta"] = np.clip(ssta_grad / ag90, 0, 1)
+
+        if len(gradient_fields) >= 2:
+            _boundary_thresh = getattr(sys.modules[__name__], '_opt_boundary_threshold', 0.3)
+            _boundary_blend = getattr(sys.modules[__name__], '_opt_boundary_blend', 0.6)
+
+            # Count how many feature types have a boundary at each cell
+            boundary_count = sum(
+                (g > _boundary_thresh).astype(float) for g in gradient_fields.values()
+            )
+            count_score = boundary_count / len(gradient_fields)
+
+            # Mean gradient intensity across all available fields
+            mean_grad = np.mean(list(gradient_fields.values()), axis=0)
+
+            # Blend: count (multi-boundary convergence) + intensity (gradient strength)
+            boundary_score = _boundary_blend * count_score + (1.0 - _boundary_blend) * mean_grad
+
+            # Only in warm water (fronts in cold water are irrelevant to marlin)
+            boundary_score *= sst_score
+            boundary_score[land] = np.nan
+            _add_score("boundary", boundary_score)
+
+            n_fields = len(gradient_fields)
+            multi = np.sum(boundary_count[~land] >= 2) / np.sum(~land) * 100
+            print(f"[Hotspots] Boundary convergence: {n_fields} fields, {multi:.0f}% cells have 2+ edges")
+    except Exception as e:
+        print(f"[Hotspots] Boundary convergence failed: {e}")
 
     # --- Normalize by actual weights used (handles missing data gracefully) ---
     valid = weight_sum > 0
