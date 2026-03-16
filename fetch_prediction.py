@@ -591,7 +591,7 @@ def generate_prediction_geojson(date_str, score, metrics, out_dir):
                     break
 
     try:
-        result = generate_blue_marlin_hotspots(BBOX, tif_path=tif_path)
+        result = generate_blue_marlin_hotspots(BBOX, tif_path=tif_path, date_str=date_str)
         if result:
             # Save raw grid sub-zone scores for fine-grained spatial analysis
             _save_subzone_scores(result, out_dir)
@@ -643,6 +643,14 @@ def _generate_overlay_geojsons(out_dir, marlin_data):
             marlin_data.process_mld(mld_file)
         except Exception as e:
             print(f"    [Overlay] MLD failed: {str(e)[:60]}")
+
+    # SSTA contours
+    if os.path.exists(sst_file):
+        date_str = os.path.basename(out_dir)
+        try:
+            marlin_data.generate_ssta_contours(sst_file, date_str)
+        except Exception as e:
+            print(f"    [Overlay] SSTA failed: {str(e)[:60]}")
 
     marlin_data.OUTPUT_DIR = saved_output_dir
 

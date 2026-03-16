@@ -682,6 +682,7 @@ BLUE_MARLIN_WEIGHTS = {
     "mld":          0.08,   # Mixed layer depth — shallow = catchable
     "o2":           0.04,   # Dissolved oxygen at 100m
     "clarity":      0.04,   # Water clarity
+    "ssta":         0.05,   # SST anomaly — warmer than normal = Leeuwin Current
     # Static factors applied as MULTIPLIERS, not additive:
     # depth:       0->1 gate (zero if <100m)
     # shelf_break: 1.0->1.53 boost (canyon walls get up to +53%)
@@ -692,7 +693,99 @@ BLUE_MARLIN_WEIGHTS = {
 HOTSPOT_BANDS = [0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.90, 0.95]
 
 
-def generate_blue_marlin_hotspots(bbox, tif_path=None):
+def compute_ssta(sst_grid, lats, lons, date_str, clim_path="data/sst_climatology.nc"):
+    """Compute SST anomaly = observed SST - monthly climatology.
+    Returns SSTA array (same shape as sst_grid) in degrees C."""
+    import xarray as xr
+
+    if not os.path.exists(clim_path):
+        print(f"[SSTA] Climatology not found at {clim_path}")
+        return np.full_like(sst_grid, np.nan)
+
+    month = int(date_str[5:7])
+    ds = xr.open_dataset(clim_path)
+    clim = ds["sst_clim"].sel(month=month).values
+    clim_lats = ds["latitude"].values
+    clim_lons = ds["longitude"].values
+    ds.close()
+
+    # Interpolate climatology onto the observation grid
+    from scipy.interpolate import RegularGridInterpolator
+    interp = RegularGridInterpolator(
+        (clim_lats, clim_lons), clim,
+        method="linear", bounds_error=False, fill_value=np.nan
+    )
+    lat_grid, lon_grid = np.meshgrid(lats, lons, indexing="ij")
+    clim_on_grid = interp((lat_grid, lon_grid))
+
+    ssta = sst_grid - clim_on_grid
+    return ssta
+
+
+# SSTA contour levels for overlay generation
+SSTA_LEVELS = [
+    (-2.0, "very_cold", "#1d4ed8"),  # deep blue — strong negative anomaly
+    (-1.0, "cold",      "#60a5fa"),  # light blue — moderate negative
+    (-0.5, "cool",      "#bfdbfe"),  # pale blue — slight negative
+    ( 0.5, "warm",      "#fdba74"),  # light orange — slight positive
+    ( 1.0, "hot",       "#fb923c"),  # orange — moderate positive
+    ( 2.0, "very_hot",  "#dc2626"),  # red — strong positive anomaly
+]
+
+
+def generate_ssta_contours(sst_file, date_str, clim_path="data/sst_climatology.nc"):
+    """Generate SSTA contour lines GeoJSON from SST data and climatology."""
+    import xarray as xr
+    from scipy.ndimage import gaussian_filter
+
+    if not os.path.exists(clim_path):
+        print(f"[SSTA] Climatology not found, skipping contours")
+        return None
+
+    print(f"[SSTA] Processing anomaly contours for {date_str}...")
+    ds = xr.open_dataset(sst_file)
+    sst = None
+    for var in ["analysed_sst", "thetao", "sst", "SST"]:
+        if var in ds:
+            sst = ds[var].squeeze()
+            break
+    if sst is None:
+        raise ValueError(f"No SST variable found. Available: {list(ds.data_vars)}")
+
+    lons = sst.longitude.values if "longitude" in sst.dims else sst.lon.values
+    lats = sst.latitude.values if "latitude" in sst.dims else sst.lat.values
+    data = sst.values.copy().astype(float)
+    ds.close()
+
+    # Convert Kelvin to Celsius if needed
+    if np.nanmean(data) > 100:
+        data -= 273.15
+
+    ssta = compute_ssta(data, lats, lons, date_str, clim_path)
+    mask = np.isnan(ssta)
+    ssta_filled = ssta.copy()
+    ssta_filled[mask] = 0.0
+    ssta_smooth = gaussian_filter(ssta_filled, sigma=0.8)
+    ssta_smooth[mask] = 0.0
+
+    all_features = []
+    for level, label, color in SSTA_LEVELS:
+        feats = _contours_to_geojson(
+            ssta_smooth, lons, lats, level,
+            properties={"type": "ssta_contour", "anomaly": level, "label": label, "color": color}
+        )
+        feats = [f for f in feats if len(f["geometry"]["coordinates"]) >= 3]
+        all_features.extend(feats)
+
+    geojson = {"type": "FeatureCollection", "features": all_features}
+    output_path = os.path.join(OUTPUT_DIR, "ssta_contours.geojson")
+    with open(output_path, "w") as f:
+        json.dump(geojson, f)
+    print(f"[SSTA] {len(all_features)} contours -> {output_path}")
+    return output_path
+
+
+def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     """
     Build a composite habitat suitability grid for blue marlin by scoring
     each pixel across all available ocean variables, then export as filled
@@ -812,6 +905,19 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
     else:
         sst_score = np.exp(-0.5 * ((sst_smooth - optimal_temp) / sst_sigma) ** 2)
     _add_score("sst", sst_score)
+
+    # 1b. SST Anomaly score — positive anomaly = Leeuwin Current pushing warm water
+    if date_str is not None:
+        try:
+            ssta = compute_ssta(sst_smooth, lats, lons, date_str)
+            if not np.all(np.isnan(ssta)):
+                _ssta_optimal = getattr(sys.modules[__name__], '_opt_ssta_optimal', 1.0)
+                _ssta_sigma = getattr(sys.modules[__name__], '_opt_ssta_sigma', 1.5)
+                ssta_score = np.exp(-0.5 * ((ssta - _ssta_optimal) / _ssta_sigma) ** 2)
+                ssta_score[land] = np.nan
+                _add_score("ssta", ssta_score)
+        except Exception as e:
+            print(f"[Hotspots] SSTA scoring failed: {e}")
 
     # 2. SST front score — Sobel gradient magnitude, modulated by SST suitability
     #    A front at 20°C is useless for marlin — only score fronts in warm water
@@ -2095,9 +2201,16 @@ def main():
         except Exception as e:
             print(f"[SST Fronts] Error: {e}")
 
+    # Generate SSTA contours
+    if sst_file:
+        try:
+            generate_ssta_contours(sst_file, date_str)
+        except Exception as e:
+            print(f"[SSTA] Error: {e}")
+
     # Generate blue marlin habitat hotspot heatmap
     try:
-        generate_blue_marlin_hotspots(bbox, tif_path=tif_path)
+        generate_blue_marlin_hotspots(bbox, tif_path=tif_path, date_str=date_str)
     except Exception as e:
         print(f"[Hotspots] Error: {e}")
 

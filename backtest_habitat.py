@@ -175,7 +175,7 @@ def run_date(date_str, bbox, base_dir, bathy_tif, skip_fetch=False):
 
     # Run scoring
     tif = local_tif if os.path.exists(local_tif) else None
-    result = marlin_data.generate_blue_marlin_hotspots(bbox, tif_path=tif)
+    result = marlin_data.generate_blue_marlin_hotspots(bbox, tif_path=tif, date_str=date_str)
     if result is None:
         return None, None, None, 0, {}
 
