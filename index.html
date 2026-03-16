@@ -245,8 +245,9 @@
   <div class="ml-tab" id="legendTab" onclick="toggleLegend()">◀</div>
   <button class="ml-close" onclick="toggleLegend()">✕</button>
   <h3>🐟 Marlin Zones</h3>
-  <div class="ml-row"><div class="ml-swatch" style="height:12px;width:100%;background:linear-gradient(to right,#a5f3fc,#67e8f9,#22d3ee,#06b6d4,#0e7490,#164e63);border-radius:3px"></div></div>
+  <div class="ml-row"><div class="ml-swatch" style="height:12px;width:100%;background:linear-gradient(to right,#a5f3fc,#67e8f9,#22d3ee,#06b6d4,#0e7490,#164e63,#7c3aed,#f59e0b);border-radius:3px"></div></div>
   <div class="ml-row" style="justify-content:space-between;gap:0"><div class="ml-text" style="font-size:7px;color:#94a3b8">15%</div><div class="ml-text" style="font-size:8px;color:#fbbf24;font-weight:600">Habitat Score</div><div class="ml-text" style="font-size:7px;color:#94a3b8">100%</div></div>
+  <div class="ml-row" style="justify-content:space-between;gap:0;margin-top:2px"><div class="ml-text" style="font-size:7px;color:#7c3aed">90%+ prime</div><div class="ml-text" style="font-size:7px;color:#f59e0b">95%+ peak</div></div>
   <div class="ml-divider"></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#ff6b35;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">SST front (temp break)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#06b6d4;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Isotherm — blue prime (24–27°C)</div></div>
@@ -265,7 +266,10 @@
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#60a5fa;border-style:dashed"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Cold anomaly (SLA −0.01m)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#000;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Current direction</div></div>
   <div class="ml-divider"></div>
-  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#0ea5e9;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">MLD 50m (shallow = catchable)</div></div>
+  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#a78bfa;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">MLD 10m (surface-pinned)</div></div>
+  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#22d3ee;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">MLD 20m (shallow)</div></div>
+  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#0ea5e9;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">MLD 30m (moderate)</div></div>
+  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#6366f1;border-style:dashed"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">MLD 50m (deep)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#22c55e;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">O₂ adequate (&gt;200 mmol/m³)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#fb923c;border-style:dashed"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">O₂ low (&lt;150 mmol/m³)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#ef4444;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">O₂ hypoxic (&lt;100 — avoid)</div></div>
@@ -385,7 +389,19 @@ var SM_URL='https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png';
 var BLK='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 var GW='https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/';
 var GM={'GHRSST_L4_MUR_Sea_Surface_Temperature':{t:'GoogleMapsCompatible_Level7',f:'png',z:7},'MODIS_Aqua_L2_Chlorophyll_A':{t:'GoogleMapsCompatible_Level7',f:'png',z:7}};
-function gu(l,d){var m=GM[l];return GW+l+'/default/'+d+'/'+m.t+'/{z}/{y}/{x}.'+m.f}
+// Use gibs:// protocol to fix palette PNG transparency (MapLibre doesn't decode tRNS in P-mode PNGs)
+maplibregl.addProtocol('gibs',function(params,cb){
+  var url=params.url.replace('gibs://','https://');
+  fetch(url).then(function(r){return r.blob()}).then(function(blob){
+    createImageBitmap(blob).then(function(bmp){
+      var cv=document.createElement('canvas');cv.width=bmp.width;cv.height=bmp.height;
+      var ctx=cv.getContext('2d');ctx.drawImage(bmp,0,0);
+      cv.toBlob(function(b){b.arrayBuffer().then(function(buf){cb(null,buf,null,null)});},'image/png');
+    });
+  }).catch(function(e){cb(e)});
+  return {cancel:function(){}};
+});
+function gu(l,d){var m=GM[l];return 'gibs://gibs.earthdata.nasa.gov/wmts/epsg3857/best/'+l+'/default/'+d+'/'+m.t+'/{z}/{y}/{x}.'+m.f}
 var GL={chl:'MODIS_Aqua_L2_Chlorophyll_A',sst:'GHRSST_L4_MUR_Sea_Surface_Temperature'};
 // CMEMS Sea Level Anomaly WMTS — NRT daily, no auth required
 var CMEMS_SLA='https://wmts.marine.copernicus.eu/teroWmts/?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=SEALEVEL_GLO_PHY_L4_NRT_008_046/cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.125deg_P1D_202506/sla&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&TIME=DATE&STYLE=cmap:balance,range:-0.5/0.5';
@@ -414,7 +430,7 @@ var SPOTS=[
 var map,cBM='ocean',gpsWId=null,gM='off',cPos=null,fGPS=false,trk=[];
 var LS={seamark:true,blue_marlin:false,chlorophyll:false,sst:true,ssh_visual:false,sst_fronts:true,chl_edges:true,currents:true,bathymetry:true,clarity:true,ssh:true,mld:true,oxygen:true};
 // Opacity-based toggling for GeoJSON layers — tiles stay loaded, no cache purge on toggle
-var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.5],'isotherm-label':['text-opacity',1],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.9],'mld-deep':['line-opacity',.7],'o2-hypoxic':['line-opacity',.9],'o2-low':['line-opacity',.8],'o2-adequate':['line-opacity',.7],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.95],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'bathy-glow':['line-opacity',.12],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-label':['text-opacity',1],'hs-blue':['fill-opacity',.45]};
+var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.5],'isotherm-label':['text-opacity',1],'mld-very-shallow':['line-opacity',.9],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.8],'mld-deep':['line-opacity',.7],'o2-hypoxic':['line-opacity',.9],'o2-low':['line-opacity',.8],'o2-adequate':['line-opacity',.7],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.95],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'bathy-glow':['line-opacity',.12],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-label':['text-opacity',1],'hs-blue':['fill-opacity',.45]};
 function sGL(id,on){if(!map.getLayer(id))return;var e=gLO[id];e?map.setPaintProperty(id,e[0],on?e[1]:0):map.setLayoutProperty(id,'visibility',on?'visible':'none')}
 var iD=new Date();iD.setDate(iD.getDate()-1);var cDate=iD.toISOString().split('T')[0];
 var iG=new Date();iG.setDate(iG.getDate()-3);var gDate=iG.toISOString().split('T')[0];
@@ -455,7 +471,7 @@ function initMap(){
     {id:'g-sst-layer',type:'raster',source:'g-sst',layout:{visibility:'visible'},paint:{'raster-opacity':.6}},
     {id:'g-chl-layer',type:'raster',source:'g-chl',layout:{visibility:'none'},paint:{'raster-opacity':.7}},
     {id:'g-ssh-layer',type:'raster',source:'g-ssh',layout:{visibility:'none'},paint:{'raster-opacity':.7}},
-    {id:'hs-blue',type:'fill',source:'blue-hotspots',paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.15,'#a5f3fc',0.3,'#67e8f9',0.45,'#22d3ee',0.6,'#06b6d4',0.75,'#0e7490',1.0,'#164e63'],'fill-opacity':0}},
+    {id:'hs-blue',type:'fill',source:'blue-hotspots',paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.15,'#a5f3fc',0.3,'#67e8f9',0.45,'#22d3ee',0.6,'#06b6d4',0.75,'#0e7490',0.85,'#164e63',0.92,'#7c3aed',1.0,'#f59e0b'],'fill-opacity':0}},
 {id:'spot-glow',type:'circle',source:'spots',layout:{visibility:'visible'},paint:{'circle-radius':16,'circle-color':'#f43f5e','circle-opacity':.15,'circle-blur':.8}},
     {id:'spot-dot',type:'circle',source:'spots',layout:{visibility:'visible'},paint:{'circle-radius':6,'circle-color':'#f43f5e','circle-stroke-width':2,'circle-stroke-color':'#fff','circle-opacity':.9}},
     {id:'spot-label',type:'symbol',source:'spots',layout:{visibility:'visible','text-field':['get','name'],'text-size':10,'text-offset':[0,1.5],'text-anchor':'top','text-font':['Open Sans Regular']},paint:{'text-color':'#fbbf24','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5}},
@@ -485,8 +501,9 @@ function initMap(){
     {id:'clarity-clean',type:'line',source:'water-clarity',filter:['==',['get','label'],'clean'],paint:{'line-color':'#38bdf8','line-width':2,'line-opacity':.9}},
     {id:'clarity-turbid',type:'line',source:'water-clarity',filter:['==',['get','label'],'turbid'],paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':.85,'line-dasharray':[4,2]}},
     {id:'clarity-bloom',type:'line',source:'water-clarity',filter:['==',['get','label'],'bloom'],paint:{'line-color':'#dc2626','line-width':2,'line-opacity':.9,'line-dasharray':[4,2]}},
+    {id:'mld-very-shallow',type:'line',source:'mld',filter:['==',['get','label'],'very_shallow'],paint:{'line-color':'#a78bfa','line-width':2,'line-opacity':.9}},
     {id:'mld-shallow',type:'line',source:'mld',filter:['==',['get','label'],'shallow'],paint:{'line-color':'#22d3ee','line-width':1.5,'line-opacity':.8}},
-    {id:'mld-moderate',type:'line',source:'mld',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#0ea5e9','line-width':2,'line-opacity':.9}},
+    {id:'mld-moderate',type:'line',source:'mld',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#0ea5e9','line-width':1.5,'line-opacity':.8}},
     {id:'mld-deep',type:'line',source:'mld',filter:['==',['get','label'],'deep'],paint:{'line-color':'#6366f1','line-width':1.5,'line-opacity':.7,'line-dasharray':[4,2]}},
     {id:'o2-hypoxic',type:'line',source:'oxygen',filter:['==',['get','label'],'hypoxic'],paint:{'line-color':'#ef4444','line-width':2,'line-opacity':.9}},
     {id:'o2-low',type:'line',source:'oxygen',filter:['==',['get','label'],'low'],paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':.8,'line-dasharray':[4,2]}},
@@ -528,9 +545,10 @@ function initMap(){
     'clarity-clean':function(p){return '<div class="hp-title">Clean Water</div><div class="hp-sub">Low turbidity — good fishing visibility</div>'},
     'clarity-turbid':function(p){return '<div class="hp-title">Turbid Water</div><div class="hp-sub">High turbidity — reduced visibility</div>'},
     'clarity-bloom':function(p){return '<div class="hp-title">Trichodesmium Bloom</div><div class="hp-sub">Very poor water clarity — avoid</div>'},
-    'mld-shallow':function(p){return '<div class="hp-title">Shallow Mixed Layer ('+p.mld+'m)</div><div class="hp-sub">Strongly stratified — marlin concentrated near surface</div>'},
-    'mld-moderate':function(p){return '<div class="hp-title">MLD Boundary ('+p.mld+'m)</div><div class="hp-sub">Key threshold — fish shallower than this for marlin</div>'},
-    'mld-deep':function(p){return '<div class="hp-title">Deep Mixed Layer ('+p.mld+'m)</div><div class="hp-sub">Weakly stratified — marlin dispersed through water column</div>'},
+    'mld-very-shallow':function(p){return '<div class="hp-title">Very Shallow MLD ('+p.mld+'m)</div><div class="hp-sub">Extreme stratification — marlin pinned to surface layer</div>'},
+    'mld-shallow':function(p){return '<div class="hp-title">Shallow Mixed Layer ('+p.mld+'m)</div><div class="hp-sub">Strong stratification — marlin concentrated near surface</div>'},
+    'mld-moderate':function(p){return '<div class="hp-title">Moderate MLD ('+p.mld+'m)</div><div class="hp-sub">Transitional mixing — marlin accessible but deeper</div>'},
+    'mld-deep':function(p){return '<div class="hp-title">Deep Mixed Layer ('+p.mld+'m)</div><div class="hp-sub">Weak stratification — marlin dispersed through water column</div>'},
     'o2-hypoxic':function(p){return '<div class="hp-title">Hypoxic Zone ('+p.o2+' mmol/m³)</div><div class="hp-sub">Severely low O₂ at 100m — limits marlin diving, avoid</div>'},
     'o2-low':function(p){return '<div class="hp-title">Low O₂ ('+p.o2+' mmol/m³)</div><div class="hp-sub">Borderline oxygen at 100m — marlin vertical habitat compressed</div>'},
     'o2-adequate':function(p){return '<div class="hp-title">Adequate O₂ ('+p.o2+' mmol/m³)</div><div class="hp-sub">Good dissolved oxygen at 100m — full diving range</div>'}
@@ -630,7 +648,7 @@ function toggleLayer(n){
     bathymetry:['bathy-100','bathy-glow','bathy-200','bathy-500','bathy-1000','bathy-label'],
     clarity:['clarity-clean','clarity-turbid','clarity-bloom'],
     ssh:['ssh-cold','ssh-neutral','ssh-warm','ssh-warm-core'],
-    mld:['mld-shallow','mld-moderate','mld-deep'],
+    mld:['mld-very-shallow','mld-shallow','mld-moderate','mld-deep'],
     oxygen:['o2-hypoxic','o2-low','o2-adequate']};
   var bm={seamark:{id:'btnSeamarks',c:'on'},chlorophyll:{id:'btnChloro',c:'on-green'},sst:{id:'btnSST',c:'on-red'},ssh_visual:{id:'btnSSHMap',c:'on'},blue_marlin:{id:'btnBlueMarlin',c:'on-cyan'},sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},currents:{id:'btnCurrents',c:'on'},bathymetry:{id:'btnBathy',c:'on-orange'},clarity:{id:'btnClarity',c:'on'},ssh:{id:'btnSSH',c:'on-orange'},mld:{id:'btnMLD',c:'on'},oxygen:{id:'btnO2',c:'on'}};
   if(n==='blue_marlin'){
@@ -666,7 +684,7 @@ function setBasemap(n){
   map.addSource('g-ssh',{type:'raster',tiles:[guSLA(cDate)],tileSize:256,maxzoom:8});
   map.addLayer({id:'g-ssh-layer',type:'raster',source:'g-ssh',layout:{visibility:LS.ssh_visual?'visible':'none'},paint:{'raster-opacity':.7}},bf);
   var bmo2=LS.blue_marlin;
-  map.addLayer({id:'hs-blue',type:'fill',source:'blue-hotspots',paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.15,'#a5f3fc',0.3,'#67e8f9',0.45,'#22d3ee',0.6,'#06b6d4',0.75,'#0e7490',1.0,'#164e63'],'fill-opacity':bmo2?.45:0}},bf);
+  map.addLayer({id:'hs-blue',type:'fill',source:'blue-hotspots',paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.15,'#a5f3fc',0.3,'#67e8f9',0.45,'#22d3ee',0.6,'#06b6d4',0.75,'#0e7490',0.85,'#164e63',0.92,'#7c3aed',1.0,'#f59e0b'],'fill-opacity':bmo2?.45:0}},bf);
   var mv=LS.seamark?'visible':'none';
   map.addLayer({id:'spot-glow',type:'circle',source:'spots',layout:{visibility:mv},paint:{'circle-radius':16,'circle-color':'#f43f5e','circle-opacity':.15,'circle-blur':.8}},bf);
   map.addLayer({id:'spot-dot',type:'circle',source:'spots',layout:{visibility:mv},paint:{'circle-radius':6,'circle-color':'#f43f5e','circle-stroke-width':2,'circle-stroke-color':'#fff','circle-opacity':.9}},bf);
@@ -694,8 +712,9 @@ function setBasemap(n){
   map.addLayer({id:'ssh-warm-core',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'warm_core'],paint:{'line-color':'#ef4444','line-width':3,'line-opacity':so?.95:0}},bf);
   var co=LS.clarity;
   var mo=LS.mld;
+  map.addLayer({id:'mld-very-shallow',type:'line',source:'mld',filter:['==',['get','label'],'very_shallow'],paint:{'line-color':'#a78bfa','line-width':2,'line-opacity':mo?.9:0}},bf);
   map.addLayer({id:'mld-shallow',type:'line',source:'mld',filter:['==',['get','label'],'shallow'],paint:{'line-color':'#22d3ee','line-width':1.5,'line-opacity':mo?.8:0}},bf);
-  map.addLayer({id:'mld-moderate',type:'line',source:'mld',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#0ea5e9','line-width':2,'line-opacity':mo?.9:0}},bf);
+  map.addLayer({id:'mld-moderate',type:'line',source:'mld',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#0ea5e9','line-width':1.5,'line-opacity':mo?.8:0}},bf);
   map.addLayer({id:'mld-deep',type:'line',source:'mld',filter:['==',['get','label'],'deep'],paint:{'line-color':'#6366f1','line-width':1.5,'line-opacity':mo?.7:0,'line-dasharray':[4,2]}},bf);
   var oo=LS.oxygen;
   map.addLayer({id:'o2-hypoxic',type:'line',source:'oxygen',filter:['==',['get','label'],'hypoxic'],paint:{'line-color':'#ef4444','line-width':2,'line-opacity':oo?.9:0}},bf);
@@ -759,6 +778,13 @@ function toggleCatches(){
     panel.classList.add('active');
     // Also activate date bar so date shows
     document.getElementById('dateBar').classList.add('active');
+    // Auto-enable marlin habitat layer when browsing catches
+    if(!LS.blue_marlin){
+      LS.blue_marlin=true;
+      sGL('hs-blue',true);sGL('isotherm-blue-prime',true);sGL('isotherm-blue-good',true);sGL('isotherm-label',true);
+      var ml=document.getElementById('marlinLegend');if(ml)ml.classList.add('active');
+      var tb=document.querySelectorAll('.layer-btn');tb.forEach(function(b){if(b.dataset.layer==='blue_marlin')b.classList.add('active')});
+    }
     if(!catchData){loadCatchData();return}
     if(catchIdx<0)catchIdx=0;
     showCatch(catchIdx);
@@ -802,6 +828,8 @@ function showCatch(idx){
   info+='<div><span class="label">Position</span> <span class="val">'+p.lat+' '+p.lon+'</span></div>';
   if(p.length)info+='<div><span class="label">Length</span> <span class="val">'+p.length+' cm</span></div>';
   if(p.weight)info+='<div><span class="label">Weight</span> <span class="val">'+p.weight+' kg</span></div>';
+  // Placeholder for habitat score — filled after GeoJSON loads
+  info+='<div id="catchHabitat"></div>';
   document.getElementById('catchInfo').innerHTML=info;
   document.getElementById('catchCounter').textContent=(idx+1)+' / '+catchData.length;
 
@@ -809,6 +837,55 @@ function showCatch(idx){
   cDate=p.date;
   document.getElementById('dateInput').value=cDate;
   rG();
+
+  // After data loads, sample habitat score at catch point
+  // Use sourcedata event instead of fragile setTimeout
+  var _hsAttempts=0;
+  function _tryHabitat(){
+    _hsAttempts++;
+    var feats=map.getSource('blue-hotspots')?map.querySourceFeatures('blue-hotspots'):[];
+    if(feats&&feats.length>0){
+      _sampleCatchHabitat(coords[0], coords[1]);
+    } else if(_hsAttempts<8){
+      setTimeout(_tryHabitat, 500);
+    }
+  }
+  setTimeout(_tryHabitat, 800);
+}
+
+function _sampleCatchHabitat(lon, lat){
+  // Query the blue-hotspots source for the highest-intensity polygon containing catch point
+  if(!map.getSource('blue-hotspots'))return;
+  try{
+    var features=map.querySourceFeatures('blue-hotspots');
+    if(!features||!features.length)return;
+    var best=0;
+    // Ray-casting point-in-polygon test
+    function pip(ring,x,y){
+      var inside=false;
+      for(var i=0,j=ring.length-1;i<ring.length;j=i++){
+        var xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];
+        if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)inside=!inside;
+      }
+      return inside;
+    }
+    for(var i=0;i<features.length;i++){
+      var int=features[i].properties.intensity||0;
+      var coords=features[i].geometry.coordinates;
+      if(!coords||!coords[0])continue;
+      var ring=coords[0];
+      if(pip(ring,lon,lat)){
+        if(int>best)best=int;
+      }
+    }
+    var el=document.getElementById('catchHabitat');
+    if(el&&best>0){
+      var pct=Math.round(best*100);
+      var col=pct>=95?'#f59e0b':pct>=90?'#7c3aed':pct>=75?'#0e7490':pct>=60?'#06b6d4':'#67e8f9';
+      var label=pct>=95?'PEAK':pct>=90?'PRIME':pct>=75?'GOOD':pct>=60?'FAIR':'LOW';
+      el.innerHTML='<span class="label">Habitat</span> <span class="val" style="color:'+col+'">'+pct+'% '+label+'</span>';
+    }
+  }catch(e){}
 }
 
 function toggleAllCatches(){
@@ -988,20 +1065,35 @@ function showZoneBoundary(show){
     if(map.getLayer('fc-zone-line')){
       map.setPaintProperty('fc-zone-line','line-opacity',.8);
       map.setPaintProperty('fc-zone-fill','fill-opacity',.06);
+      if(map.getLayer('fc-subzone-line'))map.setPaintProperty('fc-subzone-line','line-opacity',.6);
+      if(map.getLayer('fc-subzone-fill'))map.setPaintProperty('fc-subzone-fill','fill-opacity',.08);
       return;
     }
     fetch('data/prediction/forecast_zone.geojson').then(function(r){return r.json()}).then(function(d){
+      // Split main zone and sub-zones
+      var mainFeats={type:'FeatureCollection',features:d.features.filter(function(f){return f.properties.type==='main'})};
+      var subFeats={type:'FeatureCollection',features:d.features.filter(function(f){return f.properties.type==='subzone'})};
       if(!map.getSource('fc-zone')){
-        map.addSource('fc-zone',{type:'geojson',data:d});
+        map.addSource('fc-zone',{type:'geojson',data:mainFeats});
       } else {
-        map.getSource('fc-zone').setData(d);
+        map.getSource('fc-zone').setData(mainFeats);
       }
       if(!map.getLayer('fc-zone-fill'))map.addLayer({id:'fc-zone-fill',type:'fill',source:'fc-zone',paint:{'fill-color':'#a78bfa','fill-opacity':.06}});
       if(!map.getLayer('fc-zone-line'))map.addLayer({id:'fc-zone-line',type:'line',source:'fc-zone',paint:{'line-color':'#a78bfa','line-width':2.5,'line-opacity':.8,'line-dasharray':[6,3]}});
+      // Sub-zones
+      if(!map.getSource('fc-subzones')){
+        map.addSource('fc-subzones',{type:'geojson',data:subFeats});
+      } else {
+        map.getSource('fc-subzones').setData(subFeats);
+      }
+      if(!map.getLayer('fc-subzone-fill'))map.addLayer({id:'fc-subzone-fill',type:'fill',source:'fc-subzones',paint:{'fill-color':['get','color'],'fill-opacity':.08}});
+      if(!map.getLayer('fc-subzone-line'))map.addLayer({id:'fc-subzone-line',type:'line',source:'fc-subzones',paint:{'line-color':['get','color'],'line-width':1.5,'line-opacity':.6,'line-dasharray':[4,2]}});
     });
   } else {
     if(map.getLayer('fc-zone-line'))map.setPaintProperty('fc-zone-line','line-opacity',0);
     if(map.getLayer('fc-zone-fill'))map.setPaintProperty('fc-zone-fill','fill-opacity',0);
+    if(map.getLayer('fc-subzone-line'))map.setPaintProperty('fc-subzone-line','line-opacity',0);
+    if(map.getLayer('fc-subzone-fill'))map.setPaintProperty('fc-subzone-fill','fill-opacity',0);
   }
 }
 
@@ -1102,6 +1194,19 @@ function updateForecastInfo(){
   if(worst.zone_max<60)txt+=' <strong>Avoid:</strong> '+new Date(worst.date+'T00:00:00').toLocaleDateString('en-AU',{weekday:'long'})+' drops to '+worst.zone_max+'%.';
   if(diff<-5)txt+=' Conditions trending down over the week.';
   else if(diff>5)txt+=' Conditions improving through the week.';
+  // Sub-zone scores for current day
+  if(cur.subzones){
+    var szNames={canyon:'Canyon',pgfc:'PGFC',north:'North',south:'South'};
+    var szColors={canyon:'#38bdf8',pgfc:'#c084fc',north:'#22c55e',south:'#fbbf24'};
+    var szParts=[];
+    ['canyon','pgfc','north','south'].forEach(function(k){
+      var sz=cur.subzones[k];
+      if(sz&&sz.cells>0){
+        szParts.push('<span style="color:'+szColors[k]+'">'+szNames[k]+' '+sz.max+'%</span>');
+      }
+    });
+    if(szParts.length)txt+='<br><span style="font-size:9px;color:#94a3b8">Sub-zones: '+szParts.join(' &middot; ')+'</span>';
+  }
   document.getElementById('fcTrendText').innerHTML=txt;
 }
 

@@ -19,6 +19,7 @@ Data sources:
     Currents: Copernicus ANFC model 0.083deg
     CHL:      Copernicus ANFC model 0.25deg
     MLD:      Copernicus ANFC model 0.083deg
+    SSH:      Copernicus ANFC model (zos) 0.083deg
 
 Usage:
     python fetch_prediction.py                    # fetch + predict
@@ -245,6 +246,26 @@ def fetch_copernicus_forecast(date_str, out_dir, variable_set="all"):
             print(f"    [MLD] failed: {str(e)[:60]}")
     else:
         results["mld"] = True
+
+    # --- SSH (Sea Surface Height for eddy tracking) ---
+    ssh_path = os.path.join(out_dir, "ssh_raw.nc")
+    if not os.path.exists(ssh_path):
+        try:
+            print(f"    [SSH] ANFC: {date_str}...")
+            copernicusmarine.subset(
+                dataset_id="cmems_mod_glo_phy_anfc_0.083deg_P1D-m",
+                variables=["zos"],
+                minimum_longitude=BBOX["lon_min"], maximum_longitude=BBOX["lon_max"],
+                minimum_latitude=BBOX["lat_min"], maximum_latitude=BBOX["lat_max"],
+                start_datetime=f"{date_str}T00:00:00",
+                end_datetime=f"{date_str}T23:59:59",
+                output_filename=ssh_path, output_directory=".", overwrite=True,
+            )
+            results["ssh"] = True
+        except Exception as e:
+            print(f"    [SSH] failed: {str(e)[:60]}")
+    else:
+        results["ssh"] = True
 
     return results
 
@@ -572,11 +593,93 @@ def generate_prediction_geojson(date_str, score, metrics, out_dir):
     try:
         result = generate_blue_marlin_hotspots(BBOX, tif_path=tif_path)
         if result:
+            # Save raw grid sub-zone scores for fine-grained spatial analysis
+            _save_subzone_scores(result, out_dir)
+
+            # Generate overlay GeoJSONs from raw data (SSH eddies, currents, etc.)
+            _generate_overlay_geojsons(out_dir, marlin_data)
+
             return result["path"]
     except Exception as e:
         print(f"    [Map] Error generating hotspot map: {str(e)[:80]}")
 
     return None
+
+
+def _generate_overlay_geojsons(out_dir, marlin_data):
+    """Generate overlay GeoJSONs (SSH eddies, currents, SST fronts, MLD) from raw data."""
+    saved_output_dir = marlin_data.OUTPUT_DIR
+    marlin_data.OUTPUT_DIR = out_dir
+
+    # SSH eddies
+    ssh_file = os.path.join(out_dir, "ssh_raw.nc")
+    if os.path.exists(ssh_file):
+        try:
+            marlin_data.process_ssh(ssh_file)
+        except Exception as e:
+            print(f"    [Overlay] SSH eddies failed: {str(e)[:60]}")
+
+    # Currents
+    cur_file = os.path.join(out_dir, "currents_raw.nc")
+    if os.path.exists(cur_file):
+        try:
+            marlin_data.process_currents(cur_file)
+        except Exception as e:
+            print(f"    [Overlay] Currents failed: {str(e)[:60]}")
+
+    # SST fronts
+    sst_file = os.path.join(out_dir, "sst_raw.nc")
+    tif_path = os.path.join(out_dir, "bathy_gmrt.tif")
+    if os.path.exists(sst_file):
+        try:
+            marlin_data.detect_sst_fronts(sst_file, tif_path=tif_path if os.path.exists(tif_path) else None)
+        except Exception as e:
+            print(f"    [Overlay] SST fronts failed: {str(e)[:60]}")
+
+    # MLD contours
+    mld_file = os.path.join(out_dir, "mld_raw.nc")
+    if os.path.exists(mld_file):
+        try:
+            marlin_data.process_mld(mld_file)
+        except Exception as e:
+            print(f"    [Overlay] MLD failed: {str(e)[:60]}")
+
+    marlin_data.OUTPUT_DIR = saved_output_dir
+
+
+# Sub-zone definitions (same as generate_forecast_summary.py)
+_SUB_ZONES = {
+    "canyon": [114.95, -32.02, 115.15, -31.85],
+    "pgfc": [115.15, -32.12, 115.35, -31.92],
+    "north": [114.98, -31.90, 115.25, -31.73],
+    "south": [115.05, -32.17, 115.25, -32.05],
+}
+
+def _save_subzone_scores(result, out_dir):
+    """Extract per-subzone scores from the raw scoring grid and save as JSON."""
+    grid = result["grid"]
+    lats = result["lats"]
+    lons = result["lons"]
+
+    scores = {}
+    for key, (w, s, e, n) in _SUB_ZONES.items():
+        lat_mask = (lats >= s) & (lats <= n)
+        lon_mask = (lons >= w) & (lons <= e)
+        zone = grid[np.ix_(lat_mask, lon_mask)]
+        valid = zone[~np.isnan(zone)] if zone.size > 0 else np.array([])
+        if valid.size > 0:
+            scores[key] = {
+                "max": round(float(np.nanmax(valid)) * 100, 1),
+                "mean": round(float(np.nanmean(valid)) * 100, 1),
+                "cells": int(valid.size),
+            }
+        else:
+            scores[key] = {"max": 0, "mean": 0, "cells": 0}
+
+    path = os.path.join(out_dir, "subzone_scores.json")
+    with open(path, "w") as f:
+        json.dump(scores, f, indent=2)
+    return scores
 
 
 # ---------------------------------------------------------------------------
@@ -632,7 +735,7 @@ def main():
             try:
                 results = fetch_day(d["date"], out_dir, is_forecast=d["is_forecast"])
                 n_ok = sum(1 for v in results.values() if v)
-                print(f"    -> {n_ok}/4 variables OK")
+                print(f"    -> {n_ok}/5 variables OK")
             except Exception as e:
                 print(f"    -> ERROR: {str(e)[:80]}")
 

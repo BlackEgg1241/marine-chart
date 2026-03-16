@@ -67,27 +67,90 @@ def _kelvin_to_celsius(data):
 # 1. Fetch ocean data from Copernicus Marine
 # ---------------------------------------------------------------------------
 def fetch_copernicus_sst(date_str, bbox):
-    """Download SST data — satellite observation L4 (same source as GIBS MUR tiles)."""
+    """Download SST data — tries IMOS 0.02deg first (matches GIBS MUR visual),
+    then CMEMS L4 0.05deg, then reanalysis model 0.083deg."""
     import copernicusmarine
+    import xarray as xr
+    from datetime import datetime, timedelta
 
     output_file = os.path.join(OUTPUT_DIR, "sst_raw.nc")
 
-    print(f"[SST] Fetching observation L4 for {date_str}...")
-    copernicusmarine.subset(
-        dataset_id="METOFFICE-GLO-SST-L4-NRT-OBS-SST-V2",
-        variables=["analysed_sst"],
-        minimum_longitude=bbox["lon_min"],
-        maximum_longitude=bbox["lon_max"],
-        minimum_latitude=bbox["lat_min"],
-        maximum_latitude=bbox["lat_max"],
-        start_datetime=f"{date_str}T00:00:00",
-        end_datetime=f"{date_str}T23:59:59",
-        output_filename=output_file,
-        output_directory=".",
-        overwrite=True,
-    )
-    print(f"[SST] Saved to {output_file}")
-    return output_file
+    # 1. Try IMOS L3S 0.02deg (best match for GIBS MUR 0.01deg visual tiles)
+    dt = datetime.strptime(date_str, "%Y-%m-%d")
+    year = dt.strftime("%Y")
+    ymd = dt.strftime("%Y%m%d")
+    imos_base = "https://thredds.aodn.org.au/thredds/dodsC/IMOS/SRS/SST/ghrsst/L3S-1d/ngt/"
+    for suffix in ["night", "day"]:
+        for sensor in ["AVHRR_D", "MultiSensor", "AVHRR_N"]:
+            try:
+                url = (f"{imos_base}{year}/{ymd}092000-ABOM-L3S_GHRSST-SSTskin"
+                       f"-{sensor}-1d_{suffix}.nc")
+                print(f"[SST] Trying IMOS {sensor} {suffix} 0.02deg for {date_str}...")
+                ds = xr.open_dataset(url, engine="netcdf4")
+                sub = ds.sel(
+                    lat=slice(bbox["lat_max"], bbox["lat_min"]),
+                    lon=slice(bbox["lon_min"], bbox["lon_max"]),
+                )
+                sub.to_netcdf(output_file)
+                sub.close()
+                ds.close()
+                print(f"[SST] IMOS {sensor} saved (0.02deg, {date_str})")
+                return output_file
+            except Exception:
+                continue
+
+    # 2. Try CMEMS L4 satellite observation (0.05deg NRT + reanalysis)
+    for ds_id in [
+        "METOFFICE-GLO-SST-L4-NRT-OBS-SST-V2",
+        "METOFFICE-GLO-SST-L4-REP-OBS-SST",
+    ]:
+        try:
+            print(f"[SST] Trying CMEMS {ds_id.split('-')[0]} for {date_str}...")
+            copernicusmarine.subset(
+                dataset_id=ds_id,
+                variables=["analysed_sst"],
+                minimum_longitude=bbox["lon_min"],
+                maximum_longitude=bbox["lon_max"],
+                minimum_latitude=bbox["lat_min"],
+                maximum_latitude=bbox["lat_max"],
+                start_datetime=f"{date_str}T00:00:00",
+                end_datetime=f"{date_str}T23:59:59",
+                output_filename=output_file,
+                output_directory=".",
+                overwrite=True,
+            )
+            print(f"[SST] CMEMS L4 saved (0.05deg, {date_str})")
+            return output_file
+        except Exception:
+            continue
+
+    # 3. Last resort: physics reanalysis model (0.083deg)
+    for ds_id, var in [
+        ("cmems_mod_glo_phy_my_0.083deg_P1D-m", "thetao"),
+        ("cmems_mod_glo_phy_anfc_0.083deg_P1D-m", "thetao"),
+    ]:
+        try:
+            print(f"[SST] Trying model reanalysis for {date_str}...")
+            copernicusmarine.subset(
+                dataset_id=ds_id, variables=[var],
+                minimum_longitude=bbox["lon_min"],
+                maximum_longitude=bbox["lon_max"],
+                minimum_latitude=bbox["lat_min"],
+                maximum_latitude=bbox["lat_max"],
+                start_datetime=f"{date_str}T00:00:00",
+                end_datetime=f"{date_str}T23:59:59",
+                minimum_depth=0, maximum_depth=1,
+                output_filename=output_file,
+                output_directory=".",
+                overwrite=True,
+            )
+            print(f"[SST] Model reanalysis saved (0.083deg, {date_str})")
+            return output_file
+        except Exception:
+            continue
+
+    print(f"[SST] No SST data available for {date_str}")
+    return None
 
 
 def fetch_copernicus_currents(date_str, bbox):
@@ -141,14 +204,14 @@ def fetch_copernicus_currents(date_str, bbox):
 
 
 def fetch_copernicus_chlorophyll(date_str, bbox):
-    """Download chlorophyll-a — observation first, model fallback."""
+    """Download chlorophyll-a — tries NRT L4 4km → MY L4 4km → model 0.25deg."""
     import copernicusmarine
 
     output_file = os.path.join(OUTPUT_DIR, "chl_raw.nc")
 
-    # Try satellite observation L4 (GlobColour gapfree), fall back to model
+    # 1. Try NRT L4 gapfree 4km (recent ~2 years)
     try:
-        print(f"[Chlorophyll] Fetching observation L4 for {date_str}...")
+        print(f"[Chlorophyll] Fetching NRT L4 4km for {date_str}...")
         copernicusmarine.subset(
             dataset_id="cmems_obs-oc_glo_bgc-plankton_nrt_l4-gapfree-multi-4km_P1D",
             variables=["CHL"],
@@ -162,11 +225,34 @@ def fetch_copernicus_chlorophyll(date_str, bbox):
             output_directory=".",
             overwrite=True,
         )
-        print(f"[Chlorophyll] Saved observation to {output_file}")
+        print(f"[Chlorophyll] Saved NRT L4 4km to {output_file}")
         return output_file
     except Exception as e:
-        print(f"[Chlorophyll] Observation unavailable ({str(e)[:60]}), falling back to model...")
+        print(f"[Chlorophyll] NRT L4 unavailable ({str(e)[:60]})")
 
+    # 2. Try MY (reanalysis) L4 gapfree 4km (1997-present)
+    try:
+        print(f"[Chlorophyll] Fetching MY L4 4km for {date_str}...")
+        copernicusmarine.subset(
+            dataset_id="cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D",
+            variables=["CHL"],
+            minimum_longitude=bbox["lon_min"],
+            maximum_longitude=bbox["lon_max"],
+            minimum_latitude=bbox["lat_min"],
+            maximum_latitude=bbox["lat_max"],
+            start_datetime=f"{date_str}T00:00:00",
+            end_datetime=f"{date_str}T23:59:59",
+            output_filename=output_file,
+            output_directory=".",
+            overwrite=True,
+        )
+        print(f"[Chlorophyll] Saved MY L4 4km to {output_file}")
+        return output_file
+    except Exception as e:
+        print(f"[Chlorophyll] MY L4 unavailable ({str(e)[:60]})")
+
+    # 3. Last resort: biogeochemical model (0.25deg / 28km)
+    print(f"[Chlorophyll] Falling back to model 0.25deg for {date_str}...")
     copernicusmarine.subset(
         dataset_id="cmems_mod_glo_bgc-pft_anfc_0.25deg_P1D-m",
         variables=["chl"],
@@ -182,7 +268,7 @@ def fetch_copernicus_chlorophyll(date_str, bbox):
         output_directory=".",
         overwrite=True,
     )
-    print(f"[Chlorophyll] Saved model fallback to {output_file}")
+    print(f"[Chlorophyll] Saved model 0.25deg to {output_file}")
     return output_file
 
 
@@ -234,8 +320,7 @@ def fetch_copernicus_ssh(date_str, bbox):
     """
     Download Sea Level Anomaly (SLA) from CMEMS satellite altimetry.
     SLA shows eddies: positive = warm-core anticyclonic eddy (marlin habitat).
-    Dataset: cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.125deg_P1D
-    Satellite altimetry has ~3-5 day latency; steps back automatically.
+    Tries NRT first (recent dates), then falls back to reanalysis (historical).
     """
     import copernicusmarine
     from datetime import datetime, timedelta
@@ -243,9 +328,10 @@ def fetch_copernicus_ssh(date_str, bbox):
     output_file = os.path.join(OUTPUT_DIR, "ssh_raw.nc")
     base_dt = datetime.strptime(date_str, "%Y-%m-%d")
 
+    # Try NRT product first (recent data, higher res 0.125deg)
     for delta in range(0, 8):
         try_date = (base_dt - timedelta(days=delta)).strftime("%Y-%m-%d")
-        print(f"[SSH/Eddies] Fetching SLA for {try_date}...")
+        print(f"[SSH/Eddies] Fetching SLA NRT for {try_date}...")
         try:
             copernicusmarine.subset(
                 dataset_id="cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.125deg_P1D",
@@ -260,13 +346,37 @@ def fetch_copernicus_ssh(date_str, bbox):
                 output_directory=".",
                 overwrite=True,
             )
-            print(f"[SSH/Eddies] Saved to {output_file} (data date: {try_date})")
+            print(f"[SSH/Eddies] Saved to {output_file} (NRT, data date: {try_date})")
             return output_file
-        except Exception as e:
+        except Exception:
             if delta < 7:
-                print(f"[SSH/Eddies] {try_date} not available, trying earlier...")
+                print(f"[SSH/Eddies] {try_date} NRT not available, trying earlier...")
+
+    # Fall back to physics reanalysis model (zos, 0.083deg — covers 1993+)
+    for delta in range(0, 5):
+        try_date = (base_dt - timedelta(days=delta)).strftime("%Y-%m-%d")
+        print(f"[SSH/Eddies] Fetching zos reanalysis for {try_date}...")
+        try:
+            copernicusmarine.subset(
+                dataset_id="cmems_mod_glo_phy_my_0.083deg_P1D-m",
+                variables=["zos"],
+                minimum_longitude=bbox["lon_min"],
+                maximum_longitude=bbox["lon_max"],
+                minimum_latitude=bbox["lat_min"],
+                maximum_latitude=bbox["lat_max"],
+                start_datetime=f"{try_date}T00:00:00",
+                end_datetime=f"{try_date}T23:59:59",
+                output_filename=output_file,
+                output_directory=".",
+                overwrite=True,
+            )
+            print(f"[SSH/Eddies] Saved to {output_file} (reanalysis zos, data date: {try_date})")
+            return output_file
+        except Exception:
+            if delta < 4:
+                print(f"[SSH/Eddies] {try_date} reanalysis not available, trying earlier...")
             else:
-                raise
+                print(f"[SSH/Eddies] No SSH data available for {date_str}")
     return None
 
 
@@ -297,29 +407,42 @@ def fetch_copernicus_mld(date_str, bbox):
 
 def fetch_copernicus_oxygen(date_str, bbox):
     """Download dissolved oxygen at 100m depth from CMEMS biogeochemistry model.
-    O2 < 150 mmol/m3 at 100m = hypoxic, limits marlin vertical habitat."""
+    O2 < 150 mmol/m3 at 100m = hypoxic, limits marlin vertical habitat.
+    Tries ANFC (recent) then reanalysis (historical)."""
     import copernicusmarine
 
     output_file = os.path.join(OUTPUT_DIR, "oxygen_raw.nc")
 
-    print(f"[Oxygen] Fetching for {date_str}...")
-    copernicusmarine.subset(
-        dataset_id="cmems_mod_glo_bgc-bio_anfc_0.25deg_P1D-m",
-        variables=["o2"],
-        minimum_longitude=bbox["lon_min"],
-        maximum_longitude=bbox["lon_max"],
-        minimum_latitude=bbox["lat_min"],
-        maximum_latitude=bbox["lat_max"],
-        start_datetime=f"{date_str}T00:00:00",
-        end_datetime=f"{date_str}T23:59:59",
-        minimum_depth=95,
-        maximum_depth=105,
-        output_filename=output_file,
-        output_directory=".",
-        overwrite=True,
-    )
-    print(f"[Oxygen] Saved to {output_file}")
-    return output_file
+    # Try ANFC first (recent dates)
+    for ds_id in [
+        "cmems_mod_glo_bgc-bio_anfc_0.25deg_P1D-m",
+        "cmems_mod_glo_bgc_my_0.25deg_P1D-m",
+    ]:
+        try:
+            print(f"[Oxygen] Fetching {ds_id.split('_')[3]} for {date_str}...")
+            copernicusmarine.subset(
+                dataset_id=ds_id,
+                variables=["o2"],
+                minimum_longitude=bbox["lon_min"],
+                maximum_longitude=bbox["lon_max"],
+                minimum_latitude=bbox["lat_min"],
+                maximum_latitude=bbox["lat_max"],
+                start_datetime=f"{date_str}T00:00:00",
+                end_datetime=f"{date_str}T23:59:59",
+                minimum_depth=95,
+                maximum_depth=105,
+                output_filename=output_file,
+                output_directory=".",
+                overwrite=True,
+            )
+            print(f"[Oxygen] Saved to {output_file}")
+            return output_file
+        except Exception as e:
+            print(f"[Oxygen] {ds_id} failed: {str(e)[:60]}")
+            continue
+
+    print(f"[Oxygen] No oxygen data available for {date_str}")
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -565,7 +688,8 @@ BLUE_MARLIN_WEIGHTS = {
 }
 
 # Intensity bands for contourf polygon export
-HOTSPOT_BANDS = [0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85]
+# Finer resolution at top end (85-100%) to show spatial detail within the zone
+HOTSPOT_BANDS = [0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.90, 0.95]
 
 
 def generate_blue_marlin_hotspots(bbox, tif_path=None):
@@ -600,6 +724,28 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
     lons = sst_da.longitude.values if "longitude" in sst_da.dims else sst_da.lon.values
     lats = sst_da.latitude.values if "latitude" in sst_da.dims else sst_da.lat.values
     sst = _kelvin_to_celsius(sst_da.values.copy().astype(float))
+
+    # Upsample coarse grids (>0.05 deg) to ~0.02 deg for finer spatial detail
+    # ANFC forecast data is 0.083 deg (~5nm cells) which is too coarse for sub-zone
+    # discrimination. Upsampling to 0.02 deg (~1.2nm) matches IMOS observation resolution.
+    grid_step = abs(np.diff(lons).mean()) if len(lons) > 1 else 1
+    if grid_step > 0.05:
+        from scipy.interpolate import RegularGridInterpolator as _RGI
+        target_step = 0.02
+        fine_lons = np.arange(lons.min(), lons.max() + target_step * 0.5, target_step)
+        fine_lats = np.arange(lats.min(), lats.max() + target_step * 0.5, target_step)
+        # Ensure monotonic direction matches original
+        if lats[0] > lats[-1]:
+            fine_lats = fine_lats[::-1]
+        interp_sst = _RGI((lats, lons), sst, method="linear",
+                          bounds_error=False, fill_value=np.nan)
+        fg_lat, fg_lon = np.meshgrid(fine_lats, fine_lons, indexing="ij")
+        sst = interp_sst((fg_lat, fg_lon))
+        lons = fine_lons
+        lats = fine_lats
+        print(f"[Hotspots] Upsampled {grid_step:.3f} -> {target_step} deg "
+              f"({sst.shape[0]}x{sst.shape[1]} grid)")
+
     land = np.isnan(sst)
 
     ny, nx = sst.shape
@@ -657,8 +803,14 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
     sst_smooth = gaussian_filter(sst_filled, sigma=0.5)
     sst_smooth[land] = np.nan
     optimal_temp = getattr(sys.modules[__name__], '_opt_sst_optimal', 23.4)
-    sst_sigma = getattr(sys.modules[__name__], '_opt_sst_sigma', 2.97)
-    sst_score = np.exp(-0.5 * ((sst_smooth - optimal_temp) / sst_sigma) ** 2)
+    sst_sigma = getattr(sys.modules[__name__], '_opt_sst_sigma', 2.0)
+    sst_sigma_above = getattr(sys.modules[__name__], '_opt_sst_sigma_above', 4.0)
+    if sst_sigma_above is not None:
+        # Asymmetric Gaussian: tighter below optimal (cooling penalty), wider above
+        sigma_map = np.where(sst_smooth < optimal_temp, sst_sigma, sst_sigma_above)
+        sst_score = np.exp(-0.5 * ((sst_smooth - optimal_temp) / sigma_map) ** 2)
+    else:
+        sst_score = np.exp(-0.5 * ((sst_smooth - optimal_temp) / sst_sigma) ** 2)
     _add_score("sst", sst_score)
 
     # 2. SST front score — Sobel gradient magnitude, modulated by SST suitability
@@ -799,7 +951,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
     if os.path.exists(ssh_file):
         try:
             sds = xr.open_dataset(ssh_file)
-            sv = "sla" if "sla" in sds else "adt"
+            sv = "sla" if "sla" in sds else ("zos" if "zos" in sds else "adt")
             sla_da = sds[sv].squeeze()
             s_lons = sla_da.longitude.values if "longitude" in sla_da.dims else sla_da.lon.values
             s_lats = sla_da.latitude.values if "latitude" in sla_da.dims else sla_da.lat.values
@@ -921,16 +1073,22 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
                     if spd < 0.01:
                         upstream_sst[yi, xi] = sst_smooth[yi, xi]
                         continue
-                    # Upstream offset in grid cells (2 cells in upstream direction)
-                    src_xi = int(round(xi - 2 * u_val / spd))
-                    src_yi = int(round(yi - 2 * v_val / spd))
+                    # Upstream offset: look back ~20km (approx 0.18 degrees)
+                    # Normalize vector, multiply by distance in degrees, divide by grid resolution
+                    dist_deg = 0.18
+                    src_xi = int(round(xi - (u_val / spd) * (dist_deg / dlon)))
+                    src_yi = int(round(yi - (v_val / spd) * (dist_deg / dlat)))
                     src_xi = max(0, min(nx - 1, src_xi))
                     src_yi = max(0, min(ny - 1, src_yi))
                     t = sst_smooth[src_yi, src_xi]
                     upstream_sst[yi, xi] = t if not np.isnan(t) else sst_smooth[yi, xi]
 
             # Score upstream SST using same Gaussian as main SST score
-            upstream_temp_score = np.exp(-0.5 * ((upstream_sst - optimal_temp) / sst_sigma) ** 2)
+            if sst_sigma_above is not None:
+                sigma_map_up = np.where(upstream_sst < optimal_temp, sst_sigma, sst_sigma_above)
+                upstream_temp_score = np.exp(-0.5 * ((upstream_sst - optimal_temp) / sigma_map_up) ** 2)
+            else:
+                upstream_temp_score = np.exp(-0.5 * ((upstream_sst - optimal_temp) / sst_sigma) ** 2)
             upstream_temp_score[land] = np.nan
 
             # Combined: speed × upstream warmth, with eastward bonus
@@ -995,10 +1153,14 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None):
         final[smask] *= shelf_mult[smask]
         final = np.clip(final, 0, 1)  # cap at 1.0
 
-    # Light spatial smoothing to reduce pixelation
+    # Spatial smoothing — sigma scales with grid resolution
+    # Target ~1nm physical smoothing: just enough to connect pixels into contours
+    # without flattening the spatial gradients we need for sub-zone detail
+    _grid_step = abs(lons[1] - lons[0]) if nx > 1 else 0.083
+    _smooth_sigma = max(0.4, 0.017 / _grid_step)  # ~1nm physical scale
     final_filled = final.copy()
     final_filled[np.isnan(final_filled)] = 0
-    final_smooth = gaussian_filter(final_filled, sigma=0.8)
+    final_smooth = gaussian_filter(final_filled, sigma=_smooth_sigma)
     final_smooth[land | ~valid] = np.nan
 
     fmin = float(np.nanmin(final_smooth[~land & valid]))
@@ -1278,19 +1440,34 @@ def process_ssh(ssh_file):
     """
     Extract SLA contours to show eddy structure.
     Anglers look for the warm side of the 0.0 m contour (positive SLA).
+    Handles both SLA (satellite altimetry) and zos (ANFC model) variables.
+    For zos: subtract spatial mean to convert absolute height to pseudo-anomaly.
     """
     import xarray as xr
     from scipy.ndimage import gaussian_filter
 
     print("[SSH/Eddies] Processing SLA contours...")
     ds = xr.open_dataset(ssh_file)
-    # variable may be 'sla' or 'adt' depending on product version
-    varname = "sla" if "sla" in ds else "adt"
+    # variable may be 'sla', 'adt', or 'zos' (ANFC forecast)
+    varname = None
+    for v in ["sla", "adt", "zos"]:
+        if v in ds:
+            varname = v
+            break
+    if varname is None:
+        print(f"[SSH/Eddies] No SSH variable found. Available: {list(ds.data_vars)}")
+        return None
     sla = ds[varname].squeeze()
 
     lons = sla.longitude.values if "longitude" in sla.dims else sla.lon.values
     lats = sla.latitude.values if "latitude" in sla.dims else sla.lat.values
     data = sla.values.copy().astype(float)
+
+    # Convert zos (absolute sea surface height) to pseudo-anomaly
+    if varname == "zos":
+        spatial_mean = float(np.nanmean(data))
+        data = data - spatial_mean
+        print(f"[SSH/Eddies] zos -> pseudo-anomaly (subtracted mean {spatial_mean:.3f}m)")
 
     mask = np.isnan(data)
     if not mask.all():
@@ -1330,9 +1507,10 @@ def process_ssh(ssh_file):
 # 4a. Mixed Layer Depth Contours
 # ---------------------------------------------------------------------------
 MLD_LEVELS = [
-    (30,  "shallow",  "#22d3ee"),   # cyan — very shallow MLD, strongly stratified
-    (50,  "moderate", "#0ea5e9"),   # blue — key threshold, good fishing boundary
-    (80,  "deep",     "#6366f1"),   # indigo — deep MLD, less favorable
+    (10,  "very_shallow", "#a78bfa"),  # violet — extreme stratification, marlin pinned to surface
+    (20,  "shallow",      "#22d3ee"),  # cyan — typical summer, strong stratification
+    (30,  "moderate",     "#0ea5e9"),  # blue — transitional mixing
+    (50,  "deep",         "#6366f1"),  # indigo — deep MLD, weaker stratification
 ]
 
 

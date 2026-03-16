@@ -7,3 +7,5 @@ matplotlib
 rasterio
 shapely
 geojson
+optuna
+scikit-learn

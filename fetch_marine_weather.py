@@ -17,6 +17,7 @@ MARINE_PARAMS = [
 WEATHER_PARAMS = [
     "wind_speed_10m", "wind_direction_10m", "wind_gusts_10m",
     "temperature_2m",
+    "precipitation", "weather_code", "visibility",
 ]
 
 FORECAST_DAYS = 8
@@ -37,20 +38,25 @@ def _offset_time(iso_str, minutes):
 
 
 def rate_comfort(h):
-    """Rate hourly boating comfort 0-100 for a 5.2m boat off Perth.
+    """Rate hourly boating comfort 0-100 for a 5.2m boat off Perth (FADs run).
 
     Scoring (weights sum to 1.0):
-      Wind speed  (0.35) — <10kn ideal, 15kn marginal, >20kn poor
-      Wind gusts  (0.15) — gusts matter more on small boats
+      Wind speed  (0.30) — <10kn ideal, 15kn marginal, >20kn poor
+      Wind gusts  (0.10) — gusts matter more on small boats
       Swell height(0.25) — <1m ideal, 1.5m marginal, >2m poor
-      Wave height (0.15) — total sea state including wind chop
-      Wind dir    (0.10) — E/NE/SE give lee from coast; W/SW worst
+      Wave height (0.10) — total sea state including wind chop
+      Wind dir    (0.10) — E/NE/SE give lee from coast; N/NW dangerous offshore
+      Rain/storms (0.10) — precipitation and thunderstorm penalty
+      Visibility  (0.05) — fog/haze reduces safety offshore
     """
     ws = h.get("wind_speed_10m") or 0
     wg = h.get("wind_gusts_10m") or 0
     wd = h.get("wind_direction_10m")
     sw = h.get("total_swell_height") or h.get("swell_wave_height") or 0
     wh = h.get("wave_height") or 0
+    rain = h.get("precipitation") or 0
+    wmo = h.get("weather_code") or 0
+    vis = h.get("visibility")  # metres, None if unavailable
 
     def clamp(v):
         return max(0, min(100, v))
@@ -93,23 +99,64 @@ def rate_comfort(h):
     else:
         s_wh = 0
 
-    # Wind direction: E/NE/SE best (sheltered by coast), W/SW worst (open ocean)
-    # Perth coast runs roughly N-S, so easterlies give a lee
+    # Wind direction: E/SE best (sheltered), N/NW dangerous (front pattern),
+    # W/SW bad (open ocean). Perth coast runs N-S.
+    # Northerlies (330-030) are dangerous: often precede fronts, push you offshore
     if wd is not None:
-        # Score based on how "easterly" the wind is
-        # E=90 best, W=270 worst
-        # Use cosine of angle from east: cos(wd - 90)
         dir_cos = math.cos(math.radians(wd - 90))  # 1.0 at E, -1.0 at W
-        s_wd = clamp(50 + dir_cos * 50)  # 100 at E, 0 at W
+        s_wd = clamp(50 + dir_cos * 50)
+        # Extra penalty for northerlies (330-030) — front warning pattern
+        if wd >= 330 or wd <= 30:
+            s_wd = max(0, s_wd - 30)
+        elif wd >= 300 or wd <= 60:  # NW/NE — mild concern
+            s_wd = max(0, s_wd - 15)
     else:
         s_wd = 50
 
+    # Rain/storms: WMO weather codes
+    # 0-3: clear/overcast (fine), 45-48: fog, 51-65: drizzle/rain,
+    # 71-77: snow, 80-82: showers, 95-99: thunderstorms
+    if wmo >= 95:  # thunderstorm
+        s_rain = 0
+    elif wmo >= 80:  # heavy showers
+        s_rain = 20
+    elif wmo >= 61:  # moderate+ rain
+        s_rain = 30
+    elif wmo >= 51:  # light drizzle/rain
+        s_rain = 60
+    elif wmo >= 45:  # fog
+        s_rain = 40
+    elif rain > 2.0:  # >2mm/hr
+        s_rain = 30
+    elif rain > 0.5:
+        s_rain = 60
+    elif rain > 0:
+        s_rain = 80
+    else:
+        s_rain = 100
+
+    # Visibility: 100 at >10km, 50 at 5km, 0 at <1km
+    if vis is not None:
+        vis_km = vis / 1000.0
+        if vis_km >= 10:
+            s_vis = 100
+        elif vis_km >= 5:
+            s_vis = 50 + (vis_km - 5) / 5 * 50
+        elif vis_km >= 1:
+            s_vis = (vis_km - 1) / 4 * 50
+        else:
+            s_vis = 0
+    else:
+        s_vis = 80  # assume OK if not available
+
     score = (
-        0.35 * clamp(s_ws) +
-        0.15 * clamp(s_wg) +
+        0.30 * clamp(s_ws) +
+        0.10 * clamp(s_wg) +
         0.25 * clamp(s_sw) +
-        0.15 * clamp(s_wh) +
-        0.10 * clamp(s_wd)
+        0.10 * clamp(s_wh) +
+        0.10 * clamp(s_wd) +
+        0.10 * clamp(s_rain) +
+        0.05 * clamp(s_vis)
     )
     return round(score)
 
@@ -130,6 +177,7 @@ def fetch_location(name, loc):
         f"&daily=sunrise,sunset"
         f"&forecast_days={FORECAST_DAYS}&timezone=Australia%2FPerth"
         f"&wind_speed_unit=kn"
+        f"&models=ecmwf_ifs025"
     )
 
     print(f"Fetching marine data for {name}...")

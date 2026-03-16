@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[113.567, -33.475], [113.525, -33.475], [113.525, -33.4453], [113.567, -33.475]]]}, "properties": {"species": "striped", "tier": "prime", "temp_min": 21, "temp_max": 24, "color": "#6366f1", "label": "striped_prime", "min_depth": 100, "intensity": 0.7}}]}
