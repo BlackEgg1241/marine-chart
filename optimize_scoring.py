@@ -259,12 +259,15 @@ def main():
         "w_sst": 0.22, "w_sst_front": 0.14, "w_sst_intrusion": 0.08,
         "w_chl": 0.05, "w_ssh": 0.15, "w_current": 0.15,
         "w_convergence": 0.09, "w_mld": 0.07, "w_o2": 0.025, "w_clarity": 0.025,
+        "w_ssta": 0.05, "w_boundary": 0.08,
         "sst_optimal": 23.5, "sst_sigma": 2.0,
         "front_floor": 0.15,
         "intrusion_threshold": 0.25, "intrusion_baseline": 0.2,
         "shelf_boost": 0.35,
         "east_bonus": 0.3, "synergy_factor": 0.4,
         "chl_optimal": 0.20, "chl_sigma": 0.4,
+        "boundary_threshold": 0.3, "boundary_blend": 0.6,
+        "ssta_optimal": 1.0, "ssta_sigma": 1.5,
     })
 
     print(f"\nStarting Optuna optimization with {args.trials} trials...")
@@ -298,7 +301,7 @@ def main():
     bp = best.params
     raw_keys = ["w_sst", "w_sst_front", "w_sst_intrusion", "w_chl",
                 "w_ssh", "w_current", "w_convergence", "w_mld",
-                "w_o2", "w_clarity"]
+                "w_o2", "w_clarity", "w_ssta", "w_boundary"]
     total = sum(bp[k] for k in raw_keys)
 
     print(f"\nOptimal weights (normalized to sum=1.0):")
