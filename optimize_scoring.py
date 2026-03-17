@@ -95,8 +95,10 @@ def evaluate_params(params):
     marlin_data.BLUE_MARLIN_WEIGHTS = {
         "sst":          params["w_sst"],
         "sst_front":    params["w_sst_front"],
+        "front_corridor":params["w_front_corridor"],
         "sst_intrusion":params["w_sst_intrusion"],
         "chl":          params["w_chl"],
+        "chl_curvature":params["w_chl_curvature"],
         "ssh":          params["w_ssh"],
         "current":      params["w_current"],
         "convergence":  params["w_convergence"],
@@ -105,6 +107,7 @@ def evaluate_params(params):
         "clarity":      params["w_clarity"],
         "ssta":         params["w_ssta"],
         "boundary":     params["w_boundary"],
+        "bathy_align":  params["w_bathy_align"],
     }
 
     # Store tunable params as module-level attributes for the scoring function
@@ -122,6 +125,7 @@ def evaluate_params(params):
     marlin_data._opt_boundary_blend = params["boundary_blend"]
     marlin_data._opt_ssta_optimal = params["ssta_optimal"]
     marlin_data._opt_ssta_sigma = params["ssta_sigma"]
+    marlin_data._opt_corridor_thresh = params["corridor_thresh"]
 
     # Suppress all print output from scoring pipeline
     import io
@@ -189,17 +193,23 @@ def objective(trial):
     raw_clarity = trial.suggest_float("w_clarity", 0.01, 0.05)
     raw_ssta = trial.suggest_float("w_ssta", 0.02, 0.10)
     raw_boundary = trial.suggest_float("w_boundary", 0.02, 0.15)
+    raw_front_corridor = trial.suggest_float("w_front_corridor", 0.01, 0.08)
+    raw_chl_curvature = trial.suggest_float("w_chl_curvature", 0.01, 0.06)
+    raw_bathy_align = trial.suggest_float("w_bathy_align", 0.01, 0.06)
 
     total = (raw_sst + raw_sst_front + raw_sst_intrusion + raw_chl +
              raw_ssh + raw_current + raw_convergence + raw_mld +
-             raw_o2 + raw_clarity + raw_ssta + raw_boundary)
+             raw_o2 + raw_clarity + raw_ssta + raw_boundary +
+             raw_front_corridor + raw_chl_curvature + raw_bathy_align)
 
     # --- Scoring function parameters ---
     params = {
         "w_sst":          round(raw_sst / total, 4),
         "w_sst_front":    round(raw_sst_front / total, 4),
+        "w_front_corridor":round(raw_front_corridor / total, 4),
         "w_sst_intrusion":round(raw_sst_intrusion / total, 4),
         "w_chl":          round(raw_chl / total, 4),
+        "w_chl_curvature":round(raw_chl_curvature / total, 4),
         "w_ssh":          round(raw_ssh / total, 4),
         "w_current":      round(raw_current / total, 4),
         "w_convergence":  round(raw_convergence / total, 4),
@@ -208,6 +218,7 @@ def objective(trial):
         "w_clarity":      round(raw_clarity / total, 4),
         "w_ssta":         round(raw_ssta / total, 4),
         "w_boundary":     round(raw_boundary / total, 4),
+        "w_bathy_align":  round(raw_bathy_align / total, 4),
         "sst_optimal":       trial.suggest_float("sst_optimal", 22.0, 25.0),
         "sst_sigma":         trial.suggest_float("sst_sigma", 1.5, 3.0),
         "front_floor":       trial.suggest_float("front_floor", 0.0, 0.3),
@@ -222,6 +233,7 @@ def objective(trial):
         "boundary_blend":    trial.suggest_float("boundary_blend", 0.3, 0.8),
         "ssta_optimal":      trial.suggest_float("ssta_optimal", 0.5, 2.0),
         "ssta_sigma":        trial.suggest_float("ssta_sigma", 0.5, 2.5),
+        "corridor_thresh":   trial.suggest_float("corridor_thresh", 0.2, 0.6),
     }
 
     metrics = evaluate_params(params)
@@ -256,18 +268,20 @@ def main():
 
     # Seed with current hand-tuned values as first trial
     study.enqueue_trial({
-        "w_sst": 0.22, "w_sst_front": 0.14, "w_sst_intrusion": 0.08,
-        "w_chl": 0.05, "w_ssh": 0.15, "w_current": 0.15,
-        "w_convergence": 0.09, "w_mld": 0.07, "w_o2": 0.025, "w_clarity": 0.025,
-        "w_ssta": 0.05, "w_boundary": 0.08,
-        "sst_optimal": 23.5, "sst_sigma": 2.0,
-        "front_floor": 0.15,
-        "intrusion_threshold": 0.25, "intrusion_baseline": 0.2,
-        "shelf_boost": 0.35,
-        "east_bonus": 0.3, "synergy_factor": 0.4,
-        "chl_optimal": 0.20, "chl_sigma": 0.4,
-        "boundary_threshold": 0.3, "boundary_blend": 0.6,
-        "ssta_optimal": 1.0, "ssta_sigma": 1.5,
+        "w_sst": 0.22, "w_sst_front": 0.06, "w_front_corridor": 0.03,
+        "w_sst_intrusion": 0.08, "w_chl": 0.10, "w_chl_curvature": 0.02,
+        "w_ssh": 0.10, "w_current": 0.09, "w_convergence": 0.05,
+        "w_mld": 0.12, "w_o2": 0.05, "w_clarity": 0.04,
+        "w_ssta": 0.03, "w_boundary": 0.03, "w_bathy_align": 0.02,
+        "sst_optimal": 23.1, "sst_sigma": 2.8,
+        "front_floor": 0.19,
+        "intrusion_threshold": 0.16, "intrusion_baseline": 0.30,
+        "shelf_boost": 0.59,
+        "east_bonus": 0.28, "synergy_factor": 0.69,
+        "chl_optimal": 0.12, "chl_sigma": 0.59,
+        "boundary_threshold": 0.25, "boundary_blend": 0.75,
+        "ssta_optimal": 1.62, "ssta_sigma": 2.46,
+        "corridor_thresh": 0.4,
     })
 
     print(f"\nStarting Optuna optimization with {args.trials} trials...")
@@ -299,9 +313,9 @@ def main():
 
     # Reconstruct normalized weights
     bp = best.params
-    raw_keys = ["w_sst", "w_sst_front", "w_sst_intrusion", "w_chl",
-                "w_ssh", "w_current", "w_convergence", "w_mld",
-                "w_o2", "w_clarity", "w_ssta", "w_boundary"]
+    raw_keys = ["w_sst", "w_sst_front", "w_front_corridor", "w_sst_intrusion",
+                "w_chl", "w_chl_curvature", "w_ssh", "w_current", "w_convergence",
+                "w_mld", "w_o2", "w_clarity", "w_ssta", "w_boundary", "w_bathy_align"]
     total = sum(bp[k] for k in raw_keys)
 
     print(f"\nOptimal weights (normalized to sum=1.0):")
