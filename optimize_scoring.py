@@ -126,6 +126,8 @@ def evaluate_params(params):
     marlin_data._opt_ssta_optimal = params["ssta_optimal"]
     marlin_data._opt_ssta_sigma = params["ssta_sigma"]
     marlin_data._opt_corridor_thresh = params["corridor_thresh"]
+    marlin_data._opt_spatial_conv_thresh = params["spatial_conv_thresh"]
+    marlin_data._opt_spatial_conv_boost = params["spatial_conv_boost"]
 
     # Suppress all print output from scoring pipeline
     import io
@@ -234,6 +236,8 @@ def objective(trial):
         "ssta_optimal":      trial.suggest_float("ssta_optimal", 0.5, 2.0),
         "ssta_sigma":        trial.suggest_float("ssta_sigma", 0.5, 2.5),
         "corridor_thresh":   trial.suggest_float("corridor_thresh", 0.2, 0.6),
+        "spatial_conv_thresh": trial.suggest_float("spatial_conv_thresh", 0.15, 0.50),
+        "spatial_conv_boost":  trial.suggest_float("spatial_conv_boost", 0.10, 0.50),
     }
 
     metrics = evaluate_params(params)
@@ -266,22 +270,23 @@ def main():
         sampler=optuna.samplers.TPESampler(seed=42),
     )
 
-    # Seed with current hand-tuned values as first trial
+    # Seed with current optimized values as first trial
     study.enqueue_trial({
-        "w_sst": 0.22, "w_sst_front": 0.06, "w_front_corridor": 0.03,
-        "w_sst_intrusion": 0.08, "w_chl": 0.10, "w_chl_curvature": 0.02,
-        "w_ssh": 0.10, "w_current": 0.09, "w_convergence": 0.05,
-        "w_mld": 0.12, "w_o2": 0.05, "w_clarity": 0.04,
-        "w_ssta": 0.03, "w_boundary": 0.03, "w_bathy_align": 0.02,
-        "sst_optimal": 23.1, "sst_sigma": 2.8,
-        "front_floor": 0.19,
-        "intrusion_threshold": 0.16, "intrusion_baseline": 0.30,
-        "shelf_boost": 0.59,
-        "east_bonus": 0.28, "synergy_factor": 0.69,
-        "chl_optimal": 0.12, "chl_sigma": 0.59,
-        "boundary_threshold": 0.25, "boundary_blend": 0.75,
-        "ssta_optimal": 1.62, "ssta_sigma": 2.46,
-        "corridor_thresh": 0.4,
+        "w_sst": 0.15, "w_sst_front": 0.06, "w_front_corridor": 0.05,
+        "w_sst_intrusion": 0.04, "w_chl": 0.11, "w_chl_curvature": 0.04,
+        "w_ssh": 0.09, "w_current": 0.10, "w_convergence": 0.04,
+        "w_mld": 0.11, "w_o2": 0.05, "w_clarity": 0.05,
+        "w_ssta": 0.03, "w_boundary": 0.09, "w_bathy_align": 0.01,
+        "sst_optimal": 23.07, "sst_sigma": 2.95,
+        "front_floor": 0.26,
+        "intrusion_threshold": 0.58, "intrusion_baseline": 0.08,
+        "shelf_boost": 0.60,
+        "east_bonus": 0.16, "synergy_factor": 0.65,
+        "chl_optimal": 0.13, "chl_sigma": 0.59,
+        "boundary_threshold": 0.25, "boundary_blend": 0.76,
+        "ssta_optimal": 1.07, "ssta_sigma": 2.45,
+        "corridor_thresh": 0.33,
+        "spatial_conv_thresh": 0.30, "spatial_conv_boost": 0.25,
     })
 
     print(f"\nStarting Optuna optimization with {args.trials} trials...")

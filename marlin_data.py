@@ -1466,11 +1466,37 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         final[smask] *= shelf_mult[smask]
         final = np.clip(final, 0, 1)  # cap at 1.0
 
+    # Spatial convergence multiplier — boost cells where multiple spatial features fire
+    # Catches cluster at boundaries/convergence/corridors; weighted average dilutes these.
+    # Count how many spatial features exceed threshold, then apply multiplicative boost.
+    _sc_thresh = getattr(sys.modules[__name__], '_opt_spatial_conv_thresh', 0.3)
+    _sc_boost = getattr(sys.modules[__name__], '_opt_spatial_conv_boost', 0.25)
+    spatial_keys = ["boundary", "convergence", "front_corridor", "chl_curvature", "bathy_align"]
+    spatial_count = np.zeros_like(final)
+    spatial_mean = np.zeros_like(final)
+    n_spatial = 0
+    for sk in spatial_keys:
+        if sk in sub_scores:
+            s = sub_scores[sk]
+            smask_s = ~np.isnan(s) & valid
+            spatial_count[smask_s] += (s[smask_s] > _sc_thresh).astype(float)
+            spatial_mean[smask_s] += np.clip(s[smask_s], 0, 1)
+            n_spatial += 1
+    if n_spatial > 0:
+        spatial_mean /= max(n_spatial, 1)
+        # Boost scales with how many features fire (2+ needed) and their mean intensity
+        overlap = np.clip((spatial_count - 1) / 2.0, 0, 1)  # 0 at 1 feature, 0.5 at 2, 1.0 at 3+
+        spatial_mult = 1.0 + _sc_boost * overlap * spatial_mean
+        final[valid] *= spatial_mult[valid]
+        final = np.clip(final, 0, 1)
+        sc_pct = np.sum(spatial_count[valid & ~land] >= 2) / max(np.sum(valid & ~land), 1) * 100
+        print(f"[Hotspots] Spatial convergence: {sc_pct:.0f}% of cells have 2+ spatial features")
+
     # Spatial smoothing — sigma scales with grid resolution
     # Target ~1nm physical smoothing: just enough to connect pixels into contours
     # without flattening the spatial gradients we need for sub-zone detail
     _grid_step = abs(lons[1] - lons[0]) if nx > 1 else 0.083
-    _smooth_sigma = max(0.3, 0.012 / _grid_step)  # ~0.7nm — preserves boundary detail
+    _smooth_sigma = max(0.3, 0.008 / _grid_step)  # ~0.5nm — preserves spatial convergence peaks
     final_filled = final.copy()
     final_filled[np.isnan(final_filled)] = 0
     final_smooth = gaussian_filter(final_filled, sigma=_smooth_sigma)
