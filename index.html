@@ -537,7 +537,7 @@ function initMap(){
   document.addEventListener('pointermove',function(e){if(!iDrag)return;var x=e.clientX-iDX,y=e.clientY-iDY;infoEl.style.left=x+'px';infoEl.style.top=y+'px';var qx=x,qy=y+10;var lids=Object.keys(hInfo).filter(function(l){return map.getLayer(l)});var fs=map.queryRenderedFeatures([qx,qy],{layers:lids});if(fs.length){var f=fs[0],lid=f.layer.id;var vk=hVis[lid];if((!vk||LS[vk])&&hInfo[lid])infoCt.innerHTML=hInfo[lid](f.properties)}});
   document.addEventListener('pointerup',function(){iDrag=false});
   var hInfo={
-    'hs-blue':function(p){var h='<div class="hp-title">Blue Marlin Habitat — '+Math.round(p.intensity*100)+'%</div>';var items=[];var keys=[['s_sst','w_sst','SST'],['s_sst_front','w_sst_front','Fronts'],['s_sst_intrusion','w_sst_intrusion','LC'],['s_chl','w_chl','Chl'],['s_ssh','w_ssh','SSH'],['s_current','w_current','Current'],['s_convergence','w_convergence','Conv'],['s_mld','w_mld','MLD'],['s_o2','w_o2','O₂'],['s_clarity','w_clarity','Clarity'],['s_boundary','w_boundary','Edge'],['s_ssta','w_ssta','SSTA']];for(var i=0;i<keys.length;i++){var k=keys[i];if(p[k[0]]!=null){items.push(k[2]+' '+Math.round(p[k[0]]*p[k[1]]*100)+'%')}}var mults=[];if(p.s_depth!=null)mults.push('Depth \u00d7'+Math.round(p.s_depth*100)+'%');if(p.s_shelf_break!=null)mults.push('Canyon \u00d7'+p.s_shelf_break);var sub=items.join(' \u00b7 ');if(mults.length)sub+=' | '+mults.join(' \u00b7 ');return h+'<div class="hp-sub">'+sub+'</div>'},
+    'hs-blue':function(p){var h='<div class="hp-title">Blue Marlin Habitat — '+Math.round(p.intensity*100)+'%</div>';var items=[];var keys=[['s_sst','w_sst','SST'],['s_sst_front','w_sst_front','Fronts'],['s_front_corridor','w_front_corridor','Corr'],['s_sst_intrusion','w_sst_intrusion','LC'],['s_chl','w_chl','Chl'],['s_chl_curvature','w_chl_curvature','ChlC'],['s_ssh','w_ssh','SSH'],['s_current','w_current','Current'],['s_convergence','w_convergence','Conv'],['s_mld','w_mld','MLD'],['s_o2','w_o2','O₂'],['s_clarity','w_clarity','Clarity'],['s_boundary','w_boundary','Edge'],['s_bathy_align','w_bathy_align','BthA'],['s_ssta','w_ssta','SSTA']];for(var i=0;i<keys.length;i++){var k=keys[i];if(p[k[0]]!=null){items.push(k[2]+' '+Math.round(p[k[0]]*p[k[1]]*100)+'%')}}var mults=[];if(p.s_depth!=null)mults.push('Depth \u00d7'+Math.round(p.s_depth*100)+'%');if(p.s_shelf_break!=null)mults.push('Canyon \u00d7'+p.s_shelf_break);var sub=items.join(' \u00b7 ');if(mults.length)sub+=' | '+mults.join(' \u00b7 ');return h+'<div class="hp-sub">'+sub+'</div>'},
     'sst-front-line':function(p){return '<div class="hp-title">SST Front</div><div class="hp-sub">Sharp temperature gradient — prey aggregation zone</div>'},
     'isotherm-blue-prime':function(p){return '<div class="hp-title">'+p.temperature+'\u00b0C Isotherm (Prime)</div><div class="hp-sub">Blue Marlin prime zone 24–27°C</div>'},
     'isotherm-blue-good':function(p){return '<div class="hp-title">'+p.temperature+'\u00b0C Isotherm (Good)</div><div class="hp-sub">Blue Marlin acceptable range 22–30°C</div>'},
@@ -602,11 +602,12 @@ function initMap(){
 
 function loadDatedGeoJSON(){
   var gj={'sst-fronts':'sst_fronts.geojson','chl-edges':'chl_edges.geojson','currents':'currents.geojson','water-clarity':'water_clarity.geojson','ssh-eddies':'ssh_eddies.geojson','mld':'mld_contours.geojson','oxygen':'oxygen_contours.geojson','ssta':'ssta_contours.geojson','blue-hotspots':'blue_marlin_hotspots.geojson'};
+  var cb='?t='+Date.now();
   Object.keys(gj).forEach(function(src){
     if(!map.getSource(src))return;
-    var dated='data/'+cDate+'/'+gj[src];
-    var pred='data/prediction/'+cDate+'/'+gj[src];
-    var fallback='data/'+gj[src];
+    var dated='data/'+cDate+'/'+gj[src]+cb;
+    var pred='data/prediction/'+cDate+'/'+gj[src]+cb;
+    var fallback='data/'+gj[src]+cb;
     // Try dated obs first, then prediction, then fallback
     fetch(dated).then(function(r){
       if(!r.ok)throw new Error('not found');
