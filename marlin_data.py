@@ -690,8 +690,8 @@ BLUE_MARLIN_WEIGHTS = {
 }
 
 # Intensity bands for contourf polygon export
-# Finer resolution at top end (85-100%) to show spatial detail within the zone
-HOTSPOT_BANDS = [0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.90, 0.95]
+# More bands at top end (80-100%) for fine spatial detail in the fishable zone
+HOTSPOT_BANDS = [0.20, 0.35, 0.50, 0.60, 0.70, 0.78, 0.84, 0.88, 0.92, 0.96]
 
 
 def compute_ssta(sst_grid, lats, lons, date_str, clim_path="data/sst_climatology.nc"):
@@ -1375,7 +1375,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     # Target ~1nm physical smoothing: just enough to connect pixels into contours
     # without flattening the spatial gradients we need for sub-zone detail
     _grid_step = abs(lons[1] - lons[0]) if nx > 1 else 0.083
-    _smooth_sigma = max(0.4, 0.017 / _grid_step)  # ~1nm physical scale
+    _smooth_sigma = max(0.3, 0.012 / _grid_step)  # ~0.7nm — preserves boundary detail
     final_filled = final.copy()
     final_filled[np.isnan(final_filled)] = 0
     final_smooth = gaussian_filter(final_filled, sigma=_smooth_sigma)
