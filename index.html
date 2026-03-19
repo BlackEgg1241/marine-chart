@@ -404,7 +404,10 @@ var GM={'GHRSST_L4_MUR_Sea_Surface_Temperature':{t:'GoogleMapsCompatible_Level7'
 // Use gibs:// protocol to fix palette PNG transparency (MapLibre doesn't decode tRNS in P-mode PNGs)
 maplibregl.addProtocol('gibs',function(params){
   var url=params.url.replace('gibs://','https://');
-  return fetch(url).then(function(r){return r.blob()}).then(function(blob){
+  return fetch(url).then(function(r){
+    if(!r.ok)throw new Error(r.status);
+    return r.blob();
+  }).then(function(blob){
     return createImageBitmap(blob).then(function(bmp){
       var cv=document.createElement('canvas');cv.width=bmp.width;cv.height=bmp.height;
       var ctx=cv.getContext('2d');ctx.drawImage(bmp,0,0);
@@ -412,6 +415,10 @@ maplibregl.addProtocol('gibs',function(params){
         cv.toBlob(function(b){b.arrayBuffer().then(function(buf){resolve({data:buf})});},'image/png');
       });
     });
+  }).catch(function(){
+    // Return 1x1 transparent PNG on error (tile not available for this date)
+    var b=Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='),function(c){return c.charCodeAt(0)});
+    return {data:b.buffer};
   });
 });
 function gu(l,d){var m=GM[l];return 'gibs://gibs.earthdata.nasa.gov/wmts/epsg3857/best/'+l+'/default/'+d+'/'+m.t+'/{z}/{y}/{x}.'+m.f}
