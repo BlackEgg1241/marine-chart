@@ -694,7 +694,10 @@ BLUE_MARLIN_WEIGHTS = {
 
 # Intensity bands for contourf polygon export
 # More bands at top end (80-100%) for fine spatial detail in the fishable zone
-HOTSPOT_BANDS = [0.20, 0.35, 0.50, 0.60, 0.70, 0.78, 0.84, 0.88, 0.92, 0.96]
+# Visual band breaks concentrated in the upper range where most ocean cells
+# cluster during marlin season.  Finer spacing above 0.80 provides spatial
+# contrast between feature-adjacent and background cells.
+HOTSPOT_BANDS = [0.20, 0.40, 0.55, 0.65, 0.73, 0.80, 0.86, 0.91, 0.95, 0.98]
 
 
 def compute_ssta(sst_grid, lats, lons, date_str, clim_path="data/sst_climatology.nc"):
@@ -1345,13 +1348,15 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         except Exception as e:
             print(f"[Hotspots] Current scoring failed: {e}")
 
+    _depth_grid = None  # populated if bathy data available; used in hover info
+
     # 11. Feature banding — distance-decay bands around oceanographic feature lines
     #     Instead of scoring only at exact contour cells, create ~2nm bands around
     #     SST fronts, CHL edges, SSH eddies, and bathymetry contours (100/200/500/1000m).
     #     Score decays smoothly from 1.0 at the feature to 0 at band_width distance.
     #     Where multiple bands overlap, multiplicative boost rewards convergence zones.
     try:
-        _band_width_nm = getattr(sys.modules[__name__], '_opt_band_width_nm', 2.31)
+        _band_width_nm = getattr(sys.modules[__name__], '_opt_band_width_nm', 2.5)
         _band_boost = getattr(sys.modules[__name__], '_opt_band_boost', 0.34)
         _band_decay = getattr(sys.modules[__name__], '_opt_band_decay', 0.80)
         _band_front_thresh = getattr(sys.modules[__name__], '_opt_band_front_thresh', 0.30)
@@ -1362,16 +1367,36 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         band_width_deg = _band_width_nm * 0.0167
         band_width_cells = band_width_deg / _grid_step_b
 
-        def _band_score(binary_mask):
-            """Compute distance-decay band score from a binary feature mask."""
+        # Lat/lon aspect ratio for EDT: at ~32S, 1° lon ≈ cos(32°) × 1° lat
+        _mean_lat = abs(np.mean(lats))
+        _cos_lat = np.cos(np.radians(_mean_lat))
+        _edt_sampling = [1.0, _cos_lat]
+
+        # Upsample factor: ensure bands span at least 3 cells for smooth shapes
+        _upsample = max(1, int(np.ceil(3.0 / max(band_width_cells, 0.1))))
+
+        def _band_score(binary_mask, weight=1.0):
+            """Compute distance-decay band score from a binary feature mask.
+            Upsamples internally if the grid is too coarse for the band width.
+            weight: scale factor for this band type (e.g. 1.5 for 200-500m bathy)."""
             if not np.any(binary_mask):
                 return np.zeros((ny, nx))
-            dist = distance_transform_edt(~binary_mask)
-            # Decay: 1.0 at line, 0 at band_width_cells; power controls shape
-            normalised = np.clip(dist / band_width_cells, 0, 1)
-            band = np.clip(1.0 - normalised ** _band_decay, 0, 1)
+
+            if _upsample > 1:
+                from scipy.ndimage import zoom
+                fine_mask = zoom(binary_mask.astype(float), _upsample, order=0) > 0.5
+                fine_bwc = band_width_cells * _upsample
+                fine_dist = distance_transform_edt(~fine_mask, sampling=_edt_sampling)
+                fine_norm = np.clip(fine_dist / fine_bwc, 0, 1)
+                fine_band = np.clip(1.0 - fine_norm ** _band_decay, 0, 1)
+                band = zoom(fine_band, 1.0 / _upsample, order=1)[:ny, :nx]
+            else:
+                dist = distance_transform_edt(~binary_mask, sampling=_edt_sampling)
+                normalised = np.clip(dist / band_width_cells, 0, 1)
+                band = np.clip(1.0 - normalised ** _band_decay, 0, 1)
+
             band[land] = 0
-            return band
+            return band * weight
 
         band_layers = {}  # name -> band_score array
 
@@ -1435,18 +1460,21 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             except Exception:
                 pass
 
-        # Bathymetry contour bands (100m, 200m, 500m, 1000m)
-        # Use depth data already interpolated to master grid to save memory
+        # Bathymetry contour bands — weighted by fishing relevance.
+        # Most blue marlin catches are at 110-500m depth, so the 200m and 500m
+        # contours get the strongest band weight. 100m is secondary, 1000m minor.
+        _bathy_band_weights = {100: 0.6, 200: 1.2, 500: 1.2, 1000: 0.4}
         if tif_path and 'bathy' in dir():
             try:
                 depth_master = _interp_to_grid(
                     np.where(np.isnan(bathy), 0, -bathy), b_lons, b_lats
                 )
-                for depth_m in [100, 200, 500, 1000]:
+                _depth_grid = depth_master  # make available for hover info
+                for depth_m, bw in _bathy_band_weights.items():
                     tol = max(20, depth_m * 0.05)
                     contour_mask = (np.abs(depth_master - depth_m) < tol) & ~land
                     if np.any(contour_mask):
-                        band_layers[f"bathy_{depth_m}m"] = _band_score(contour_mask)
+                        band_layers[f"bathy_{depth_m}m"] = _band_score(contour_mask, weight=bw)
             except Exception as e:
                 print(f"[Hotspots] Bathy contour banding failed: {e}")
 
@@ -1566,6 +1594,19 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                     result[name] = {"score": round(1.0 + _sb * mean_score, 2), "weight": -2}
                 else:
                     result[name] = {"score": mean_score, "weight": w}
+        # Add depth info if available
+        if _depth_grid is not None:
+            depth_region = _depth_grid[np.ix_(row_mask, col_mask)]
+            depth_valid = depth_region[~np.isnan(depth_region) & (depth_region > 0)]
+            if len(depth_valid) > 0:
+                result["depth_m"] = {"score": round(float(np.mean(depth_valid))), "weight": -3}
+
+        # Add band count
+        bc_region = _feature_band_count[np.ix_(row_mask, col_mask)]
+        bc_valid = bc_region[~np.isnan(bc_region)]
+        if len(bc_valid) > 0:
+            result["bands"] = {"score": round(float(np.mean(bc_valid)), 1), "weight": -4}
+
         return actual_intensity, result
 
     # --- Export as filled contour polygons with intensity bands ---
@@ -1573,35 +1614,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     plot_data = final_smooth.copy()
     plot_data[np.isnan(plot_data)] = 0
 
-    # Dynamic contour levels based on ocean score distribution.
-    # Fixed HOTSPOT_BANDS assume scores spread evenly across 0–1, but in
-    # practice most ocean cells cluster in a narrow upper range (0.7–1.0),
-    # making the visual map uniformly hot with no spatial contrast.
-    # Percentile-based levels spread the color bands across the actual data
-    # range, so the top ~10% of cells always appear as the hottest color.
-    # The *actual* score shown on tap (intensity) is still the raw value.
-    ocean_vals = plot_data[(~land) & valid & (plot_data > 0.15)]
-    if len(ocean_vals) > 100:
-        pcts = [5, 15, 25, 35, 45, 55, 65, 75, 85, 95]
-        raw = [min(float(np.percentile(ocean_vals, p)), 0.99) for p in pcts]
-        # Floor: don't let lowest band go below 0.20
-        raw[0] = max(raw[0], 0.20)
-        # Build strictly increasing sequence, dropping bands that can't fit
-        dyn_bands = [round(raw[0], 4)]
-        for i in range(1, len(raw)):
-            nxt = raw[i]
-            if nxt <= dyn_bands[-1] + 0.003:
-                nxt = dyn_bands[-1] + 0.003
-            if nxt >= 0.995:
-                break  # stop adding bands near ceiling
-            dyn_bands.append(round(nxt, 4))
-        # Pad with evenly spaced bands if we ran out of room
-        while len(dyn_bands) < 6:
-            gap = (dyn_bands[-1] - dyn_bands[0]) / (len(dyn_bands) + 1)
-            dyn_bands.insert(1, round(dyn_bands[0] + gap, 4))
-        levels = [0] + dyn_bands + [1.0]
-    else:
-        levels = [0] + HOTSPOT_BANDS + [1.0]
+    levels = [0] + HOTSPOT_BANDS + [1.0]
     fig, ax = plt.subplots()
     cf = ax.contourf(lons, lats, plot_data, levels=levels, extend="neither")
     plt.close(fig)
