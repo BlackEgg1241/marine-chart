@@ -1170,16 +1170,19 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             sla_data = _interp_to_grid(sla_da.values.astype(float), s_lons, s_lats)
             ssh_grid = sla_data  # save for boundary convergence
             # Absolute SLA: warm water mass indicator
-            # 0 at SLA<=0, 1.0 at SLA>=0.15m (strong warm anomaly)
-            abs_score = np.clip(sla_data / 0.15, 0, 1)
+            # Neutral water (SLA ~0) is acceptable fishing water, not bad.
+            # Baseline 0.4 for SLA>=0, ramping to 1.0 at SLA>=0.12m
+            abs_score = np.where(sla_data >= 0,
+                                 0.4 + 0.6 * np.clip(sla_data / 0.12, 0, 1),
+                                 np.clip(0.4 + sla_data / 0.05, 0, 0.4))
             # Relative SLA: eddy structure (local highs above background)
             sla_filled = sla_data.copy()
             sla_filled[np.isnan(sla_filled)] = np.nanmean(sla_data)
             sla_bg = gaussian_filter(sla_filled, sigma=4)
             sla_relative = sla_data - sla_bg
             rel_score = np.clip(sla_relative / 0.04, 0, 1)
-            # Blend: 50% absolute (warm water presence) + 50% relative (eddy edges)
-            ssh_score = 0.5 * abs_score + 0.5 * rel_score
+            # Blend: 60% absolute (warm water presence) + 40% relative (eddy edges)
+            ssh_score = 0.6 * abs_score + 0.4 * rel_score
             ssh_score[land] = np.nan
             _add_score("ssh", ssh_score)
             mean_abs = np.nanmean(sla_data[~land])
