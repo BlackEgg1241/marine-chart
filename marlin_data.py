@@ -1360,7 +1360,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     #     Score decays smoothly from 1.0 at the feature to 0 at band_width distance.
     #     Where multiple bands overlap, multiplicative boost rewards convergence zones.
     try:
-        _band_width_nm = getattr(sys.modules[__name__], '_opt_band_width_nm', 2.5)
+        _band_width_nm = getattr(sys.modules[__name__], '_opt_band_width_nm', 4.0)
         _band_boost = getattr(sys.modules[__name__], '_opt_band_boost', 0.34)
         _band_decay = getattr(sys.modules[__name__], '_opt_band_decay', 0.80)
         _band_front_thresh = getattr(sys.modules[__name__], '_opt_band_front_thresh', 0.30)
@@ -1483,10 +1483,10 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                 pass
 
         # Bathymetry contour bands — weighted by fishing relevance.
-        # Catch depth analysis: most blues caught at 150-180m, between 100m and
-        # 200m contours. Added 150m contour with highest weight since that's
-        # where catches actually cluster. Widened tolerances to 15% of depth.
-        _bathy_band_weights = {100: 0.3, 150: 0.6, 200: 0.5, 500: 0.4, 1000: 0.2}
+        # Catch depth analysis: catches at 150-170m (primary), 200-500m (secondary).
+        # 300m contour added to close the 230-425m gap where some catches fall.
+        # Tolerances at 20% of depth to cover catch positions between contours.
+        _bathy_band_weights = {100: 0.3, 150: 0.6, 200: 0.5, 300: 0.4, 500: 0.4, 1000: 0.2}
         if tif_path and 'bathy' in dir():
             try:
                 depth_master = _interp_to_grid(
@@ -1494,7 +1494,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                 )
                 _depth_grid = depth_master  # make available for hover info
                 for depth_m, bw in _bathy_band_weights.items():
-                    tol = max(25, depth_m * 0.15)
+                    tol = max(25, depth_m * 0.20)
                     contour_mask = (np.abs(depth_master - depth_m) < tol) & ~land
                     if np.any(contour_mask):
                         bathy_band = _band_score(contour_mask, weight=bw)
