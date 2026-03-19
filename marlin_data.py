@@ -1461,6 +1461,15 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                     cold_edge = cold_eddy & ~binary_erosion(cold_eddy, iterations=1)
                     if np.any(cold_edge):
                         band_layers["cold_eddy"] = _band_score(cold_edge)
+
+                # SSH neutral/transition band — boundary between warm and cold/neutral water
+                # Marlin aggregate at eddy edges where SLA crosses zero
+                ssh_abs = np.abs(ssh_smooth_we)
+                neutral_zone = (ssh_abs < 0.03) & ~land & ~coast_buf
+                if np.any(neutral_zone) and np.any(~neutral_zone & ~land):
+                    neutral_edge = neutral_zone & ~binary_erosion(neutral_zone, iterations=1)
+                    if np.any(neutral_edge):
+                        band_layers["ssh_neutral"] = _band_score(neutral_edge, weight=0.5)
             except Exception:
                 pass
 
@@ -1505,6 +1514,27 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                         band_layers[f"bathy_{depth_m}m"] = bathy_band
             except Exception as e:
                 print(f"[Hotspots] Bathy contour banding failed: {e}")
+
+        # FAD proximity band — small boost near known FAD buoy positions
+        # Catches cluster near FADs; this gives a mild nudge to nearby cells.
+        _fad_positions = [
+            (115.3333, -32.05),   # Club Marine
+            (115.2333, -32.0),    # PGFC
+            (115.2667, -31.9667), # FURUNO
+            (115.2, -31.9167),    # Compleat Angler
+            (115.1667, -32.1667), # Fibrelite Boats
+        ]
+        try:
+            fad_mask = np.zeros((ny, nx), dtype=bool)
+            for flon, flat in _fad_positions:
+                ci = np.argmin(np.abs(lons - flon))
+                ri = np.argmin(np.abs(lats - flat))
+                if 0 <= ri < ny and 0 <= ci < nx:
+                    fad_mask[ri, ci] = True
+            if np.any(fad_mask):
+                band_layers["fad"] = _band_score(fad_mask, weight=0.4)
+        except Exception:
+            pass
 
         # Band overlap — purely multiplicative (no additive sub-score to avoid double-counting)
         # Bands only boost cells that already score well from oceanographic fundamentals.
