@@ -2647,8 +2647,12 @@ def main():
         except Exception as e:
             print(f"[Currents] Error: {e}")
 
-    # Bathymetry contours — GEBCO file takes priority; fall back to GMRT API
-    # Tif was already downloaded above for the depth mask; just extract contours
+    # Bathymetry contours — use GMRT (smooth, consistent) even when hires is
+    # available for scoring. The hires merged TIF has seam artifacts that make
+    # contour lines jagged. GEBCO file still takes priority if provided.
+    gmrt_contour_path = os.path.join(OUTPUT_DIR, "bathy_gmrt.tif")
+    if not os.path.exists(gmrt_contour_path):
+        gmrt_contour_path = os.path.join(base_output, "bathy_gmrt.tif")
     if args.gebco:
         try:
             extract_contours_gdal(args.gebco)
@@ -2658,9 +2662,9 @@ def main():
                 extract_bathymetry_contours(args.gebco)
             except Exception as e2:
                 print(f"[Bathymetry] Error: {e2}")
-    elif tif_path and os.path.exists(tif_path):
+    elif gmrt_contour_path and os.path.exists(gmrt_contour_path):
         try:
-            extract_bathymetry_contours(tif_path)
+            extract_bathymetry_contours(gmrt_contour_path)
         except Exception as e:
             print(f"[Bathymetry] Contour extraction failed: {e}")
     else:
