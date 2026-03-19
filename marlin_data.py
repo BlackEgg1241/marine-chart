@@ -1480,6 +1480,9 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     final[valid] = score[valid] / weight_sum[valid]
     final[land] = np.nan
 
+    # --- Gamma contrast: compress the bloated 0.8-1.0 range so feature band
+    # multipliers have headroom to selectively boost cells near oceanographic
+    # feature lines.  gamma > 1 compresses high scores; 1.0 = no change.
     # Apply static multipliers: depth gates, shelf break boosts
     if "depth" in sub_scores:
         depth_mult = sub_scores["depth"]
@@ -1492,21 +1495,23 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         final[smask] *= shelf_mult[smask]
         final = np.clip(final, 0, 1)  # cap at 1.0
 
-    # Feature band overlap boost — multiplicative boost where multiple feature bands intersect
-    # Unlike the old threshold-based approach, this uses smooth distance-decay bands.
-    # More overlapping bands = stronger boost (scales continuously, not capped at 3).
+    # Feature band boost — proximity to oceanographic feature lines.
+    # Two-tier: single_boost per band (being near ANY feature matters),
+    # plus overlap_boost for each additional overlapping band (convergence zones).
     if np.any(_feature_band_count > 0):
-        _band_boost_val = getattr(sys.modules[__name__], '_opt_band_boost', 0.34)
-        # Overlap factor scales linearly with band count: 0 at 1, 1 at 2, 2 at 3, 3 at 4, etc.
-        overlap = np.clip(_feature_band_count - 1, 0, None)
-        # Boost = 1 + boost_per_overlap * num_extra_bands * mean_band_intensity
-        band_mult = 1.0 + _band_boost_val * overlap * _feature_band_mean
+        _band_single = getattr(sys.modules[__name__], '_opt_band_single', 0.15)
+        _band_overlap = getattr(sys.modules[__name__], '_opt_band_overlap', 0.20)
+        # Single: every band contributes; Overlap: extra reward for 2+ bands
+        extra = np.clip(_feature_band_count - 1, 0, None)
+        band_mult = (1.0
+                     + _band_single * _feature_band_count * _feature_band_mean
+                     + _band_overlap * extra * _feature_band_mean)
         final[valid] *= band_mult[valid]
         final = np.clip(final, 0, 1)
+        ov1 = np.sum(_feature_band_count[valid & ~land] >= 1) / max(np.sum(valid & ~land), 1) * 100
         ov2 = np.sum(_feature_band_count[valid & ~land] >= 2) / max(np.sum(valid & ~land), 1) * 100
         ov3 = np.sum(_feature_band_count[valid & ~land] >= 3) / max(np.sum(valid & ~land), 1) * 100
-        ov4 = np.sum(_feature_band_count[valid & ~land] >= 4) / max(np.sum(valid & ~land), 1) * 100
-        print(f"[Hotspots] Band overlap boost: {ov2:.0f}% 2+ bands, {ov3:.0f}% 3+ bands, {ov4:.0f}% 4+ bands")
+        print(f"[Hotspots] Band boost: {ov1:.0f}% 1+ bands, {ov2:.0f}% 2+ bands, {ov3:.0f}% 3+ bands")
 
     # Spatial smoothing — sigma scales with grid resolution
     # Target ~1nm physical smoothing: just enough to connect pixels into contours
@@ -1568,7 +1573,35 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     plot_data = final_smooth.copy()
     plot_data[np.isnan(plot_data)] = 0
 
-    levels = [0] + HOTSPOT_BANDS + [1.0]
+    # Dynamic contour levels based on ocean score distribution.
+    # Fixed HOTSPOT_BANDS assume scores spread evenly across 0–1, but in
+    # practice most ocean cells cluster in a narrow upper range (0.7–1.0),
+    # making the visual map uniformly hot with no spatial contrast.
+    # Percentile-based levels spread the color bands across the actual data
+    # range, so the top ~10% of cells always appear as the hottest color.
+    # The *actual* score shown on tap (intensity) is still the raw value.
+    ocean_vals = plot_data[(~land) & valid & (plot_data > 0.15)]
+    if len(ocean_vals) > 100:
+        pcts = [5, 15, 25, 35, 45, 55, 65, 75, 85, 95]
+        raw = [min(float(np.percentile(ocean_vals, p)), 0.99) for p in pcts]
+        # Floor: don't let lowest band go below 0.20
+        raw[0] = max(raw[0], 0.20)
+        # Build strictly increasing sequence, dropping bands that can't fit
+        dyn_bands = [round(raw[0], 4)]
+        for i in range(1, len(raw)):
+            nxt = raw[i]
+            if nxt <= dyn_bands[-1] + 0.003:
+                nxt = dyn_bands[-1] + 0.003
+            if nxt >= 0.995:
+                break  # stop adding bands near ceiling
+            dyn_bands.append(round(nxt, 4))
+        # Pad with evenly spaced bands if we ran out of room
+        while len(dyn_bands) < 6:
+            gap = (dyn_bands[-1] - dyn_bands[0]) / (len(dyn_bands) + 1)
+            dyn_bands.insert(1, round(dyn_bands[0] + gap, 4))
+        levels = [0] + dyn_bands + [1.0]
+    else:
+        levels = [0] + HOTSPOT_BANDS + [1.0]
     fig, ax = plt.subplots()
     cf = ax.contourf(lons, lats, plot_data, levels=levels, extend="neither")
     plt.close(fig)
@@ -1635,6 +1668,8 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         "lons": lons,
         "sub_scores": sub_scores,
         "weights": {k: v for k, v in BLUE_MARLIN_WEIGHTS.items()},
+        "band_count": _feature_band_count,
+        "band_mean": _feature_band_mean,
     }
 
 
