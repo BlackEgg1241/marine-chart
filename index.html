@@ -681,7 +681,7 @@ function rG(){
   var firstGJ=['hs-blue','spot-glow'];var bef;
   for(var j=0;j<firstGJ.length;j++){if(map.getLayer(firstGJ[j])){bef=firstGJ[j];break}}
   var ord=['g-sst','g-chl','g-ssh'];
-  for(var i=0;i<ord.length;i++){var k=ord[i],c=cfg[k];var tiles=k==='g-ssh'?[guSLA(cDate)]:[gu(c.l,gDate)];map.addSource(k,{type:'raster',tiles:tiles,tileSize:256,maxzoom:c.z});map.addLayer({id:k+'-layer',type:'raster',source:k,layout:{visibility:c.v?'visible':'none'},paint:{'raster-opacity':c.o}},bef)}
+  for(var i=0;i<ord.length;i++){var k=ord[i],c=cfg[k];if(!c.v)continue;var tiles=k==='g-ssh'?[guSLA(cDate)]:[gu(c.l,gDate)];map.addSource(k,{type:'raster',tiles:tiles,tileSize:256,maxzoom:c.z});map.addLayer({id:k+'-layer',type:'raster',source:k,layout:{visibility:'visible'},paint:{'raster-opacity':c.o}},bef)}
   loadDatedGeoJSON();
   updateDateInd();
 }
