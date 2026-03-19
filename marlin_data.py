@@ -1360,7 +1360,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     #     Score decays smoothly from 1.0 at the feature to 0 at band_width distance.
     #     Where multiple bands overlap, multiplicative boost rewards convergence zones.
     try:
-        _band_width_nm = getattr(sys.modules[__name__], '_opt_band_width_nm', 4.0)
+        _band_width_nm = getattr(sys.modules[__name__], '_opt_band_width_nm', 3.0)
         _band_boost = getattr(sys.modules[__name__], '_opt_band_boost', 0.34)
         _band_decay = getattr(sys.modules[__name__], '_opt_band_decay', 0.80)
         _band_front_thresh = getattr(sys.modules[__name__], '_opt_band_front_thresh', 0.30)

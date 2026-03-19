@@ -102,7 +102,7 @@
 .gps-nav-btn.hidden{display:none}
 
 /* Catch panel */
-.catch-panel{position:absolute;top:60px;left:10px;z-index:10;display:none;background:rgba(2,6,23,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:10px;padding:10px 14px;border:1px solid rgba(251,191,36,.3);min-width:240px;max-width:320px}
+.catch-panel{position:absolute;top:60px;left:10px;z-index:10;display:none;background:rgba(2,6,23,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:10px;padding:10px 14px;border:1px solid rgba(251,191,36,.3);width:260px}
 @supports(padding-top:env(safe-area-inset-top)){.catch-panel{top:calc(env(safe-area-inset-top) + 60px)}}
 .catch-panel.active{display:block}
 .catch-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
@@ -481,10 +481,10 @@ function initMap(){
 {id:'spot-glow',type:'circle',source:'spots',layout:{visibility:'visible'},paint:{'circle-radius':16,'circle-color':'#f43f5e','circle-opacity':.15,'circle-blur':.8}},
     {id:'spot-dot',type:'circle',source:'spots',layout:{visibility:'visible'},paint:{'circle-radius':6,'circle-color':'#f43f5e','circle-stroke-width':2,'circle-stroke-color':'#fff','circle-opacity':.9}},
     {id:'spot-label',type:'symbol',source:'spots',layout:{visibility:'visible','text-field':['get','name'],'text-size':10,'text-offset':[0,1.5],'text-anchor':'top','text-font':['Open Sans Regular']},paint:{'text-color':'#fbbf24','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5}},
-    {id:'catch-glow',type:'circle',source:'catch-marker',paint:{'circle-radius':22,'circle-color':'#fbbf24','circle-opacity':.2,'circle-blur':.6}},
-    {id:'catch-ring',type:'circle',source:'catch-marker',paint:{'circle-radius':10,'circle-color':'transparent','circle-stroke-width':3,'circle-stroke-color':'#fbbf24','circle-opacity':1}},
-    {id:'catch-dot',type:'circle',source:'catch-marker',paint:{'circle-radius':5,'circle-color':'#fbbf24','circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':1}},
-    {id:'catch-label',type:'symbol',source:'catch-marker',layout:{'text-field':['get','tag'],'text-size':10,'text-offset':[0,-2],'text-anchor':'bottom','text-font':['Open Sans Regular']},paint:{'text-color':'#fbbf24','text-halo-color':'rgba(0,0,0,0.9)','text-halo-width':2}},
+    {id:'catch-glow',type:'circle',source:'catch-marker',paint:{'circle-radius':22,'circle-color':'#22c55e','circle-opacity':.2,'circle-blur':.6}},
+    {id:'catch-ring',type:'circle',source:'catch-marker',paint:{'circle-radius':10,'circle-color':'transparent','circle-stroke-width':3,'circle-stroke-color':'#22c55e','circle-opacity':1}},
+    {id:'catch-dot',type:'circle',source:'catch-marker',paint:{'circle-radius':5,'circle-color':'#22c55e','circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':1}},
+    {id:'catch-label',type:'symbol',source:'catch-marker',layout:{'text-field':['get','tag'],'text-size':10,'text-offset':[0,-2],'text-anchor':'bottom','text-font':['Open Sans Regular']},paint:{'text-color':'#22c55e','text-halo-color':'rgba(0,0,0,0.9)','text-halo-width':2}},
     {id:'all-catches-glow',type:'circle',source:'all-catches',paint:{'circle-radius':12,'circle-color':['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24'],'circle-opacity':0,'circle-blur':.6}},
     {id:'all-catches-dot',type:'circle',source:'all-catches',paint:{'circle-radius':5,'circle-color':['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24'],'circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':0,'circle-stroke-opacity':0}},
     {id:'bathy-100',type:'line',source:'bathymetry',filter:['==',['get','depth'],-100],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':.85}},
@@ -533,7 +533,7 @@ function initMap(){
   // Info panel - draggable, replaces hover popup
   var infoEl=document.getElementById('infoPanel'),infoCt=document.getElementById('infoContent');
   infoPinned=false;var iDrag=false,iDX=0,iDY=0;
-  infoEl.addEventListener('pointerdown',function(e){iDrag=true;iDX=e.clientX-infoEl.offsetLeft;iDY=e.clientY-infoEl.offsetTop;infoEl.setPointerCapture(e.pointerId);e.stopPropagation()});
+  infoEl.addEventListener('pointerdown',function(e){if(e.target.classList.contains('info-close'))return;iDrag=true;iDX=e.clientX-infoEl.offsetLeft;iDY=e.clientY-infoEl.offsetTop;infoEl.setPointerCapture(e.pointerId);e.stopPropagation()});
   document.addEventListener('pointermove',function(e){if(!iDrag)return;var x=e.clientX-iDX,y=e.clientY-iDY;infoEl.style.left=x+'px';infoEl.style.top=y+'px';var qx=x,qy=y+10;var lids=Object.keys(hInfo).filter(function(l){return map.getLayer(l)});var fs=map.queryRenderedFeatures([qx,qy],{layers:lids});if(fs.length){var f=fs[0],lid=f.layer.id;var vk=hVis[lid];if((!vk||LS[vk])&&hInfo[lid])infoCt.innerHTML=hInfo[lid](f.properties)}});
   document.addEventListener('pointerup',function(){iDrag=false});
   var hInfo={
@@ -570,7 +570,7 @@ function initMap(){
       if(!e.features||!e.features.length)return;
       var vk=hVis[lid];if(vk&&!LS[vk])return;
       map.getCanvas().style.cursor='crosshair';
-      if(!infoPinned){infoCt.innerHTML=hInfo[lid](e.features[0].properties);infoEl.style.left=e.point.x+'px';infoEl.style.top=(e.point.y-10)+'px';infoEl.classList.add('active')}
+      if(infoPinned){infoCt.innerHTML=hInfo[lid](e.features[0].properties)}else{infoCt.innerHTML=hInfo[lid](e.features[0].properties);infoEl.style.left=e.point.x+'px';infoEl.style.top=(e.point.y-10)+'px';infoEl.classList.add('active')}
     });
     map.on('mouseleave',lid,function(){map.getCanvas().style.cursor='';if(!infoPinned)infoEl.classList.remove('active')});
   });
@@ -739,10 +739,10 @@ function setBasemap(n){
   map.addLayer({id:'clarity-turbid',type:'line',source:'water-clarity',filter:['==',['get','label'],'turbid'],paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':co?.85:0,'line-dasharray':[4,2]}},bf);
   map.addLayer({id:'clarity-bloom',type:'line',source:'water-clarity',filter:['==',['get','label'],'bloom'],paint:{'line-color':'#dc2626','line-width':2,'line-opacity':co?.9:0,'line-dasharray':[4,2]}},bf);
   map.addLayer({id:'sm-layer',type:'raster',source:'sm',paint:{'raster-opacity':.85},layout:{visibility:LS.seamark?'visible':'none'}},bf);
-  map.addLayer({id:'catch-glow',type:'circle',source:'catch-marker',paint:{'circle-radius':22,'circle-color':'#fbbf24','circle-opacity':.2,'circle-blur':.6}},bf);
-  map.addLayer({id:'catch-ring',type:'circle',source:'catch-marker',paint:{'circle-radius':10,'circle-color':'transparent','circle-stroke-width':3,'circle-stroke-color':'#fbbf24','circle-opacity':1}},bf);
-  map.addLayer({id:'catch-dot',type:'circle',source:'catch-marker',paint:{'circle-radius':5,'circle-color':'#fbbf24','circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':1}},bf);
-  map.addLayer({id:'catch-label',type:'symbol',source:'catch-marker',layout:{'text-field':['get','tag'],'text-size':10,'text-offset':[0,-2],'text-anchor':'bottom','text-font':['Open Sans Regular']},paint:{'text-color':'#fbbf24','text-halo-color':'rgba(0,0,0,0.9)','text-halo-width':2}},bf);
+  map.addLayer({id:'catch-glow',type:'circle',source:'catch-marker',paint:{'circle-radius':22,'circle-color':'#22c55e','circle-opacity':.2,'circle-blur':.6}},bf);
+  map.addLayer({id:'catch-ring',type:'circle',source:'catch-marker',paint:{'circle-radius':10,'circle-color':'transparent','circle-stroke-width':3,'circle-stroke-color':'#22c55e','circle-opacity':1}},bf);
+  map.addLayer({id:'catch-dot',type:'circle',source:'catch-marker',paint:{'circle-radius':5,'circle-color':'#22c55e','circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':1}},bf);
+  map.addLayer({id:'catch-label',type:'symbol',source:'catch-marker',layout:{'text-field':['get','tag'],'text-size':10,'text-offset':[0,-2],'text-anchor':'bottom','text-font':['Open Sans Regular']},paint:{'text-color':'#22c55e','text-halo-color':'rgba(0,0,0,0.9)','text-halo-width':2}},bf);
   var aco=allCatchesOn;
   map.addLayer({id:'all-catches-glow',type:'circle',source:'all-catches',paint:{'circle-radius':12,'circle-color':['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24'],'circle-opacity':aco?.15:0,'circle-blur':.6}},bf);
   map.addLayer({id:'all-catches-dot',type:'circle',source:'all-catches',paint:{'circle-radius':5,'circle-color':['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24'],'circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':aco?.9:0,'circle-stroke-opacity':aco?1:0}},bf);
