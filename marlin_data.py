@@ -701,7 +701,7 @@ BLUE_MARLIN_WEIGHTS = {
 # Visual band breaks — floor at 0.65 so background ocean stays transparent
 # and only elevated zones (feature intersections, shelf break) render.
 # Finer spacing in 0.80–0.98 for contrast within hot zones.
-HOTSPOT_BANDS = [0.65, 0.73, 0.78, 0.82, 0.86, 0.90, 0.93, 0.96, 0.98]
+HOTSPOT_BANDS = [0.35, 0.45, 0.55, 0.65, 0.73, 0.80, 0.86, 0.92, 0.96]
 
 
 def compute_ssta(sst_grid, lats, lons, date_str, clim_path="data/sst_climatology.nc"):
@@ -1557,7 +1557,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     # Two-tier: single_boost per band (being near ANY feature matters),
     # plus overlap_boost for each additional overlapping band (convergence zones).
     if np.any(_feature_band_count > 0):
-        _band_single = getattr(sys.modules[__name__], '_opt_band_single', 0.0)
+        _band_single = getattr(sys.modules[__name__], '_opt_band_single', 0.05)
         _band_overlap = getattr(sys.modules[__name__], '_opt_band_overlap', 0.25)
         # Single: every band contributes; Overlap: extra reward for 2+ bands
         extra = np.clip(_feature_band_count - 1, 0, None)
@@ -1565,11 +1565,27 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                      + _band_single * _feature_band_count * _feature_band_mean
                      + _band_overlap * extra * _feature_band_mean)
         final[valid] *= band_mult[valid]
-        final = np.clip(final, 0, 1)
+        # Don't clip to 1.0 here — allow scores >1.0 so band-boosted cells
+        # stand out visually. Will be rescaled to [0,1] before contouring.
         ov1 = np.sum(_feature_band_count[valid & ~land] >= 1) / max(np.sum(valid & ~land), 1) * 100
         ov2 = np.sum(_feature_band_count[valid & ~land] >= 2) / max(np.sum(valid & ~land), 1) * 100
         ov3 = np.sum(_feature_band_count[valid & ~land] >= 3) / max(np.sum(valid & ~land), 1) * 100
         print(f"[Hotspots] Band boost: {ov1:.0f}% 1+ bands, {ov2:.0f}% 2+ bands, {ov3:.0f}% 3+ bands")
+
+    # Rescale: band boost can push scores above 1.0. Compress the excess
+    # range so band-boosted cells still rank visually above non-boosted cells,
+    # but without unlimited range that would crush the lower bands.
+    # Uses sqrt compression on the >1.0 portion: 1.5 -> 1.22, 2.0 -> 1.41
+    raw_max = float(np.nanmax(final[valid & ~land])) if np.any(valid & ~land) else 1.0
+    if raw_max > 1.0:
+        over = np.clip(final - 1.0, 0, None)
+        over = np.sqrt(over)
+        final = np.where(final > 1.0, 1.0 + over, final)
+        compressed_max = float(np.nanmax(final[valid & ~land]))
+        # Rescale so the max maps to 1.0
+        final[valid] = final[valid] / compressed_max
+        final = np.clip(final, 0, 1)
+        print(f"[Hotspots] Band boost pushed max to {raw_max:.2f}, rescaled to 1.0 (discrimination preserved)")
 
     # Spatial smoothing — sigma scales with grid resolution
     # Target ~1nm physical smoothing: just enough to connect pixels into contours
