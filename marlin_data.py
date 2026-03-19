@@ -670,21 +670,22 @@ def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None, tif_
 # Composite score 0–1 per grid cell based on all available ocean variables.
 # Weights reflect relative importance for blue marlin habitat selection.
 BLUE_MARLIN_WEIGHTS = {
-    # Optimized by Optuna (200 trials, 44 blue marlin catches, 13 additive features).
-    # Feature bands (SST fronts, isotherms, CHL edges, eddies, bathy contours)
-    # applied as purely multiplicative overlap boost — not double-counted in weights.
-    "sst":           0.16,  # SST — primary habitat driver
-    "sst_front":     0.06,  # SST gradient — prey aggregation at fronts
-    "front_corridor":0.04,  # SST front corridors — narrow front pinch points
-    "sst_intrusion": 0.02,  # Cross-shelf SST gradient — Leeuwin Current
-    "chl":           0.08,  # Chlorophyll — bait productivity indicator
+    # Rebalanced from Optuna v4 using catch-vs-control discrimination analysis.
+    # Optuna over-weighted current (high everywhere in summer, +5% discrim) at
+    # expense of SSH (+32% discrim), MLD (+12%), CHL (+8%). Redistributed to
+    # features that actually separate catch days from non-catch days.
+    "sst":           0.17,  # SST — primary habitat driver
+    "sst_front":     0.07,  # SST gradient — prey aggregation at fronts
+    "front_corridor":0.06,  # SST front corridors — narrow front pinch points
+    "sst_intrusion": 0.01,  # Cross-shelf SST gradient — Leeuwin Current
+    "chl":           0.11,  # Chlorophyll — bait productivity indicator
     "chl_curvature": 0.02,  # CHL pockets/peninsulas — dynamic mixing zones
-    "ssh":           0.06,  # Sea level anomaly — warm water mass + eddies
-    "current":       0.21,  # Current favorability — warm water advection
+    "ssh":           0.13,  # Sea level anomaly — warm water mass + eddies
+    "current":       0.08,  # Current favorability — warm water advection
     "convergence":   0.04,  # Current convergence — bait aggregation
-    "mld":           0.12,  # Mixed layer depth — shallow = catchable
-    "o2":            0.03,  # Dissolved oxygen at 100m
-    "clarity":       0.05,  # Water clarity
+    "mld":           0.16,  # Mixed layer depth — shallow = catchable
+    "o2":            0.02,  # Dissolved oxygen at 100m
+    "clarity":       0.03,  # Water clarity
     "ssta":          0.09,  # SST anomaly — warmer than normal = Leeuwin Current
     # Static factors applied as MULTIPLIERS, not additive:
     # depth:       0->1 gate (zero if <100m)
