@@ -402,16 +402,17 @@ var BLK='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC
 var GW='https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/';
 var GM={'GHRSST_L4_MUR_Sea_Surface_Temperature':{t:'GoogleMapsCompatible_Level7',f:'png',z:7},'MODIS_Aqua_L2_Chlorophyll_A':{t:'GoogleMapsCompatible_Level7',f:'png',z:7}};
 // Use gibs:// protocol to fix palette PNG transparency (MapLibre doesn't decode tRNS in P-mode PNGs)
-maplibregl.addProtocol('gibs',function(params,cb){
+maplibregl.addProtocol('gibs',function(params){
   var url=params.url.replace('gibs://','https://');
-  fetch(url).then(function(r){return r.blob()}).then(function(blob){
-    createImageBitmap(blob).then(function(bmp){
+  return fetch(url).then(function(r){return r.blob()}).then(function(blob){
+    return createImageBitmap(blob).then(function(bmp){
       var cv=document.createElement('canvas');cv.width=bmp.width;cv.height=bmp.height;
       var ctx=cv.getContext('2d');ctx.drawImage(bmp,0,0);
-      cv.toBlob(function(b){b.arrayBuffer().then(function(buf){cb(null,buf,null,null)});},'image/png');
+      return new Promise(function(resolve){
+        cv.toBlob(function(b){b.arrayBuffer().then(function(buf){resolve({data:buf})});},'image/png');
+      });
     });
-  }).catch(function(e){cb(e)});
-  return {cancel:function(){}};
+  });
 });
 function gu(l,d){var m=GM[l];return 'gibs://gibs.earthdata.nasa.gov/wmts/epsg3857/best/'+l+'/default/'+d+'/'+m.t+'/{z}/{y}/{x}.'+m.f}
 var GL={chl:'MODIS_Aqua_L2_Chlorophyll_A',sst:'GHRSST_L4_MUR_Sea_Surface_Temperature'};
