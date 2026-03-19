@@ -2558,20 +2558,25 @@ def main():
         return p2 if os.path.exists(p2) else None
 
     # Download bathymetry FIRST so we can build the depth mask for clipping
-    # (reuse cached tif if it already exists in the dated or base dir)
+    # Prefer high-res merged bathymetry if available, fall back to GMRT
+    hires_path = os.path.join(base_output, "perth_canyon_bathy_hires.tif")
     tif_path = os.path.join(OUTPUT_DIR, "bathy_gmrt.tif")
-    if not os.path.exists(tif_path):
-        tif_path_base = os.path.join(base_output, "bathy_gmrt.tif")
-        if os.path.exists(tif_path_base):
-            import shutil as _shutil
-            _shutil.copy2(tif_path_base, tif_path)
+    if os.path.exists(hires_path):
+        tif_path = hires_path
+        print(f"[Bathymetry] Using high-res bathymetry: {hires_path}")
+    else:
+        if not os.path.exists(tif_path):
+            tif_path_base = os.path.join(base_output, "bathy_gmrt.tif")
+            if os.path.exists(tif_path_base):
+                import shutil as _shutil
+                _shutil.copy2(tif_path_base, tif_path)
 
-    if not os.path.exists(tif_path):
-        try:
-            fetch_bathymetry_gmrt(bbox)
-        except Exception as e:
-            print(f"[Bathymetry] Early download failed: {e}")
-            tif_path = None
+        if not os.path.exists(tif_path):
+            try:
+                fetch_bathymetry_gmrt(bbox)
+            except Exception as e:
+                print(f"[Bathymetry] Early download failed: {e}")
+                tif_path = None
 
     deep_mask = build_deep_water_mask(tif_path) if tif_path and os.path.exists(tif_path) else None
 
