@@ -724,13 +724,14 @@ def _build_marlin_section():
         except Exception:
             pass
 
-    # Blended rating: 45% marlin score + 25% habitat + 30% comfort
-    # Comfort weighted heavily — unfishable conditions override good ocean data
+    # Blended rating: 60% habitat (spatial scoring) + 40% comfort (boating)
+    # The habitat score is the primary signal — it incorporates SST, SSH, CHL,
+    # currents, feature bands, FAD proximity, and bathy.
+    # Model (trend) score is shown for reference but not used in the rating.
     def _blended(d):
-        m = d.get("model_score") or 0
         z = d.get("zone_max") or 0
         c = comfort_map.get(d["date"], 50)
-        return 0.45 * m + 0.25 * z + 0.30 * c
+        return 0.60 * z + 0.40 * c
 
     # Find best day by blended score
     best_day = max(days, key=_blended)
@@ -829,7 +830,7 @@ def _build_marlin_section():
 <tr style="border-bottom:1px solid #334155">
   <th style="padding:3px 10px;text-align:left">Day</th>
   <th style="padding:3px 10px;text-align:center">Habitat</th>
-  <th style="padding:3px 10px;text-align:center">Marlin</th>
+  <th style="padding:3px 10px;text-align:center">Trend</th>
   <th style="padding:3px 10px;text-align:center">Comfort</th>
   <th style="padding:3px 10px;text-align:left">Rating</th>
 </tr>
@@ -840,14 +841,14 @@ def _build_marlin_section():
 <p style="margin:8px 0">
   <span style="color:#94a3b8">Best day:</span>
   <span style="color:#22c55e;font-weight:bold"> {best_name} {best_date:%d %b}</span>
-  <span style="color:#94a3b8"> (Marlin {best_day.get('model_score', 0):.0f}% / Habitat {best_day.get('zone_max', 0):.0f}% / Comfort {comfort_map.get(best_day['date'], 0):.0f}%)</span>
+  <span style="color:#94a3b8"> (Habitat {best_day.get('zone_max', 0):.0f}% / Comfort {comfort_map.get(best_day['date'], 0):.0f}%)</span>
 </p>
 <p style="margin:4px 0">
   <span style="color:#94a3b8">7-Day Trend:</span>
   <span style="color:{trend_color};font-weight:bold"> {trend_text}</span>
 </p>
 <p style="color:#64748b;font-size:11px;margin:4px 0">
-  Rating = 45% Marlin (ocean trajectory) + 25% Habitat (spatial) + 30% Comfort (boating)
+  Rating = 60% Habitat (spatial scoring) + 40% Comfort (boating conditions)
 </p>
 """
 
@@ -867,7 +868,7 @@ def _build_marlin_section():
         comfort_str = f"{comfort:4.0f}%" if comfort is not None else " N/A"
         is_today = d["date"] == datetime.now().strftime("%Y-%m-%d")
         marker = " <-- TODAY" if is_today else ""
-        plain += f"  {day_name} {dt:%d %b}  Habitat:{zone_str}  Marlin:{model_str}  Comfort:{comfort_str}  {_score_label(blend, comfort)}{marker}\n"
+        plain += f"  {day_name} {dt:%d %b}  Habitat:{zone_str}  Trend:{model_str}  Comfort:{comfort_str}  {_score_label(blend, comfort)}{marker}\n"
     if eddy_plain:
         plain += eddy_plain
     # Sub-zone plain text
@@ -880,9 +881,9 @@ def _build_marlin_section():
                 sz_parts.append(f"{name} {sz['max']:.0f}%")
         if sz_parts:
             plain += f"Sub-zones: {' | '.join(sz_parts)}\n"
-    plain += f"\nBest day: {best_name} {best_date:%d %b} (Marlin {best_day.get('model_score', 0):.0f}% / Habitat {best_day.get('zone_max', 0):.0f}% / Comfort {comfort_map.get(best_day['date'], 0):.0f}%)\n"
+    plain += f"\nBest day: {best_name} {best_date:%d %b} (Habitat {best_day.get('zone_max', 0):.0f}% / Comfort {comfort_map.get(best_day['date'], 0):.0f}%)\n"
     plain += f"7-Day Trend: {trend_text}\n"
-    plain += "Rating = 45% Marlin + 25% Habitat + 30% Comfort\n"
+    plain += "Rating = 60% Habitat + 40% Comfort\n"
 
     return html, plain
 
@@ -1551,7 +1552,7 @@ def _generate_email_charts():
             ax.bar(dates, zone_scores, width=0.6, color=bar_colors, alpha=0.8, label="Habitat Score", zorder=2)
 
             ax.plot(dates, model_scores, color="#fb923c", linewidth=1.5, linestyle="--",
-                    marker="o", markersize=4, alpha=0.8, label="Marlin Score", zorder=3)
+                    marker="o", markersize=4, alpha=0.8, label="Trend Score", zorder=3)
 
             for i, (d, s) in enumerate(zip(dates, zone_scores)):
                 ax.text(d, s + 1.5, f"{s:.0f}%", ha="center", va="bottom",

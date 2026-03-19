@@ -141,17 +141,22 @@ def analyze_eddy_proximity(date_str):
         sla = sla_da.values.astype(float)
         ds.close()
 
-        # For zos (absolute SSH), convert to anomaly by subtracting spatial mean
+        # For zos (absolute SSH), use absolute thresholds.
+        # Perth Canyon mean zos is ~0.20-0.25m; warm eddies push above 0.30m.
+        # Using spatial mean subtraction was inaccurate because the mean varies
+        # seasonally and spatially. Instead, use fixed absolute thresholds.
         if var == "zos":
-            sla = sla - np.nanmean(sla)
+            # Warm water = above-average SSH for this region
+            WARM_THRESHOLD = 0.30   # ~top 30% of typical zos range
+            STRONG_THRESHOLD = 0.35  # strong warm eddy signature
+        else:
+            # SLA data is already an anomaly
+            WARM_THRESHOLD = 0.05
+            STRONG_THRESHOLD = 0.10
 
         # Zone center for distance calculations
         zone_center_lat = (ZONE_S + ZONE_N) / 2  # ~-31.95
         zone_center_lon = (ZONE_W + ZONE_E) / 2  # ~115.16
-
-        # Warm-core threshold: SLA > 0.05m (moderate warm anomaly)
-        WARM_THRESHOLD = 0.05
-        STRONG_THRESHOLD = 0.10
 
         # Find warm-core pixels
         warm_mask = sla > WARM_THRESHOLD

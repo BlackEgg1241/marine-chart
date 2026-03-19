@@ -247,6 +247,21 @@ def main():
             json.dump(out, f, indent=2)
         print(f"Updated {output_file} ({len(bt_results)} entries)")
 
+    # Regenerate forecast summary if prediction GeoJSONs were rescored
+    if do_pred:
+        summary_script = os.path.join(SCRIPT_DIR, "generate_forecast_summary.py")
+        if os.path.exists(summary_script):
+            print("\nRegenerating forecast summary...")
+            import subprocess, sys
+            result = subprocess.run(
+                [sys.executable, summary_script],
+                cwd=SCRIPT_DIR, capture_output=True, text=True, timeout=60,
+            )
+            if result.returncode == 0:
+                print(result.stdout)
+            else:
+                print(f"Forecast summary failed: {result.stderr[:200]}")
+
 
 if __name__ == "__main__":
     main()

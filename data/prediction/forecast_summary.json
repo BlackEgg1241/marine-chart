@@ -23,9 +23,9 @@
         "sst_skew": 31.7,
         "anticyc_frac": 79.9
       },
-      "zone_max": 80.0,
-      "zone_mean": 58.1,
-      "zone_cells": 28,
+      "zone_max": 85.0,
+      "zone_mean": 62.2,
+      "zone_cells": 34,
       "subzones": {
         "canyon": {
           "max": 100.0,
@@ -49,7 +49,7 @@
         }
       },
       "eddy": {
-        "zone_max_sla_m": 0.071,
+        "zone_max_sla_m": 0.345,
         "warm_in_zone": true,
         "strong_in_zone": false,
         "status": "WARM EDDY IN ZONE",
@@ -74,9 +74,9 @@
         "blue_water_frac": 41.9,
         "sst_range": 70.2
       },
-      "zone_max": 81.0,
-      "zone_mean": 64.6,
-      "zone_cells": 33,
+      "zone_max": 80.0,
+      "zone_mean": 60.8,
+      "zone_cells": 25,
       "subzones": {
         "canyon": {
           "max": 100.0,
@@ -100,7 +100,7 @@
         }
       },
       "eddy": {
-        "zone_max_sla_m": 0.076,
+        "zone_max_sla_m": 0.346,
         "warm_in_zone": true,
         "strong_in_zone": false,
         "status": "WARM EDDY IN ZONE",
@@ -126,8 +126,8 @@
         "sst_range": 49.5
       },
       "zone_max": 85.0,
-      "zone_mean": 64.1,
-      "zone_cells": 28,
+      "zone_mean": 62.3,
+      "zone_cells": 22,
       "subzones": {
         "canyon": {
           "max": 100.0,
@@ -151,13 +151,13 @@
         }
       },
       "eddy": {
-        "zone_max_sla_m": 0.078,
+        "zone_max_sla_m": 0.337,
         "warm_in_zone": true,
         "strong_in_zone": false,
         "status": "WARM EDDY IN ZONE",
         "distance_nm": 0,
         "bearing": null,
-        "n_warm_features": 2
+        "n_warm_features": 1
       }
     },
     {
@@ -176,9 +176,9 @@
         "sst_iqr": 45.5,
         "sst_std": 47.2
       },
-      "zone_max": 85.0,
-      "zone_mean": 54.9,
-      "zone_cells": 22,
+      "zone_max": 84.0,
+      "zone_mean": 56.3,
+      "zone_cells": 31,
       "subzones": {
         "canyon": {
           "max": 100.0,
@@ -202,13 +202,13 @@
         }
       },
       "eddy": {
-        "zone_max_sla_m": 0.081,
+        "zone_max_sla_m": 0.319,
         "warm_in_zone": true,
         "strong_in_zone": false,
         "status": "WARM EDDY IN ZONE",
         "distance_nm": 0,
         "bearing": null,
-        "n_warm_features": 3
+        "n_warm_features": 1
       }
     },
     {
@@ -227,9 +227,9 @@
         "vorticity": 39.2,
         "sst_front_frac": 41.1
       },
-      "zone_max": 80.0,
+      "zone_max": 81.0,
       "zone_mean": 50.4,
-      "zone_cells": 21,
+      "zone_cells": 23,
       "subzones": {
         "canyon": {
           "max": 100.0,
@@ -253,7 +253,7 @@
         }
       },
       "eddy": {
-        "zone_max_sla_m": 0.094,
+        "zone_max_sla_m": 0.317,
         "warm_in_zone": true,
         "strong_in_zone": false,
         "status": "WARM EDDY IN ZONE",
@@ -278,9 +278,9 @@
         "anticyc_frac": 28.9,
         "vorticity": 32.1
       },
-      "zone_max": 75.0,
-      "zone_mean": 47.2,
-      "zone_cells": 19,
+      "zone_max": 81.0,
+      "zone_mean": 52.7,
+      "zone_cells": 25,
       "subzones": {
         "canyon": {
           "max": 100.0,
@@ -304,13 +304,13 @@
         }
       },
       "eddy": {
-        "zone_max_sla_m": 0.101,
+        "zone_max_sla_m": 0.343,
         "warm_in_zone": true,
-        "strong_in_zone": true,
+        "strong_in_zone": false,
         "status": "WARM EDDY IN ZONE",
         "distance_nm": 0,
         "bearing": null,
-        "n_warm_features": 1
+        "n_warm_features": 2
       }
     },
     {
@@ -329,9 +329,9 @@
         "mld_mean": 12.4,
         "anticyc_frac": 25.6
       },
-      "zone_max": 81.0,
-      "zone_mean": 52.1,
-      "zone_cells": 28,
+      "zone_max": 80.0,
+      "zone_mean": 54.9,
+      "zone_cells": 36,
       "subzones": {
         "canyon": {
           "max": 100.0,
@@ -355,12 +355,16 @@
         }
       },
       "eddy": {
-        "zone_max_sla_m": 0.09,
-        "warm_in_zone": true,
+        "zone_max_sla_m": 0.296,
+        "warm_in_zone": false,
         "strong_in_zone": false,
-        "status": "WARM EDDY IN ZONE",
-        "distance_nm": 0,
-        "bearing": null,
+        "distance_nm": 64.1,
+        "bearing": 345.0,
+        "bearing_label": "NNW",
+        "nearest_lat": -30.917,
+        "nearest_lon": 114.833,
+        "nearest_sla_m": 0.303,
+        "status": "NEAREST WARM 64nm NNW",
         "n_warm_features": 1
       }
     },
@@ -380,9 +384,9 @@
         "mld_mean": 4.1,
         "vorticity": 24.8
       },
-      "zone_max": 74.0,
-      "zone_mean": 51.6,
-      "zone_cells": 27,
+      "zone_max": 80.0,
+      "zone_mean": 54.2,
+      "zone_cells": 33,
       "subzones": {
         "canyon": {
           "max": 100.0,
@@ -406,13 +410,15 @@
         }
       },
       "eddy": {
-        "zone_max_sla_m": 0.082,
+        "zone_max_sla_m": 0.304,
         "warm_in_zone": true,
         "strong_in_zone": false,
         "status": "WARM EDDY IN ZONE",
         "distance_nm": 0,
         "bearing": null,
-        "n_warm_features": 1
+        "n_warm_features": 2,
+        "distance_change_nm": -64.1,
+        "movement": "APPROACHING"
       }
     }
   ]
