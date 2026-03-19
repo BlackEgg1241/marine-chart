@@ -701,7 +701,7 @@ BLUE_MARLIN_WEIGHTS = {
 # Visual band breaks — floor at 0.65 so background ocean stays transparent
 # and only elevated zones (feature intersections, shelf break) render.
 # Finer spacing in 0.80–0.98 for contrast within hot zones.
-HOTSPOT_BANDS = [0.35, 0.45, 0.55, 0.65, 0.73, 0.80, 0.86, 0.92, 0.96]
+HOTSPOT_BANDS = [0.25, 0.32, 0.39, 0.46, 0.53, 0.60, 0.67, 0.74, 0.80, 0.85, 0.90, 0.95]
 
 
 def compute_ssta(sst_grid, lats, lons, date_str, clim_path="data/sst_climatology.nc"):
@@ -1597,7 +1597,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     # Target ~1nm physical smoothing: just enough to connect pixels into contours
     # without flattening the spatial gradients we need for sub-zone detail
     _grid_step = abs(lons[1] - lons[0]) if nx > 1 else 0.083
-    _smooth_sigma = max(0.3, 0.008 / _grid_step)  # ~0.5nm — preserves spatial convergence peaks
+    _smooth_sigma = max(0.6, 0.015 / _grid_step)  # ~1nm — softens polygon edges for gradient look
     final_filled = final.copy()
     final_filled[np.isnan(final_filled)] = 0
     final_smooth = gaussian_filter(final_filled, sigma=_smooth_sigma)
