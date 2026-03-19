@@ -1465,14 +1465,6 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                     if np.any(cold_edge):
                         band_layers["cold_eddy"] = _band_score(cold_edge)
 
-                # SSH neutral/transition band — boundary between warm and cold/neutral water
-                # Marlin aggregate at eddy edges where SLA crosses zero
-                ssh_abs = np.abs(ssh_smooth_we)
-                neutral_zone = (ssh_abs < 0.03) & ~land & ~coast_buf
-                if np.any(neutral_zone) and np.any(~neutral_zone & ~land):
-                    neutral_edge = neutral_zone & ~binary_erosion(neutral_zone, iterations=1)
-                    if np.any(neutral_edge):
-                        band_layers["ssh_neutral"] = _band_score(neutral_edge, weight=0.5)
             except Exception:
                 pass
 
