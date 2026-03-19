@@ -1463,6 +1463,24 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             except Exception:
                 pass
 
+        # SSTA edge band — boundary of warm Leeuwin Current intrusion
+        # Detects where SST anomaly transitions from normal to positive,
+        # marking the leading edge of warm current intrusions into the canyon.
+        if 'ssta' in dir() and ssta is not None:
+            try:
+                ssta_clean = ssta.copy()
+                ssta_clean[np.isnan(ssta_clean) | land] = 0.0
+                ssta_smooth_band = gaussian_filter(ssta_clean, sigma=1.0)
+                # Edge where SSTA crosses +0.5°C — the intrusion front
+                warm_intrusion = (ssta_smooth_band > 0.5) & ~land & ~coast_buf
+                if np.any(warm_intrusion) and np.any(~warm_intrusion & ~land):
+                    from scipy.ndimage import binary_erosion
+                    ssta_edge = warm_intrusion & ~binary_erosion(warm_intrusion, iterations=1)
+                    if np.any(ssta_edge):
+                        band_layers["ssta_edge"] = _band_score(ssta_edge)
+            except Exception:
+                pass
+
         # Bathymetry contour bands — weighted by fishing relevance.
         # Most blue marlin catches are at 110-500m depth, so the 200m and 500m
         # contours get the strongest band weight. 100m is secondary, 1000m minor.
@@ -1477,7 +1495,12 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                     tol = max(20, depth_m * 0.05)
                     contour_mask = (np.abs(depth_master - depth_m) < tol) & ~land
                     if np.any(contour_mask):
-                        band_layers[f"bathy_{depth_m}m"] = _band_score(contour_mask, weight=bw)
+                        bathy_band = _band_score(contour_mask, weight=bw)
+                        # Suppress shoreward side: zero out cells shallower than
+                        # half the contour depth to prevent bands boosting inner shelf
+                        shallow_mask = (depth_master < depth_m * 0.5) & ~land
+                        bathy_band[shallow_mask] = 0
+                        band_layers[f"bathy_{depth_m}m"] = bathy_band
             except Exception as e:
                 print(f"[Hotspots] Bathy contour banding failed: {e}")
 

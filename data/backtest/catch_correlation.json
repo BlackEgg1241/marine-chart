@@ -1,0 +1,233 @@
+{
+  "analysis": "Intra-Season Trajectory Correlation Analysis",
+  "methodology": "Weekly habitat scores analysed for trajectory features within marlin season (Jan-Jun)",
+  "key_finding": "Early-season signal (early peak + small Jan-to-Mar jump) correlates with catch success",
+  "combined_signal": {
+    "description": "50% early-to-mid jump (inverted) + 50% peak week timing (inverted)",
+    "interpretation": "Higher signal = conditions peak earlier = more catches",
+    "spearman_rho_all": 0.687,
+    "spearman_p_all": 0.003,
+    "spearman_rho_excl2025": 0.658,
+    "spearman_p_excl2025": 0.008,
+    "pearson_r_excl2025": 0.556,
+    "pearson_p_excl2025": 0.032
+  },
+  "component_signals": {
+    "early_to_mid_jump": {
+      "description": "Mar-Apr mean minus Jan-Feb mean",
+      "interpretation": "Negative/small = Leeuwin Current brings warmth early, longer season",
+      "spearman_rho_excl2025": -0.591,
+      "spearman_p_excl2025": 0.02,
+      "tercile_early_starters_avg_catches": 12.2,
+      "tercile_late_rampups_avg_catches": 2.0
+    },
+    "peak_week": {
+      "description": "Week number of highest habitat score in season",
+      "interpretation": "Earlier peak = marlin established sooner = more fishing opportunities",
+      "spearman_rho_excl2025": -0.462,
+      "spearman_p_excl2025": 0.083
+    }
+  },
+  "physical_interpretation": "When the Leeuwin Current delivers warm water early (Jan-Feb already near peak habitat), blue marlin arrive and establish in the Perth Canyon sooner, creating a longer effective fishing season. Years where habitat conditions ramp up late (large Jan-to-Mar jump) have shorter windows and fewer catches. This is consistent with marlin being migratory apex predators that track warm water masses - earlier warmth means earlier arrival.",
+  "caveats": [
+    "n=16 years is small; results are indicative, not definitive",
+    "Catch data conflates fishing effort and reporting rates with abundance",
+    "2025 is an outlier (38 catches, 3.2x previous max) - possibly effort-driven",
+    "Zero-catch years (2014, 2019, 2020) may reflect zero effort, not zero fish",
+    "Analysis uses composite habitat scores, not raw SST - further analysis with raw variables recommended"
+  ],
+  "years": [
+    {
+      "year": 2010,
+      "early_mean_jan_feb": 90.3,
+      "mid_mean_mar_apr": 94.1,
+      "late_mean_may_jun": 88.5,
+      "early_to_mid_jump": 3.8,
+      "peak_week": 12,
+      "peak_score": 96.8,
+      "early_season_signal": -0.39,
+      "total_catches": 2,
+      "blue_catches": 0
+    },
+    {
+      "year": 2011,
+      "early_mean_jan_feb": 87.6,
+      "mid_mean_mar_apr": 90.9,
+      "late_mean_may_jun": 87.2,
+      "early_to_mid_jump": 3.3,
+      "peak_week": 1,
+      "peak_score": 97.5,
+      "early_season_signal": 0.62,
+      "total_catches": 6,
+      "blue_catches": 3
+    },
+    {
+      "year": 2012,
+      "early_mean_jan_feb": 93.7,
+      "mid_mean_mar_apr": 91.2,
+      "late_mean_may_jun": 90.2,
+      "early_to_mid_jump": -2.5,
+      "peak_week": 2,
+      "peak_score": 97.1,
+      "early_season_signal": 1.79,
+      "total_catches": 7,
+      "blue_catches": 5
+    },
+    {
+      "year": 2013,
+      "early_mean_jan_feb": 94.0,
+      "mid_mean_mar_apr": 93.4,
+      "late_mean_may_jun": 93.7,
+      "early_to_mid_jump": -0.6,
+      "peak_week": 15,
+      "peak_score": 96.9,
+      "early_season_signal": 0.32,
+      "total_catches": 8,
+      "blue_catches": 3
+    },
+    {
+      "year": 2014,
+      "early_mean_jan_feb": 92.6,
+      "mid_mean_mar_apr": 95.1,
+      "late_mean_may_jun": 92.3,
+      "early_to_mid_jump": 2.5,
+      "peak_week": 16,
+      "peak_score": 96.6,
+      "early_season_signal": -0.42,
+      "total_catches": 0,
+      "blue_catches": 0
+    },
+    {
+      "year": 2015,
+      "early_mean_jan_feb": 91.4,
+      "mid_mean_mar_apr": 94.3,
+      "late_mean_may_jun": 90.2,
+      "early_to_mid_jump": 2.8,
+      "peak_week": 8,
+      "peak_score": 96.3,
+      "early_season_signal": 0.16,
+      "total_catches": 12,
+      "blue_catches": 7
+    },
+    {
+      "year": 2016,
+      "early_mean_jan_feb": 91.5,
+      "mid_mean_mar_apr": 91.4,
+      "late_mean_may_jun": 83.6,
+      "early_to_mid_jump": -0.2,
+      "peak_week": 4,
+      "peak_score": 93.6,
+      "early_season_signal": 1.12,
+      "total_catches": 4,
+      "blue_catches": 3
+    },
+    {
+      "year": 2017,
+      "early_mean_jan_feb": 88.4,
+      "mid_mean_mar_apr": 91.7,
+      "late_mean_may_jun": 91.4,
+      "early_to_mid_jump": 3.3,
+      "peak_week": 7,
+      "peak_score": 94.9,
+      "early_season_signal": 0.14,
+      "total_catches": 6,
+      "blue_catches": 4
+    },
+    {
+      "year": 2018,
+      "early_mean_jan_feb": 90.4,
+      "mid_mean_mar_apr": 94.1,
+      "late_mean_may_jun": 90.9,
+      "early_to_mid_jump": 3.7,
+      "peak_week": 20,
+      "peak_score": 96.3,
+      "early_season_signal": -1.02,
+      "total_catches": 1,
+      "blue_catches": 0
+    },
+    {
+      "year": 2019,
+      "early_mean_jan_feb": 85.4,
+      "mid_mean_mar_apr": 92.3,
+      "late_mean_may_jun": 83.8,
+      "early_to_mid_jump": 6.9,
+      "peak_week": 12,
+      "peak_score": 94.0,
+      "early_season_signal": -1.05,
+      "total_catches": 0,
+      "blue_catches": 0
+    },
+    {
+      "year": 2020,
+      "early_mean_jan_feb": 89.0,
+      "mid_mean_mar_apr": 94.2,
+      "late_mean_may_jun": 92.2,
+      "early_to_mid_jump": 5.2,
+      "peak_week": 15,
+      "peak_score": 96.7,
+      "early_season_signal": -0.92,
+      "total_catches": 0,
+      "blue_catches": 0
+    },
+    {
+      "year": 2021,
+      "early_mean_jan_feb": 92.6,
+      "mid_mean_mar_apr": 94.0,
+      "late_mean_may_jun": 93.4,
+      "early_to_mid_jump": 1.4,
+      "peak_week": 9,
+      "peak_score": 97.8,
+      "early_season_signal": 0.38,
+      "total_catches": 4,
+      "blue_catches": 4
+    },
+    {
+      "year": 2022,
+      "early_mean_jan_feb": 93.1,
+      "mid_mean_mar_apr": 94.8,
+      "late_mean_may_jun": 92.7,
+      "early_to_mid_jump": 1.8,
+      "peak_week": 12,
+      "peak_score": 96.9,
+      "early_season_signal": 0.06,
+      "total_catches": 2,
+      "blue_catches": 2
+    },
+    {
+      "year": 2023,
+      "early_mean_jan_feb": 90.3,
+      "mid_mean_mar_apr": 94.3,
+      "late_mean_may_jun": 86.2,
+      "early_to_mid_jump": 4.0,
+      "peak_week": 22,
+      "peak_score": 96.4,
+      "early_season_signal": -1.25,
+      "total_catches": 3,
+      "blue_catches": 2
+    },
+    {
+      "year": 2024,
+      "early_mean_jan_feb": 90.5,
+      "mid_mean_mar_apr": 92.4,
+      "late_mean_may_jun": 90.4,
+      "early_to_mid_jump": 1.9,
+      "peak_week": 19,
+      "peak_score": 95.5,
+      "early_season_signal": -0.53,
+      "total_catches": 6,
+      "blue_catches": 5
+    },
+    {
+      "year": 2025,
+      "early_mean_jan_feb": 85.4,
+      "mid_mean_mar_apr": 84.8,
+      "late_mean_may_jun": 85.4,
+      "early_to_mid_jump": -0.6,
+      "peak_week": 7,
+      "peak_score": 90.9,
+      "early_season_signal": 0.97,
+      "total_catches": 38,
+      "blue_catches": 29
+    }
+  ]
+}

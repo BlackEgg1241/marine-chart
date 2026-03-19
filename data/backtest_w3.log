@@ -1,0 +1,2080 @@
+Habitat Backtest: 54 dates from 2018-01-01 to 2020-04-29
+Output: data/backtest_w3/
+
+[Bathymetry] Downloading once for all dates...
+[Bathymetry] Downloading GMRT GeoTIFF...
+[Bathymetry] Downloaded 15326 KB ->data/backtest_w3\bathy_gmrt.tif
+[Bathymetry] Extracting contours from data/backtest_w3\bathy_gmrt.tif...
+[Bathymetry] -100m: 10 segments
+[Bathymetry] -200m: 3 segments
+[Bathymetry] -500m: 2 segments
+[Bathymetry] -1000m: 8 segments
+[Bathymetry] 23 contour segments ->data/backtest_w3\bathymetry_contours.geojson
+
+============================================================
+[1/54] 2018-01-01
+============================================================
+INFO - 2026-03-15T01:01:52Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:01:52Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:01:52Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:02:06Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:02:06Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:02:06Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:02:25Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:02:25Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:02:39Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:02:39Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:02:39Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:02:53Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:02:53Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:03:14Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:03:14Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:03:30Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:03:30Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:03:30Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:03:51Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:03:51Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:03:51Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:04:07Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:04:07Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:04:07Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:04:26Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:04:26Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:04:41Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:04:41Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:04:41Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:05:01Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:05:01Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:05:15Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:05:15Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:05:33Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:05:33Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:05:33Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:05:47Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:05:47Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:05:47Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:06:00Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:06:00Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:06:00Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:06:12Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:06:12Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:06:28Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:06:28Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:06:28Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:06:43Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:06:43Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:06:59Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:06:59Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:07:17Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:07:17Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:07:17Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:07:32Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:07:32Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:07:32Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:07:49Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:07:49Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:07:49Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:08:04Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:08:04Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:08:18Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:08:18Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:08:18Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:08:31Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:08:31Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:08:45Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:08:45Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:08:59Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:08:59Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:08:59Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:09:18Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:09:18Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:09:18Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:09:32Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:09:32Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:09:32Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:09:50Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:09:50Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:10:03Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:10:03Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:10:03Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:10:19Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:10:19Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:10:32Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:10:32Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:10:50Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:10:50Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:10:50Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:11:04Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:11:04Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:11:04Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:11:18Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:11:18Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:11:18Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:11:32Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:11:32Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:11:48Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:11:48Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:11:48Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:12:02Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:12:02Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:12:18Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:12:18Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:12:32Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:12:32Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:12:32Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:12:52Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:12:52Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:12:52Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:13:07Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:13:07Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:13:07Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:13:23Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:13:23Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:13:39Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:13:39Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:13:39Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:13:56Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:13:56Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:14:10Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:14:10Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:14:29Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:14:29Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:14:29Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:14:44Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:14:44Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:14:44Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:14:57Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:14:57Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:14:57Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:15:11Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:15:11Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:15:28Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:15:28Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:15:28Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:15:42Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:15:42Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:15:55Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:15:55Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:16:09Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:16:09Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:16:09Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+  [SST] Fetching reanalysis for 2018-01-01...
+  [Currents] Fetching reanalysis for 2018-01-01...
+  [MLD] Fetching reanalysis for 2018-01-01...
+  [CHL] Fetching reanalysis for 2018-01-01...
+  [SSH] Fetching reanalysis for 2018-01-01...
+  [O2] Fetching reanalysis for 2018-01-01...
+  [KD490] Fetching reanalysis for 2018-01-01...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 60% >50%, mean abs SLA=0.212m
+[Hotspots] Current scoring: 78% favorable, upstream SST mean 20.8C
+[Hotspots] Convergence scoring: 60% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.997 (mean 0.558)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 62 polygons across 8 bands ->data/backtest_w3\2018-01-01\blue_marlin_hotspots.geojson
+  -> Mean: 85.6%  Median: 87.5%  Max: 98.2%  (24 cells)
+
+============================================================
+[2/54] 2018-01-08
+============================================================
+  [SST] Fetching reanalysis for 2018-01-08...
+  [Currents] Fetching reanalysis for 2018-01-08...
+  [MLD] Fetching reanalysis for 2018-01-08...
+  [CHL] Fetching reanalysis for 2018-01-08...
+  [SSH] Fetching reanalysis for 2018-01-08...
+  [O2] Fetching reanalysis for 2018-01-08...
+  [KD490] Fetching reanalysis for 2018-01-08...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 55% >50%, mean abs SLA=0.194m
+[Hotspots] Current scoring: 88% favorable, upstream SST mean 21.1C
+[Hotspots] Convergence scoring: 61% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.994 (mean 0.580)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 63 polygons across 8 bands ->data/backtest_w3\2018-01-08\blue_marlin_hotspots.geojson
+  -> Mean: 90.0%  Median: 92.0%  Max: 99.4%  (24 cells)
+
+============================================================
+[3/54] 2018-01-15
+============================================================
+  [SST] Fetching reanalysis for 2018-01-15...
+  [Currents] Fetching reanalysis for 2018-01-15...
+  [MLD] Fetching reanalysis for 2018-01-15...
+  [CHL] Fetching reanalysis for 2018-01-15...
+  [SSH] Fetching reanalysis for 2018-01-15...
+  [O2] Fetching reanalysis for 2018-01-15...
+  [KD490] Fetching reanalysis for 2018-01-15...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 54% >50%, mean abs SLA=0.197m
+[Hotspots] Current scoring: 92% favorable, upstream SST mean 21.3C
+[Hotspots] Convergence scoring: 69% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.996 (mean 0.603)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 82 polygons across 8 bands ->data/backtest_w3\2018-01-15\blue_marlin_hotspots.geojson
+  -> Mean: 93.4%  Median: 94.9%  Max: 99.6%  (24 cells)
+
+============================================================
+[4/54] 2018-01-22
+============================================================
+  [SST] Fetching reanalysis for 2018-01-22...
+  [Currents] Fetching reanalysis for 2018-01-22...
+  [MLD] Fetching reanalysis for 2018-01-22...
+  [CHL] Fetching reanalysis for 2018-01-22...
+  [SSH] Fetching reanalysis for 2018-01-22...
+  [O2] Fetching reanalysis for 2018-01-22...
+  [KD490] Fetching reanalysis for 2018-01-22...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 53% >50%, mean abs SLA=0.202m
+[Hotspots] Current scoring: 91% favorable, upstream SST mean 21.8C
+[Hotspots] Convergence scoring: 54% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.999 (mean 0.605)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 69 polygons across 8 bands ->data/backtest_w3\2018-01-22\blue_marlin_hotspots.geojson
+  -> Mean: 92.1%  Median: 94.2%  Max: 99.6%  (24 cells)
+
+============================================================
+[5/54] 2018-01-29
+============================================================
+  [SST] Fetching reanalysis for 2018-01-29...
+  [Currents] Fetching reanalysis for 2018-01-29...
+  [MLD] Fetching reanalysis for 2018-01-29...
+  [CHL] Fetching reanalysis for 2018-01-29...
+  [SSH] Fetching reanalysis for 2018-01-29...
+  [O2] Fetching reanalysis for 2018-01-29...
+  [KD490] Fetching reanalysis for 2018-01-29...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 40% >50%, mean abs SLA=0.115m
+[Hotspots] Current scoring: 95% favorable, upstream SST mean 21.5C
+[Hotspots] Convergence scoring: 44% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.998 (mean 0.593)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 69 polygons across 8 bands ->data/backtest_w3\2018-01-29\blue_marlin_hotspots.geojson
+  -> Mean: 89.5%  Median: 91.3%  Max: 99.2%  (24 cells)
+
+============================================================
+[6/54] 2018-02-05
+============================================================
+  [SST] Fetching reanalysis for 2018-02-05...
+  [Currents] Fetching reanalysis for 2018-02-05...
+  [MLD] Fetching reanalysis for 2018-02-05...
+  [CHL] Fetching reanalysis for 2018-02-05...
+  [SSH] Fetching reanalysis for 2018-02-05...
+  [O2] Fetching reanalysis for 2018-02-05...
+  [KD490] Fetching reanalysis for 2018-02-05...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 56% >50%, mean abs SLA=0.142m
+[Hotspots] Current scoring: 72% favorable, upstream SST mean 21.9C
+[Hotspots] Convergence scoring: 55% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.998 (mean 0.599)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 65 polygons across 8 bands ->data/backtest_w3\2018-02-05\blue_marlin_hotspots.geojson
+  -> Mean: 86.8%  Median: 87.6%  Max: 98.4%  (24 cells)
+
+============================================================
+[7/54] 2018-02-12
+============================================================
+  [SST] Fetching reanalysis for 2018-02-12...
+  [Currents] Fetching reanalysis for 2018-02-12...
+  [MLD] Fetching reanalysis for 2018-02-12...
+  [CHL] Fetching reanalysis for 2018-02-12...
+  [SSH] Fetching reanalysis for 2018-02-12...
+  [O2] Fetching reanalysis for 2018-02-12...
+  [KD490] Fetching reanalysis for 2018-02-12...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 53% >50%, mean abs SLA=0.156m
+[Hotspots] Current scoring: 83% favorable, upstream SST mean 21.4C
+[Hotspots] Convergence scoring: 59% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.998 (mean 0.583)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 81 polygons across 8 bands ->data/backtest_w3\2018-02-12\blue_marlin_hotspots.geojson
+  -> Mean: 87.4%  Median: 89.0%  Max: 98.6%  (24 cells)
+
+============================================================
+[8/54] 2018-02-19
+============================================================
+  [SST] Fetching reanalysis for 2018-02-19...
+  [Currents] Fetching reanalysis for 2018-02-19...
+  [MLD] Fetching reanalysis for 2018-02-19...
+  [CHL] Fetching reanalysis for 2018-02-19...
+  [SSH] Fetching reanalysis for 2018-02-19...
+  [O2] Fetching reanalysis for 2018-02-19...
+  [KD490] Fetching reanalysis for 2018-02-19...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 54% >50%, mean abs SLA=0.184m
+[Hotspots] Current scoring: 79% favorable, upstream SST mean 21.5C
+[Hotspots] Convergence scoring: 53% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.998 (mean 0.588)
+[Depth mask] Built >100m ocean mask (1 polygons)INFO - 2026-03-15T01:16:26Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:16:26Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:16:26Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:16:40Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:16:40Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:16:40Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:16:57Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:16:57Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:17:11Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:17:11Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:17:11Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:17:30Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:17:30Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:17:45Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:17:45Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:18:04Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:18:04Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:18:04Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:18:20Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:18:20Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:18:20Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:18:36Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:18:36Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:18:36Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:18:53Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:18:53Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:19:06Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:19:06Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:19:06Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:19:20Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:19:20Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:19:34Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:19:34Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:19:52Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:19:52Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:19:52Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:20:07Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:20:07Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:20:07Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:20:21Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:20:21Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:20:21Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:20:37Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:20:37Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:20:50Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:20:50Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:20:50Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:21:04Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:21:04Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:21:23Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:21:23Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:21:38Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:21:38Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:21:38Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:21:54Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:21:54Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:21:54Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:22:12Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:22:12Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:22:12Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:22:27Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:22:27Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:22:40Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:22:40Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:22:40Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:22:55Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:22:55Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:23:13Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:23:13Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:23:29Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:23:29Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:23:29Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:23:48Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:23:48Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:23:48Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:24:03Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:24:03Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:24:03Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:24:18Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:24:18Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:24:34Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:24:34Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:24:34Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:24:49Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:24:49Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:25:04Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:25:04Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:25:32Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:25:32Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:25:32Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:25:47Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:25:47Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:25:47Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:26:01Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:26:01Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:26:01Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:26:15Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:26:15Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:26:29Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:26:29Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:26:29Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:26:48Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:26:48Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:27:04Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:27:04Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:27:17Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:27:17Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:27:17Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:27:32Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:27:32Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:27:32Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:27:50Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:27:50Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:27:50Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:28:07Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:28:07Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:28:23Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:28:23Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:28:23Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:28:35Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:28:35Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:28:49Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:28:49Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:29:05Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:29:05Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:29:05Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:29:21Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:29:21Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:29:21Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:29:34Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:29:34Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:29:34Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:29:47Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:29:47Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:30:01Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:30:01Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:30:01Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:30:18Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:30:18Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:30:30Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:30:30Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:30:45Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:30:45Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:30:45Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+
+[Hotspots] 73 polygons across 8 bands ->data/backtest_w3\2018-02-19\blue_marlin_hotspots.geojson
+  -> Mean: 93.2%  Median: 93.1%  Max: 99.6%  (24 cells)
+
+============================================================
+[9/54] 2018-02-26
+============================================================
+  [SST] Fetching reanalysis for 2018-02-26...
+  [Currents] Fetching reanalysis for 2018-02-26...
+  [MLD] Fetching reanalysis for 2018-02-26...
+  [CHL] Fetching reanalysis for 2018-02-26...
+  [SSH] Fetching reanalysis for 2018-02-26...
+  [O2] Fetching reanalysis for 2018-02-26...
+  [KD490] Fetching reanalysis for 2018-02-26...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 55% >50%, mean abs SLA=0.213m
+[Hotspots] Current scoring: 74% favorable, upstream SST mean 21.4C
+[Hotspots] Convergence scoring: 61% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.998 (mean 0.581)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 70 polygons across 8 bands ->data/backtest_w3\2018-02-26\blue_marlin_hotspots.geojson
+  -> Mean: 93.3%  Median: 94.4%  Max: 99.6%  (24 cells)
+
+============================================================
+[10/54] 2018-03-05
+============================================================
+  [SST] Fetching reanalysis for 2018-03-05...
+  [Currents] Fetching reanalysis for 2018-03-05...
+  [MLD] Fetching reanalysis for 2018-03-05...
+  [CHL] Fetching reanalysis for 2018-03-05...
+  [SSH] Fetching reanalysis for 2018-03-05...
+  [O2] Fetching reanalysis for 2018-03-05...
+  [KD490] Fetching reanalysis for 2018-03-05...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 58% >50%, mean abs SLA=0.229m
+[Hotspots] Current scoring: 82% favorable, upstream SST mean 21.4C
+[Hotspots] Convergence scoring: 74% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.998 (mean 0.607)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 86 polygons across 8 bands ->data/backtest_w3\2018-03-05\blue_marlin_hotspots.geojson
+  -> Mean: 94.6%  Median: 94.0%  Max: 99.7%  (24 cells)
+
+============================================================
+[11/54] 2018-03-12
+============================================================
+  [SST] Fetching reanalysis for 2018-03-12...
+  [Currents] Fetching reanalysis for 2018-03-12...
+  [MLD] Fetching reanalysis for 2018-03-12...
+  [CHL] Fetching reanalysis for 2018-03-12...
+  [SSH] Fetching reanalysis for 2018-03-12...
+  [O2] Fetching reanalysis for 2018-03-12...
+  [KD490] Fetching reanalysis for 2018-03-12...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 56% >50%, mean abs SLA=0.238m
+[Hotspots] Current scoring: 69% favorable, upstream SST mean 21.6C
+[Hotspots] Convergence scoring: 57% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.999 (mean 0.610)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 89 polygons across 8 bands ->data/backtest_w3\2018-03-12\blue_marlin_hotspots.geojson
+  -> Mean: 95.7%  Median: 95.9%  Max: 99.8%  (24 cells)
+
+============================================================
+[12/54] 2018-03-19
+============================================================
+  [SST] Fetching reanalysis for 2018-03-19...
+  [Currents] Fetching reanalysis for 2018-03-19...
+  [MLD] Fetching reanalysis for 2018-03-19...
+  [CHL] Fetching reanalysis for 2018-03-19...
+  [SSH] Fetching reanalysis for 2018-03-19...
+  [O2] Fetching reanalysis for 2018-03-19...
+  [KD490] Fetching reanalysis for 2018-03-19...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 56% >50%, mean abs SLA=0.216m
+[Hotspots] Current scoring: 82% favorable, upstream SST mean 21.8C
+[Hotspots] Convergence scoring: 54% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.999 (mean 0.607)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 77 polygons across 8 bands ->data/backtest_w3\2018-03-19\blue_marlin_hotspots.geojson
+  -> Mean: 93.8%  Median: 95.2%  Max: 99.8%  (24 cells)
+
+============================================================
+[13/54] 2018-03-26
+============================================================
+  [SST] Fetching reanalysis for 2018-03-26...
+  [Currents] Fetching reanalysis for 2018-03-26...
+  [MLD] Fetching reanalysis for 2018-03-26...
+  [CHL] Fetching reanalysis for 2018-03-26...
+  [SSH] Fetching reanalysis for 2018-03-26...
+  [O2] Fetching reanalysis for 2018-03-26...
+  [KD490] Fetching reanalysis for 2018-03-26...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 55% >50%, mean abs SLA=0.293m
+[Hotspots] Current scoring: 78% favorable, upstream SST mean 22.1C
+[Hotspots] Convergence scoring: 58% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 1.000 (mean 0.617)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 77 polygons across 8 bands ->data/backtest_w3\2018-03-26\blue_marlin_hotspots.geojson
+  -> Mean: 96.4%  Median: 97.1%  Max: 99.8%  (24 cells)
+
+============================================================
+[14/54] 2018-04-02
+============================================================
+  [SST] Fetching reanalysis for 2018-04-02...
+  [Currents] Fetching reanalysis for 2018-04-02...
+  [MLD] Fetching reanalysis for 2018-04-02...
+  [CHL] Fetching reanalysis for 2018-04-02...
+  [SSH] Fetching reanalysis for 2018-04-02...
+  [O2] Fetching reanalysis for 2018-04-02...
+  [KD490] Fetching reanalysis for 2018-04-02...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 57% >50%, mean abs SLA=0.215m
+[Hotspots] Current scoring: 61% favorable, upstream SST mean 21.9C
+[Hotspots] Convergence scoring: 57% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.999 (mean 0.599)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 60 polygons across 8 bands ->data/backtest_w3\2018-04-02\blue_marlin_hotspots.geojson
+  -> Mean: 93.5%  Median: 94.9%  Max: 99.6%  (24 cells)
+
+============================================================
+[15/54] 2018-04-09
+============================================================
+  [SST] Fetching reanalysis for 2018-04-09...
+  [Currents] Fetching reanalysis for 2018-04-09...
+  [MLD] Fetching reanalysis for 2018-04-09...
+  [CHL] Fetching reanalysis for 2018-04-09...
+  [SSH] Fetching reanalysis for 2018-04-09...
+  [O2] Fetching reanalysis for 2018-04-09...
+  [KD490] Fetching reanalysis for 2018-04-09...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 56% >50%, mean abs SLA=0.249m
+[Hotspots] Current scoring: 71% favorable, upstream SST mean 22.1C
+[Hotspots] Convergence scoring: 67% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.999 (mean 0.611)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 77 polygons across 8 bands ->data/backtest_w3\2018-04-09\blue_marlin_hotspots.geojson
+  -> Mean: 92.9%  Median: 94.5%  Max: 99.7%  (24 cells)
+
+============================================================
+[16/54] 2018-04-16
+============================================================
+  [SST] Fetching reanalysis for 2018-04-16...
+  [Currents] Fetching reanalysis for 2018-04-16...
+  [MLD] Fetching reanalysis for 2018-04-16...
+  [CHL] Fetching reanalysis for 2018-04-16...
+  [SSH] Fetching reanalysis for 2018-04-16...
+  [O2] Fetching reanalysis for 2018-04-16...
+  [KD490] Fetching reanalysis for 2018-04-16...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)INFO - 2026-03-15T01:30:58Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:30:58Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:30:58Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:31:13Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:31:13Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:31:13Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:31:28Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:31:28Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:31:41Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:31:41Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:31:41Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:31:55Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:31:55Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:32:08Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:32:08Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:32:25Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:32:25Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:32:25Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:32:42Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:32:42Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:32:42Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:32:55Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:32:55Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:32:55Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:33:12Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:33:12Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:33:26Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:33:26Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:33:26Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:33:38Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:33:38Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:33:54Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:33:54Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:34:09Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:34:09Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:34:09Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:34:21Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:34:21Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:34:21Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:34:36Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:34:36Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:34:36Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:34:50Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:34:50Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:35:03Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:35:03Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:35:03Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:35:15Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:35:15Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:35:26Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:35:26Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:35:41Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:35:41Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:35:41Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:35:57Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:35:57Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:35:57Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:36:14Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:36:14Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:36:14Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:36:27Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:36:27Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:36:44Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:36:44Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:36:44Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:36:58Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:36:58Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:37:12Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:37:12Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:37:29Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:37:29Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:37:29Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:37:44Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:37:44Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:37:44Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:38:01Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:38:01Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:38:01Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:38:18Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:38:18Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:38:34Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:38:34Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:38:34Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:38:49Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:38:49Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:39:07Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:39:07Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:39:25Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:39:25Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:39:25Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:39:43Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:39:43Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:39:43Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:39:59Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:39:59Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:39:59Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:40:14Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:40:14Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:40:29Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:40:29Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:40:29Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:40:45Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:40:45Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:41:00Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:41:00Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:41:15Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:41:15Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:41:15Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:41:31Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:41:31Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:41:31Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:41:45Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:41:45Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:41:45Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:42:01Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:42:01Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:42:14Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:42:14Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:42:14Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:42:30Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:42:30Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:42:45Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:42:45Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:42:59Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:42:59Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:42:59Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:43:15Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:43:15Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:43:15Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:43:33Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:43:33Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:43:33Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+
+[Hotspots] SSH scoring: 58% >50%, mean abs SLA=0.250m
+[Hotspots] Current scoring: 77% favorable, upstream SST mean 21.7C
+[Hotspots] Convergence scoring: 70% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.999 (mean 0.604)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 65 polygons across 8 bands ->data/backtest_w3\2018-04-16\blue_marlin_hotspots.geojson
+  -> Mean: 92.8%  Median: 93.5%  Max: 99.7%  (24 cells)
+
+============================================================
+[17/54] 2018-04-23
+============================================================
+  [SST] Fetching reanalysis for 2018-04-23...
+  [Currents] Fetching reanalysis for 2018-04-23...
+  [MLD] Fetching reanalysis for 2018-04-23...
+  [CHL] Fetching reanalysis for 2018-04-23...
+  [SSH] Fetching reanalysis for 2018-04-23...
+  [O2] Fetching reanalysis for 2018-04-23...
+  [KD490] Fetching reanalysis for 2018-04-23...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 53% >50%, mean abs SLA=0.266m
+[Hotspots] Current scoring: 76% favorable, upstream SST mean 21.5C
+[Hotspots] Convergence scoring: 60% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.999 (mean 0.582)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 88 polygons across 8 bands ->data/backtest_w3\2018-04-23\blue_marlin_hotspots.geojson
+  -> Mean: 95.3%  Median: 96.3%  Max: 99.5%  (24 cells)
+
+============================================================
+[18/54] 2018-04-30
+============================================================
+  [SST] Fetching reanalysis for 2018-04-30...
+  [Currents] Fetching reanalysis for 2018-04-30...
+  [MLD] Fetching reanalysis for 2018-04-30...
+  [CHL] Fetching reanalysis for 2018-04-30...
+  [SSH] Fetching reanalysis for 2018-04-30...
+  [O2] Fetching reanalysis for 2018-04-30...
+  [KD490] Fetching reanalysis for 2018-04-30...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 47% >50%, mean abs SLA=0.261m
+[Hotspots] Current scoring: 74% favorable, upstream SST mean 21.6C
+[Hotspots] Convergence scoring: 64% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.999 (mean 0.585)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 76 polygons across 8 bands ->data/backtest_w3\2018-04-30\blue_marlin_hotspots.geojson
+  -> Mean: 94.8%  Median: 95.5%  Max: 99.7%  (24 cells)
+
+============================================================
+[19/54] 2019-01-01
+============================================================
+  [SST] Fetching reanalysis for 2019-01-01...
+  [Currents] Fetching reanalysis for 2019-01-01...
+  [MLD] Fetching reanalysis for 2019-01-01...
+  [CHL] Fetching reanalysis for 2019-01-01...
+  [SSH] Fetching reanalysis for 2019-01-01...
+  [O2] Fetching reanalysis for 2019-01-01...
+  [KD490] Fetching reanalysis for 2019-01-01...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 53% >50%, mean abs SLA=0.140m
+[Hotspots] Current scoring: 70% favorable, upstream SST mean 20.6C
+[Hotspots] Convergence scoring: 56% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.984 (mean 0.520)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 52 polygons across 8 bands ->data/backtest_w3\2019-01-01\blue_marlin_hotspots.geojson
+  -> Mean: 83.3%  Median: 86.2%  Max: 97.8%  (24 cells)
+
+============================================================
+[20/54] 2019-01-08
+============================================================
+  [SST] Fetching reanalysis for 2019-01-08...
+  [Currents] Fetching reanalysis for 2019-01-08...
+  [MLD] Fetching reanalysis for 2019-01-08...
+  [CHL] Fetching reanalysis for 2019-01-08...
+  [SSH] Fetching reanalysis for 2019-01-08...
+  [O2] Fetching reanalysis for 2019-01-08...
+  [KD490] Fetching reanalysis for 2019-01-08...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 60% >50%, mean abs SLA=0.157m
+[Hotspots] Current scoring: 57% favorable, upstream SST mean 20.5C
+[Hotspots] Convergence scoring: 46% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.978 (mean 0.508)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 67 polygons across 8 bands ->data/backtest_w3\2019-01-08\blue_marlin_hotspots.geojson
+  -> Mean: 79.3%  Median: 81.0%  Max: 96.8%  (24 cells)
+
+============================================================
+[21/54] 2019-01-15
+============================================================
+  [SST] Fetching reanalysis for 2019-01-15...
+  [Currents] Fetching reanalysis for 2019-01-15...
+  [MLD] Fetching reanalysis for 2019-01-15...
+  [CHL] Fetching reanalysis for 2019-01-15...
+  [SSH] Fetching reanalysis for 2019-01-15...
+  [O2] Fetching reanalysis for 2019-01-15...
+  [KD490] Fetching reanalysis for 2019-01-15...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 41% >50%, mean abs SLA=0.117m
+[Hotspots] Current scoring: 79% favorable, upstream SST mean 20.5C
+[Hotspots] Convergence scoring: 52% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.979 (mean 0.506)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 66 polygons across 8 bands ->data/backtest_w3\2019-01-15\blue_marlin_hotspots.geojson
+  -> Mean: 83.7%  Median: 85.3%  Max: 97.8%  (24 cells)
+
+============================================================
+[22/54] 2019-01-22
+============================================================
+  [SST] Fetching reanalysis for 2019-01-22...
+  [Currents] Fetching reanalysis for 2019-01-22...
+  [MLD] Fetching reanalysis for 2019-01-22...
+  [CHL] Fetching reanalysis for 2019-01-22...
+  [SSH] Fetching reanalysis for 2019-01-22...
+  [O2] Fetching reanalysis for 2019-01-22...
+  [KD490] Fetching reanalysis for 2019-01-22...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 56% >50%, mean abs SLA=0.162m
+[Hotspots] Current scoring: 72% favorable, upstream SST mean 20.8C
+[Hotspots] Convergence scoring: 53% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.991 (mean 0.534)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 65 polygons across 8 bands ->data/backtest_w3\2019-01-22\blue_marlin_hotspots.geojson
+  -> Mean: 87.4%  Median: 89.4%  Max: 98.5%  (24 cells)
+
+============================================================
+[23/54] 2019-01-29
+============================================================
+  [SST] Fetching reanalysis for 2019-01-29...
+  [Currents] Fetching reanalysis for 2019-01-29...
+  [MLD] Fetching reanalysis for 2019-01-29...
+  [CHL] Fetching reanalysis for 2019-01-29...
+  [SSH] Fetching reanalysis for 2019-01-29...
+  [O2] Fetching reanalysis for 2019-01-29...
+  [KD490] Fetching reanalysis for 2019-01-29...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 48% >50%, mean abs SLA=0.178m
+[Hotspots] Current scoring: 64% favorable, upstream SST mean 20.6C
+[Hotspots] Convergence scoring: 57% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.968 (mean 0.520)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 64 polygons across 8 bands ->data/backtest_w3\2019-01-29\blue_marlin_hotspots.geojson
+  -> Mean: 85.4%  Median: 87.4%  Max: 96.8%  (24 cells)
+
+============================================================
+[24/54] 2019-02-05
+============================================================
+  [SST] Fetching reanalysis for 2019-02-05...
+  [Currents] Fetching reanalysis for 2019-02-05...
+  [MLD] Fetching reanalysis for 2019-02-05...INFO - 2026-03-15T01:43:53Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:43:53Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:44:08Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:44:08Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:44:08Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:44:23Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:44:23Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:44:39Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:44:39Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:45:00Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:45:00Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:45:00Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:45:14Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:45:14Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:45:14Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:45:32Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:45:32Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:45:32Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:45:54Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:45:54Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:46:11Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:46:11Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:46:11Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:46:24Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:46:24Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:46:43Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:46:43Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:47:00Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:47:00Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:47:00Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:47:16Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:47:16Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:47:16Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:47:34Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:47:34Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:47:34Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:47:47Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:47:47Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:48:00Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:48:00Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:48:00Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:48:17Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:48:17Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:48:30Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:48:30Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:48:43Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:48:43Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:48:43Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:48:57Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:48:57Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:48:57Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:49:09Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:49:09Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:49:09Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:49:23Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:49:23Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:49:38Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:49:38Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:49:38Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:49:53Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:49:53Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:50:11Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:50:11Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:50:35Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:50:35Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:50:35Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:50:51Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:50:51Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:50:51Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:51:08Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:51:08Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:51:08Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:51:23Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:51:23Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:51:36Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:51:36Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:51:36Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:51:49Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:51:49Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:52:04Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:52:04Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:52:18Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:52:18Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:52:18Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:52:35Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:52:35Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:52:35Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:52:50Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:52:50Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:52:50Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:53:07Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:53:07Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:53:22Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:53:22Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:53:22Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:53:36Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:53:36Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:53:48Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:53:48Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:54:04Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:54:04Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:54:04Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:54:18Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:54:18Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:54:18Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:54:32Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:54:32Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:54:32Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:54:47Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:54:47Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:55:01Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:55:01Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:55:01Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:55:14Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:55:14Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:55:27Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:55:27Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:55:43Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:55:43Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:55:43Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:55:57Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:55:57Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:55:57Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:56:11Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:56:11Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:56:11Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:56:25Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:56:25Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:56:38Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:56:38Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:56:38Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:56:51Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:56:51Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:57:03Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:57:03Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:57:17Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:57:17Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:57:17Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+
+  [CHL] Fetching reanalysis for 2019-02-05...
+  [SSH] Fetching reanalysis for 2019-02-05...
+  [O2] Fetching reanalysis for 2019-02-05...
+  [KD490] Fetching reanalysis for 2019-02-05...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 44% >50%, mean abs SLA=0.123m
+[Hotspots] Current scoring: 78% favorable, upstream SST mean 20.8C
+[Hotspots] Convergence scoring: 47% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.991 (mean 0.537)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 69 polygons across 8 bands ->data/backtest_w3\2019-02-05\blue_marlin_hotspots.geojson
+  -> Mean: 86.7%  Median: 87.6%  Max: 98.6%  (24 cells)
+
+============================================================
+[25/54] 2019-02-12
+============================================================
+  [SST] Fetching reanalysis for 2019-02-12...
+  [Currents] Fetching reanalysis for 2019-02-12...
+  [MLD] Fetching reanalysis for 2019-02-12...
+  [CHL] Fetching reanalysis for 2019-02-12...
+  [SSH] Fetching reanalysis for 2019-02-12...
+  [O2] Fetching reanalysis for 2019-02-12...
+  [KD490] Fetching reanalysis for 2019-02-12...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 53% >50%, mean abs SLA=0.136m
+[Hotspots] Current scoring: 59% favorable, upstream SST mean 20.9C
+[Hotspots] Convergence scoring: 54% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.980 (mean 0.528)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 71 polygons across 8 bands ->data/backtest_w3\2019-02-12\blue_marlin_hotspots.geojson
+  -> Mean: 78.9%  Median: 81.4%  Max: 93.3%  (24 cells)
+
+============================================================
+[26/54] 2019-02-19
+============================================================
+  [SST] Fetching reanalysis for 2019-02-19...
+  [Currents] Fetching reanalysis for 2019-02-19...
+  [MLD] Fetching reanalysis for 2019-02-19...
+  [CHL] Fetching reanalysis for 2019-02-19...
+  [SSH] Fetching reanalysis for 2019-02-19...
+  [O2] Fetching reanalysis for 2019-02-19...
+  [KD490] Fetching reanalysis for 2019-02-19...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 52% >50%, mean abs SLA=0.146m
+[Hotspots] Current scoring: 71% favorable, upstream SST mean 21.4C
+[Hotspots] Convergence scoring: 44% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.993 (mean 0.560)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 75 polygons across 8 bands ->data/backtest_w3\2019-02-19\blue_marlin_hotspots.geojson
+  -> Mean: 87.2%  Median: 88.6%  Max: 98.8%  (24 cells)
+
+============================================================
+[27/54] 2019-02-26
+============================================================
+  [SST] Fetching reanalysis for 2019-02-26...
+  [Currents] Fetching reanalysis for 2019-02-26...
+  [MLD] Fetching reanalysis for 2019-02-26...
+  [CHL] Fetching reanalysis for 2019-02-26...
+  [SSH] Fetching reanalysis for 2019-02-26...
+  [O2] Fetching reanalysis for 2019-02-26...
+  [KD490] Fetching reanalysis for 2019-02-26...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 53% >50%, mean abs SLA=0.175m
+[Hotspots] Current scoring: 75% favorable, upstream SST mean 22.3C
+[Hotspots] Convergence scoring: 48% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.999 (mean 0.613)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 86 polygons across 8 bands ->data/backtest_w3\2019-02-26\blue_marlin_hotspots.geojson
+  -> Mean: 90.3%  Median: 91.7%  Max: 99.1%  (24 cells)
+
+============================================================
+[28/54] 2019-03-05
+============================================================
+  [SST] Fetching reanalysis for 2019-03-05...
+  [Currents] Fetching reanalysis for 2019-03-05...
+  [MLD] Fetching reanalysis for 2019-03-05...
+  [CHL] Fetching reanalysis for 2019-03-05...
+  [SSH] Fetching reanalysis for 2019-03-05...
+  [O2] Fetching reanalysis for 2019-03-05...
+  [KD490] Fetching reanalysis for 2019-03-05...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 55% >50%, mean abs SLA=0.189m
+[Hotspots] Current scoring: 75% favorable, upstream SST mean 22.0C
+[Hotspots] Convergence scoring: 48% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.998 (mean 0.604)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 70 polygons across 8 bands ->data/backtest_w3\2019-03-05\blue_marlin_hotspots.geojson
+  -> Mean: 91.3%  Median: 93.4%  Max: 99.4%  (24 cells)
+
+============================================================
+[29/54] 2019-03-12
+============================================================
+  [SST] Fetching reanalysis for 2019-03-12...
+  [Currents] Fetching reanalysis for 2019-03-12...
+  [MLD] Fetching reanalysis for 2019-03-12...
+  [CHL] Fetching reanalysis for 2019-03-12...
+  [SSH] Fetching reanalysis for 2019-03-12...
+  [O2] Fetching reanalysis for 2019-03-12...
+  [KD490] Fetching reanalysis for 2019-03-12...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 55% >50%, mean abs SLA=0.202m
+[Hotspots] Current scoring: 73% favorable, upstream SST mean 22.2C
+[Hotspots] Convergence scoring: 45% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.998 (mean 0.610)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 68 polygons across 8 bands ->data/backtest_w3\2019-03-12\blue_marlin_hotspots.geojson
+  -> Mean: 91.4%  Median: 92.6%  Max: 99.6%  (24 cells)
+
+============================================================
+[30/54] 2019-03-19
+============================================================
+  [SST] Fetching reanalysis for 2019-03-19...
+  [Currents] Fetching reanalysis for 2019-03-19...
+  [MLD] Fetching reanalysis for 2019-03-19...
+  [CHL] Fetching reanalysis for 2019-03-19...
+  [SSH] Fetching reanalysis for 2019-03-19...
+  [O2] Fetching reanalysis for 2019-03-19...
+  [KD490] Fetching reanalysis for 2019-03-19...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 55% >50%, mean abs SLA=0.219m
+[Hotspots] Current scoring: 74% favorable, upstream SST mean 22.4C
+[Hotspots] Convergence scoring: 51% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.999 (mean 0.627)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 77 polygons across 8 bands ->data/backtest_w3\2019-03-19\blue_marlin_hotspots.geojson
+  -> Mean: 94.1%  Median: 95.9%  Max: 99.8%  (24 cells)
+
+============================================================
+[31/54] 2019-03-26
+============================================================
+  [SST] Fetching reanalysis for 2019-03-26...
+  [Currents] Fetching reanalysis for 2019-03-26...
+  [MLD] Fetching reanalysis for 2019-03-26...
+  [CHL] Fetching reanalysis for 2019-03-26...
+  [SSH] Fetching reanalysis for 2019-03-26...
+  [O2] Fetching reanalysis for 2019-03-26...
+  [KD490] Fetching reanalysis for 2019-03-26...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 56% >50%, mean abs SLA=0.247m
+[Hotspots] Current scoring: 83% favorable, upstream SST mean 21.9C
+[Hotspots] Convergence scoring: 57% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.999 (mean 0.606)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 72 polygons across 8 bands ->data/backtest_w3\2019-03-26\blue_marlin_hotspots.geojsonINFO - 2026-03-15T01:57:32Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:57:32Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:57:32Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:57:50Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:57:50Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:57:50Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:58:08Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:58:08Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:58:20Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:58:20Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:58:20Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:58:34Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:58:34Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:58:53Z - Selected dataset version: "202406"
+INFO - 2026-03-15T01:58:53Z - Selected dataset part: "default"
+INFO - 2026-03-15T01:59:10Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:59:10Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:59:10Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T01:59:24Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:59:24Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:59:24Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:59:38Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:59:38Z - Selected dataset part: "default"
+WARNING - 2026-03-15T01:59:38Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T01:59:54Z - Selected dataset version: "202311"
+INFO - 2026-03-15T01:59:54Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:00:10Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:00:10Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:00:10Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:00:24Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:00:24Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:00:40Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:00:40Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:00:56Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:00:56Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:00:56Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:01:16Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:01:16Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:01:16Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:01:31Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:01:31Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:01:31Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:01:45Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:01:45Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:02:02Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:02:02Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:02:02Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:02:18Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:02:18Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:02:32Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:02:32Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:02:46Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:02:46Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:02:46Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:03:02Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:03:02Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:03:02Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:03:15Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:03:15Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:03:15Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:03:29Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:03:29Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:03:43Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:03:43Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:03:43Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:03:57Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:03:57Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:04:10Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:04:10Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:04:22Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:04:22Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:04:22Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:04:35Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:04:35Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:04:35Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:04:47Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:04:47Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:04:47Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:05:00Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:05:00Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:05:12Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:05:12Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:05:12Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:05:26Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:05:26Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:05:40Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:05:40Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:05:53Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:05:53Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:05:53Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:06:07Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:06:07Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:06:07Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:06:19Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:06:19Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:06:19Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:06:33Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:06:33Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:06:45Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:06:45Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:06:45Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:06:58Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:06:58Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:07:12Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:07:12Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:07:25Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:07:25Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:07:25Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:07:38Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:07:38Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:07:38Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:07:55Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:07:55Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:07:55Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:08:09Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:08:09Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:08:23Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:08:23Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:08:23Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:08:34Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:08:34Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:08:47Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:08:47Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:09:00Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:09:00Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:09:00Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:09:16Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:09:16Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:09:16Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:09:29Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:09:29Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:09:29Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:09:43Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:09:43Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:09:55Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:09:55Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:09:55Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:10:08Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:10:08Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:10:22Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:10:22Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:10:41Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:10:41Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:10:41Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+
+  -> Mean: 94.7%  Median: 96.0%  Max: 99.5%  (24 cells)
+
+============================================================
+[32/54] 2019-04-02
+============================================================
+  [SST] Fetching reanalysis for 2019-04-02...
+  [Currents] Fetching reanalysis for 2019-04-02...
+  [MLD] Fetching reanalysis for 2019-04-02...
+  [CHL] Fetching reanalysis for 2019-04-02...
+  [SSH] Fetching reanalysis for 2019-04-02...
+  [O2] Fetching reanalysis for 2019-04-02...
+  [KD490] Fetching reanalysis for 2019-04-02...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 56% >50%, mean abs SLA=0.239m
+[Hotspots] Current scoring: 76% favorable, upstream SST mean 21.9C
+[Hotspots] Convergence scoring: 56% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.998 (mean 0.606)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 72 polygons across 8 bands ->data/backtest_w3\2019-04-02\blue_marlin_hotspots.geojson
+  -> Mean: 91.0%  Median: 93.1%  Max: 99.3%  (24 cells)
+
+============================================================
+[33/54] 2019-04-09
+============================================================
+  [SST] Fetching reanalysis for 2019-04-09...
+  [Currents] Fetching reanalysis for 2019-04-09...
+  [MLD] Fetching reanalysis for 2019-04-09...
+  [CHL] Fetching reanalysis for 2019-04-09...
+  [SSH] Fetching reanalysis for 2019-04-09...
+  [O2] Fetching reanalysis for 2019-04-09...
+  [KD490] Fetching reanalysis for 2019-04-09...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 61% >50%, mean abs SLA=0.230m
+[Hotspots] Current scoring: 73% favorable, upstream SST mean 21.8C
+[Hotspots] Convergence scoring: 65% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.998 (mean 0.614)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 64 polygons across 8 bands ->data/backtest_w3\2019-04-09\blue_marlin_hotspots.geojson
+  -> Mean: 91.5%  Median: 92.9%  Max: 99.3%  (24 cells)
+
+============================================================
+[34/54] 2019-04-16
+============================================================
+  [SST] Fetching reanalysis for 2019-04-16...
+  [Currents] Fetching reanalysis for 2019-04-16...
+  [MLD] Fetching reanalysis for 2019-04-16...
+  [CHL] Fetching reanalysis for 2019-04-16...
+  [SSH] Fetching reanalysis for 2019-04-16...
+  [O2] Fetching reanalysis for 2019-04-16...
+  [KD490] Fetching reanalysis for 2019-04-16...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 61% >50%, mean abs SLA=0.327m
+[Hotspots] Current scoring: 85% favorable, upstream SST mean 21.9C
+[Hotspots] Convergence scoring: 66% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 1.000 (mean 0.611)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 95 polygons across 8 bands ->data/backtest_w3\2019-04-16\blue_marlin_hotspots.geojson
+  -> Mean: 93.6%  Median: 93.8%  Max: 99.1%  (24 cells)
+
+============================================================
+[35/54] 2019-04-23
+============================================================
+  [SST] Fetching reanalysis for 2019-04-23...
+  [Currents] Fetching reanalysis for 2019-04-23...
+  [MLD] Fetching reanalysis for 2019-04-23...
+  [CHL] Fetching reanalysis for 2019-04-23...
+  [SSH] Fetching reanalysis for 2019-04-23...
+  [O2] Fetching reanalysis for 2019-04-23...
+  [KD490] Fetching reanalysis for 2019-04-23...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 59% >50%, mean abs SLA=0.265m
+[Hotspots] Current scoring: 69% favorable, upstream SST mean 21.2C
+[Hotspots] Convergence scoring: 65% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.998 (mean 0.584)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 63 polygons across 8 bands ->data/backtest_w3\2019-04-23\blue_marlin_hotspots.geojson
+  -> Mean: 92.1%  Median: 93.7%  Max: 99.6%  (24 cells)
+
+============================================================
+[36/54] 2019-04-30
+============================================================
+  [SST] Fetching reanalysis for 2019-04-30...
+  [Currents] Fetching reanalysis for 2019-04-30...
+  [MLD] Fetching reanalysis for 2019-04-30...
+  [CHL] Fetching reanalysis for 2019-04-30...
+  [SSH] Fetching reanalysis for 2019-04-30...
+  [O2] Fetching reanalysis for 2019-04-30...
+  [KD490] Fetching reanalysis for 2019-04-30...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 55% >50%, mean abs SLA=0.293m
+[Hotspots] Current scoring: 69% favorable, upstream SST mean 21.1C
+[Hotspots] Convergence scoring: 61% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.995 (mean 0.560)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 73 polygons across 8 bands ->data/backtest_w3\2019-04-30\blue_marlin_hotspots.geojson
+  -> Mean: 88.2%  Median: 86.4%  Max: 95.9%  (24 cells)
+
+============================================================
+[37/54] 2020-01-01
+============================================================
+  [SST] Fetching reanalysis for 2020-01-01...
+  [Currents] Fetching reanalysis for 2020-01-01...
+  [MLD] Fetching reanalysis for 2020-01-01...
+  [CHL] Fetching reanalysis for 2020-01-01...
+  [SSH] Fetching reanalysis for 2020-01-01...
+  [O2] Fetching reanalysis for 2020-01-01...
+  [KD490] Fetching reanalysis for 2020-01-01...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 48% >50%, mean abs SLA=0.146m
+[Hotspots] Current scoring: 80% favorable, upstream SST mean 21.8C
+[Hotspots] Convergence scoring: 57% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.998 (mean 0.586)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 65 polygons across 8 bands ->data/backtest_w3\2020-01-01\blue_marlin_hotspots.geojson
+  -> Mean: 88.9%  Median: 89.5%  Max: 98.5%  (24 cells)
+
+============================================================
+[38/54] 2020-01-08
+============================================================
+  [SST] Fetching reanalysis for 2020-01-08...
+  [Currents] Fetching reanalysis for 2020-01-08...
+  [MLD] Fetching reanalysis for 2020-01-08...
+  [CHL] Fetching reanalysis for 2020-01-08...
+  [SSH] Fetching reanalysis for 2020-01-08...
+  [O2] Fetching reanalysis for 2020-01-08...
+  [KD490] Fetching reanalysis for 2020-01-08...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 55% >50%, mean abs SLA=0.167m
+[Hotspots] Current scoring: 68% favorable, upstream SST mean 21.8C
+[Hotspots] Convergence scoring: 50% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.998 (mean 0.586)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 66 polygons across 8 bands ->data/backtest_w3\2020-01-08\blue_marlin_hotspots.geojson
+  -> Mean: 88.2%  Median: 90.9%  Max: 99.5%  (24 cells)
+
+============================================================
+[39/54] 2020-01-15
+============================================================
+  [SST] Fetching reanalysis for 2020-01-15...
+  [Currents] Fetching reanalysis for 2020-01-15...
+  [MLD] Fetching reanalysis for 2020-01-15...
+  [CHL] Fetching reanalysis for 2020-01-15...
+  [SSH] Fetching reanalysis for 2020-01-15...
+  [O2] Fetching reanalysis for 2020-01-15...
+  [KD490] Fetching reanalysis for 2020-01-15...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 44% >50%, mean abs SLA=0.153mINFO - 2026-03-15T02:10:55Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:10:55Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:10:55Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:11:09Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:11:09Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:11:09Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:11:23Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:11:23Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:11:35Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:11:35Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:11:35Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:11:50Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:11:50Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:12:03Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:12:03Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:12:16Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:12:16Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:12:16Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:12:30Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:12:30Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:12:30Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:12:43Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:12:43Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:12:43Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:12:56Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:12:56Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:13:09Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:13:09Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:13:09Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:13:22Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:13:22Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:13:36Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:13:36Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:13:48Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:13:48Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:13:48Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:14:02Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:14:02Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:14:02Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:14:14Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:14:14Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:14:14Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:14:30Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:14:30Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:14:44Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:14:44Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:14:44Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:14:56Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:14:56Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:15:09Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:15:09Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:15:22Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:15:22Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:15:22Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:15:37Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:15:37Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:15:37Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:15:49Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:15:49Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:15:49Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:16:07Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:16:07Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:16:24Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:16:24Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:16:24Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:16:37Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:16:37Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:16:50Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:16:50Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:17:05Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:17:05Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:17:05Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:17:18Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:17:18Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:17:18Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:17:30Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:17:30Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:17:30Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:17:46Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:17:46Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:18:01Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:18:01Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:18:01Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:18:15Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:18:15Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:18:29Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:18:29Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:18:41Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:18:41Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:18:41Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:19:04Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:19:04Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:19:04Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:19:22Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:19:22Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:19:22Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:19:44Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:19:44Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:19:59Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:19:59Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:19:59Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:20:13Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:20:13Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:20:26Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:20:26Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:20:41Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:20:41Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:20:41Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:20:55Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:20:55Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:20:55Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:21:09Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:21:09Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:21:09Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:21:23Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:21:23Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:21:35Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:21:35Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:21:35Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:21:47Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:21:47Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:22:00Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:22:00Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:22:14Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:22:14Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:22:14Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:22:27Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:22:27Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:22:27Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:22:40Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:22:40Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:22:40Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:22:53Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:22:53Z - Selected dataset part: "default"
+
+[Hotspots] Current scoring: 74% favorable, upstream SST mean 21.6C
+[Hotspots] Convergence scoring: 49% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.997 (mean 0.569)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 66 polygons across 8 bands ->data/backtest_w3\2020-01-15\blue_marlin_hotspots.geojson
+  -> Mean: 85.8%  Median: 88.0%  Max: 99.5%  (24 cells)
+
+============================================================
+[40/54] 2020-01-22
+============================================================
+  [SST] Fetching reanalysis for 2020-01-22...
+  [Currents] Fetching reanalysis for 2020-01-22...
+  [MLD] Fetching reanalysis for 2020-01-22...
+  [CHL] Fetching reanalysis for 2020-01-22...
+  [SSH] Fetching reanalysis for 2020-01-22...
+  [O2] Fetching reanalysis for 2020-01-22...
+  [KD490] Fetching reanalysis for 2020-01-22...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 44% >50%, mean abs SLA=0.135m
+[Hotspots] Current scoring: 75% favorable, upstream SST mean 21.5C
+[Hotspots] Convergence scoring: 59% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.992 (mean 0.563)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 69 polygons across 8 bands ->data/backtest_w3\2020-01-22\blue_marlin_hotspots.geojson
+  -> Mean: 84.9%  Median: 84.6%  Max: 94.9%  (24 cells)
+
+============================================================
+[41/54] 2020-01-29
+============================================================
+  [SST] Fetching reanalysis for 2020-01-29...
+  [Currents] Fetching reanalysis for 2020-01-29...
+  [MLD] Fetching reanalysis for 2020-01-29...
+  [CHL] Fetching reanalysis for 2020-01-29...
+  [SSH] Fetching reanalysis for 2020-01-29...
+  [O2] Fetching reanalysis for 2020-01-29...
+  [KD490] Fetching reanalysis for 2020-01-29...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 53% >50%, mean abs SLA=0.167m
+[Hotspots] Current scoring: 61% favorable, upstream SST mean 22.0C
+[Hotspots] Convergence scoring: 51% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.997 (mean 0.594)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 64 polygons across 8 bands ->data/backtest_w3\2020-01-29\blue_marlin_hotspots.geojson
+  -> Mean: 84.2%  Median: 84.8%  Max: 96.8%  (24 cells)
+
+============================================================
+[42/54] 2020-02-05
+============================================================
+  [SST] Fetching reanalysis for 2020-02-05...
+  [Currents] Fetching reanalysis for 2020-02-05...
+  [MLD] Fetching reanalysis for 2020-02-05...
+  [CHL] Fetching reanalysis for 2020-02-05...
+  [SSH] Fetching reanalysis for 2020-02-05...
+  [O2] Fetching reanalysis for 2020-02-05...
+  [KD490] Fetching reanalysis for 2020-02-05...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 48% >50%, mean abs SLA=0.194m
+[Hotspots] Current scoring: 79% favorable, upstream SST mean 22.8C
+[Hotspots] Convergence scoring: 59% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.998 (mean 0.626)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 73 polygons across 8 bands ->data/backtest_w3\2020-02-05\blue_marlin_hotspots.geojson
+  -> Mean: 86.6%  Median: 86.9%  Max: 98.8%  (24 cells)
+
+============================================================
+[43/54] 2020-02-12
+============================================================
+  [SST] Fetching reanalysis for 2020-02-12...
+  [Currents] Fetching reanalysis for 2020-02-12...
+  [MLD] Fetching reanalysis for 2020-02-12...
+  [CHL] Fetching reanalysis for 2020-02-12...
+  [SSH] Fetching reanalysis for 2020-02-12...
+  [O2] Fetching reanalysis for 2020-02-12...
+  [KD490] Fetching reanalysis for 2020-02-12...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 54% >50%, mean abs SLA=0.221m
+[Hotspots] Current scoring: 86% favorable, upstream SST mean 22.4C
+[Hotspots] Convergence scoring: 56% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.998 (mean 0.621)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 77 polygons across 8 bands ->data/backtest_w3\2020-02-12\blue_marlin_hotspots.geojson
+  -> Mean: 92.4%  Median: 93.5%  Max: 99.3%  (24 cells)
+
+============================================================
+[44/54] 2020-02-19
+============================================================
+  [SST] Fetching reanalysis for 2020-02-19...
+  [Currents] Fetching reanalysis for 2020-02-19...
+  [MLD] Fetching reanalysis for 2020-02-19...
+  [CHL] Fetching reanalysis for 2020-02-19...
+  [SSH] Fetching reanalysis for 2020-02-19...
+  [O2] Fetching reanalysis for 2020-02-19...
+  [KD490] Fetching reanalysis for 2020-02-19...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 61% >50%, mean abs SLA=0.215m
+[Hotspots] Current scoring: 70% favorable, upstream SST mean 22.5C
+[Hotspots] Convergence scoring: 63% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.998 (mean 0.625)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 70 polygons across 8 bands ->data/backtest_w3\2020-02-19\blue_marlin_hotspots.geojson
+  -> Mean: 92.1%  Median: 93.5%  Max: 99.6%  (24 cells)
+
+============================================================
+[45/54] 2020-02-26
+============================================================
+  [SST] Fetching reanalysis for 2020-02-26...
+  [Currents] Fetching reanalysis for 2020-02-26...
+  [MLD] Fetching reanalysis for 2020-02-26...
+  [CHL] Fetching reanalysis for 2020-02-26...
+  [SSH] Fetching reanalysis for 2020-02-26...
+  [O2] Fetching reanalysis for 2020-02-26...
+  [KD490] Fetching reanalysis for 2020-02-26...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 60% >50%, mean abs SLA=0.234m
+[Hotspots] Current scoring: 90% favorable, upstream SST mean 23.1C
+[Hotspots] Convergence scoring: 58% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.997 (mean 0.650)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 78 polygons across 8 bands ->data/backtest_w3\2020-02-26\blue_marlin_hotspots.geojson
+  -> Mean: 92.4%  Median: 93.7%  Max: 99.3%  (24 cells)
+
+============================================================
+[46/54] 2020-03-04
+============================================================
+  [SST] Fetching reanalysis for 2020-03-04...
+  [Currents] Fetching reanalysis for 2020-03-04...
+  [MLD] Fetching reanalysis for 2020-03-04...
+  [CHL] Fetching reanalysis for 2020-03-04...
+  [SSH] Fetching reanalysis for 2020-03-04...
+  [O2] Fetching reanalysis for 2020-03-04...
+  [KD490] Fetching reanalysis for 2020-03-04...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 62% >50%, mean abs SLA=0.213m
+[Hotspots] Current scoring: 68% favorable, upstream SST mean 23.0C
+[Hotspots] Convergence scoring: 48% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.995 (mean 0.644)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 62 polygons across 8 bands ->data/backtest_w3\2020-03-04\blue_marlin_hotspots.geojson
+  -> Mean: 92.6%  Median: 94.7%  Max: 99.3%  (24 cells)
+
+============================================================
+[47/54] 2020-03-11
+============================================================
+  [SST] Fetching reanalysis for 2020-03-11...
+  [Currents] Fetching reanalysis for 2020-03-11...
+  [MLD] Fetching reanalysis for 2020-03-11...
+  [CHL] Fetching reanalysis for 2020-03-11...INFO - 2026-03-15T02:23:05Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:23:05Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:23:05Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:23:17Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:23:17Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:23:28Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:23:28Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:23:42Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:23:42Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:23:42Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:23:55Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:23:55Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:23:55Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:24:08Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:24:08Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:24:08Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:24:21Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:24:21Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:24:34Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:24:34Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:24:34Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:24:46Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:24:46Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:24:59Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:24:59Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:25:12Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:25:12Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:25:12Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:25:25Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:25:25Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:25:25Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:25:39Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:25:39Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:25:39Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:25:52Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:25:52Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:26:06Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:26:06Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:26:06Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:26:25Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:26:25Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:26:38Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:26:38Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:26:52Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:26:52Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:26:52Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:27:04Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:27:04Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:27:04Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:27:16Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:27:16Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:27:16Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:27:31Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:27:31Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:27:43Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:27:43Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:27:43Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:27:55Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:27:55Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:28:09Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:28:09Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:28:24Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:28:24Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:28:24Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:28:36Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:28:36Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:28:36Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:28:51Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:28:51Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:28:51Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:29:06Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:29:06Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:29:19Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:29:19Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:29:19Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:29:31Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:29:31Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:29:43Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:29:43Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:30:00Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:30:00Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:30:00Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:30:13Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:30:13Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:30:13Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:30:27Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:30:27Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:30:27Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:30:41Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:30:41Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:30:54Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:30:54Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:30:54Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:31:06Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:31:06Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:31:19Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:31:19Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:31:31Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:31:31Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:31:31Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:31:43Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:31:43Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:31:43Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:31:57Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:31:57Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:31:57Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:32:10Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:32:10Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:32:22Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:32:22Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:32:22Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:32:33Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:32:33Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:32:48Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:32:48Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:33:01Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:33:01Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:33:01Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:33:16Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:33:16Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:33:16Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:33:29Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:33:29Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:33:29Z - Some of your subset selection [0.0, 1.0] for the depth dimension exceed the dataset coordinates [0.49402499198913574, 5727.9169921875]
+INFO - 2026-03-15T02:33:44Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:33:44Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:33:57Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:33:57Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:33:57Z - You are using the dataset cmems_obs-oc_glo_bgc-plankton_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+INFO - 2026-03-15T02:34:09Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:34:09Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:34:22Z - Selected dataset version: "202406"
+INFO - 2026-03-15T02:34:22Z - Selected dataset part: "default"
+INFO - 2026-03-15T02:34:35Z - Selected dataset version: "202311"
+INFO - 2026-03-15T02:34:35Z - Selected dataset part: "default"
+WARNING - 2026-03-15T02:34:35Z - You are using the dataset cmems_obs-oc_glo_bgc-transp_my_l4-gapfree-multi-4km_P1D, version '202311', part 'default'. This exact version and part of the dataset will be retired on the 2026-03-31T13:00:00.000Z. For more information you can check: https://marine.copernicus.eu/user-corner/product-roadmap/transition-information
+
+  [SSH] Fetching reanalysis for 2020-03-11...
+  [O2] Fetching reanalysis for 2020-03-11...
+  [KD490] Fetching reanalysis for 2020-03-11...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 62% >50%, mean abs SLA=0.246m
+[Hotspots] Current scoring: 81% favorable, upstream SST mean 23.3C
+[Hotspots] Convergence scoring: 42% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 1.000 (mean 0.651)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 77 polygons across 8 bands ->data/backtest_w3\2020-03-11\blue_marlin_hotspots.geojson
+  -> Mean: 93.0%  Median: 94.9%  Max: 99.6%  (24 cells)
+
+============================================================
+[48/54] 2020-03-18
+============================================================
+  [SST] Fetching reanalysis for 2020-03-18...
+  [Currents] Fetching reanalysis for 2020-03-18...
+  [MLD] Fetching reanalysis for 2020-03-18...
+  [CHL] Fetching reanalysis for 2020-03-18...
+  [SSH] Fetching reanalysis for 2020-03-18...
+  [O2] Fetching reanalysis for 2020-03-18...
+  [KD490] Fetching reanalysis for 2020-03-18...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 57% >50%, mean abs SLA=0.272m
+[Hotspots] Current scoring: 74% favorable, upstream SST mean 22.9C
+[Hotspots] Convergence scoring: 50% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.999 (mean 0.643)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 79 polygons across 8 bands ->data/backtest_w3\2020-03-18\blue_marlin_hotspots.geojson
+  -> Mean: 94.4%  Median: 95.9%  Max: 99.8%  (24 cells)
+
+============================================================
+[49/54] 2020-03-25
+============================================================
+  [SST] Fetching reanalysis for 2020-03-25...
+  [Currents] Fetching reanalysis for 2020-03-25...
+  [MLD] Fetching reanalysis for 2020-03-25...
+  [CHL] Fetching reanalysis for 2020-03-25...
+  [SSH] Fetching reanalysis for 2020-03-25...
+  [O2] Fetching reanalysis for 2020-03-25...
+  [KD490] Fetching reanalysis for 2020-03-25...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 59% >50%, mean abs SLA=0.285m
+[Hotspots] Current scoring: 94% favorable, upstream SST mean 23.5C
+[Hotspots] Convergence scoring: 59% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 1.000 (mean 0.665)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 93 polygons across 8 bands ->data/backtest_w3\2020-03-25\blue_marlin_hotspots.geojson
+  -> Mean: 95.7%  Median: 96.5%  Max: 99.9%  (24 cells)
+
+============================================================
+[50/54] 2020-04-01
+============================================================
+  [SST] Fetching reanalysis for 2020-04-01...
+  [Currents] Fetching reanalysis for 2020-04-01...
+  [MLD] Fetching reanalysis for 2020-04-01...
+  [CHL] Fetching reanalysis for 2020-04-01...
+  [SSH] Fetching reanalysis for 2020-04-01...
+  [O2] Fetching reanalysis for 2020-04-01...
+  [KD490] Fetching reanalysis for 2020-04-01...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 62% >50%, mean abs SLA=0.281m
+[Hotspots] Current scoring: 87% favorable, upstream SST mean 22.9C
+[Hotspots] Convergence scoring: 62% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.999 (mean 0.652)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 80 polygons across 8 bands ->data/backtest_w3\2020-04-01\blue_marlin_hotspots.geojson
+  -> Mean: 95.2%  Median: 96.6%  Max: 99.8%  (24 cells)
+
+============================================================
+[51/54] 2020-04-08
+============================================================
+  [SST] Fetching reanalysis for 2020-04-08...
+  [Currents] Fetching reanalysis for 2020-04-08...
+  [MLD] Fetching reanalysis for 2020-04-08...
+  [CHL] Fetching reanalysis for 2020-04-08...
+  [SSH] Fetching reanalysis for 2020-04-08...
+  [O2] Fetching reanalysis for 2020-04-08...
+  [KD490] Fetching reanalysis for 2020-04-08...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 57% >50%, mean abs SLA=0.305m
+[Hotspots] Current scoring: 92% favorable, upstream SST mean 22.9C
+[Hotspots] Convergence scoring: 63% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.999 (mean 0.658)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 92 polygons across 8 bands ->data/backtest_w3\2020-04-08\blue_marlin_hotspots.geojson
+  -> Mean: 97.3%  Median: 97.8%  Max: 99.8%  (24 cells)
+
+============================================================
+[52/54] 2020-04-15
+============================================================
+  [SST] Fetching reanalysis for 2020-04-15...
+  [Currents] Fetching reanalysis for 2020-04-15...
+  [MLD] Fetching reanalysis for 2020-04-15...
+  [CHL] Fetching reanalysis for 2020-04-15...
+  [SSH] Fetching reanalysis for 2020-04-15...
+  [O2] Fetching reanalysis for 2020-04-15...
+  [KD490] Fetching reanalysis for 2020-04-15...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 58% >50%, mean abs SLA=0.325m
+[Hotspots] Current scoring: 88% favorable, upstream SST mean 23.0C
+[Hotspots] Convergence scoring: 60% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.999 (mean 0.653)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 76 polygons across 8 bands ->data/backtest_w3\2020-04-15\blue_marlin_hotspots.geojson
+  -> Mean: 95.6%  Median: 96.9%  Max: 99.9%  (24 cells)
+
+============================================================
+[53/54] 2020-04-22
+============================================================
+  [SST] Fetching reanalysis for 2020-04-22...
+  [Currents] Fetching reanalysis for 2020-04-22...
+  [MLD] Fetching reanalysis for 2020-04-22...
+  [CHL] Fetching reanalysis for 2020-04-22...
+  [SSH] Fetching reanalysis for 2020-04-22...
+  [O2] Fetching reanalysis for 2020-04-22...
+  [KD490] Fetching reanalysis for 2020-04-22...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 58% >50%, mean abs SLA=0.358m
+[Hotspots] Current scoring: 82% favorable, upstream SST mean 22.6C
+[Hotspots] Convergence scoring: 63% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.998 (mean 0.636)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 87 polygons across 8 bands ->data/backtest_w3\2020-04-22\blue_marlin_hotspots.geojson
+  -> Mean: 94.2%  Median: 94.8%  Max: 99.4%  (24 cells)
+
+============================================================
+[54/54] 2020-04-29
+============================================================
+  [SST] Fetching reanalysis for 2020-04-29...
+  [Currents] Fetching reanalysis for 2020-04-29...
+  [MLD] Fetching reanalysis for 2020-04-29...
+  [CHL] Fetching reanalysis for 2020-04-29...
+  [SSH] Fetching reanalysis for 2020-04-29...
+  [O2] Fetching reanalysis for 2020-04-29...
+  [KD490] Fetching reanalysis for 2020-04-29...
+[Hotspots] Building blue marlin habitat suitability...
+[Hotspots] Shelf break: 37% of cells >50% (applied as x1.0-1.5 multiplier)
+[Hotspots] SSH scoring: 49% >50%, mean abs SLA=0.322m
+[Hotspots] Current scoring: 81% favorable, upstream SST mean 22.1C
+[Hotspots] Convergence scoring: 51% of cells have bait-concentrating flow
+[Hotspots] Score range: 0.000 - 0.996 (mean 0.620)
+[Depth mask] Built >100m ocean mask (1 polygons)
+[Hotspots] 80 polygons across 8 bands ->data/backtest_w3\2020-04-29\blue_marlin_hotspots.geojson
+  -> Mean: 90.8%  Median: 92.4%  Max: 99.5%  (24 cells)
+
+============================================================
+BACKTEST SUMMARY (54/54 dates successful)
+============================================================
+  Zone Mean  - avg: 90.7%  median: 92.1%  range: 78.9-97.3%
+  Zone Max   - avg: 98.9%  median: 99.5%  range: 93.3-99.9%
+  Best mean:  2020-04-08 (97.3%)
+  Worst mean: 2019-02-12 (78.9%)
+
+Monthly averages (zone mean):
+       January:  86.8% (n=15)
+      February:  88.9% (n=12)
+         March:  94.0% (n=12)
+         April:  93.3% (n=15)
+
+Results saved to data/backtest_w3\backtest_results.json
