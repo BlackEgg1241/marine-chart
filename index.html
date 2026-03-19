@@ -477,7 +477,7 @@ function initMap(){
     {id:'g-sst-layer',type:'raster',source:'g-sst',layout:{visibility:'visible'},paint:{'raster-opacity':.6}},
     {id:'g-chl-layer',type:'raster',source:'g-chl',layout:{visibility:'none'},paint:{'raster-opacity':.7}},
     {id:'g-ssh-layer',type:'raster',source:'g-ssh',layout:{visibility:'none'},paint:{'raster-opacity':.7}},
-    {id:'hs-blue',type:'fill',source:'blue-hotspots',paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.20,'#dbeafe',0.35,'#93c5fd',0.50,'#60a5fa',0.60,'#3b82f6',0.70,'#22d3ee',0.78,'#34d399',0.84,'#facc15',0.88,'#fb923c',0.92,'#ef4444',0.96,'#dc2626'],'fill-opacity':0}},
+    {id:'hs-blue',type:'fill',source:'blue-hotspots',paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.10,'#dbeafe',0.35,'#93c5fd',0.45,'#60a5fa',0.55,'#3b82f6',0.65,'#22d3ee',0.73,'#34d399',0.80,'#facc15',0.86,'#fb923c',0.92,'#ef4444',0.96,'#dc2626'],'fill-opacity':0,'fill-antialias':false}},
 {id:'spot-glow',type:'circle',source:'spots',layout:{visibility:'visible'},paint:{'circle-radius':16,'circle-color':'#f43f5e','circle-opacity':.15,'circle-blur':.8}},
     {id:'spot-dot',type:'circle',source:'spots',layout:{visibility:'visible'},paint:{'circle-radius':6,'circle-color':'#f43f5e','circle-stroke-width':2,'circle-stroke-color':'#fff','circle-opacity':.9}},
     {id:'spot-label',type:'symbol',source:'spots',layout:{visibility:'visible','text-field':['get','name'],'text-size':10,'text-offset':[0,1.5],'text-anchor':'top','text-font':['Open Sans Regular']},paint:{'text-color':'#fbbf24','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5}},
@@ -696,7 +696,7 @@ function setBasemap(n){
   map.addSource('g-ssh',{type:'raster',tiles:[guSLA(cDate)],tileSize:256,maxzoom:8});
   map.addLayer({id:'g-ssh-layer',type:'raster',source:'g-ssh',layout:{visibility:LS.ssh_visual?'visible':'none'},paint:{'raster-opacity':.7}},bf);
   var bmo2=LS.blue_marlin;
-  map.addLayer({id:'hs-blue',type:'fill',source:'blue-hotspots',paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.20,'#dbeafe',0.35,'#93c5fd',0.50,'#60a5fa',0.60,'#3b82f6',0.70,'#22d3ee',0.78,'#34d399',0.84,'#facc15',0.88,'#fb923c',0.92,'#ef4444',0.96,'#dc2626'],'fill-opacity':bmo2?.45:0}},bf);
+  map.addLayer({id:'hs-blue',type:'fill',source:'blue-hotspots',paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.10,'#dbeafe',0.35,'#93c5fd',0.45,'#60a5fa',0.55,'#3b82f6',0.65,'#22d3ee',0.73,'#34d399',0.80,'#facc15',0.86,'#fb923c',0.92,'#ef4444',0.96,'#dc2626'],'fill-opacity':bmo2?.45:0,'fill-antialias':false}},bf);
   var mv=LS.seamark?'visible':'none';
   map.addLayer({id:'spot-glow',type:'circle',source:'spots',layout:{visibility:mv},paint:{'circle-radius':16,'circle-color':'#f43f5e','circle-opacity':.15,'circle-blur':.8}},bf);
   map.addLayer({id:'spot-dot',type:'circle',source:'spots',layout:{visibility:mv},paint:{'circle-radius':6,'circle-color':'#f43f5e','circle-stroke-width':2,'circle-stroke-color':'#fff','circle-opacity':.9}},bf);
