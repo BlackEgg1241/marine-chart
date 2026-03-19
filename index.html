@@ -551,7 +551,7 @@ function initMap(){
   var hoverEl=document.getElementById('hoverPanel'),hoverCt=document.getElementById('hoverContent');
   infoPinned=false;var iDrag=false,iDX=0,iDY=0;
   infoEl.addEventListener('pointerdown',function(e){if(e.target.classList.contains('info-close'))return;iDrag=true;iDX=e.clientX-infoEl.offsetLeft;iDY=e.clientY-infoEl.offsetTop;infoEl.setPointerCapture(e.pointerId);e.stopPropagation()});
-  document.addEventListener('pointermove',function(e){if(!iDrag)return;var x=e.clientX-iDX,y=e.clientY-iDY;infoEl.style.left=x+'px';infoEl.style.top=y+'px'});
+  document.addEventListener('pointermove',function(e){if(!iDrag)return;var x=e.clientX-iDX,y=e.clientY-iDY;infoEl.style.left=x+'px';infoEl.style.top=y+'px';var rect=map.getCanvas().getBoundingClientRect();var pt=[x+rect.left,y+10+rect.top];var mapPt=map.unproject([x,y+10]);var lids=Object.keys(hInfo).filter(function(l){return map.getLayer(l)});var fs=map.queryRenderedFeatures([x,y+10],{layers:lids});var html='<div class="hp-title">'+fc(mapPt.lat,mapPt.lng)+'</div>';var visFs=fs.filter(function(f){var vk=hVis[f.layer.id];return !vk||LS[vk]});if(visFs.length){var seen={};for(var i=0;i<visFs.length;i++){var f=visFs[i],lid=f.layer.id;if(!seen[lid]&&hInfo[lid]){seen[lid]=true;html+=hInfo[lid](f.properties)}}}infoCt.innerHTML=html});
   document.addEventListener('pointerup',function(){iDrag=false});
   var hInfo={
     'hs-blue':function(p){var h='<div class="hp-title">Blue Marlin Habitat — '+Math.round(p.intensity*100)+'%</div>';var items=[];var keys=[['s_sst','w_sst','SST'],['s_sst_front','w_sst_front','Fronts'],['s_front_corridor','w_front_corridor','Corr'],['s_sst_intrusion','w_sst_intrusion','LC'],['s_chl','w_chl','Chl'],['s_chl_curvature','w_chl_curvature','ChlC'],['s_ssh','w_ssh','SSH'],['s_current','w_current','Current'],['s_convergence','w_convergence','Conv'],['s_mld','w_mld','MLD'],['s_o2','w_o2','O₂'],['s_clarity','w_clarity','Clarity'],['s_boundary','w_boundary','Edge'],['s_bathy_align','w_bathy_align','BthA'],['s_ssta','w_ssta','SSTA']];for(var i=0;i<keys.length;i++){var k=keys[i];if(p[k[0]]!=null){items.push(k[2]+' '+Math.round(p[k[0]]*p[k[1]]*100)+'%')}}var mults=[];if(p.s_depth!=null)mults.push('Depth \u00d7'+Math.round(p.s_depth*100)+'%');if(p.s_shelf_break!=null)mults.push('Canyon \u00d7'+p.s_shelf_break);var sub=items.join(' \u00b7 ');if(mults.length)sub+=' | '+mults.join(' \u00b7 ');if(p.s_depth_m!=null)sub+=' | '+Math.round(p.s_depth_m)+'m';return h+'<div class="hp-sub">'+sub+'</div>'},
@@ -582,17 +582,31 @@ function initMap(){
   };
   // Map layer IDs to their LS toggle key so hovers respect visibility
   var hVis={'hs-blue':'blue_marlin','isotherm-blue-prime':'blue_marlin','isotherm-blue-good':'blue_marlin','sst-front-glow':'sst_fronts','sst-front-line':'sst_fronts','chl-edge-line':'chl_edges','current-line':'currents','bathy-100':'bathymetry','bathy-200':'bathymetry','bathy-500':'bathymetry','bathy-1000':'bathymetry','clarity-clean':'clarity','clarity-turbid':'clarity','clarity-bloom':'clarity','ssh-cold':'ssh','ssh-neutral':'ssh','ssh-warm':'ssh','ssh-warm-core':'ssh','mld-shallow':'mld','mld-moderate':'mld','mld-deep':'mld','o2-hypoxic':'oxygen','o2-low':'oxygen','o2-adequate':'oxygen'};
+  // Global mousemove — always show hover with coordinates, plus feature info if over a layer
+  var _hoverOnFeature=false;
   Object.keys(hInfo).forEach(function(lid){
     map.on('mousemove',lid,function(e){
       if(!e.features||!e.features.length)return;
       var vk=hVis[lid];if(vk&&!LS[vk])return;
       map.getCanvas().style.cursor='crosshair';
-      // Always update hover tooltip and follow mouse
+      _hoverOnFeature=true;
       hoverCt.innerHTML=hInfo[lid](e.features[0].properties);
       hoverEl.style.left=e.point.x+'px';hoverEl.style.top=(e.point.y-12)+'px';
       hoverEl.classList.add('active');
     });
-    map.on('mouseleave',lid,function(){map.getCanvas().style.cursor='';hoverEl.classList.remove('active')});
+    map.on('mouseleave',lid,function(){map.getCanvas().style.cursor='';_hoverOnFeature=false});
+  });
+  map.on('mousemove',function(e){
+    if(_hoverOnFeature)return;
+    var html='<div class="hp-title">'+fc(e.lngLat.lat,e.lngLat.lng)+'</div>';
+    // Query hs-blue even below 50% filter for depth info
+    if(map.getSource('blue-hotspots')){
+      var bfs=map.queryRenderedFeatures(e.point,{layers:['hs-blue'].filter(function(l){return map.getLayer(l)})});
+      if(bfs.length&&bfs[0].properties.s_depth_m!=null){html+='<div class="hp-sub">Depth: '+Math.round(bfs[0].properties.s_depth_m)+'m</div>'}
+    }
+    hoverCt.innerHTML=html;
+    hoverEl.style.left=e.point.x+'px';hoverEl.style.top=(e.point.y-12)+'px';
+    hoverEl.classList.add('active');
   });
   // Click/tap to pin info panel at any point
   map.on('click',function(e){
