@@ -1363,7 +1363,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         _band_width_nm = getattr(sys.modules[__name__], '_opt_band_width_nm', 3.0)
         _band_boost = getattr(sys.modules[__name__], '_opt_band_boost', 0.34)
         _band_decay = getattr(sys.modules[__name__], '_opt_band_decay', 0.80)
-        _band_front_thresh = getattr(sys.modules[__name__], '_opt_band_front_thresh', 0.30)
+        _band_front_thresh = getattr(sys.modules[__name__], '_opt_band_front_thresh', 0.25)
         _band_chl_thresh = getattr(sys.modules[__name__], '_opt_band_chl_thresh', 0.45)
 
         _grid_step_b = abs(lons[1] - lons[0]) if nx > 1 else 0.083
@@ -1421,6 +1421,11 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                 iso_mask = (np.abs(iso_smooth - iso_temp) < 0.3) & ~land & ~coast_buf
                 if np.any(iso_mask):
                     band_layers[f"isotherm_{iso_temp}C"] = _band_score(iso_mask)
+            # Prime temperature band — 67% of catches are within 0.5°C of 22.5°C
+            # Fish cluster in the center of optimal range, not just at boundaries
+            prime_mask = (np.abs(iso_smooth - 22.5) < 0.5) & ~land & ~coast_buf
+            if np.any(prime_mask):
+                band_layers["prime_temp"] = _band_score(prime_mask)
         except Exception:
             pass
 
@@ -1438,6 +1443,24 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                 if cg90 > 0:
                     chl_edge_mask = (chl_grad / cg90 > _band_chl_thresh) & ~coast_buf & ~land
                     band_layers["chl_edge"] = _band_score(chl_edge_mask)
+            except Exception:
+                pass
+
+        # MLD gradient band — sharp thermocline transitions compress marlin
+        # habitat vertically, concentrating bait and predators near the surface
+        if mld_grid is not None:
+            try:
+                mld_for_grad = mld_grid.copy()
+                mld_for_grad[np.isnan(mld_for_grad) | land] = np.nanmean(mld_grid[~land])
+                mld_smooth = gaussian_filter(mld_for_grad, sigma=1.5)
+                mgx = sobel(mld_smooth, axis=1)
+                mgy = sobel(mld_smooth, axis=0)
+                mld_grad = np.sqrt(mgx**2 + mgy**2)
+                mld_grad[coast_buf] = 0
+                mg90 = np.nanpercentile(mld_grad[~coast_buf & ~land], 90)
+                if mg90 > 0:
+                    mld_edge_mask = (mld_grad / mg90 > 0.35) & ~coast_buf & ~land
+                    band_layers["mld_edge"] = _band_score(mld_edge_mask)
             except Exception:
                 pass
 
