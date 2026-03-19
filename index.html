@@ -598,7 +598,7 @@ function initMap(){
     // Always show coordinate info
     var visFs=fs.filter(function(f){var vk=hVis[f.layer.id];return !vk||LS[vk]});
     if(visFs.length){
-      for(var i=0;i<Math.min(visFs.length,3);i++){var f=visFs[i],lid=f.layer.id;if(hInfo[lid])html+=hInfo[lid](f.properties)}
+      var seen={};for(var i=0;i<visFs.length;i++){var f=visFs[i],lid=f.layer.id;if(!seen[lid]&&hInfo[lid]){seen[lid]=true;html+=hInfo[lid](f.properties)}}
     } else {
       html+='<div class="hp-sub">Tap features for details</div>';
     }
