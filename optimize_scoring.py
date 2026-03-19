@@ -35,6 +35,7 @@ BBOX = {
 }
 
 CSV_PATH = r"C:\Users\User\Downloads\Export.csv"
+ALL_CATCHES_CSV = os.path.join("data", "all_catches.csv")
 BASE_DIR = "data"
 
 
@@ -47,18 +48,57 @@ def ddm_to_dd(raw_str, negative=False):
     return -dd if negative else dd
 
 
+def _parse_date(date_str):
+    """Convert DD/MM/YYYY or YYYY-MM-DD to YYYY-MM-DD."""
+    if "/" in date_str:
+        parts = date_str.strip().split("/")
+        return f"{parts[2]}-{parts[1].zfill(2)}-{parts[0].zfill(2)}"
+    return date_str[:10]
+
+
 def load_catches():
     catches = []
+    seen = set()  # deduplicate by (date, lat, lon)
+
+    # GFAA Export.csv (DDM format coordinates)
     with open(CSV_PATH, encoding="utf-8") as f:
         for r in csv.DictReader(f):
             lat = ddm_to_dd(r["Latitude"].strip().replace("S", ""), negative=True)
             lon = ddm_to_dd(r["Longitude"].strip().replace("E", ""), negative=False)
-            catches.append({
-                "date": r["Release_Date"][:10], "lat": lat, "lon": lon,
-                "species": r["Species_Name"],
-                "tag": r["Tag_Number"],
-            })
-    return catches
+            date = r["Release_Date"][:10]
+            key = (date, round(lat, 4), round(lon, 4))
+            if key not in seen:
+                seen.add(key)
+                catches.append({
+                    "date": date, "lat": lat, "lon": lon,
+                    "species": r["Species_Name"],
+                    "tag": r["Tag_Number"],
+                })
+
+    # all_catches.csv (decimal degrees, only rows with GPS coords)
+    if os.path.exists(ALL_CATCHES_CSV):
+        with open(ALL_CATCHES_CSV, encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                lat_str = r.get("lat", "").strip()
+                lon_str = r.get("lon", "").strip()
+                if not lat_str or not lon_str:
+                    continue
+                try:
+                    lat = float(lat_str)
+                    lon = float(lon_str)
+                except ValueError:
+                    continue
+                date = _parse_date(r["date"])
+                key = (date, round(lat, 4), round(lon, 4))
+                if key not in seen:
+                    seen.add(key)
+                    catches.append({
+                        "date": date, "lat": lat, "lon": lon,
+                        "species": r.get("species", ""),
+                        "tag": r.get("tag", ""),
+                    })
+
+    return [c for c in catches if c["species"].strip().upper() == "BLUE MARLIN"]
 
 
 def get_dated_dirs():
@@ -106,8 +146,6 @@ def evaluate_params(params):
         "o2":           params["w_o2"],
         "clarity":      params["w_clarity"],
         "ssta":         params["w_ssta"],
-        "boundary":     params["w_boundary"],
-        "bathy_align":  params["w_bathy_align"],
     }
 
     # Store tunable params as module-level attributes for the scoring function
@@ -121,13 +159,14 @@ def evaluate_params(params):
     marlin_data._opt_synergy_factor = params["synergy_factor"]
     marlin_data._opt_chl_optimal = params["chl_optimal"]
     marlin_data._opt_chl_sigma = params["chl_sigma"]
-    marlin_data._opt_boundary_threshold = params["boundary_threshold"]
-    marlin_data._opt_boundary_blend = params["boundary_blend"]
     marlin_data._opt_ssta_optimal = params["ssta_optimal"]
     marlin_data._opt_ssta_sigma = params["ssta_sigma"]
     marlin_data._opt_corridor_thresh = params["corridor_thresh"]
-    marlin_data._opt_spatial_conv_thresh = params["spatial_conv_thresh"]
-    marlin_data._opt_spatial_conv_boost = params["spatial_conv_boost"]
+    marlin_data._opt_band_width_nm = params["band_width_nm"]
+    marlin_data._opt_band_boost = params["band_boost"]
+    marlin_data._opt_band_decay = params["band_decay"]
+    marlin_data._opt_band_front_thresh = params["band_front_thresh"]
+    marlin_data._opt_band_chl_thresh = params["band_chl_thresh"]
 
     # Suppress all print output from scoring pipeline
     import io
@@ -135,6 +174,7 @@ def evaluate_params(params):
     sys.stdout = io.StringIO()
 
     scores = []
+    grid_means = []
     try:
         for date_str in DATES_WITH_DATA:
             dated_dir = DATED_DIRS[date_str]
@@ -156,6 +196,11 @@ def evaluate_params(params):
             glats = result["lats"]
             glons = result["lons"]
 
+            # Track grid-wide scores for discrimination penalty
+            ocean = ~np.isnan(grid)
+            if np.any(ocean):
+                grid_means.append(float(np.mean(grid[ocean])))
+
             date_catches = [c for c in CATCHES_WITH_DATA if c["date"] == date_str]
             for c in date_catches:
                 yi = np.argmin(np.abs(glats - c["lat"]))
@@ -166,7 +211,7 @@ def evaluate_params(params):
         sys.stdout = _real_stdout
 
     if len(scores) == 0:
-        return {"mean": 0, "median": 0, "pct50": 0, "pct70": 0, "min": 0}
+        return {"mean": 0, "median": 0, "pct50": 0, "pct70": 0, "min": 0, "grid_mean": 1.0}
 
     scores = np.array(scores)
     return {
@@ -175,6 +220,7 @@ def evaluate_params(params):
         "pct50": float(np.sum(scores >= 0.5) / len(scores)),
         "pct70": float(np.sum(scores >= 0.7) / len(scores)),
         "min": float(np.min(scores)),
+        "grid_mean": float(np.mean(grid_means)) if grid_means else 1.0,
     }
 
 
@@ -194,15 +240,13 @@ def objective(trial):
     raw_o2 = trial.suggest_float("w_o2", 0.01, 0.05)
     raw_clarity = trial.suggest_float("w_clarity", 0.01, 0.05)
     raw_ssta = trial.suggest_float("w_ssta", 0.02, 0.10)
-    raw_boundary = trial.suggest_float("w_boundary", 0.02, 0.15)
     raw_front_corridor = trial.suggest_float("w_front_corridor", 0.01, 0.08)
     raw_chl_curvature = trial.suggest_float("w_chl_curvature", 0.01, 0.06)
-    raw_bathy_align = trial.suggest_float("w_bathy_align", 0.01, 0.06)
 
     total = (raw_sst + raw_sst_front + raw_sst_intrusion + raw_chl +
              raw_ssh + raw_current + raw_convergence + raw_mld +
-             raw_o2 + raw_clarity + raw_ssta + raw_boundary +
-             raw_front_corridor + raw_chl_curvature + raw_bathy_align)
+             raw_o2 + raw_clarity + raw_ssta +
+             raw_front_corridor + raw_chl_curvature)
 
     # --- Scoring function parameters ---
     params = {
@@ -219,8 +263,6 @@ def objective(trial):
         "w_o2":           round(raw_o2 / total, 4),
         "w_clarity":      round(raw_clarity / total, 4),
         "w_ssta":         round(raw_ssta / total, 4),
-        "w_boundary":     round(raw_boundary / total, 4),
-        "w_bathy_align":  round(raw_bathy_align / total, 4),
         "sst_optimal":       trial.suggest_float("sst_optimal", 22.0, 25.0),
         "sst_sigma":         trial.suggest_float("sst_sigma", 1.5, 3.0),
         "front_floor":       trial.suggest_float("front_floor", 0.0, 0.3),
@@ -231,24 +273,27 @@ def objective(trial):
         "synergy_factor":    trial.suggest_float("synergy_factor", 0.0, 0.8),
         "chl_optimal":       trial.suggest_float("chl_optimal", 0.10, 0.40),
         "chl_sigma":         trial.suggest_float("chl_sigma", 0.2, 0.8),
-        "boundary_threshold": trial.suggest_float("boundary_threshold", 0.15, 0.50),
-        "boundary_blend":    trial.suggest_float("boundary_blend", 0.3, 0.8),
         "ssta_optimal":      trial.suggest_float("ssta_optimal", 0.5, 2.0),
         "ssta_sigma":        trial.suggest_float("ssta_sigma", 0.5, 2.5),
         "corridor_thresh":   trial.suggest_float("corridor_thresh", 0.2, 0.6),
-        "spatial_conv_thresh": trial.suggest_float("spatial_conv_thresh", 0.15, 0.50),
-        "spatial_conv_boost":  trial.suggest_float("spatial_conv_boost", 0.10, 0.50),
+        "band_width_nm":     trial.suggest_float("band_width_nm", 1.0, 2.5),
+        "band_boost":        trial.suggest_float("band_boost", 0.05, 0.35),
+        "band_decay":        trial.suggest_float("band_decay", 0.5, 2.0),
+        "band_front_thresh": trial.suggest_float("band_front_thresh", 0.3, 0.7),
+        "band_chl_thresh":   trial.suggest_float("band_chl_thresh", 0.3, 0.7),
     }
 
     metrics = evaluate_params(params)
 
-    # Composite objective: prioritize mean score, bonus for high floor
-    # and high pct70, penalty for very low minimum scores
+    # Composite objective: prioritize mean score, bonus for high floor,
+    # penalty for grid inflation (catches should score higher than average ocean)
+    discrimination = max(metrics["mean"] - metrics["grid_mean"], 0)  # 0-1
     score = (
-        0.6 * metrics["mean"] +
+        0.5 * metrics["mean"] +
         0.2 * metrics["pct70"] +
         0.1 * metrics["pct50"] +
-        0.1 * max(metrics["min"], 0)  # reward raising the floor
+        0.1 * max(metrics["min"], 0) +
+        0.1 * discrimination  # reward catch scores being above ocean average
     )
 
     # Store metrics as user attributes for inspection
@@ -272,21 +317,21 @@ def main():
 
     # Seed with current optimized values as first trial
     study.enqueue_trial({
-        "w_sst": 0.15, "w_sst_front": 0.06, "w_front_corridor": 0.05,
-        "w_sst_intrusion": 0.04, "w_chl": 0.11, "w_chl_curvature": 0.04,
-        "w_ssh": 0.09, "w_current": 0.10, "w_convergence": 0.04,
-        "w_mld": 0.11, "w_o2": 0.05, "w_clarity": 0.05,
-        "w_ssta": 0.03, "w_boundary": 0.09, "w_bathy_align": 0.01,
+        "w_sst": 0.17, "w_sst_front": 0.07, "w_front_corridor": 0.06,
+        "w_sst_intrusion": 0.04, "w_chl": 0.12, "w_chl_curvature": 0.05,
+        "w_ssh": 0.10, "w_current": 0.11, "w_convergence": 0.05,
+        "w_mld": 0.12, "w_o2": 0.05, "w_clarity": 0.05,
+        "w_ssta": 0.03,
         "sst_optimal": 23.07, "sst_sigma": 2.95,
         "front_floor": 0.26,
         "intrusion_threshold": 0.58, "intrusion_baseline": 0.08,
         "shelf_boost": 0.60,
         "east_bonus": 0.16, "synergy_factor": 0.65,
         "chl_optimal": 0.13, "chl_sigma": 0.59,
-        "boundary_threshold": 0.25, "boundary_blend": 0.76,
         "ssta_optimal": 1.07, "ssta_sigma": 2.45,
         "corridor_thresh": 0.33,
-        "spatial_conv_thresh": 0.30, "spatial_conv_boost": 0.25,
+        "band_width_nm": 2.0, "band_boost": 0.20,
+        "band_decay": 1.0, "band_front_thresh": 0.50, "band_chl_thresh": 0.50,
     })
 
     print(f"\nStarting Optuna optimization with {args.trials} trials...")
@@ -320,7 +365,7 @@ def main():
     bp = best.params
     raw_keys = ["w_sst", "w_sst_front", "w_front_corridor", "w_sst_intrusion",
                 "w_chl", "w_chl_curvature", "w_ssh", "w_current", "w_convergence",
-                "w_mld", "w_o2", "w_clarity", "w_ssta", "w_boundary", "w_bathy_align"]
+                "w_mld", "w_o2", "w_clarity", "w_ssta"]
     total = sum(bp[k] for k in raw_keys)
 
     print(f"\nOptimal weights (normalized to sum=1.0):")

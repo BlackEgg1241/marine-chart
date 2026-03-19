@@ -147,6 +147,7 @@ def main():
     parser = argparse.ArgumentParser(description="Rescore all hotspot GeoJSONs with current weights")
     parser.add_argument("--obs-only", action="store_true", help="Only rescore observation dirs")
     parser.add_argument("--bt-only", action="store_true", help="Only rescore backtest dirs")
+    parser.add_argument("--pred-only", action="store_true", help="Only rescore prediction dirs")
     args = parser.parse_args()
 
     import marlin_data
@@ -154,6 +155,7 @@ def main():
 
     obs_dir = os.path.join(SCRIPT_DIR, "data")
     bt_dir = os.path.join(SCRIPT_DIR, "data", "backtest")
+    pred_dir = os.path.join(SCRIPT_DIR, "data", "prediction")
 
     # Find a shared bathymetry file
     bathy_fallback = None
@@ -165,13 +167,21 @@ def main():
             bathy_fallback = candidate
             break
 
+    # Determine which sets to process (default: all)
+    do_obs = not args.bt_only and not args.pred_only
+    do_bt = not args.obs_only and not args.pred_only
+    do_pred = not args.obs_only and not args.bt_only
+
     dirs_to_process = []
-    if not args.bt_only:
+    if do_obs:
         obs_dirs = find_dated_dirs(obs_dir)
         dirs_to_process.extend(("obs", d, p) for d, p in obs_dirs)
-    if not args.obs_only:
+    if do_bt:
         bt_dirs = find_dated_dirs(bt_dir)
         dirs_to_process.extend(("bt", d, p) for d, p in bt_dirs)
+    if do_pred:
+        pred_dirs = find_dated_dirs(pred_dir)
+        dirs_to_process.extend(("pred", d, p) for d, p in pred_dirs)
 
     total = len(dirs_to_process)
     print(f"Rescoring {total} directories with current weights")
@@ -184,7 +194,7 @@ def main():
     t0 = time.time()
 
     for i, (kind, date_str, dir_path) in enumerate(dirs_to_process):
-        tag = "OBS" if kind == "obs" else " BT"
+        tag = {"obs": "OBS", "bt": " BT", "pred": "PRD"}[kind]
         print(f"[{i+1}/{total}] [{tag}] {date_str} ... ", end="", flush=True)
 
         try:

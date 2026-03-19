@@ -670,26 +670,26 @@ def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None, tif_
 # Composite score 0–1 per grid cell based on all available ocean variables.
 # Weights reflect relative importance for blue marlin habitat selection.
 BLUE_MARLIN_WEIGHTS = {
-    # Optimized by Optuna (200 trials, 71 catches, 15 features incl boundary/corridor/curvature).
-    # Result: mean 91%, median 91%, 100% >= 70%, min floor 73%.
-    "sst":          0.15,   # SST — primary habitat driver
-    "sst_front":    0.06,   # SST gradient — prey aggregation at fronts
-    "front_corridor":0.05,  # SST front corridors — narrow front pinch points
-    "sst_intrusion":0.04,   # Cross-shelf SST gradient — Leeuwin Current
-    "chl":          0.11,   # Chlorophyll — bait productivity indicator
-    "chl_curvature":0.04,   # CHL pockets/peninsulas — dynamic mixing zones
-    "ssh":          0.09,   # Sea level anomaly — warm water mass + eddies
-    "current":      0.10,   # Current favorability — warm water advection
-    "convergence":  0.04,   # Current convergence — bait aggregation
-    "mld":          0.11,   # Mixed layer depth — shallow = catchable
-    "o2":           0.05,   # Dissolved oxygen at 100m
-    "clarity":      0.05,   # Water clarity
-    "ssta":         0.03,   # SST anomaly — warmer than normal = Leeuwin Current
-    "boundary":     0.09,   # Boundary convergence — multi-feature edge proximity
-    "bathy_align":  0.01,   # Bathymetry-feature alignment — features on canyon walls
+    # Optimized by Optuna (200 trials, 44 blue marlin catches, 13 additive features).
+    # Feature bands (SST fronts, isotherms, CHL edges, eddies, bathy contours)
+    # applied as purely multiplicative overlap boost — not double-counted in weights.
+    "sst":           0.16,  # SST — primary habitat driver
+    "sst_front":     0.06,  # SST gradient — prey aggregation at fronts
+    "front_corridor":0.04,  # SST front corridors — narrow front pinch points
+    "sst_intrusion": 0.02,  # Cross-shelf SST gradient — Leeuwin Current
+    "chl":           0.08,  # Chlorophyll — bait productivity indicator
+    "chl_curvature": 0.02,  # CHL pockets/peninsulas — dynamic mixing zones
+    "ssh":           0.06,  # Sea level anomaly — warm water mass + eddies
+    "current":       0.21,  # Current favorability — warm water advection
+    "convergence":   0.04,  # Current convergence — bait aggregation
+    "mld":           0.12,  # Mixed layer depth — shallow = catchable
+    "o2":            0.03,  # Dissolved oxygen at 100m
+    "clarity":       0.05,  # Water clarity
+    "ssta":          0.09,  # SST anomaly — warmer than normal = Leeuwin Current
     # Static factors applied as MULTIPLIERS, not additive:
     # depth:       0->1 gate (zero if <100m)
-    # shelf_break: 1.0->1.53 boost (canyon walls get up to +53%)
+    # shelf_break: 1.0->1.60 boost (canyon walls get up to +60%)
+    # feature_bands: multiplicative overlap boost where 2+ feature bands intersect
 }
 
 # Intensity bands for contourf polygon export
@@ -899,8 +899,8 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     sst_filled[land] = np.nanmean(sst)
     sst_smooth = gaussian_filter(sst_filled, sigma=0.5)
     sst_smooth[land] = np.nan
-    optimal_temp = getattr(sys.modules[__name__], '_opt_sst_optimal', 23.07)
-    sst_sigma = getattr(sys.modules[__name__], '_opt_sst_sigma', 2.95)
+    optimal_temp = getattr(sys.modules[__name__], '_opt_sst_optimal', 22.52)
+    sst_sigma = getattr(sys.modules[__name__], '_opt_sst_sigma', 1.88)
     sst_sigma_above = getattr(sys.modules[__name__], '_opt_sst_sigma_above', 4.0)
     if sst_sigma_above is not None:
         # Asymmetric Gaussian: tighter below optimal (cooling penalty), wider above
@@ -915,8 +915,8 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         try:
             ssta = compute_ssta(sst_smooth, lats, lons, date_str)
             if not np.all(np.isnan(ssta)):
-                _ssta_optimal = getattr(sys.modules[__name__], '_opt_ssta_optimal', 1.07)
-                _ssta_sigma = getattr(sys.modules[__name__], '_opt_ssta_sigma', 2.45)
+                _ssta_optimal = getattr(sys.modules[__name__], '_opt_ssta_optimal', 0.94)
+                _ssta_sigma = getattr(sys.modules[__name__], '_opt_ssta_sigma', 2.20)
                 ssta_score = np.exp(-0.5 * ((ssta - _ssta_optimal) / _ssta_sigma) ** 2)
                 ssta_score[land] = np.nan
                 _add_score("ssta", ssta_score)
@@ -945,7 +945,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     front_score = front_score * sst_score
     # Floor: warm water (SST score > 0.6) gets minimum front score
     # Validated: catches in warm water without fronts still productive (54%)
-    _front_floor = getattr(sys.modules[__name__], '_opt_front_floor', 0.26)
+    _front_floor = getattr(sys.modules[__name__], '_opt_front_floor', 0.07)
     warm_mask = sst_score > 0.6
     front_score = np.where(warm_mask, np.maximum(front_score, _front_floor), front_score)
     _add_score("sst_front", front_score)
@@ -954,7 +954,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     #     Catches often sit inside tight front pockets where gradients converge
     #     from multiple directions. Score cells near fronts from 2+ quadrants.
     try:
-        _corr_thresh = getattr(sys.modules[__name__], '_opt_corridor_thresh', 0.33)
+        _corr_thresh = getattr(sys.modules[__name__], '_opt_corridor_thresh', 0.26)
         front_mask = (front_score > _corr_thresh).astype(float)
         front_mask[land | coast_buf] = 0
 
@@ -1012,8 +1012,8 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             if len(ns_valid) > 0 and len(os_valid) > 0:
                 cross_grad[yi, xi] = np.mean(ns_valid) - np.mean(os_valid)
     # Score: positive gradient (warm inshore) = good
-    _intrusion_thresh = getattr(sys.modules[__name__], '_opt_intrusion_threshold', 0.58)
-    _intrusion_baseline = getattr(sys.modules[__name__], '_opt_intrusion_baseline', 0.08)
+    _intrusion_thresh = getattr(sys.modules[__name__], '_opt_intrusion_threshold', 0.45)
+    _intrusion_baseline = getattr(sys.modules[__name__], '_opt_intrusion_baseline', 0.29)
     intrusion_score = np.clip(cross_grad / _intrusion_thresh, 0, 1)
     # Warm-water baseline: if SST is suitable, give minimum score even without
     # a clear cross-shelf gradient (LC may be present without E-W gradient)
@@ -1037,8 +1037,8 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             chl_data = _interp_to_grid(chl_da.values.astype(float), chl_lons, chl_lats)
             chl_grid = chl_data  # save for boundary convergence
             # Peak score at optimal CHL, Gaussian falloff in log space
-            _chl_opt = getattr(sys.modules[__name__], '_opt_chl_optimal', 0.13)
-            _chl_sig = getattr(sys.modules[__name__], '_opt_chl_sigma', 0.59)
+            _chl_opt = getattr(sys.modules[__name__], '_opt_chl_optimal', 0.14)
+            _chl_sig = getattr(sys.modules[__name__], '_opt_chl_sigma', 0.20)
             chl_log = np.log10(np.clip(chl_data, 0.01, 10))
             optimal_chl = np.log10(_chl_opt)
             chl_score = np.exp(-0.5 * ((chl_log - optimal_chl) / _chl_sig) ** 2)
@@ -1304,7 +1304,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             # Combined: speed × upstream warmth, with eastward bonus
             # Validated: catches occur in all current directions, not just eastward.
             # Base score = speed × upstream_temp; eastward adds 30% bonus
-            _east_bonus_factor = getattr(sys.modules[__name__], '_opt_east_bonus', 0.16)
+            _east_bonus_factor = getattr(sys.modules[__name__], '_opt_east_bonus', 0.03)
             east_bonus = 1.0 + _east_bonus_factor * east_score
             current_score = speed_score * upstream_temp_score * east_bonus
             current_score = np.clip(current_score, 0, 1)
@@ -1335,7 +1335,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             # Bait trap synergy: convergence is more effective with strong current
             # (currents push bait into convergence zones = active aggregation)
             # Validated: both high = 69%, neither = 53% at catch locations
-            _synergy = getattr(sys.modules[__name__], '_opt_synergy_factor', 0.65)
+            _synergy = getattr(sys.modules[__name__], '_opt_synergy_factor', 0.25)
             synergy = 1.0 + _synergy * np.clip(current_score, 0, 1)
             conv_score_synergy = np.clip(conv_score * synergy, 0, 1)
             conv_score_synergy[land] = np.nan
@@ -1345,108 +1345,134 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         except Exception as e:
             print(f"[Hotspots] Current scoring failed: {e}")
 
-    # 11. Boundary convergence — boost cells where multiple feature edges overlap
-    #     Marlin aggregate at oceanographic boundaries (CHL edges, SST fronts,
-    #     eddy edges, O2 contours, SSTA gradients), especially where multiple
-    #     boundaries converge. Validated by manual proximity analysis of 25+ catches.
+    # 11. Feature banding — distance-decay bands around oceanographic feature lines
+    #     Instead of scoring only at exact contour cells, create ~2nm bands around
+    #     SST fronts, CHL edges, SSH eddies, and bathymetry contours (100/200/500/1000m).
+    #     Score decays smoothly from 1.0 at the feature to 0 at band_width distance.
+    #     Where multiple bands overlap, multiplicative boost rewards convergence zones.
     try:
-        gradient_fields = {}
+        _band_width_nm = getattr(sys.modules[__name__], '_opt_band_width_nm', 2.31)
+        _band_boost = getattr(sys.modules[__name__], '_opt_band_boost', 0.34)
+        _band_decay = getattr(sys.modules[__name__], '_opt_band_decay', 0.80)
+        _band_front_thresh = getattr(sys.modules[__name__], '_opt_band_front_thresh', 0.30)
+        _band_chl_thresh = getattr(sys.modules[__name__], '_opt_band_chl_thresh', 0.45)
 
-        # SST gradient already computed above (grad_mag, g90)
+        _grid_step_b = abs(lons[1] - lons[0]) if nx > 1 else 0.083
+        # 1 nm ≈ 0.0167 degrees latitude
+        band_width_deg = _band_width_nm * 0.0167
+        band_width_cells = band_width_deg / _grid_step_b
+
+        def _band_score(binary_mask):
+            """Compute distance-decay band score from a binary feature mask."""
+            if not np.any(binary_mask):
+                return np.zeros((ny, nx))
+            dist = distance_transform_edt(~binary_mask)
+            # Decay: 1.0 at line, 0 at band_width_cells; power controls shape
+            normalised = np.clip(dist / band_width_cells, 0, 1)
+            band = np.clip(1.0 - normalised ** _band_decay, 0, 1)
+            band[land] = 0
+            return band
+
+        band_layers = {}  # name -> band_score array
+
+        # SST front band (gradient exceeds threshold)
         if g90 > 0:
-            gradient_fields["sst"] = np.clip(grad_mag / g90, 0, 1)
+            sst_front_mask = (grad_mag / g90 > _band_front_thresh) & ~coast_buf & ~land
+            band_layers["sst_front"] = _band_score(sst_front_mask)
 
-        # CHL gradient (in log space — CHL varies exponentially)
+        # Isotherm bands — blue marlin prime temperature boundaries (22°C and 24°C)
+        # These are the edges of the optimal range; fish aggregate along these lines
+        try:
+            iso_smooth = gaussian_filter(sst_filled, sigma=0.5)
+            for iso_temp in [22, 24]:
+                # Binary mask: cells within 0.3°C of the isotherm
+                iso_mask = (np.abs(iso_smooth - iso_temp) < 0.3) & ~land & ~coast_buf
+                if np.any(iso_mask):
+                    band_layers[f"isotherm_{iso_temp}C"] = _band_score(iso_mask)
+        except Exception:
+            pass
+
+        # CHL edge band (gradient in log-space)
         if chl_grid is not None:
-            chl_for_grad = np.log10(np.clip(chl_grid, 0.01, 10))
-            chl_for_grad[np.isnan(chl_for_grad) | land] = np.nanmean(chl_for_grad[~land])
-            chl_smooth = gaussian_filter(chl_for_grad, sigma=1.5)
-            cgx = sobel(chl_smooth, axis=1)
-            cgy = sobel(chl_smooth, axis=0)
-            chl_grad = np.sqrt(cgx**2 + cgy**2)
-            chl_grad[coast_buf] = 0
-            cg90 = np.nanpercentile(chl_grad[~coast_buf & ~land], 90)
-            if cg90 > 0:
-                gradient_fields["chl"] = np.clip(chl_grad / cg90, 0, 1)
+            try:
+                chl_for_grad = np.log10(np.clip(chl_grid, 0.01, 10))
+                chl_for_grad[np.isnan(chl_for_grad) | land] = np.nanmean(chl_for_grad[~land])
+                chl_smooth = gaussian_filter(chl_for_grad, sigma=1.5)
+                cgx = sobel(chl_smooth, axis=1)
+                cgy = sobel(chl_smooth, axis=0)
+                chl_grad = np.sqrt(cgx**2 + cgy**2)
+                chl_grad[coast_buf] = 0
+                cg90 = np.nanpercentile(chl_grad[~coast_buf & ~land], 90)
+                if cg90 > 0:
+                    chl_edge_mask = (chl_grad / cg90 > _band_chl_thresh) & ~coast_buf & ~land
+                    band_layers["chl_edge"] = _band_score(chl_edge_mask)
+            except Exception:
+                pass
 
-        # SSH gradient (eddy edges)
+        # Eddy edge bands — boundaries of warm-core and cold-core eddies
+        # Warm eddies push Leeuwin Current water into the canyon; cold eddies
+        # create upwelling edges. Fish aggregate at both types of eddy boundaries.
         if ssh_grid is not None:
-            ssh_for_grad = ssh_grid.copy()
-            ssh_for_grad[np.isnan(ssh_for_grad) | land] = np.nanmean(ssh_grid[~land])
-            ssh_smooth = gaussian_filter(ssh_for_grad, sigma=1.5)
-            sgx = sobel(ssh_smooth, axis=1)
-            sgy = sobel(ssh_smooth, axis=0)
-            ssh_grad = np.sqrt(sgx**2 + sgy**2)
-            ssh_grad[coast_buf] = 0
-            sg90 = np.nanpercentile(ssh_grad[~coast_buf & ~land], 90)
-            if sg90 > 0:
-                gradient_fields["ssh"] = np.clip(ssh_grad / sg90, 0, 1)
+            try:
+                from scipy.ndimage import binary_erosion
+                ssh_for_grad = ssh_grid.copy()
+                ssh_for_grad[np.isnan(ssh_for_grad) | land] = np.nanmean(ssh_grid[~land])
+                ssh_smooth_we = gaussian_filter(ssh_for_grad, sigma=1.0)
 
-        # O2 gradient (hypoxic/adequate boundary edges)
-        if o2_grid is not None:
-            o2_for_grad = o2_grid.copy()
-            o2_for_grad[np.isnan(o2_for_grad) | land] = np.nanmean(o2_grid[~land])
-            o2_smooth = gaussian_filter(o2_for_grad, sigma=1.5)
-            ogx = sobel(o2_smooth, axis=1)
-            ogy = sobel(o2_smooth, axis=0)
-            o2_grad = np.sqrt(ogx**2 + ogy**2)
-            o2_grad[coast_buf] = 0
-            og90 = np.nanpercentile(o2_grad[~coast_buf & ~land], 90)
-            if og90 > 0:
-                gradient_fields["o2"] = np.clip(o2_grad / og90, 0, 1)
+                # Warm eddy edges (SLA > 0.03m)
+                warm_eddy = (ssh_smooth_we > 0.03) & ~land & ~coast_buf
+                if np.any(warm_eddy) and np.any(~warm_eddy & ~land):
+                    warm_edge = warm_eddy & ~binary_erosion(warm_eddy, iterations=1)
+                    if np.any(warm_edge):
+                        band_layers["warm_eddy"] = _band_score(warm_edge)
 
-        # MLD gradient (thermocline boundary)
-        if mld_grid is not None:
-            mld_for_grad = mld_grid.copy()
-            mld_for_grad[np.isnan(mld_for_grad) | land] = np.nanmean(mld_grid[~land])
-            mld_smooth_g = gaussian_filter(mld_for_grad, sigma=1.5)
-            mgx = sobel(mld_smooth_g, axis=1)
-            mgy = sobel(mld_smooth_g, axis=0)
-            mld_grad = np.sqrt(mgx**2 + mgy**2)
-            mld_grad[coast_buf] = 0
-            mg90 = np.nanpercentile(mld_grad[~coast_buf & ~land], 90)
-            if mg90 > 0:
-                gradient_fields["mld"] = np.clip(mld_grad / mg90, 0, 1)
+                # Cold eddy edges (SLA < -0.03m)
+                cold_eddy = (ssh_smooth_we < -0.03) & ~land & ~coast_buf
+                if np.any(cold_eddy) and np.any(~cold_eddy & ~land):
+                    cold_edge = cold_eddy & ~binary_erosion(cold_eddy, iterations=1)
+                    if np.any(cold_edge):
+                        band_layers["cold_eddy"] = _band_score(cold_edge)
+            except Exception:
+                pass
 
-        # SSTA gradient (anomaly boundary edges)
-        if "ssta" in sub_scores:
-            ssta_for_grad = sub_scores["ssta"].copy()
-            ssta_for_grad[np.isnan(ssta_for_grad) | land] = np.nanmean(ssta_for_grad[~land])
-            ssta_smooth_g = gaussian_filter(ssta_for_grad, sigma=1.5)
-            agx = sobel(ssta_smooth_g, axis=1)
-            agy = sobel(ssta_smooth_g, axis=0)
-            ssta_grad = np.sqrt(agx**2 + agy**2)
-            ssta_grad[coast_buf] = 0
-            ag90 = np.nanpercentile(ssta_grad[~coast_buf & ~land], 90)
-            if ag90 > 0:
-                gradient_fields["ssta"] = np.clip(ssta_grad / ag90, 0, 1)
+        # Bathymetry contour bands (100m, 200m, 500m, 1000m)
+        # Use depth data already interpolated to master grid to save memory
+        if tif_path and 'bathy' in dir():
+            try:
+                depth_master = _interp_to_grid(
+                    np.where(np.isnan(bathy), 0, -bathy), b_lons, b_lats
+                )
+                for depth_m in [100, 200, 500, 1000]:
+                    tol = max(20, depth_m * 0.05)
+                    contour_mask = (np.abs(depth_master - depth_m) < tol) & ~land
+                    if np.any(contour_mask):
+                        band_layers[f"bathy_{depth_m}m"] = _band_score(contour_mask)
+            except Exception as e:
+                print(f"[Hotspots] Bathy contour banding failed: {e}")
 
-        if len(gradient_fields) >= 2:
-            _boundary_thresh = getattr(sys.modules[__name__], '_opt_boundary_threshold', 0.25)
-            _boundary_blend = getattr(sys.modules[__name__], '_opt_boundary_blend', 0.76)
+        # Band overlap — purely multiplicative (no additive sub-score to avoid double-counting)
+        # Bands only boost cells that already score well from oceanographic fundamentals.
+        if band_layers:
+            band_stack = np.array(list(band_layers.values()))
+            band_sum = np.sum(band_stack, axis=0)
+            band_count = np.sum(band_stack > 0, axis=0).astype(float)
+            mean_band = np.where(band_count > 0, band_sum / np.maximum(band_count, 1), 0)
 
-            # Count how many feature types have a boundary at each cell
-            boundary_count = sum(
-                (g > _boundary_thresh).astype(float) for g in gradient_fields.values()
-            )
-            count_score = boundary_count / len(gradient_fields)
+            # Store for multiplicative boost applied post-normalization
+            _feature_band_count = band_count
+            _feature_band_mean = mean_band
 
-            # Mean gradient intensity across all available fields
-            mean_grad = np.mean(list(gradient_fields.values()), axis=0)
-
-            # Blend: count (multi-boundary convergence) + intensity (gradient strength)
-            boundary_score = _boundary_blend * count_score + (1.0 - _boundary_blend) * mean_grad
-
-            # Only in warm water (fronts in cold water are irrelevant to marlin)
-            boundary_score *= sst_score
-            boundary_score[land] = np.nan
-            _add_score("boundary", boundary_score)
-
-            n_fields = len(gradient_fields)
-            multi = np.sum(boundary_count[~land] >= 2) / np.sum(~land) * 100
-            print(f"[Hotspots] Boundary convergence: {n_fields} fields, {multi:.0f}% cells have 2+ edges")
+            n_bands = len(band_layers)
+            multi2 = np.sum(band_count[~land] >= 2) / max(np.sum(~land), 1) * 100
+            multi3 = np.sum(band_count[~land] >= 3) / max(np.sum(~land), 1) * 100
+            print(f"[Hotspots] Feature bands: {n_bands} types, {multi2:.0f}% cells in 2+ bands, {multi3:.0f}% in 3+ bands")
+        else:
+            _feature_band_count = np.zeros((ny, nx))
+            _feature_band_mean = np.zeros((ny, nx))
     except Exception as e:
-        print(f"[Hotspots] Boundary convergence failed: {e}")
+        _feature_band_count = np.zeros((ny, nx))
+        _feature_band_mean = np.zeros((ny, nx))
+        print(f"[Hotspots] Feature banding failed: {e}")
 
     # --- Normalize by actual weights used (handles missing data gracefully) ---
     valid = weight_sum > 0
@@ -1460,37 +1486,27 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         dmask = ~np.isnan(depth_mult) & valid
         final[dmask] *= depth_mult[dmask]  # zero out shallow water
     if "shelf_break" in sub_scores:
-        _shelf_boost = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.60)
+        _shelf_boost = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.48)
         shelf_mult = 1.0 + _shelf_boost * sub_scores["shelf_break"]
         smask = ~np.isnan(shelf_mult) & valid
         final[smask] *= shelf_mult[smask]
         final = np.clip(final, 0, 1)  # cap at 1.0
 
-    # Spatial convergence multiplier — boost cells where multiple spatial features fire
-    # Catches cluster at boundaries/convergence/corridors; weighted average dilutes these.
-    # Count how many spatial features exceed threshold, then apply multiplicative boost.
-    _sc_thresh = getattr(sys.modules[__name__], '_opt_spatial_conv_thresh', 0.3)
-    _sc_boost = getattr(sys.modules[__name__], '_opt_spatial_conv_boost', 0.25)
-    spatial_keys = ["boundary", "convergence", "front_corridor", "chl_curvature", "bathy_align"]
-    spatial_count = np.zeros_like(final)
-    spatial_mean = np.zeros_like(final)
-    n_spatial = 0
-    for sk in spatial_keys:
-        if sk in sub_scores:
-            s = sub_scores[sk]
-            smask_s = ~np.isnan(s) & valid
-            spatial_count[smask_s] += (s[smask_s] > _sc_thresh).astype(float)
-            spatial_mean[smask_s] += np.clip(s[smask_s], 0, 1)
-            n_spatial += 1
-    if n_spatial > 0:
-        spatial_mean /= max(n_spatial, 1)
-        # Boost scales with how many features fire (2+ needed) and their mean intensity
-        overlap = np.clip((spatial_count - 1) / 2.0, 0, 1)  # 0 at 1 feature, 0.5 at 2, 1.0 at 3+
-        spatial_mult = 1.0 + _sc_boost * overlap * spatial_mean
-        final[valid] *= spatial_mult[valid]
+    # Feature band overlap boost — multiplicative boost where multiple feature bands intersect
+    # Unlike the old threshold-based approach, this uses smooth distance-decay bands.
+    # More overlapping bands = stronger boost (scales continuously, not capped at 3).
+    if np.any(_feature_band_count > 0):
+        _band_boost_val = getattr(sys.modules[__name__], '_opt_band_boost', 0.34)
+        # Overlap factor scales linearly with band count: 0 at 1, 1 at 2, 2 at 3, 3 at 4, etc.
+        overlap = np.clip(_feature_band_count - 1, 0, None)
+        # Boost = 1 + boost_per_overlap * num_extra_bands * mean_band_intensity
+        band_mult = 1.0 + _band_boost_val * overlap * _feature_band_mean
+        final[valid] *= band_mult[valid]
         final = np.clip(final, 0, 1)
-        sc_pct = np.sum(spatial_count[valid & ~land] >= 2) / max(np.sum(valid & ~land), 1) * 100
-        print(f"[Hotspots] Spatial convergence: {sc_pct:.0f}% of cells have 2+ spatial features")
+        ov2 = np.sum(_feature_band_count[valid & ~land] >= 2) / max(np.sum(valid & ~land), 1) * 100
+        ov3 = np.sum(_feature_band_count[valid & ~land] >= 3) / max(np.sum(valid & ~land), 1) * 100
+        ov4 = np.sum(_feature_band_count[valid & ~land] >= 4) / max(np.sum(valid & ~land), 1) * 100
+        print(f"[Hotspots] Band overlap boost: {ov2:.0f}% 2+ bands, {ov3:.0f}% 3+ bands, {ov4:.0f}% 4+ bands")
 
     # Spatial smoothing — sigma scales with grid resolution
     # Target ~1nm physical smoothing: just enough to connect pixels into contours
@@ -1541,7 +1557,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                     result[name] = {"score": mean_score, "weight": -1}
                 elif name == "shelf_break":
                     # Shelf break is a boost multiplier: show as ×N
-                    _sb = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.60)
+                    _sb = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.48)
                     result[name] = {"score": round(1.0 + _sb * mean_score, 2), "weight": -2}
                 else:
                     result[name] = {"score": mean_score, "weight": w}

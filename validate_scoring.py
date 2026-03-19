@@ -28,6 +28,7 @@ BBOX = {
 }
 
 CSV_PATH = r"C:\Users\User\Downloads\Export.csv"
+ALL_CATCHES_CSV = os.path.join("data", "all_catches.csv")
 BASE_DIR = "data"
 
 
@@ -40,20 +41,60 @@ def ddm_to_dd(raw_str, negative=False):
     return -dd if negative else dd
 
 
+def _parse_date(date_str):
+    """Convert DD/MM/YYYY or YYYY-MM-DD to YYYY-MM-DD."""
+    if "/" in date_str:
+        parts = date_str.strip().split("/")
+        return f"{parts[2]}-{parts[1].zfill(2)}-{parts[0].zfill(2)}"
+    return date_str[:10]
+
+
 def load_catches():
     catches = []
+    seen = set()
+
+    # GFAA Export.csv (DDM format coordinates)
     with open(CSV_PATH, encoding="utf-8") as f:
         for r in csv.DictReader(f):
             lat = ddm_to_dd(r["Latitude"].strip().replace("S", ""), negative=True)
             lon = ddm_to_dd(r["Longitude"].strip().replace("E", ""), negative=False)
             wt = float(r["Weight"]) if r["Weight"] else None
             ln = float(r["Length"]) if r["Length"] and r["Length"] != "0" else None
-            catches.append({
-                "date": r["Release_Date"][:10], "lat": lat, "lon": lon,
-                "species": r["Species_Name"], "weight": wt, "length": ln,
-                "tag": r["Tag_Number"],
-            })
-    return catches
+            date = r["Release_Date"][:10]
+            key = (date, round(lat, 4), round(lon, 4))
+            if key not in seen:
+                seen.add(key)
+                catches.append({
+                    "date": date, "lat": lat, "lon": lon,
+                    "species": r["Species_Name"], "weight": wt, "length": ln,
+                    "tag": r["Tag_Number"],
+                })
+
+    # all_catches.csv (decimal degrees, only rows with GPS coords)
+    if os.path.exists(ALL_CATCHES_CSV):
+        with open(ALL_CATCHES_CSV, encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                lat_str = r.get("lat", "").strip()
+                lon_str = r.get("lon", "").strip()
+                if not lat_str or not lon_str:
+                    continue
+                try:
+                    lat = float(lat_str)
+                    lon = float(lon_str)
+                except ValueError:
+                    continue
+                date = _parse_date(r["date"])
+                key = (date, round(lat, 4), round(lon, 4))
+                if key not in seen:
+                    seen.add(key)
+                    catches.append({
+                        "date": date, "lat": lat, "lon": lon,
+                        "species": r.get("species", ""),
+                        "weight": None, "length": None,
+                        "tag": r.get("tag", ""),
+                    })
+
+    return [c for c in catches if c["species"].strip().upper() == "BLUE MARLIN"]
 
 
 def _subset(out_path, dataset_id, variables, date_str, depth_range=None):
