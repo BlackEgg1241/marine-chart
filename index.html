@@ -636,7 +636,10 @@ function initMap(){
 
 function loadDatedGeoJSON(){
   var gj={'sst-fronts':'sst_fronts.geojson','chl-edges':'chl_edges.geojson','currents':'currents.geojson','water-clarity':'water_clarity.geojson','ssh-eddies':'ssh_eddies.geojson','mld':'mld_contours.geojson','oxygen':'oxygen_contours.geojson','ssta':'ssta_contours.geojson','blue-hotspots':'blue_marlin_hotspots.geojson'};
+  var empty={type:'FeatureCollection',features:[]};
   var cb='?t='+Date.now();
+  // Clear old data immediately so stale overlays don't show with new markers
+  Object.keys(gj).forEach(function(src){if(map.getSource(src))map.getSource(src).setData(empty)});
   Object.keys(gj).forEach(function(src){
     if(!map.getSource(src))return;
     var dated='data/'+cDate+'/'+gj[src]+cb;
