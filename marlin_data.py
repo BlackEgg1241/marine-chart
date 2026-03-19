@@ -1465,6 +1465,12 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                     if np.any(cold_edge):
                         band_layers["cold_eddy"] = _band_score(cold_edge)
 
+                # Neutral zone band — SLA ≈ 0.03m isoline (the drawn contour line)
+                # Transition boundary between cold/neutral and warm eddy water
+                neutral_contour = (np.abs(ssh_smooth_we - 0.03) < 0.01) & ~land & ~coast_buf
+                if np.any(neutral_contour):
+                    band_layers["ssh_neutral"] = _band_score(neutral_contour, weight=0.5)
+
             except Exception:
                 pass
 
