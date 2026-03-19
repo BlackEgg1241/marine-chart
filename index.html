@@ -142,6 +142,9 @@
 .info-content{padding:6px 12px 8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#e2e8f0}
 .info-tip{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid rgba(2,6,23,.92)}
 .info-dot{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:#fb923c;box-shadow:0 0 6px rgba(251,146,60,.5)}
+/* Hover tooltip */
+.hover-panel{position:absolute;z-index:14;display:none;background:rgba(2,6,23,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:6px;padding:0;border:1px solid rgba(255,255,255,.08);box-shadow:0 2px 12px rgba(0,0,0,.4);max-width:240px;pointer-events:none;transform:translate(-50%,-100%);margin-top:-12px}
+.hover-panel.active{display:block}
 /* Context menu */
 .ctx-menu{position:absolute;z-index:20;display:none;background:rgba(2,6,23,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:8px;border:1px solid rgba(255,255,255,.12);box-shadow:0 4px 20px rgba(0,0,0,.6);overflow:hidden;min-width:160px}
 .ctx-menu.active{display:block}
@@ -285,12 +288,16 @@
 <!-- Measurement total -->
 <div class="measure-total" id="measureTotal"></div>
 
-<!-- Draggable info panel -->
+<!-- Draggable info panel (click/pinned) -->
 <div class="info-panel" id="infoPanel">
   <div class="info-handle" id="infoHandle"><span>⠿⠿⠿</span><button class="info-close" onclick="closeInfo()">✕</button></div>
   <div class="info-content" id="infoContent"></div>
   <div class="info-tip"></div>
   <div class="info-dot"></div>
+</div>
+<!-- Hover tooltip (follows mouse) -->
+<div class="hover-panel" id="hoverPanel">
+  <div class="info-content" id="hoverContent"></div>
 </div>
 
 <!-- Bottom controls -->
@@ -530,8 +537,10 @@ function initMap(){
   map.on('click','spot-dot',function(e){var f=e.features[0];var c=f.geometry.coordinates;new maplibregl.Popup({offset:12}).setLngLat(c).setHTML('<div style="font-weight:700;color:#fb923c;margin-bottom:3px">'+f.properties.name+'</div><div style="font-size:10px;color:#94a3b8;line-height:1.4">'+f.properties.desc+'</div><div style="font-size:9px;color:#64748b;margin-top:4px">'+fc(c[1],c[0])+'</div>').addTo(map)});
   map.on('mouseenter','spot-dot',function(){map.getCanvas().style.cursor='pointer'});
   map.on('mouseleave','spot-dot',function(){map.getCanvas().style.cursor=''});
-  // Info panel - draggable, replaces hover popup
+  // Pinned info panel - draggable, stays on click
   var infoEl=document.getElementById('infoPanel'),infoCt=document.getElementById('infoContent');
+  // Hover tooltip - follows mouse
+  var hoverEl=document.getElementById('hoverPanel'),hoverCt=document.getElementById('hoverContent');
   infoPinned=false;var iDrag=false,iDX=0,iDY=0;
   infoEl.addEventListener('pointerdown',function(e){if(e.target.classList.contains('info-close'))return;iDrag=true;iDX=e.clientX-infoEl.offsetLeft;iDY=e.clientY-infoEl.offsetTop;infoEl.setPointerCapture(e.pointerId);e.stopPropagation()});
   document.addEventListener('pointermove',function(e){if(!iDrag)return;var x=e.clientX-iDX,y=e.clientY-iDY;infoEl.style.left=x+'px';infoEl.style.top=y+'px';var qx=x,qy=y+10;var lids=Object.keys(hInfo).filter(function(l){return map.getLayer(l)});var fs=map.queryRenderedFeatures([qx,qy],{layers:lids});if(fs.length){var f=fs[0],lid=f.layer.id;var vk=hVis[lid];if((!vk||LS[vk])&&hInfo[lid])infoCt.innerHTML=hInfo[lid](f.properties)}});
@@ -570,11 +579,14 @@ function initMap(){
       if(!e.features||!e.features.length)return;
       var vk=hVis[lid];if(vk&&!LS[vk])return;
       map.getCanvas().style.cursor='crosshair';
-      if(infoPinned){infoCt.innerHTML=hInfo[lid](e.features[0].properties)}else{infoCt.innerHTML=hInfo[lid](e.features[0].properties);infoEl.style.left=e.point.x+'px';infoEl.style.top=(e.point.y-10)+'px';infoEl.classList.add('active')}
+      // Always update hover tooltip and follow mouse
+      hoverCt.innerHTML=hInfo[lid](e.features[0].properties);
+      hoverEl.style.left=e.point.x+'px';hoverEl.style.top=(e.point.y-12)+'px';
+      hoverEl.classList.add('active');
     });
-    map.on('mouseleave',lid,function(){map.getCanvas().style.cursor='';if(!infoPinned)infoEl.classList.remove('active')});
+    map.on('mouseleave',lid,function(){map.getCanvas().style.cursor='';hoverEl.classList.remove('active')});
   });
-  // Click/tap to show info panel at any point
+  // Click/tap to pin info panel at any point
   map.on('click',function(e){
     if(mActive)return; // don't interfere with measurement
     // Don't move info panel if user tapped a mark or catch dot
