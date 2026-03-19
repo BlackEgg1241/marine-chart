@@ -1379,24 +1379,27 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         # Upsample factor: ensure bands span at least 3 cells for smooth shapes
         _upsample = max(1, int(np.ceil(3.0 / max(band_width_cells, 0.1))))
 
-        def _band_score(binary_mask, weight=1.0):
+        def _band_score(binary_mask, weight=1.0, width_nm=None):
             """Compute distance-decay band score from a binary feature mask.
             Upsamples internally if the grid is too coarse for the band width.
-            weight: scale factor for this band type (e.g. 1.5 for 200-500m bathy)."""
+            weight: scale factor for this band type (e.g. 1.5 for 200-500m bathy).
+            width_nm: override band width in nautical miles (default: global _band_width_nm)."""
             if not np.any(binary_mask):
                 return np.zeros((ny, nx))
+
+            bwc = (width_nm * 0.0167 / _grid_step_b) if width_nm else band_width_cells
 
             if _upsample > 1:
                 from scipy.ndimage import zoom
                 fine_mask = zoom(binary_mask.astype(float), _upsample, order=0) > 0.5
-                fine_bwc = band_width_cells * _upsample
+                fine_bwc = bwc * _upsample
                 fine_dist = distance_transform_edt(~fine_mask, sampling=_edt_sampling)
                 fine_norm = np.clip(fine_dist / fine_bwc, 0, 1)
                 fine_band = np.clip(1.0 - fine_norm ** _band_decay, 0, 1)
                 band = zoom(fine_band, 1.0 / _upsample, order=1)[:ny, :nx]
             else:
                 dist = distance_transform_edt(~binary_mask, sampling=_edt_sampling)
-                normalised = np.clip(dist / band_width_cells, 0, 1)
+                normalised = np.clip(dist / bwc, 0, 1)
                 band = np.clip(1.0 - normalised ** _band_decay, 0, 1)
 
             band[land] = 0
@@ -1532,7 +1535,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                 if 0 <= ri < ny and 0 <= ci < nx:
                     fad_mask[ri, ci] = True
             if np.any(fad_mask):
-                band_layers["fad"] = _band_score(fad_mask, weight=0.4)
+                band_layers["fad"] = _band_score(fad_mask, weight=0.4, width_nm=1.0)
         except Exception:
             pass
 
