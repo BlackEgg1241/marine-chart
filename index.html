@@ -582,6 +582,11 @@ function initMap(){
   };
   // Map layer IDs to their LS toggle key so hovers respect visibility
   var hVis={'hs-blue':'blue_marlin','isotherm-blue-prime':'blue_marlin','isotherm-blue-good':'blue_marlin','sst-front-glow':'sst_fronts','sst-front-line':'sst_fronts','chl-edge-line':'chl_edges','current-line':'currents','bathy-100':'bathymetry','bathy-200':'bathymetry','bathy-500':'bathymetry','bathy-1000':'bathymetry','clarity-clean':'clarity','clarity-turbid':'clarity','clarity-bloom':'clarity','ssh-cold':'ssh','ssh-neutral':'ssh','ssh-warm':'ssh','ssh-warm-core':'ssh','mld-shallow':'mld','mld-moderate':'mld','mld-deep':'mld','o2-hypoxic':'oxygen','o2-low':'oxygen','o2-adequate':'oxygen'};
+  // Hide hover panel when mouse leaves the map canvas (over UI panels/buttons)
+  document.addEventListener('mousemove',function(e){
+    var cv=map.getCanvas();
+    if(e.target!==cv&&!cv.contains(e.target)){hoverEl.classList.remove('active')}
+  });
   // Global mousemove — always show hover with coordinates, plus feature info if over a layer
   var _hoverOnFeature=false;
   Object.keys(hInfo).forEach(function(lid){
