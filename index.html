@@ -245,7 +245,7 @@
   <div class="ml-tab" id="legendTab" onclick="toggleLegend()">◀</div>
   <button class="ml-close" onclick="toggleLegend()">✕</button>
   <h3>🐟 Marlin Zones</h3>
-  <div class="ml-row"><div class="ml-swatch" style="height:12px;width:100%;background:linear-gradient(to right,#dbeafe,#93c5fd,#60a5fa,#3b82f6,#22d3ee,#34d399,#facc15,#fb923c,#ef4444,#dc2626);border-radius:3px"></div></div>
+  <div class="ml-row"><div class="ml-swatch" style="height:12px;width:100%;background:linear-gradient(to right,#e0f2fe,#7dd3fc,#38bdf8,#0ea5e9,#0369a1,#1e3a5f,#0f172a);border-radius:3px"></div></div>
   <div class="ml-row" style="justify-content:space-between;gap:0"><div class="ml-text" style="font-size:7px;color:#94a3b8">20%</div><div class="ml-text" style="font-size:8px;color:#fbbf24;font-weight:600">Habitat Score</div><div class="ml-text" style="font-size:7px;color:#94a3b8">100%</div></div>
   <div class="ml-row" style="justify-content:space-between;gap:0;margin-top:2px"><div class="ml-text" style="font-size:7px;color:#fb923c">88%+ prime</div><div class="ml-text" style="font-size:7px;color:#dc2626">96%+ peak</div></div>
   <div class="ml-divider"></div>
@@ -477,7 +477,7 @@ function initMap(){
     {id:'g-sst-layer',type:'raster',source:'g-sst',layout:{visibility:'visible'},paint:{'raster-opacity':.6}},
     {id:'g-chl-layer',type:'raster',source:'g-chl',layout:{visibility:'none'},paint:{'raster-opacity':.7}},
     {id:'g-ssh-layer',type:'raster',source:'g-ssh',layout:{visibility:'none'},paint:{'raster-opacity':.7}},
-    {id:'hs-blue',type:'fill',source:'blue-hotspots',paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.10,'#dbeafe',0.35,'#93c5fd',0.45,'#60a5fa',0.55,'#3b82f6',0.65,'#22d3ee',0.73,'#34d399',0.80,'#facc15',0.86,'#fb923c',0.92,'#ef4444',0.96,'#dc2626'],'fill-opacity':0,'fill-antialias':false}},
+    {id:'hs-blue',type:'fill',source:'blue-hotspots',paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.10,'#e0f2fe',0.35,'#7dd3fc',0.50,'#38bdf8',0.65,'#0ea5e9',0.78,'#0369a1',0.88,'#1e3a5f',0.96,'#0f172a'],'fill-opacity':0,'fill-antialias':false}},
 {id:'spot-glow',type:'circle',source:'spots',layout:{visibility:'visible'},paint:{'circle-radius':16,'circle-color':'#f43f5e','circle-opacity':.15,'circle-blur':.8}},
     {id:'spot-dot',type:'circle',source:'spots',layout:{visibility:'visible'},paint:{'circle-radius':6,'circle-color':'#f43f5e','circle-stroke-width':2,'circle-stroke-color':'#fff','circle-opacity':.9}},
     {id:'spot-label',type:'symbol',source:'spots',layout:{visibility:'visible','text-field':['get','name'],'text-size':10,'text-offset':[0,1.5],'text-anchor':'top','text-font':['Open Sans Regular']},paint:{'text-color':'#fbbf24','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5}},
@@ -696,7 +696,7 @@ function setBasemap(n){
   map.addSource('g-ssh',{type:'raster',tiles:[guSLA(cDate)],tileSize:256,maxzoom:8});
   map.addLayer({id:'g-ssh-layer',type:'raster',source:'g-ssh',layout:{visibility:LS.ssh_visual?'visible':'none'},paint:{'raster-opacity':.7}},bf);
   var bmo2=LS.blue_marlin;
-  map.addLayer({id:'hs-blue',type:'fill',source:'blue-hotspots',paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.10,'#dbeafe',0.35,'#93c5fd',0.45,'#60a5fa',0.55,'#3b82f6',0.65,'#22d3ee',0.73,'#34d399',0.80,'#facc15',0.86,'#fb923c',0.92,'#ef4444',0.96,'#dc2626'],'fill-opacity':bmo2?.45:0,'fill-antialias':false}},bf);
+  map.addLayer({id:'hs-blue',type:'fill',source:'blue-hotspots',paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.10,'#e0f2fe',0.35,'#7dd3fc',0.50,'#38bdf8',0.65,'#0ea5e9',0.78,'#0369a1',0.88,'#1e3a5f',0.96,'#0f172a'],'fill-opacity':bmo2?.45:0,'fill-antialias':false}},bf);
   var mv=LS.seamark?'visible':'none';
   map.addLayer({id:'spot-glow',type:'circle',source:'spots',layout:{visibility:mv},paint:{'circle-radius':16,'circle-color':'#f43f5e','circle-opacity':.15,'circle-blur':.8}},bf);
   map.addLayer({id:'spot-dot',type:'circle',source:'spots',layout:{visibility:mv},paint:{'circle-radius':6,'circle-color':'#f43f5e','circle-stroke-width':2,'circle-stroke-color':'#fff','circle-opacity':.9}},bf);
