@@ -855,8 +855,8 @@ function showCatch(idx){
   info+='<div><span class="label">Position</span> <span class="val">'+p.lat+' '+p.lon+'</span></div>';
   if(p.length)info+='<div><span class="label">Length</span> <span class="val">'+p.length+' cm</span></div>';
   if(p.weight)info+='<div><span class="label">Weight</span> <span class="val">'+p.weight+' kg</span></div>';
-  // Placeholder for habitat score — filled after GeoJSON loads
-  info+='<div id="catchHabitat"></div>';
+  // Placeholder for habitat score — fixed height to prevent panel jumping
+  info+='<div id="catchHabitat" style="min-height:18px"><span class="label">Habitat</span> <span class="val" style="color:#64748b">loading...</span></div>';
   document.getElementById('catchInfo').innerHTML=info;
   document.getElementById('catchCounter').textContent=(idx+1)+' / '+catchData.length;
 
