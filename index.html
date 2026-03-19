@@ -314,7 +314,7 @@
       </div>
       <!-- Row 2: Satellite raster overlays -->
       <div class="layer-row">
-        <button class="layer-btn on-red" id="btnSST" onclick="toggleLayer('sst')"><span class="icon">🌡️</span> SST</button>
+        <button class="layer-btn" id="btnSST" onclick="toggleLayer('sst')"><span class="icon">🌡️</span> SST</button>
         <button class="layer-btn" id="btnChloro" onclick="toggleLayer('chlorophyll')"><span class="icon">🧬</span> Chlorophyll</button>
         <button class="layer-btn" id="btnSSHMap" onclick="toggleLayer('ssh_visual')"><span class="icon">🌊</span> Height Map</button>
         <button class="layer-btn on-red" id="btnSSTFronts" onclick="toggleLayer('sst_fronts')"><span class="icon">🔥</span> SST Fronts</button>
@@ -324,7 +324,7 @@
         <button class="layer-btn on" id="btnClarity" onclick="toggleLayer('clarity')"><span class="icon">🔵</span> Clarity</button>
         <button class="layer-btn on-orange" id="btnSSH" onclick="toggleLayer('ssh')"><span class="icon">🌀</span> Eddies</button>
         <button class="layer-btn on" id="btnMLD" onclick="toggleLayer('mld')"><span class="icon">🫧</span> MLD</button>
-        <button class="layer-btn" id="btnSSTA" onclick="toggleLayer('ssta')"><span class="icon">📊</span> SSTA</button>
+        <button class="layer-btn on-red" id="btnSSTA" onclick="toggleLayer('ssta')"><span class="icon">📊</span> SSTA</button>
         <button class="layer-btn on" id="btnO2" onclick="toggleLayer('oxygen')"><span class="icon">💨</span> O₂</button>
       </div>
     </div>
@@ -448,7 +448,7 @@ var SPOTS=[
 ];
 
 var map,cBM='ocean',gpsWId=null,gM='off',cPos=null,fGPS=false,trk=[];
-var LS={seamark:true,blue_marlin:false,chlorophyll:false,sst:true,ssh_visual:false,sst_fronts:true,chl_edges:true,currents:true,bathymetry:true,clarity:true,ssh:true,mld:true,oxygen:true,ssta:false};
+var LS={seamark:true,blue_marlin:false,chlorophyll:false,sst:false,ssh_visual:false,sst_fronts:true,chl_edges:true,currents:true,bathymetry:true,clarity:true,ssh:true,mld:true,oxygen:true,ssta:true};
 // Opacity-based toggling for GeoJSON layers — tiles stay loaded, no cache purge on toggle
 var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.5],'isotherm-label':['text-opacity',1],'mld-very-shallow':['line-opacity',.9],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.8],'mld-deep':['line-opacity',.7],'ssta-cold':['line-opacity',.8],'ssta-warm':['line-opacity',.9],'o2-hypoxic':['line-opacity',.9],'o2-low':['line-opacity',.8],'o2-adequate':['line-opacity',.7],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.95],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'bathy-shade':['raster-opacity',.45],'bathy-glow':['line-opacity',.12],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-label':['text-opacity',1],'hs-blue':['fill-opacity',.45]};
 function sGL(id,on){if(!map.getLayer(id))return;var e=gLO[id];e?map.setPaintProperty(id,e[0],on?e[1]:0):map.setLayoutProperty(id,'visibility',on?'visible':'none')}
