@@ -697,7 +697,10 @@ BLUE_MARLIN_WEIGHTS = {
 # Visual band breaks concentrated in the upper range where most ocean cells
 # cluster during marlin season.  Finer spacing above 0.80 provides spatial
 # contrast between feature-adjacent and background cells.
-HOTSPOT_BANDS = [0.20, 0.40, 0.55, 0.65, 0.73, 0.80, 0.86, 0.91, 0.95, 0.98]
+# Visual band breaks — floor at 0.65 so background ocean stays transparent
+# and only elevated zones (feature intersections, shelf break) render.
+# Finer spacing in 0.80–0.98 for contrast within hot zones.
+HOTSPOT_BANDS = [0.65, 0.73, 0.78, 0.82, 0.86, 0.90, 0.93, 0.96, 0.98]
 
 
 def compute_ssta(sst_grid, lats, lons, date_str, clim_path="data/sst_climatology.nc"):
@@ -1463,7 +1466,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         # Bathymetry contour bands — weighted by fishing relevance.
         # Most blue marlin catches are at 110-500m depth, so the 200m and 500m
         # contours get the strongest band weight. 100m is secondary, 1000m minor.
-        _bathy_band_weights = {100: 0.6, 200: 1.2, 500: 1.2, 1000: 0.4}
+        _bathy_band_weights = {100: 0.3, 200: 0.5, 500: 0.5, 1000: 0.2}
         if tif_path and 'bathy' in dir():
             try:
                 depth_master = _interp_to_grid(
@@ -1483,8 +1486,11 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         if band_layers:
             band_stack = np.array(list(band_layers.values()))
             band_sum = np.sum(band_stack, axis=0)
-            band_count = np.sum(band_stack > 0, axis=0).astype(float)
-            mean_band = np.where(band_count > 0, band_sum / np.maximum(band_count, 1), 0)
+            # Only count cells with substantial band presence (>0.3 intensity)
+            # to avoid the smooth band edges inflating overlap counts everywhere
+            band_count = np.sum(band_stack > 0.3, axis=0).astype(float)
+            counted_sum = np.sum(np.where(band_stack > 0.3, band_stack, 0), axis=0)
+            mean_band = np.where(band_count > 0, counted_sum / np.maximum(band_count, 1), 0)
 
             # Store for multiplicative boost applied post-normalization
             _feature_band_count = band_count
@@ -1517,7 +1523,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         dmask = ~np.isnan(depth_mult) & valid
         final[dmask] *= depth_mult[dmask]  # zero out shallow water
     if "shelf_break" in sub_scores:
-        _shelf_boost = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.48)
+        _shelf_boost = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.20)
         shelf_mult = 1.0 + _shelf_boost * sub_scores["shelf_break"]
         smask = ~np.isnan(shelf_mult) & valid
         final[smask] *= shelf_mult[smask]
@@ -1527,8 +1533,8 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     # Two-tier: single_boost per band (being near ANY feature matters),
     # plus overlap_boost for each additional overlapping band (convergence zones).
     if np.any(_feature_band_count > 0):
-        _band_single = getattr(sys.modules[__name__], '_opt_band_single', 0.15)
-        _band_overlap = getattr(sys.modules[__name__], '_opt_band_overlap', 0.20)
+        _band_single = getattr(sys.modules[__name__], '_opt_band_single', 0.0)
+        _band_overlap = getattr(sys.modules[__name__], '_opt_band_overlap', 0.25)
         # Single: every band contributes; Overlap: extra reward for 2+ bands
         extra = np.clip(_feature_band_count - 1, 0, None)
         band_mult = (1.0
@@ -1590,7 +1596,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                     result[name] = {"score": mean_score, "weight": -1}
                 elif name == "shelf_break":
                     # Shelf break is a boost multiplier: show as ×N
-                    _sb = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.48)
+                    _sb = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.20)
                     result[name] = {"score": round(1.0 + _sb * mean_score, 2), "weight": -2}
                 else:
                     result[name] = {"score": mean_score, "weight": w}
