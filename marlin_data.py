@@ -1483,9 +1483,10 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                 pass
 
         # Bathymetry contour bands — weighted by fishing relevance.
-        # Most blue marlin catches are at 110-500m depth, so the 200m and 500m
-        # contours get the strongest band weight. 100m is secondary, 1000m minor.
-        _bathy_band_weights = {100: 0.3, 200: 0.5, 500: 0.5, 1000: 0.2}
+        # Catch depth analysis: most blues caught at 150-180m, between 100m and
+        # 200m contours. Added 150m contour with highest weight since that's
+        # where catches actually cluster. Widened tolerances to 15% of depth.
+        _bathy_band_weights = {100: 0.3, 150: 0.6, 200: 0.5, 500: 0.4, 1000: 0.2}
         if tif_path and 'bathy' in dir():
             try:
                 depth_master = _interp_to_grid(
@@ -1493,7 +1494,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                 )
                 _depth_grid = depth_master  # make available for hover info
                 for depth_m, bw in _bathy_band_weights.items():
-                    tol = max(20, depth_m * 0.05)
+                    tol = max(25, depth_m * 0.15)
                     contour_mask = (np.abs(depth_master - depth_m) < tol) & ~land
                     if np.any(contour_mask):
                         bathy_band = _band_score(contour_mask, weight=bw)
