@@ -1741,7 +1741,13 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                 coords.append(coords[0])
 
             # Sample actual composite score and sub-scores for this polygon
-            actual_intensity, breakdown = _sample_scores(coords)
+            sampled_intensity, breakdown = _sample_scores(coords)
+
+            # Use the higher of sampled mean or contour band floor.
+            # The bbox-based sample can dilute scores for large/irregular
+            # polygons; the band floor is guaranteed by contourf.
+            band_floor = round(levels[band_idx], 2)
+            actual_intensity = max(sampled_intensity, band_floor)
 
             props = {
                 "species": "blue",
