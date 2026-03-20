@@ -1407,9 +1407,14 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
 
         band_layers = {}  # name -> band_score array
 
-        # SST front band (gradient exceeds threshold)
-        if g90 > 0:
-            sst_front_mask = (grad_mag / g90 > _band_front_thresh) & ~coast_buf & ~land
+        # SST front band — fires wherever the visible front line is drawn (absolute
+        # threshold) OR where the gradient is strong relative to the day (relative
+        # threshold), whichever catches more.  This ensures the band always aligns
+        # with the map lines while still rewarding moderate fronts on calm days.
+        abs_mask = (grad_mag > SST_GRADIENT_THRESHOLD) & ~coast_buf & ~land
+        rel_mask = (grad_mag / g90 > _band_front_thresh) & ~coast_buf & ~land if g90 > 0 else abs_mask
+        sst_front_mask = abs_mask | rel_mask
+        if np.any(sst_front_mask):
             band_layers["sst_front"] = _band_score(sst_front_mask)
 
         # Isotherm bands — blue marlin prime temperature boundaries (22°C and 24°C)
