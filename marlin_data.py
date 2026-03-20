@@ -1421,11 +1421,6 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                 iso_mask = (np.abs(iso_smooth - iso_temp) < 0.3) & ~land & ~coast_buf
                 if np.any(iso_mask):
                     band_layers[f"isotherm_{iso_temp}C"] = _band_score(iso_mask)
-            # Prime temperature band — 67% of catches are within 0.5°C of 22.5°C
-            # Fish cluster in the center of optimal range, not just at boundaries
-            prime_mask = (np.abs(iso_smooth - 22.5) < 0.5) & ~land & ~coast_buf
-            if np.any(prime_mask):
-                band_layers["prime_temp"] = _band_score(prime_mask)
         except Exception:
             pass
 
