@@ -1471,6 +1471,27 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             except Exception:
                 pass
 
+        # 0.15 mg/m3 CHL contour — the catch clustering boundary.
+        # 50% of blue marlin catches at 0.10-0.15 mg/m3 (median 0.142).
+        # This marks the oligotrophic/mesotrophic shelf-edge transition
+        # where bait concentrates. Only 4-10% coverage — genuinely selective.
+        if chl_grid is not None:
+            try:
+                chl_for_contour = gaussian_filter(
+                    np.where(np.isnan(chl_grid) | land, 0, chl_grid), sigma=0.8)
+                cross_h = (chl_for_contour[:, :-1] - 0.15) * (chl_for_contour[:, 1:] - 0.15) <= 0
+                cross_v = (chl_for_contour[:-1, :] - 0.15) * (chl_for_contour[1:, :] - 0.15) <= 0
+                chl_cross = np.zeros((ny, nx), dtype=bool)
+                chl_cross[:, :-1] |= cross_h
+                chl_cross[:, 1:] |= cross_h
+                chl_cross[:-1, :] |= cross_v
+                chl_cross[1:, :] |= cross_v
+                chl_cross &= ~land & ~coast_buf
+                if np.any(chl_cross):
+                    band_layers["chl_015"] = _band_score(chl_cross)
+            except Exception:
+                pass
+
         # MLD edge band — REMOVED.  At 0.083 deg resolution the MLD field is
         # already smooth (model output, not observed), so contours represent
         # broad transitions rather than sharp thermocline edges.  The band
@@ -1586,18 +1607,21 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             _feature_band_count = band_count
             _feature_band_mean = mean_band
 
-            # Floor boost for SST front lines — uses broader mask (absolute OR
-            # relative gradient) for the floor so visible front lines always
-            # create hotspot zones.  The band scoring uses absolute-only for
-            # selectivity, but the floor just ensures visibility.
+            # Floor boost for key feature lines — cells on these lines get
+            # lifted to at least 0.62 so they always create visible zones.
+            # SST front: broader mask (abs OR rel gradient) for floor only.
+            # CHL 0.15: the catch-clustering boundary (4-10% coverage).
             _key_feature_floor = 0.62
             key_floor = np.zeros((ny, nx))
-            # Build broader front mask for floor (includes relative threshold)
+            # SST front floor (broad mask)
             _rel_floor_mask = (grad_mag / g90 > _band_front_thresh) & ~coast_buf & ~land if g90 > 0 else sst_front_mask
             broad_front_mask = sst_front_mask | _rel_floor_mask
             if np.any(broad_front_mask):
                 broad_front_band = _band_score(broad_front_mask)
-                key_floor = np.where(broad_front_band > 0.5, _key_feature_floor, 0)
+                key_floor = np.maximum(key_floor, np.where(broad_front_band > 0.5, _key_feature_floor, 0))
+            # CHL 0.15 contour floor
+            if "chl_015" in band_layers:
+                key_floor = np.maximum(key_floor, np.where(band_layers["chl_015"] > 0.5, _key_feature_floor, 0))
             _feature_key_floor = key_floor
 
             n_bands = len(band_layers)
