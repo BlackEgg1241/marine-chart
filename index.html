@@ -211,7 +211,7 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.181</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.182</span></div>
   <div class="basemap-sw">
     <div class="bm-btn" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#1e5a8a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🗺️</span></div><div class="bm-label">Ocean</div></div>
     <div class="bm-btn active" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
@@ -274,9 +274,6 @@
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#22d3ee;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">MLD 20m (shallow)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#0ea5e9;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">MLD 30m (moderate)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#6366f1;border-style:dashed"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">MLD 50m (deep)</div></div>
-  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#22c55e;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">O₂ adequate (&gt;200 mmol/m³)</div></div>
-  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#fb923c;border-style:dashed"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">O₂ low (&lt;150 mmol/m³)</div></div>
-  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#ef4444;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">O₂ hypoxic (&lt;100 — avoid)</div></div>
   <div class="ml-divider"></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#dc2626;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">SSTA +2°C (warm anomaly)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#fdba74;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">SSTA +0.5°C (slight warm)</div></div>
@@ -326,7 +323,6 @@
         <button class="layer-btn on-orange" id="btnSSH" onclick="toggleLayer('ssh')"><span class="icon">🌀</span> Eddies</button>
         <button class="layer-btn on" id="btnMLD" onclick="toggleLayer('mld')"><span class="icon">🫧</span> MLD</button>
         <button class="layer-btn on-red" id="btnSSTA" onclick="toggleLayer('ssta')"><span class="icon">📊</span> SSTA</button>
-        <button class="layer-btn" id="btnO2" onclick="toggleLayer('oxygen')"><span class="icon">💨</span> O₂</button>
       </div>
     </div>
   </div>
@@ -401,7 +397,7 @@ var OL_URL='https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Oce
 var SM_URL='https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png';
 var BLK='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 var GW='https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/';
-var GM={'GHRSST_L4_MUR_Sea_Surface_Temperature':{t:'GoogleMapsCompatible_Level7',f:'png',z:7},'MODIS_Aqua_L2_Chlorophyll_A':{t:'GoogleMapsCompatible_Level7',f:'png',z:7}};
+var GM={'GHRSST_L4_AVHRR-OI_Sea_Surface_Temperature':{t:'GoogleMapsCompatible_Level7',f:'png',z:7},'MODIS_Aqua_L2_Chlorophyll_A':{t:'GoogleMapsCompatible_Level7',f:'png',z:7}};
 // Use gibs:// protocol to fix palette PNG transparency (MapLibre doesn't decode tRNS in P-mode PNGs)
 maplibregl.addProtocol('gibs',function(params){
   var url=params.url.replace('gibs://','https://');
@@ -423,7 +419,7 @@ maplibregl.addProtocol('gibs',function(params){
   });
 });
 function gu(l,d){var m=GM[l];return 'gibs://gibs.earthdata.nasa.gov/wmts/epsg3857/best/'+l+'/default/'+d+'/'+m.t+'/{z}/{y}/{x}.'+m.f}
-var GL={chl:'MODIS_Aqua_L2_Chlorophyll_A',sst:'GHRSST_L4_MUR_Sea_Surface_Temperature'};
+var GL={chl:'MODIS_Aqua_L2_Chlorophyll_A',sst:'GHRSST_L4_AVHRR-OI_Sea_Surface_Temperature'};
 // CMEMS Sea Level Anomaly WMTS — NRT daily, no auth required
 var CMEMS_SLA='https://wmts.marine.copernicus.eu/teroWmts/?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=SEALEVEL_GLO_PHY_L4_NRT_008_046/cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.125deg_P1D_202506/sla&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&TIME=DATE&STYLE=cmap:balance,range:-0.5/0.5';
 function guSLA(d){return CMEMS_SLA.replace('TIME=DATE','TIME='+d);}
@@ -449,10 +445,10 @@ var SPOTS=[
 ];
 
 var map,cBM='satellite',gpsWId=null,gM='off',cPos=null,fGPS=false,trk=[];
-var LS={seamark:true,blue_marlin:false,chlorophyll:false,sst:false,ssh_visual:false,sst_fronts:true,chl_edges:true,currents:true,bathymetry:true,clarity:true,ssh:true,mld:true,oxygen:false,ssta:true};
+var LS={seamark:true,blue_marlin:false,chlorophyll:false,sst:false,ssh_visual:false,sst_fronts:true,chl_edges:true,currents:true,bathymetry:true,clarity:true,ssh:true,mld:true,ssta:true};
 var _displayFloor=0.60; // hotspot display floor — adjustable via legend slider
 // Opacity-based toggling for GeoJSON layers — tiles stay loaded, no cache purge on toggle
-var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.5],'isotherm-label':['text-opacity',1],'mld-very-shallow':['line-opacity',.9],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.8],'mld-deep':['line-opacity',.7],'ssta-cold':['line-opacity',.8],'ssta-warm':['line-opacity',.9],'o2-hypoxic':['line-opacity',.9],'o2-low':['line-opacity',.8],'o2-adequate':['line-opacity',.7],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.95],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'bathy-shade':['raster-opacity',.45],'bathy-glow':['line-opacity',.12],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-150':['line-opacity',.7],'bathy-label':['text-opacity',1],'hs-blue':['fill-opacity',.45]};
+var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.5],'isotherm-label':['text-opacity',1],'mld-very-shallow':['line-opacity',.9],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.8],'mld-deep':['line-opacity',.7],'ssta-cold':['line-opacity',.8],'ssta-warm':['line-opacity',.9],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.95],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'bathy-shade':['raster-opacity',.45],'bathy-glow':['line-opacity',.12],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-150':['line-opacity',.7],'bathy-label':['text-opacity',1],'hs-blue':['fill-opacity',.45]};
 function sGL(id,on){if(!map.getLayer(id))return;var e=gLO[id];e?map.setPaintProperty(id,e[0],on?e[1]:0):map.setLayoutProperty(id,'visibility',on?'visible':'none')}
 var iD=new Date();iD.setDate(iD.getDate()-1);var cDate=iD.toISOString().split('T')[0];
 var iG=new Date();iG.setDate(iG.getDate()-3);var gDate=iG.toISOString().split('T')[0];
@@ -481,7 +477,6 @@ function initMap(){
     'bathy-hillshade':{type:'image',url:'data/bathy_hillshade.png',coordinates:[[113.8002,-30.7998],[116.1995,-30.7998],[116.1995,-32.7996],[113.8002,-32.7996]]},
     'deep-water':{type:'geojson',data:'data/deep_water.geojson'},
     'mld':{type:'geojson',data:'data/mld_contours.geojson'},
-    'oxygen':{type:'geojson',data:'data/oxygen_contours.geojson'},
     'water-clarity':{type:'geojson',data:'data/water_clarity.geojson'},
     'ssh-eddies':{type:'geojson',data:'data/ssh_eddies.geojson'},
     'ssta':{type:'geojson',data:'data/ssta_contours.geojson'},
@@ -531,11 +526,8 @@ function initMap(){
     {id:'mld-shallow',type:'line',source:'mld',filter:['==',['get','label'],'shallow'],paint:{'line-color':'#22d3ee','line-width':1.5,'line-opacity':.8}},
     {id:'mld-moderate',type:'line',source:'mld',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#0ea5e9','line-width':1.5,'line-opacity':.8}},
     {id:'mld-deep',type:'line',source:'mld',filter:['==',['get','label'],'deep'],paint:{'line-color':'#6366f1','line-width':1.5,'line-opacity':.7,'line-dasharray':[4,2]}},
-    {id:'o2-hypoxic',type:'line',source:'oxygen',filter:['==',['get','label'],'hypoxic'],paint:{'line-color':'#ef4444','line-width':2,'line-opacity':.9}},
-    {id:'o2-low',type:'line',source:'oxygen',filter:['==',['get','label'],'low'],paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':.8,'line-dasharray':[4,2]}},
-    {id:'o2-adequate',type:'line',source:'oxygen',filter:['==',['get','label'],'adequate'],paint:{'line-color':'#22c55e','line-width':1.5,'line-opacity':.7}},
-    {id:'ssta-cold',type:'line',source:'ssta',filter:['<',['get','anomaly'],0],paint:{'line-color':['interpolate',['linear'],['get','anomaly'],-2,'#1d4ed8',-0.5,'#bfdbfe'],'line-width':1.5,'line-opacity':0,'line-dasharray':[4,2]}},
-    {id:'ssta-warm',type:'line',source:'ssta',filter:['>=',['get','anomaly'],0],paint:{'line-color':['interpolate',['linear'],['get','anomaly'],0.5,'#fdba74',2,'#dc2626'],'line-width':2,'line-opacity':0}},
+    {id:'ssta-cold',type:'line',source:'ssta',filter:['<',['get','anomaly'],0],paint:{'line-color':['interpolate',['linear'],['get','anomaly'],-2,'#1d4ed8',-0.5,'#bfdbfe'],'line-width':1.5,'line-opacity':.8,'line-dasharray':[4,2]}},
+    {id:'ssta-warm',type:'line',source:'ssta',filter:['>=',['get','anomaly'],0],paint:{'line-color':['interpolate',['linear'],['get','anomaly'],0.5,'#fdba74',2,'#dc2626'],'line-width':2,'line-opacity':.9}},
     {id:'sm-layer',type:'raster',source:'sm',paint:{'raster-opacity':.85}}
   ];
   map=new maplibregl.Map({container:'map',style:{version:8,sources:src,layers:ly,glyphs:'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf'},center:[115.35,-31.97],zoom:10,maxZoom:18,minZoom:3,attributionControl:true});
@@ -559,7 +551,7 @@ function initMap(){
   document.addEventListener('pointermove',function(e){if(!iDrag)return;var x=e.clientX-iDX,y=e.clientY-iDY;infoEl.style.left=x+'px';infoEl.style.top=y+'px';var rect=map.getCanvas().getBoundingClientRect();var pt=[x+rect.left,y+10+rect.top];var mapPt=map.unproject([x,y+10]);var lids=Object.keys(hInfo).filter(function(l){return map.getLayer(l)});var fs=map.queryRenderedFeatures([x,y+10],{layers:lids});var html='<div class="hp-title">'+fc(mapPt.lat,mapPt.lng)+'</div>';var visFs=fs.filter(function(f){var vk=hVis[f.layer.id];return !vk||LS[vk]});if(visFs.length){var seen={};for(var i=0;i<visFs.length;i++){var f=visFs[i],lid=f.layer.id;if(!seen[lid]&&hInfo[lid]){seen[lid]=true;html+=hInfo[lid](f.properties)}}}infoCt.innerHTML=html});
   document.addEventListener('pointerup',function(){iDrag=false});
   var hInfo={
-    'hs-blue':function(p){var h='<div class="hp-title">Blue Marlin Habitat — '+Math.round(p.intensity*100)+'%</div>';var items=[];var keys=[['s_sst','w_sst','SST'],['s_sst_front','w_sst_front','Fronts'],['s_front_corridor','w_front_corridor','Corr'],['s_sst_intrusion','w_sst_intrusion','LC'],['s_chl','w_chl','Chl'],['s_chl_curvature','w_chl_curvature','ChlC'],['s_ssh','w_ssh','SSH'],['s_current','w_current','Current'],['s_convergence','w_convergence','Conv'],['s_mld','w_mld','MLD'],['s_o2','w_o2','O₂'],['s_clarity','w_clarity','Clarity'],['s_boundary','w_boundary','Edge'],['s_bathy_align','w_bathy_align','BthA'],['s_ssta','w_ssta','SSTA']];for(var i=0;i<keys.length;i++){var k=keys[i];if(p[k[0]]!=null){items.push(k[2]+' '+Math.round(p[k[0]]*p[k[1]]*100)+'%')}}var mults=[];if(p.s_depth!=null)mults.push('Depth \u00d7'+Math.round(p.s_depth*100)+'%');if(p.s_shelf_break!=null)mults.push('Canyon \u00d7'+p.s_shelf_break);var sub=items.join(' \u00b7 ');if(mults.length)sub+=' | '+mults.join(' \u00b7 ');return h+'<div class="hp-sub">'+sub+'</div>'},
+    'hs-blue':function(p){var h='<div class="hp-title">Blue Marlin Habitat — '+Math.round(p.intensity*100)+'%</div>';var items=[];var keys=[['s_sst','w_sst','SST'],['s_sst_front','w_sst_front','Fronts'],['s_front_corridor','w_front_corridor','Corr'],['s_sst_intrusion','w_sst_intrusion','LC'],['s_chl','w_chl','Chl'],['s_chl_curvature','w_chl_curvature','ChlC'],['s_ssh','w_ssh','SSH'],['s_current','w_current','Current'],['s_convergence','w_convergence','Conv'],['s_mld','w_mld','MLD'],['s_clarity','w_clarity','Clarity'],['s_boundary','w_boundary','Edge'],['s_bathy_align','w_bathy_align','BthA'],];for(var i=0;i<keys.length;i++){var k=keys[i];if(p[k[0]]!=null){items.push(k[2]+' '+Math.round(p[k[0]]*p[k[1]]*100)+'%')}}var mults=[];if(p.s_depth!=null)mults.push('Depth \u00d7'+Math.round(p.s_depth*100)+'%');if(p.s_shelf_break!=null)mults.push('Canyon \u00d7'+p.s_shelf_break);var sub=items.join(' \u00b7 ');if(mults.length)sub+=' | '+mults.join(' \u00b7 ');return h+'<div class="hp-sub">'+sub+'</div>'},
     'sst-front-line':function(p){return '<div class="hp-title">SST Front</div><div class="hp-sub">Sharp temperature gradient — prey aggregation zone</div>'},
     'isotherm-blue-prime':function(p){return '<div class="hp-title">'+p.temperature+'\u00b0C Isotherm (Prime)</div><div class="hp-sub">Blue Marlin prime zone 24–27°C</div>'},
     'isotherm-blue-good':function(p){return '<div class="hp-title">'+p.temperature+'\u00b0C Isotherm (Good)</div><div class="hp-sub">Blue Marlin acceptable range 22–30°C</div>'},
@@ -580,14 +572,11 @@ function initMap(){
     'mld-shallow':function(p){return '<div class="hp-title">Shallow Mixed Layer ('+p.mld+'m)</div><div class="hp-sub">Strong stratification — marlin concentrated near surface</div>'},
     'mld-moderate':function(p){return '<div class="hp-title">Moderate MLD ('+p.mld+'m)</div><div class="hp-sub">Transitional mixing — marlin accessible but deeper</div>'},
     'mld-deep':function(p){return '<div class="hp-title">Deep Mixed Layer ('+p.mld+'m)</div><div class="hp-sub">Weak stratification — marlin dispersed through water column</div>'},
-    'o2-hypoxic':function(p){return '<div class="hp-title">Hypoxic Zone ('+p.o2+' mmol/m³)</div><div class="hp-sub">Severely low O₂ at 100m — limits marlin diving, avoid</div>'},
-    'o2-low':function(p){return '<div class="hp-title">Low O₂ ('+p.o2+' mmol/m³)</div><div class="hp-sub">Borderline oxygen at 100m — marlin vertical habitat compressed</div>'},
-    'o2-adequate':function(p){return '<div class="hp-title">Adequate O₂ ('+p.o2+' mmol/m³)</div><div class="hp-sub">Good dissolved oxygen at 100m — full diving range</div>'},
-    'ssta-cold':function(p){return '<div class="hp-title">SST Anomaly '+p.anomaly.toFixed(1)+'°C</div><div class="hp-sub">Cooler than seasonal average — unfavorable</div>'},
-    'ssta-warm':function(p){return '<div class="hp-title">SST Anomaly +'+p.anomaly.toFixed(1)+'°C</div><div class="hp-sub">Warmer than seasonal average — Leeuwin Current active</div>'}
+    'ssta-cold':function(p){return '<div class="hp-title">SST Anomaly '+p.anomaly.toFixed(1)+'°C</div><div class="hp-sub">Cooler than seasonal average</div>'},
+    'ssta-warm':function(p){return '<div class="hp-title">SST Anomaly +'+p.anomaly.toFixed(1)+'°C</div><div class="hp-sub">Warmer than seasonal average — Leeuwin Current active</div>'},
   };
   // Map layer IDs to their LS toggle key so hovers respect visibility
-  var hVis={'hs-blue':'blue_marlin','isotherm-blue-prime':'blue_marlin','isotherm-blue-good':'blue_marlin','sst-front-glow':'sst_fronts','sst-front-line':'sst_fronts','chl-edge-line':'chl_edges','current-line':'currents','bathy-100':'bathymetry','bathy-150':'bathymetry','bathy-200':'bathymetry','bathy-500':'bathymetry','bathy-1000':'bathymetry','clarity-clean':'clarity','clarity-turbid':'clarity','clarity-bloom':'clarity','ssh-cold':'ssh','ssh-neutral':'ssh','ssh-warm':'ssh','ssh-warm-core':'ssh','mld-very-shallow':'mld','mld-shallow':'mld','mld-moderate':'mld','mld-deep':'mld','o2-hypoxic':'oxygen','o2-low':'oxygen','o2-adequate':'oxygen','ssta-cold':'ssta','ssta-warm':'ssta'};
+  var hVis={'hs-blue':'blue_marlin','isotherm-blue-prime':'blue_marlin','isotherm-blue-good':'blue_marlin','sst-front-glow':'sst_fronts','sst-front-line':'sst_fronts','chl-edge-line':'chl_edges','current-line':'currents','bathy-100':'bathymetry','bathy-150':'bathymetry','bathy-200':'bathymetry','bathy-500':'bathymetry','bathy-1000':'bathymetry','clarity-clean':'clarity','clarity-turbid':'clarity','clarity-bloom':'clarity','ssh-cold':'ssh','ssh-neutral':'ssh','ssh-warm':'ssh','ssh-warm-core':'ssh','mld-very-shallow':'mld','mld-shallow':'mld','mld-moderate':'mld','mld-deep':'mld','ssta-cold':'ssta','ssta-warm':'ssta',};
   // Hide hover panel when mouse leaves the map canvas (over UI panels/buttons)
   document.addEventListener('mousemove',function(e){
     var cv=map.getCanvas();
@@ -650,7 +639,7 @@ function initMap(){
 }
 
 function loadDatedGeoJSON(){
-  var gj={'sst-fronts':'sst_fronts.geojson','chl-edges':'chl_edges.geojson','currents':'currents.geojson','water-clarity':'water_clarity.geojson','ssh-eddies':'ssh_eddies.geojson','mld':'mld_contours.geojson','oxygen':'oxygen_contours.geojson','ssta':'ssta_contours.geojson','blue-hotspots':'blue_marlin_hotspots.geojson','depth-grid':'depth_grid.geojson'};
+  var gj={'sst-fronts':'sst_fronts.geojson','chl-edges':'chl_edges.geojson','currents':'currents.geojson','water-clarity':'water_clarity.geojson','ssh-eddies':'ssh_eddies.geojson','mld':'mld_contours.geojson','ssta':'ssta_contours.geojson','blue-hotspots':'blue_marlin_hotspots.geojson','depth-grid':'depth_grid.geojson'};
   var empty={type:'FeatureCollection',features:[]};
   var cb='?t='+Date.now();
   // Clear old data immediately so stale overlays don't show with new markers
@@ -712,9 +701,8 @@ function toggleLayer(n){
     clarity:['clarity-clean','clarity-turbid','clarity-bloom'],
     ssh:['ssh-cold','ssh-neutral','ssh-warm','ssh-warm-core'],
     mld:['mld-very-shallow','mld-shallow','mld-moderate','mld-deep'],
-    oxygen:['o2-hypoxic','o2-low','o2-adequate'],
     ssta:['ssta-cold','ssta-warm']};
-  var bm={seamark:{id:'btnSeamarks',c:'on'},chlorophyll:{id:'btnChloro',c:'on-green'},sst:{id:'btnSST',c:'on-red'},ssh_visual:{id:'btnSSHMap',c:'on'},blue_marlin:{id:'btnBlueMarlin',c:'on-cyan'},sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},currents:{id:'btnCurrents',c:'on'},bathymetry:{id:'btnBathy',c:'on-orange'},clarity:{id:'btnClarity',c:'on'},ssh:{id:'btnSSH',c:'on-orange'},mld:{id:'btnMLD',c:'on'},oxygen:{id:'btnO2',c:'on'},ssta:{id:'btnSSTA',c:'on-red'}};
+  var bm={seamark:{id:'btnSeamarks',c:'on'},chlorophyll:{id:'btnChloro',c:'on-green'},sst:{id:'btnSST',c:'on-red'},ssh_visual:{id:'btnSSHMap',c:'on'},blue_marlin:{id:'btnBlueMarlin',c:'on-cyan'},sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},currents:{id:'btnCurrents',c:'on'},bathymetry:{id:'btnBathy',c:'on-orange'},clarity:{id:'btnClarity',c:'on'},ssh:{id:'btnSSH',c:'on-orange'},mld:{id:'btnMLD',c:'on'},ssta:{id:'btnSSTA',c:'on-red'}};
   if(n==='blue_marlin'){
     var ml=document.getElementById('marlinLegend');if(a){ml.classList.add('active');document.getElementById('legendTab').textContent='▶'}else{ml.classList.remove('active');document.getElementById('legendTab').textContent='◀'}
     sGL('hs-blue',a);sGL('isotherm-blue-prime',a);sGL('isotherm-blue-good',a);
@@ -742,7 +730,7 @@ function setBasemap(n){
   if(n===cBM)return;cBM=n;var bm=BM[n];
   var gL=['gps-track-line','gps-acc-fill','gps-acc-line','gps-glow','gps-outer','gps-inner','gps-heading-line'];
   var fg=null;for(var i=0;i<gL.length;i++){if(map.getLayer(gL[i])){fg=gL[i];break}}
-  var rm=['all-catches-dot','all-catches-glow','catch-label','catch-dot','catch-ring','catch-glow','sm-layer','clarity-bloom','clarity-turbid','clarity-clean','ssh-warm-core','ssh-warm','ssh-neutral','ssh-cold','current-line','chl-edge-line','isotherm-label','isotherm-blue-prime','isotherm-blue-good','sst-front-line','sst-front-glow','mld-very-shallow','mld-shallow','mld-moderate','mld-deep','o2-hypoxic','o2-low','o2-adequate','ssta-cold','ssta-warm','hs-blue','bathy-shade','bathy-1000','bathy-500','bathy-200','bathy-150','bathy-glow','bathy-100','bathy-label','depth-grid-pt','spot-label','spot-dot','spot-glow','g-chl-layer','g-sst-layer','g-ssh-layer','ol-layer','basemap-layer'];
+  var rm=['all-catches-dot','all-catches-glow','catch-label','catch-dot','catch-ring','catch-glow','sm-layer','clarity-bloom','clarity-turbid','clarity-clean','ssh-warm-core','ssh-warm','ssh-neutral','ssh-cold','current-line','chl-edge-line','isotherm-label','isotherm-blue-prime','isotherm-blue-good','sst-front-line','sst-front-glow','mld-very-shallow','mld-shallow','mld-moderate','mld-deep','ssta-cold','ssta-warm','hs-blue','bathy-shade','bathy-1000','bathy-500','bathy-200','bathy-150','bathy-glow','bathy-100','bathy-label','depth-grid-pt','spot-label','spot-dot','spot-glow','g-chl-layer','g-sst-layer','g-ssh-layer','ol-layer','basemap-layer'];
   for(var i=0;i<rm.length;i++){if(map.getLayer(rm[i]))map.removeLayer(rm[i])}
   var rs=['basemap','ol','g-chl','g-sst','g-ssh'];
   for(var i=0;i<rs.length;i++){if(map.getSource(rs[i]))map.removeSource(rs[i])}
@@ -793,10 +781,6 @@ function setBasemap(n){
   map.addLayer({id:'mld-shallow',type:'line',source:'mld',filter:['==',['get','label'],'shallow'],paint:{'line-color':'#22d3ee','line-width':1.5,'line-opacity':mo?.8:0}},bf);
   map.addLayer({id:'mld-moderate',type:'line',source:'mld',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#0ea5e9','line-width':1.5,'line-opacity':mo?.8:0}},bf);
   map.addLayer({id:'mld-deep',type:'line',source:'mld',filter:['==',['get','label'],'deep'],paint:{'line-color':'#6366f1','line-width':1.5,'line-opacity':mo?.7:0,'line-dasharray':[4,2]}},bf);
-  var oo=LS.oxygen;
-  map.addLayer({id:'o2-hypoxic',type:'line',source:'oxygen',filter:['==',['get','label'],'hypoxic'],paint:{'line-color':'#ef4444','line-width':2,'line-opacity':oo?.9:0}},bf);
-  map.addLayer({id:'o2-low',type:'line',source:'oxygen',filter:['==',['get','label'],'low'],paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':oo?.8:0,'line-dasharray':[4,2]}},bf);
-  map.addLayer({id:'o2-adequate',type:'line',source:'oxygen',filter:['==',['get','label'],'adequate'],paint:{'line-color':'#22c55e','line-width':1.5,'line-opacity':oo?.7:0}},bf);
   var sa=LS.ssta;
   map.addLayer({id:'ssta-cold',type:'line',source:'ssta',filter:['<',['get','anomaly'],0],paint:{'line-color':['interpolate',['linear'],['get','anomaly'],-2,'#1d4ed8',-0.5,'#bfdbfe'],'line-width':1.5,'line-opacity':sa?.8:0,'line-dasharray':[4,2]}},bf);
   map.addLayer({id:'ssta-warm',type:'line',source:'ssta',filter:['>=',['get','anomaly'],0],paint:{'line-color':['interpolate',['linear'],['get','anomaly'],0.5,'#fdba74',2,'#dc2626'],'line-width':2,'line-opacity':sa?.9:0}},bf);

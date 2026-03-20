@@ -701,9 +701,9 @@ BLUE_MARLIN_WEIGHTS = {
     "current":       0.04,  # Current favorability — uniformly high in summer, halved
     "convergence":   0.04,  # Current convergence — bait aggregation
     "mld":           0.08,  # Mixed layer depth — uniformly shallow in summer, halved
-    "o2":            0.02,  # Dissolved oxygen at 100m
+    "o2":            0.00,  # Dissolved oxygen — removed (0.25° too coarse, always >220 mmol/m³ off Perth)
     "clarity":       0.01,  # Water clarity (near-1.0 in summer, minimal discrimination)
-    "ssta":          0.09,  # SST anomaly — warmer than normal = Leeuwin Current
+    "ssta":          0.00,  # SST anomaly — no discrimination (69% of catches in cool anomaly)
     # Static factors applied as MULTIPLIERS, not additive:
     # depth:       0->1 gate (zero if <100m)
     # shelf_break: 1.0->1.60 boost (canyon walls get up to +60%)
@@ -934,18 +934,10 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         sst_score = np.exp(-0.5 * ((sst_smooth - optimal_temp) / sst_sigma) ** 2)
     _add_score("sst", sst_score)
 
-    # 1b. SST Anomaly score — positive anomaly = Leeuwin Current pushing warm water
-    if date_str is not None:
-        try:
-            ssta = compute_ssta(sst_smooth, lats, lons, date_str)
-            if not np.all(np.isnan(ssta)):
-                _ssta_optimal = getattr(sys.modules[__name__], '_opt_ssta_optimal', 0.94)
-                _ssta_sigma = getattr(sys.modules[__name__], '_opt_ssta_sigma', 2.20)
-                ssta_score = np.exp(-0.5 * ((ssta - _ssta_optimal) / _ssta_sigma) ** 2)
-                ssta_score[land] = np.nan
-                _add_score("ssta", ssta_score)
-        except Exception as e:
-            print(f"[Hotspots] SSTA scoring failed: {e}")
+    # 1b. SST Anomaly — REMOVED from scoring.
+    # Analysis: 69% of catches in cool anomaly water (SSTA < -0.5C),
+    # only 10% in warm anomaly. Delta catch vs background = -0.11C.
+    # SSTA has no discriminative value for blue marlin in Perth Canyon.
 
     # 2. SST front score — Sobel gradient magnitude, modulated by SST suitability
     #    A front at 20°C is useless for marlin — only score fronts in warm water
@@ -1227,25 +1219,9 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         except Exception as e:
             print(f"[Hotspots] MLD scoring failed: {e}")
 
-    # 7. Oxygen score — O2 at 100m depth
-    o2_grid = None  # saved for boundary convergence
-    o2_file = os.path.join(OUTPUT_DIR, "oxygen_raw.nc")
-    if os.path.exists(o2_file):
-        try:
-            ods = xr.open_dataset(o2_file)
-            for ov in ["o2", "O2", "doxy"]:
-                if ov in ods:
-                    o2_da = ods[ov].squeeze()
-                    break
-            o_lons = o2_da.longitude.values if "longitude" in o2_da.dims else o2_da.lon.values
-            o_lats = o2_da.latitude.values if "latitude" in o2_da.dims else o2_da.lat.values
-            o2_data = _interp_to_grid(o2_da.values.astype(float), o_lons, o_lats)
-            o2_grid = o2_data  # save for boundary convergence
-            # Score: 0 at <100 mmol/m³, 0.5 at 150, 1.0 at >200
-            o2_score = np.clip((o2_data - 100) / 100, 0, 1)
-            _add_score("o2", o2_score)
-        except Exception as e:
-            print(f"[Hotspots] O2 scoring failed: {e}")
+    # 7. Oxygen score — REMOVED from scoring.
+    # 0.25° resolution too coarse for canyon-scale features (13x13 grid).
+    # Always 220-250 mmol/m³ off Perth — never limiting, zero discrimination.
 
     # 8. Water clarity — KD490
     kd_file = os.path.join(OUTPUT_DIR, "kd490_raw.nc")
@@ -1539,24 +1515,8 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             except Exception:
                 pass
 
-        # SSTA edge band — erosion edge only at +0.5C warm intrusion front.
-        # The contour tolerance approach (6 levels x 0.15C) covered 39-41%
-        # of ocean — not selective.  The intrusion front edge is the only
-        # physically meaningful SSTA boundary for fishing.
-        if 'ssta' in dir() and ssta is not None:
-            try:
-                ssta_clean = ssta.copy()
-                ssta_clean[np.isnan(ssta_clean) | land] = 0.0
-                ssta_smooth_band = gaussian_filter(ssta_clean, sigma=1.0)
-                warm_intrusion = (ssta_smooth_band > 0.5) & ~land & ~coast_buf
-                erosion_edge = np.zeros_like(land)
-                if np.any(warm_intrusion) and np.any(~warm_intrusion & ~land):
-                    from scipy.ndimage import binary_erosion
-                    erosion_edge = warm_intrusion & ~binary_erosion(warm_intrusion, iterations=1)
-                if np.any(erosion_edge):
-                    band_layers["ssta_edge"] = _band_score(erosion_edge)
-            except Exception:
-                pass
+        # SSTA edge band — REMOVED. No discriminative value for blue marlin.
+        # 69% of catches in cool anomaly, warm intrusion edge is not a fish feature.
 
         # Bathymetry contour bands — weighted by fishing relevance.
         # Catch depth analysis: median 239m, 39% at 300-1000m.
@@ -2676,10 +2636,7 @@ def main():
         except Exception as e:
             print(f"[MLD] Fetch error: {e}")
 
-        try:
-            fetch_copernicus_oxygen(date_str, bbox)
-        except Exception as e:
-            print(f"[Oxygen] Fetch error: {e}")
+        # Oxygen fetch removed — 0.25° too coarse, never limiting off Perth
 
     def _nc(name):
         """Find a NetCDF file: prefer dated dir, fall back to base dir."""
@@ -2720,7 +2677,7 @@ def main():
         except Exception as e:
             print(f"[SST Fronts] Error: {e}")
 
-    # Generate SSTA contours
+    # Generate SSTA contours (visual only — not used in scoring)
     if sst_file:
         try:
             generate_ssta_contours(sst_file, date_str)
@@ -2765,13 +2722,7 @@ def main():
         except Exception as e:
             print(f"[MLD] Processing error: {e}")
 
-    # Process dissolved oxygen contours
-    o2_file = _nc("oxygen_raw.nc")
-    if o2_file:
-        try:
-            process_oxygen(o2_file)
-        except Exception as e:
-            print(f"[Oxygen] Processing error: {e}")
+    # Oxygen contours removed — 0.25° too coarse, never limiting off Perth
 
     # Process currents
     cur_file = _nc("currents_raw.nc")
