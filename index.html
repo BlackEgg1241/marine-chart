@@ -211,10 +211,10 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.180</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.181</span></div>
   <div class="basemap-sw">
-    <div class="bm-btn active" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#1e5a8a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🗺️</span></div><div class="bm-label">Ocean</div></div>
-    <div class="bm-btn" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
+    <div class="bm-btn" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#1e5a8a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🗺️</span></div><div class="bm-label">Ocean</div></div>
+    <div class="bm-btn active" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
     <div class="bm-btn" id="bmStreet" onclick="setBasemap('street')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#d4cbb8,#bfb5a0);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🏙️</span></div><div class="bm-label">Street</div></div>
   </div>
 </div>
@@ -448,7 +448,7 @@ var SPOTS=[
   {c:[115.1333,-31.6213],n:'North Metro 01',d:'FAD buoy (North Metro 01) — in position.'}
 ];
 
-var map,cBM='ocean',gpsWId=null,gM='off',cPos=null,fGPS=false,trk=[];
+var map,cBM='satellite',gpsWId=null,gM='off',cPos=null,fGPS=false,trk=[];
 var LS={seamark:true,blue_marlin:false,chlorophyll:false,sst:false,ssh_visual:false,sst_fronts:true,chl_edges:true,currents:true,bathymetry:true,clarity:true,ssh:true,mld:true,oxygen:false,ssta:true};
 var _displayFloor=0.60; // hotspot display floor — adjustable via legend slider
 // Opacity-based toggling for GeoJSON layers — tiles stay loaded, no cache purge on toggle
@@ -465,7 +465,7 @@ function sE(m){var e=document.getElementById('gpsError');e.textContent='GPS: '+m
 function hE(){document.getElementById('gpsError').classList.remove('active')}
 
 function initMap(){
-  var bm=BM['ocean'];
+  var bm=BM[cBM];
   var src={
     basemap:{type:'raster',tiles:bm.tiles,tileSize:256,attribution:bm.attr,maxzoom:bm.mz},
     'ol':{type:'raster',tiles:[BLK],tileSize:256,maxzoom:16},
@@ -696,7 +696,7 @@ function rG(){
   var firstGJ=['hs-blue','spot-glow'];var bef;
   for(var j=0;j<firstGJ.length;j++){if(map.getLayer(firstGJ[j])){bef=firstGJ[j];break}}
   var ord=['g-sst','g-chl','g-ssh'];
-  for(var i=0;i<ord.length;i++){var k=ord[i],c=cfg[k];if(!c.v)continue;var tiles=k==='g-ssh'?[guSLA(cDate)]:[gu(c.l,gDate)];map.addSource(k,{type:'raster',tiles:tiles,tileSize:256,maxzoom:c.z});map.addLayer({id:k+'-layer',type:'raster',source:k,layout:{visibility:'visible'},paint:{'raster-opacity':c.o}},bef)}
+  for(var i=0;i<ord.length;i++){var k=ord[i],c=cfg[k];var tiles=k==='g-ssh'?[guSLA(cDate)]:[gu(c.l,gDate)];map.addSource(k,{type:'raster',tiles:tiles,tileSize:256,maxzoom:c.z});map.addLayer({id:k+'-layer',type:'raster',source:k,layout:{visibility:c.v?'visible':'none'},paint:{'raster-opacity':c.o}},bef)}
   loadDatedGeoJSON();
   updateDateInd();
 }
