@@ -685,7 +685,7 @@ BLUE_MARLIN_WEIGHTS = {
     "convergence":   0.04,  # Current convergence — bait aggregation
     "mld":           0.16,  # Mixed layer depth — shallow = catchable
     "o2":            0.02,  # Dissolved oxygen at 100m
-    "clarity":       0.03,  # Water clarity
+    "clarity":       0.01,  # Water clarity (near-1.0 in summer, minimal discrimination)
     "ssta":          0.09,  # SST anomaly — warmer than normal = Leeuwin Current
     # Static factors applied as MULTIPLIERS, not additive:
     # depth:       0->1 gate (zero if <100m)
@@ -1598,7 +1598,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         dmask = ~np.isnan(depth_mult) & valid
         final[dmask] *= depth_mult[dmask]  # zero out shallow water
     if "shelf_break" in sub_scores:
-        _shelf_boost = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.20)
+        _shelf_boost = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.10)
         shelf_mult = 1.0 + _shelf_boost * sub_scores["shelf_break"]
         smask = ~np.isnan(shelf_mult) & valid
         final[smask] *= shelf_mult[smask]
@@ -1614,7 +1614,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         # feature nearby, high base scores are just "warm open ocean" not a
         # fishing hotspot. Dampen by 20% so features visually dominate.
         no_band_mask = (_feature_band_count < 0.1) & valid & ~land
-        final[no_band_mask] *= 0.80
+        final[no_band_mask] *= 0.65
         # Single: every band contributes; Overlap: extra reward for 2+ bands
         extra = np.clip(_feature_band_count - 1, 0, None)
         band_mult = (1.0
@@ -1692,7 +1692,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                     result[name] = {"score": mean_score, "weight": -1}
                 elif name == "shelf_break":
                     # Shelf break is a boost multiplier: show as ×N
-                    _sb = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.20)
+                    _sb = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.10)
                     result[name] = {"score": round(1.0 + _sb * mean_score, 2), "weight": -2}
                 else:
                     result[name] = {"score": mean_score, "weight": w}
