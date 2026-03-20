@@ -24,7 +24,7 @@
         "anticyc_frac": 79.9
       },
       "zone_max": 91.0,
-      "zone_mean": 64.2,
+      "zone_mean": 64.1,
       "zone_cells": 19,
       "subzones": {
         "canyon": {
@@ -75,8 +75,8 @@
         "sst_range": 70.2
       },
       "zone_max": 82.0,
-      "zone_mean": 62.5,
-      "zone_cells": 19,
+      "zone_mean": 59.3,
+      "zone_cells": 15,
       "subzones": {
         "canyon": {
           "max": 100.0,
@@ -126,8 +126,8 @@
         "sst_range": 49.5
       },
       "zone_max": 92.0,
-      "zone_mean": 71.4,
-      "zone_cells": 23,
+      "zone_mean": 71.7,
+      "zone_cells": 21,
       "subzones": {
         "canyon": {
           "max": 100.0,
@@ -228,8 +228,8 @@
         "sst_front_frac": 41.1
       },
       "zone_max": 81.0,
-      "zone_mean": 42.7,
-      "zone_cells": 35,
+      "zone_mean": 38.1,
+      "zone_cells": 33,
       "subzones": {
         "canyon": {
           "max": 100.0,
@@ -330,8 +330,8 @@
         "anticyc_frac": 25.6
       },
       "zone_max": 69.0,
-      "zone_mean": 40.9,
-      "zone_cells": 27,
+      "zone_mean": 38.7,
+      "zone_cells": 25,
       "subzones": {
         "canyon": {
           "max": 100.0,
@@ -384,8 +384,8 @@
         "mld_mean": 4.1,
         "vorticity": 24.8
       },
-      "zone_max": 62.0,
-      "zone_mean": 50.0,
+      "zone_max": 63.0,
+      "zone_mean": 50.1,
       "zone_cells": 8,
       "subzones": {
         "canyon": {

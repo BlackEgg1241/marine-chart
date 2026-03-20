@@ -1424,11 +1424,21 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
 
         band_layers = {}  # name -> band_score array
 
-        # SST front band — absolute gradient threshold only.
-        # The relative threshold (top-quartile) was covering 75%+ of ocean cells,
-        # defeating spatial selectivity.  Absolute-only aligns with the visible
-        # front lines drawn on the map (~10-20% coverage).
-        sst_front_mask = (grad_mag > SST_GRADIENT_THRESHOLD) & ~coast_buf & ~land
+        # SST front band — contour-crossing at the gradient threshold.
+        # Uses the same interpolation logic as the visible front lines:
+        # cells where the gradient crosses 0.5 between neighbors, so the
+        # band aligns exactly with the visible contour on the map.
+        _thresh = SST_GRADIENT_THRESHOLD
+        cross_h = (grad_mag[:, :-1] - _thresh) * (grad_mag[:, 1:] - _thresh) <= 0
+        cross_v = (grad_mag[:-1, :] - _thresh) * (grad_mag[1:, :] - _thresh) <= 0
+        sst_front_mask = np.zeros((ny, nx), dtype=bool)
+        sst_front_mask[:, :-1] |= cross_h
+        sst_front_mask[:, 1:] |= cross_h
+        sst_front_mask[:-1, :] |= cross_v
+        sst_front_mask[1:, :] |= cross_v
+        # Also include cells above threshold (the core of the front)
+        sst_front_mask |= (grad_mag > _thresh)
+        sst_front_mask &= ~coast_buf & ~land
         if np.any(sst_front_mask):
             band_layers["sst_front"] = _band_score(sst_front_mask)
 
