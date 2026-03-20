@@ -675,15 +675,15 @@ BLUE_MARLIN_WEIGHTS = {
     # expense of SSH (+32% discrim), MLD (+12%), CHL (+8%). Redistributed to
     # features that actually separate catch days from non-catch days.
     "sst":           0.17,  # SST — primary habitat driver
-    "sst_front":     0.07,  # SST gradient — prey aggregation at fronts
+    "sst_front":     0.10,  # SST gradient — prey aggregation at fronts
     "front_corridor":0.06,  # SST front corridors — narrow front pinch points
     "sst_intrusion": 0.01,  # Cross-shelf SST gradient — Leeuwin Current
-    "chl":           0.11,  # Chlorophyll — bait productivity indicator
+    "chl":           0.13,  # Chlorophyll — bait productivity indicator
     "chl_curvature": 0.02,  # CHL pockets/peninsulas — dynamic mixing zones
-    "ssh":           0.13,  # Sea level anomaly — warm water mass + eddies
-    "current":       0.08,  # Current favorability — warm water advection
+    "ssh":           0.19,  # Sea level anomaly — best catch discriminator (+32%)
+    "current":       0.04,  # Current favorability — uniformly high in summer, halved
     "convergence":   0.04,  # Current convergence — bait aggregation
-    "mld":           0.16,  # Mixed layer depth — shallow = catchable
+    "mld":           0.08,  # Mixed layer depth — uniformly shallow in summer, halved
     "o2":            0.02,  # Dissolved oxygen at 100m
     "clarity":       0.01,  # Water clarity (near-1.0 in summer, minimal discrimination)
     "ssta":          0.09,  # SST anomaly — warmer than normal = Leeuwin Current
@@ -1429,7 +1429,8 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         except Exception:
             pass
 
-        # CHL edge band (gradient in log-space)
+        # CHL edge band — hybrid: fires at visible contour lines (concentration
+        # levels) OR where gradient is strong, so bands align with map lines.
         if chl_grid is not None:
             try:
                 chl_for_grad = np.log10(np.clip(chl_grid, 0.01, 10))
@@ -1440,14 +1441,21 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                 chl_grad = np.sqrt(cgx**2 + cgy**2)
                 chl_grad[coast_buf] = 0
                 cg90 = np.nanpercentile(chl_grad[~coast_buf & ~land], 90)
-                if cg90 > 0:
-                    chl_edge_mask = (chl_grad / cg90 > _band_chl_thresh) & ~coast_buf & ~land
+                # Gradient-based mask (relative threshold)
+                rel_mask = (chl_grad / cg90 > _band_chl_thresh) & ~coast_buf & ~land if cg90 > 0 else np.zeros_like(land)
+                # Contour-based mask — cells near visible CHL concentration lines
+                chl_smoothed_lin = gaussian_filter(np.where(np.isnan(chl_grid) | land, 0, chl_grid), sigma=0.8)
+                contour_mask = np.zeros_like(land)
+                for level, _, _ in CHL_LEVELS:
+                    contour_mask |= (np.abs(chl_smoothed_lin - level) < level * 0.3) & ~land & ~coast_buf
+                chl_edge_mask = rel_mask | contour_mask
+                if np.any(chl_edge_mask):
                     band_layers["chl_edge"] = _band_score(chl_edge_mask)
             except Exception:
                 pass
 
-        # MLD gradient band — sharp thermocline transitions compress marlin
-        # habitat vertically, concentrating bait and predators near the surface
+        # MLD edge band — hybrid: fires at visible contour lines (10/20/30/50m)
+        # OR where gradient is strong, so bands align with map lines.
         if mld_grid is not None:
             try:
                 mld_for_grad = mld_grid.copy()
@@ -1458,15 +1466,22 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                 mld_grad = np.sqrt(mgx**2 + mgy**2)
                 mld_grad[coast_buf] = 0
                 mg90 = np.nanpercentile(mld_grad[~coast_buf & ~land], 90)
-                if mg90 > 0:
-                    mld_edge_mask = (mld_grad / mg90 > 0.35) & ~coast_buf & ~land
+                # Gradient-based mask
+                rel_mask = (mld_grad / mg90 > 0.35) & ~coast_buf & ~land if mg90 > 0 else np.zeros_like(land)
+                # Contour-based mask — cells near visible MLD depth lines
+                mld_smoothed = gaussian_filter(mld_for_grad, sigma=0.8)
+                contour_mask = np.zeros_like(land)
+                for level, _, _ in MLD_LEVELS:
+                    tol = max(2.0, level * 0.15)  # 15% tolerance, min 2m
+                    contour_mask |= (np.abs(mld_smoothed - level) < tol) & ~land & ~coast_buf
+                mld_edge_mask = rel_mask | contour_mask
+                if np.any(mld_edge_mask):
                     band_layers["mld_edge"] = _band_score(mld_edge_mask)
             except Exception:
                 pass
 
-        # Eddy edge bands — boundaries of warm-core and cold-core eddies
-        # Warm eddies push Leeuwin Current water into the canyon; cold eddies
-        # create upwelling edges. Fish aggregate at both types of eddy boundaries.
+        # Eddy edge bands — hybrid: fires at visible SLA contour lines
+        # AND at eddy boundary edges, so bands align with map lines.
         if ssh_grid is not None:
             try:
                 from scipy.ndimage import binary_erosion
@@ -1474,44 +1489,58 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                 ssh_for_grad[np.isnan(ssh_for_grad) | land] = np.nanmean(ssh_grid[~land])
                 ssh_smooth_we = gaussian_filter(ssh_for_grad, sigma=1.0)
 
-                # Warm eddy edges (SLA > 0.03m)
+                # Binary erosion edges (original method)
                 warm_eddy = (ssh_smooth_we > 0.03) & ~land & ~coast_buf
+                warm_edge = np.zeros_like(land)
                 if np.any(warm_eddy) and np.any(~warm_eddy & ~land):
                     warm_edge = warm_eddy & ~binary_erosion(warm_eddy, iterations=1)
-                    if np.any(warm_edge):
-                        band_layers["warm_eddy"] = _band_score(warm_edge)
 
-                # Cold eddy edges (SLA < -0.03m)
                 cold_eddy = (ssh_smooth_we < -0.03) & ~land & ~coast_buf
+                cold_edge = np.zeros_like(land)
                 if np.any(cold_eddy) and np.any(~cold_eddy & ~land):
                     cold_edge = cold_eddy & ~binary_erosion(cold_eddy, iterations=1)
-                    if np.any(cold_edge):
-                        band_layers["cold_eddy"] = _band_score(cold_edge)
 
-                # Neutral zone band — SLA ≈ 0.03m isoline (the drawn contour line)
-                # Transition boundary between cold/neutral and warm eddy water
-                neutral_contour = (np.abs(ssh_smooth_we - 0.03) < 0.01) & ~land & ~coast_buf
-                if np.any(neutral_contour):
-                    band_layers["ssh_neutral"] = _band_score(neutral_contour, weight=0.5)
+                # Contour-based masks — cells near visible SLA contour lines
+                warm_contour = np.zeros_like(land)
+                cold_contour = np.zeros_like(land)
+                for level, _, _ in SLA_LEVELS:
+                    level_mask = (np.abs(ssh_smooth_we - level) < 0.01) & ~land & ~coast_buf
+                    if level >= 0:
+                        warm_contour |= level_mask
+                    else:
+                        cold_contour |= level_mask
+
+                # Combine: erosion edges + visible contour lines
+                warm_combined = warm_edge | warm_contour
+                if np.any(warm_combined):
+                    band_layers["warm_eddy"] = _band_score(warm_combined)
+                cold_combined = cold_edge | cold_contour
+                if np.any(cold_combined):
+                    band_layers["cold_eddy"] = _band_score(cold_combined)
 
             except Exception:
                 pass
 
-        # SSTA edge band — boundary of warm Leeuwin Current intrusion
-        # Detects where SST anomaly transitions from normal to positive,
-        # marking the leading edge of warm current intrusions into the canyon.
+        # SSTA edge band — hybrid: fires at visible SSTA contour lines
+        # AND at the +0.5°C intrusion boundary edge.
         if 'ssta' in dir() and ssta is not None:
             try:
                 ssta_clean = ssta.copy()
                 ssta_clean[np.isnan(ssta_clean) | land] = 0.0
                 ssta_smooth_band = gaussian_filter(ssta_clean, sigma=1.0)
-                # Edge where SSTA crosses +0.5°C — the intrusion front
+                # Binary erosion edge at +0.5°C intrusion front
                 warm_intrusion = (ssta_smooth_band > 0.5) & ~land & ~coast_buf
+                erosion_edge = np.zeros_like(land)
                 if np.any(warm_intrusion) and np.any(~warm_intrusion & ~land):
                     from scipy.ndimage import binary_erosion
-                    ssta_edge = warm_intrusion & ~binary_erosion(warm_intrusion, iterations=1)
-                    if np.any(ssta_edge):
-                        band_layers["ssta_edge"] = _band_score(ssta_edge)
+                    erosion_edge = warm_intrusion & ~binary_erosion(warm_intrusion, iterations=1)
+                # Contour-based mask — cells near visible SSTA contour lines
+                contour_mask = np.zeros_like(land)
+                for level, _, _ in SSTA_LEVELS:
+                    contour_mask |= (np.abs(ssta_smooth_band - level) < 0.15) & ~land & ~coast_buf
+                ssta_edge_mask = erosion_edge | contour_mask
+                if np.any(ssta_edge_mask):
+                    band_layers["ssta_edge"] = _band_score(ssta_edge_mask)
             except Exception:
                 pass
 
