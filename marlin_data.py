@@ -1159,8 +1159,10 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             # being scored as shallow due to linear interpolation averaging
             # deep water with nearby land/shallow cells.
             abs_depth_hr = np.where(np.isnan(bathy), 0, -bathy)
+            # Depth score: ramp 50-150m, full 150-800m, taper 800-2000m
+            # Catches cluster at median 239m — shift peak zone deeper
             depth_score_hr = np.where(abs_depth_hr < 50, 0,
-                             np.where(abs_depth_hr < 80, (abs_depth_hr - 50) / 30,
+                             np.where(abs_depth_hr < 150, 0.5 + 0.5 * (abs_depth_hr - 50) / 100,
                              np.where(abs_depth_hr < 800, 1.0,
                              np.where(abs_depth_hr < 2000, 0.85 + 0.15 * (1.0 - (abs_depth_hr - 800) / 1200),
                              0.7))))
@@ -1557,11 +1559,10 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                 pass
 
         # Bathymetry contour bands — weighted by fishing relevance.
-        # Catch depth analysis: catches at 150-170m (primary), 200-500m (secondary).
-        # 300m contour added to close the 230-425m gap where some catches fall.
-        # 500m weight increased: 8 catches cluster along the 500m line near FADs.
-        # Tolerances at 20% of depth to cover catch positions between contours.
-        _bathy_band_weights = {100: 0.3, 150: 0.6, 200: 0.5, 300: 0.5, 500: 0.6, 1000: 0.2}
+        # Catch depth analysis: median 239m, 39% at 300-1000m.
+        # Bands use asymmetric tolerance: tight shoreward, wider seaward
+        # to shift hotspots toward deeper water where catches actually occur.
+        _bathy_band_weights = {100: 0.2, 150: 0.5, 200: 0.6, 300: 0.6, 500: 0.6, 1000: 0.2}
         if tif_path and 'bathy' in dir():
             try:
                 depth_master = _interp_to_grid(
@@ -1569,13 +1570,16 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                 )
                 _depth_grid = depth_master  # make available for hover info
                 for depth_m, bw in _bathy_band_weights.items():
-                    tol = max(25, depth_m * 0.25)
-                    contour_mask = (np.abs(depth_master - depth_m) < tol) & ~land
+                    # Asymmetric: tight shoreward tolerance, wider seaward
+                    tol_shore = max(20, depth_m * 0.15)  # narrow toward land
+                    tol_deep = max(30, depth_m * 0.30)   # wider toward deep
+                    contour_mask = ((depth_master >= depth_m - tol_shore) &
+                                    (depth_master <= depth_m + tol_deep) & ~land)
                     if np.any(contour_mask):
                         bathy_band = _band_score(contour_mask, weight=bw)
                         # Suppress shoreward side: zero out cells shallower than
-                        # half the contour depth to prevent bands boosting inner shelf
-                        shallow_mask = (depth_master < depth_m * 0.5) & ~land
+                        # 65% of contour depth to prevent bands boosting inner shelf
+                        shallow_mask = (depth_master < depth_m * 0.65) & ~land
                         bathy_band[shallow_mask] = 0
                         band_layers[f"bathy_{depth_m}m"] = bathy_band
             except Exception as e:
@@ -1864,6 +1868,28 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         json.dump(geojson, f)
 
     print(f"[Hotspots] {len(features)} polygons across {len(HOTSPOT_BANDS)} bands ->{output_path}")
+
+    # Export depth grid as point GeoJSON for per-pixel hover queries.
+    # Each grid cell becomes a point at its centre carrying the depth value.
+    if _depth_grid is not None:
+        depth_pts = []
+        for ri in range(ny):
+            for ci in range(nx):
+                d = _depth_grid[ri, ci]
+                if np.isnan(d) or d <= 0:
+                    continue
+                depth_pts.append({
+                    "type": "Feature",
+                    "geometry": {"type": "Point", "coordinates": [round(float(lons[ci]), 4), round(float(lats[ri]), 4)]},
+                    "properties": {"d": round(float(d))},
+                })
+        if depth_pts:
+            depth_geojson = {"type": "FeatureCollection", "features": depth_pts}
+            depth_path = os.path.join(OUTPUT_DIR, "depth_grid.geojson")
+            with open(depth_path, "w") as f:
+                json.dump(depth_geojson, f)
+            print(f"[Hotspots] Depth grid: {len(depth_pts)} points ->{depth_path}")
+
     return {
         "path": output_path,
         "grid": final_smooth,
@@ -2294,7 +2320,7 @@ def process_currents(currents_file):
 # ---------------------------------------------------------------------------
 # 5. Bathymetry Contour Extraction (from GEBCO GeoTIFF)
 # ---------------------------------------------------------------------------
-def extract_bathymetry_contours(gebco_file, depths=[-50, -100, -200, -500, -1000]):
+def extract_bathymetry_contours(gebco_file, depths=[-50, -100, -150, -200, -500, -1000]):
     """
     Extract depth contour lines from a GEBCO GeoTIFF file.
     Requires: pip install rasterio
@@ -2316,6 +2342,7 @@ def extract_bathymetry_contours(gebco_file, depths=[-50, -100, -200, -500, -1000
 
     DEPTH_STYLE = {
         -100:  {"label": "100m contour",    "color": "#a3e635"},
+        -150:  {"label": "150m contour",    "color": "#84cc16"},
         -200:  {"label": "200m shelf edge", "color": "#f59e0b"},
         -500:  {"label": "500m contour",    "color": "#06b6d4"},
         -1000: {"label": "1000m contour",   "color": "#3b82f6"},
@@ -2385,7 +2412,7 @@ def extract_contours_gdal(gebco_file, depths=[-50, -100, -200, -500, -1000]):
 # ---------------------------------------------------------------------------
 # 5b. Bathymetry from GMRT (Global Multi-Resolution Topography) REST API
 # ---------------------------------------------------------------------------
-def fetch_bathymetry_gmrt(bbox, depths=[-100, -200, -500, -1000]):
+def fetch_bathymetry_gmrt(bbox, depths=[-100, -150, -200, -500, -1000]):
     """
     Download a bathymetry GeoTIFF from the GMRT GridServer API and extract
     depth contours.  GMRT is freely available, no API key required.
