@@ -490,7 +490,7 @@ function initMap(){
   var ly=[
     {id:'basemap-layer',type:'raster',source:'basemap'},
     {id:'ol-layer',type:'raster',source:'ol',paint:{'raster-opacity':0}},
-    {id:'g-sst-layer',type:'raster',source:'g-sst',layout:{visibility:'visible'},paint:{'raster-opacity':.6}},
+    {id:'g-sst-layer',type:'raster',source:'g-sst',layout:{visibility:LS.sst?'visible':'none'},paint:{'raster-opacity':.6}},
     {id:'g-chl-layer',type:'raster',source:'g-chl',layout:{visibility:'none'},paint:{'raster-opacity':.7}},
     {id:'g-ssh-layer',type:'raster',source:'g-ssh',layout:{visibility:'none'},paint:{'raster-opacity':.7}},
     {id:'hs-blue',type:'fill',source:'blue-hotspots',filter:['>=',['get','intensity'],0.50],paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.50,'#fde68a',0.58,'#fbbf24',0.66,'#f59e0b',0.74,'#ea580c',0.82,'#dc2626',0.92,'#991b1b'],'fill-opacity':0,'fill-antialias':false}},
