@@ -1674,43 +1674,53 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
 
     # --- Helper to sample mean sub-scores within a polygon's bounding box ---
     def _sample_scores(coords_list):
-        """Return (actual_intensity, sub_scores_dict) for the polygon area."""
+        """Return (actual_intensity, sub_scores_dict) for the polygon area.
+        Uses point-in-polygon masking instead of bounding box to avoid
+        diluting scores with cells outside the polygon."""
+        from matplotlib.path import Path
         xs = [c[0] for c in coords_list]
         ys = [c[1] for c in coords_list]
         lon_min, lon_max = min(xs), max(xs)
         lat_min, lat_max = min(ys), max(ys)
-        col_mask = (lons >= lon_min) & (lons <= lon_max)
-        row_mask = (lats >= lat_min) & (lats <= lat_max)
+        col_idx = np.where((lons >= lon_min) & (lons <= lon_max))[0]
+        row_idx = np.where((lats >= lat_min) & (lats <= lat_max))[0]
+        if len(col_idx) == 0 or len(row_idx) == 0:
+            return 0.0, {}
+
+        # Build point-in-polygon mask for the bbox subset
+        sub_lons = lons[col_idx]
+        sub_lats = lats[row_idx]
+        mesh_lon, mesh_lat = np.meshgrid(sub_lons, sub_lats)
+        points = np.column_stack([mesh_lon.ravel(), mesh_lat.ravel()])
+        poly_path = Path([(c[0], c[1]) for c in coords_list])
+        inside = poly_path.contains_points(points).reshape(mesh_lon.shape)
+
         # Actual composite score from the smoothed grid
-        region_composite = final_smooth[np.ix_(row_mask, col_mask)]
-        valid_composite = region_composite[~np.isnan(region_composite)]
+        region_composite = final_smooth[np.ix_(row_idx, col_idx)]
+        valid_composite = region_composite[inside & ~np.isnan(region_composite)]
         actual_intensity = round(float(np.mean(valid_composite)), 2) if len(valid_composite) > 0 else 0.0
         result = {}
         for name, arr in sub_scores.items():
-            region = arr[np.ix_(row_mask, col_mask)]
-            valid = region[~np.isnan(region)]
+            region = arr[np.ix_(row_idx, col_idx)]
+            valid = region[inside & ~np.isnan(region)]
             if len(valid) > 0:
                 w = BLUE_MARLIN_WEIGHTS.get(name, 0)
                 mean_score = round(float(np.mean(valid)), 2)
                 if name == "depth":
-                    # Depth is a gate multiplier: show as ×N
                     result[name] = {"score": mean_score, "weight": -1}
                 elif name == "shelf_break":
-                    # Shelf break is a boost multiplier: show as ×N
                     _sb = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.10)
                     result[name] = {"score": round(1.0 + _sb * mean_score, 2), "weight": -2}
                 else:
                     result[name] = {"score": mean_score, "weight": w}
-        # Add depth info if available
         if _depth_grid is not None:
-            depth_region = _depth_grid[np.ix_(row_mask, col_mask)]
-            depth_valid = depth_region[~np.isnan(depth_region) & (depth_region > 0)]
+            depth_region = _depth_grid[np.ix_(row_idx, col_idx)]
+            depth_valid = depth_region[inside & ~np.isnan(depth_region) & (depth_region > 0)]
             if len(depth_valid) > 0:
                 result["depth_m"] = {"score": round(float(np.mean(depth_valid))), "weight": -3}
 
-        # Add band count
-        bc_region = _feature_band_count[np.ix_(row_mask, col_mask)]
-        bc_valid = bc_region[~np.isnan(bc_region)]
+        bc_region = _feature_band_count[np.ix_(row_idx, col_idx)]
+        bc_valid = bc_region[inside & ~np.isnan(bc_region)]
         if len(bc_valid) > 0:
             result["bands"] = {"score": round(float(np.mean(bc_valid)), 1), "weight": -4}
 
@@ -1741,13 +1751,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                 coords.append(coords[0])
 
             # Sample actual composite score and sub-scores for this polygon
-            sampled_intensity, breakdown = _sample_scores(coords)
-
-            # Use the higher of sampled mean or contour band floor.
-            # The bbox-based sample can dilute scores for large/irregular
-            # polygons; the band floor is guaranteed by contourf.
-            band_floor = round(levels[band_idx], 2)
-            actual_intensity = max(sampled_intensity, band_floor)
+            actual_intensity, breakdown = _sample_scores(coords)
 
             props = {
                 "species": "blue",
