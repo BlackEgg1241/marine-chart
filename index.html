@@ -201,9 +201,9 @@
 .wx-sum-label{font-size:7px;color:#64748b;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
 .wx-sum-val{font-size:14px;font-weight:700;color:#e2e8f0}
 .wx-sum-sub{font-size:8px;color:#94a3b8;margin-top:1px}
-.an-tbl{width:100%;border-collapse:collapse;font-size:9px;font-family:'JetBrains Mono',monospace}
-.an-tbl th{padding:4px 6px;text-align:center;color:#64748b;font-weight:600;font-size:8px;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.1)}
-.an-tbl td{padding:4px 6px;text-align:center;color:#cbd5e1;white-space:nowrap}
+.an-tbl{width:100%;border-collapse:collapse;font-size:8px;font-family:'JetBrains Mono',monospace}
+.an-tbl th{padding:3px 4px;text-align:center;color:#64748b;font-weight:600;font-size:7px;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.1)}
+.an-tbl td{padding:3px 4px;text-align:center;color:#cbd5e1;white-space:nowrap}
 .an-tbl tr.an-today{background:rgba(56,189,248,.08)}
 .an-tbl .an-day{text-align:left;font-weight:600;color:#e2e8f0}
 .an-go{color:#22c55e;font-weight:700}.an-marginal{color:#fbbf24;font-weight:700}.an-nogo{color:#ef4444;font-weight:700}
@@ -217,7 +217,7 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.183</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.184</span></div>
   <div class="basemap-sw">
     <div class="bm-btn" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#1e5a8a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🗺️</span></div><div class="bm-label">Ocean</div></div>
     <div class="bm-btn active" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
@@ -400,21 +400,28 @@
         <div class="wx-section-title">Current Conditions</div>
         <button onclick="refreshWeather()" style="background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.3);color:#38bdf8;font-size:8px;padding:3px 8px;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:600">Refresh</button>
       </div>
-      <div id="wxRealtime" style="font-size:9px;color:#cbd5e1;padding:4px 0 8px"></div>
+      <div id="wxRealtime" style="font-size:9px;color:#cbd5e1;padding:4px 0 4px"></div>
+      <div id="wxBomStations" style="font-size:9px;color:#cbd5e1;padding:0 0 4px"></div>
+      <div id="wxWaveBuoy" style="padding:4px 0 8px"></div>
     </div>
   </div>
   <!-- Analysis panel -->
   <div class="wx-panel" id="anPanel" style="border-top-color:rgba(139,92,246,.3)">
     <div class="wx-header">
-      <span class="wx-title" style="color:#a78bfa">Blue Marlin 7-Day Forecast</span>
+      <span class="wx-title" style="color:#a78bfa">Analysis</span>
       <button class="wx-close" onclick="closeAnalysis()">×</button>
     </div>
-    <div id="anMarlin" style="padding:0 14px 8px;overflow-x:auto"></div>
-    <div style="border-top:1px solid rgba(255,255,255,.08);padding:0">
-      <div class="wx-header"><span class="wx-title" style="color:#fb923c">FADs Go/No-Go (5.2m boat)</span></div>
-      <div id="anFads" style="padding:0 14px 8px;overflow-x:auto"></div>
+    <div style="display:flex;gap:8px;padding:0 10px 8px;overflow-x:auto">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:8px;color:#a78bfa;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 4px 4px">Marlin 7-Day Forecast</div>
+        <div id="anMarlin" style="overflow-x:auto"></div>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:8px;color:#fb923c;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 4px 4px">FADs Go/No-Go (5.2m)</div>
+        <div id="anFads" style="overflow-x:auto"></div>
+      </div>
     </div>
-    <div id="anEddy" style="padding:4px 14px 10px;font-size:9px;color:#94a3b8"></div>
+    <div id="anEddy" style="padding:4px 14px 6px;font-size:9px;color:#94a3b8"></div>
   </div>
 </div>
 
@@ -1515,44 +1522,66 @@ function drawWindChart(hours){
 
   wxDrawGrid(ctx,W,H,pad,yMax,' kn',hours);
 
-  var bw=Math.max(1,gW/hours.length-1);
-  // Gust bars (lighter)
+  // 15kn limit line (red dashed)
+  var y15=pad.t+(1-15/yMax)*gH;
+  ctx.save();ctx.setLineDash([4,3]);ctx.strokeStyle='rgba(239,68,68,.5)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(pad.l,y15);ctx.lineTo(pad.l+gW,y15);ctx.stroke();ctx.restore();
+  ctx.fillStyle='rgba(239,68,68,.4)';ctx.font='7px JetBrains Mono';ctx.textAlign='left';
+  ctx.fillText('15kn',pad.l+2,y15-3);
+
+  // Gust line (orange, thin)
+  ctx.beginPath();ctx.strokeStyle='#fb923c';ctx.lineWidth=1;ctx.globalAlpha=0.6;
   for(var i=0;i<hours.length;i++){
     var g=hours[i].wind_gusts_10m||0;
-    var x=pad.l+(i/(hours.length-1))*gW-bw/2;
-    var bh=(g/yMax)*gH;
-    ctx.fillStyle='rgba(251,146,60,.2)';
-    ctx.fillRect(x,pad.t+gH-bh,bw,bh);
+    var x=pad.l+(i/(hours.length-1))*gW;
+    var y=pad.t+(1-g/yMax)*gH;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
   }
-  // Wind speed bars
+  ctx.stroke();ctx.globalAlpha=1;
+
+  // Wind speed area fill (light cyan under the line)
+  ctx.beginPath();
   for(var i=0;i<hours.length;i++){
     var ws=hours[i].wind_speed_10m||0;
-    var x=pad.l+(i/(hours.length-1))*gW-bw/2;
-    var bh=(ws/yMax)*gH;
-    ctx.fillStyle=windColor(ws);
-    ctx.globalAlpha=0.8;
-    ctx.fillRect(x,pad.t+gH-bh,bw,bh);
-    ctx.globalAlpha=1;
+    var x=pad.l+(i/(hours.length-1))*gW;
+    var y=pad.t+(1-ws/yMax)*gH;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
   }
+  ctx.lineTo(pad.l+gW,pad.t+gH);ctx.lineTo(pad.l,pad.t+gH);ctx.closePath();
+  ctx.fillStyle='rgba(56,189,248,.1)';ctx.fill();
 
-  // Wind direction arrows every 3 hours
-  ctx.fillStyle='#94a3b8';ctx.font='7px JetBrains Mono';ctx.textAlign='center';
-  for(var i=0;i<hours.length;i+=3){
+  // Wind speed line (cyan, thicker)
+  ctx.beginPath();ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;
+  for(var i=0;i<hours.length;i++){
+    var ws=hours[i].wind_speed_10m||0;
+    var x=pad.l+(i/(hours.length-1))*gW;
+    var y=pad.t+(1-ws/yMax)*gH;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // Wind direction arrows on the wind line every 3 hours
+  var arrowInterval=Math.max(3,Math.floor(hours.length/24));
+  for(var i=0;i<hours.length;i+=arrowInterval){
     var dir=hours[i].wind_direction_10m;
     if(dir==null)continue;
+    var ws=hours[i].wind_speed_10m||0;
     var x=pad.l+(i/(hours.length-1))*gW;
-    // Draw small arrow
+    var y=pad.t+(1-ws/yMax)*gH;
+    var clr=windColor(ws);
     ctx.save();
-    ctx.translate(x,pad.t+2);
+    ctx.translate(x,y);
     ctx.rotate((dir+180)*Math.PI/180);
-    ctx.beginPath();ctx.moveTo(0,-4);ctx.lineTo(-2,3);ctx.lineTo(2,3);ctx.closePath();
-    ctx.fillStyle='#94a3b8';ctx.fill();
+    var sz=5;
+    ctx.beginPath();ctx.moveTo(0,-sz);ctx.lineTo(-sz*0.45,sz*0.5);ctx.lineTo(sz*0.45,sz*0.5);ctx.closePath();
+    ctx.fillStyle=clr;ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,.4)';ctx.lineWidth=0.5;ctx.stroke();
     ctx.restore();
   }
 
   // Legend
   ctx.font='7px JetBrains Mono';ctx.textAlign='left';ctx.fillStyle='#64748b';
-  ctx.fillText('Wind  |  Gusts (faded)',pad.l+2,pad.t-4);
+  ctx.fillText('Wind (cyan)  |  Gusts (orange)',pad.l+2,pad.t-4);
   wxDrawSunStrip(ctx,W,H,pad,hours);
 }
 
@@ -1574,6 +1603,13 @@ function drawSwellChart(hours){
   if(yMax<2)yMax=2;
 
   wxDrawGrid(ctx,W,H,pad,yMax,' m',hours);
+
+  // 1.5m limit line (red dashed)
+  var y15s=pad.t+(1-1.5/yMax)*gH;
+  ctx.save();ctx.setLineDash([4,3]);ctx.strokeStyle='rgba(239,68,68,.5)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(pad.l,y15s);ctx.lineTo(pad.l+gW,y15s);ctx.stroke();ctx.restore();
+  ctx.fillStyle='rgba(239,68,68,.4)';ctx.font='7px JetBrains Mono';ctx.textAlign='left';
+  ctx.fillText('1.5m',pad.l+2,y15s-3);
 
   // Total wave height area fill
   ctx.beginPath();
@@ -1924,7 +1960,7 @@ function buildMarlinTable(){
       comfortByDate[dt].push(rotHrs[i].comfort||50);
     }
   }
-  var html='<table class="an-tbl"><tr><th>Day</th><th>Habitat</th><th>Comfort</th><th>Rating</th></tr>';
+  var html='<table class="an-tbl"><tr><th>Day</th><th>Habitat</th><th>Trend</th><th>Comfort</th><th>Marlin</th><th>Rating</th></tr>';
   for(var i=0;i<days.length;i++){
     var d=days[i];
     var dd=new Date(d.date);
@@ -1933,6 +1969,7 @@ function buildMarlinTable(){
     var mon=MN[dd.getMonth()];
     var isToday=d.date===todayStr;
     var habitat=d.zone_max||0;
+    var trend=d.model_score||0;
     var comfArr=comfortByDate[d.date];
     var comfort=50;
     if(comfArr&&comfArr.length){var s=0;for(var j=0;j<comfArr.length;j++)s+=comfArr[j];comfort=s/comfArr.length;}
@@ -1945,7 +1982,9 @@ function buildMarlinTable(){
     else{label='POOR';color='#ef4444';}
     html+='<tr class="'+(isToday?'an-today':'')+'"><td class="an-day">'+dayName+' '+dayNum+' '+mon+(isToday?' *':'')+'</td>';
     html+='<td style="color:'+_scoreClr(habitat)+'">'+Math.round(habitat)+'%</td>';
+    html+='<td style="color:'+_scoreClr(trend)+'">'+Math.round(trend)+'%</td>';
     html+='<td style="color:'+comfortColor(Math.round(comfort))+'">'+Math.round(comfort)+'%</td>';
+    html+='<td style="color:'+_scoreClr(blended)+';font-weight:600">'+Math.round(blended)+'%</td>';
     html+='<td style="color:'+color+';font-weight:700">'+label+'</td></tr>';
   }
   html+='</table>';
@@ -2065,6 +2104,47 @@ function updateWxRealtime(){
     (sst!=null?'<span>SST: <b>'+sst.toFixed(1)+'°C</b></span>':'')+
     '<span>Comfort: <b style="color:'+comfortColor(comf)+'">'+comf+'%</b></span>'+
     '</div><div style="color:#475569;font-size:8px;margin-top:2px">Forecast for '+t[0]+' '+t[1].substr(0,5)+' (Rottnest)</div>';
+
+  // BOM live observations
+  var bom=wxData.bom_observations;
+  var bomEl=document.getElementById('wxBomStations');
+  if(bom&&bom.length){
+    var bhtml='<div style="font-size:8px;color:#64748b;font-weight:600;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em">BOM Live Observations</div>';
+    bhtml+='<table style="width:100%;border-collapse:collapse;font-size:9px"><tr style="color:#64748b;font-size:8px"><th style="text-align:left;padding:2px 4px">Station</th><th>Wind</th><th>Gusts</th><th>Temp</th><th>Pressure</th></tr>';
+    for(var b=0;b<bom.length;b++){
+      var o=bom[b];
+      var wk=o.wind_spd_kt;var gk=o.gust_kt;
+      bhtml+='<tr><td style="text-align:left;padding:2px 4px;font-weight:600;color:#e2e8f0">'+o.station+'</td>';
+      bhtml+='<td style="text-align:center;padding:2px 4px;color:'+(wk!=null?windColor(wk):'#64748b')+'">'+(wk!=null?o.wind_dir+' '+wk+'kn':'—')+'</td>';
+      bhtml+='<td style="text-align:center;padding:2px 4px;color:'+(gk!=null?windColor(gk):'#64748b')+'">'+(gk!=null?gk+'kn':'—')+'</td>';
+      bhtml+='<td style="text-align:center;padding:2px 4px">'+(o.air_temp!=null?o.air_temp+'°C':'—')+'</td>';
+      bhtml+='<td style="text-align:center;padding:2px 4px;color:#94a3b8">'+(o.press_msl!=null?o.press_msl+'hPa':'—')+'</td></tr>';
+    }
+    bhtml+='</table>';
+    // BOM time
+    if(bom[0].time){
+      var bt=bom[0].time;
+      var btStr=bt.substring(6,8)+'/'+bt.substring(4,6)+' '+bt.substring(8,10)+':'+bt.substring(10,12);
+      bhtml+='<div style="color:#475569;font-size:7px;margin-top:2px">BOM updated '+btStr+'</div>';
+    }
+    bomEl.innerHTML=bhtml;
+  } else {
+    bomEl.innerHTML='<div style="color:#475569;font-size:8px">BOM data unavailable — run Refresh to fetch</div>';
+  }
+
+  // Wave buoy charts
+  var wbEl=document.getElementById('wxWaveBuoy');
+  var wbc=wxData.wave_buoy_charts;
+  if(wbc){
+    var whtml='<div style="font-size:8px;color:#64748b;font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em">Rottnest Wave Buoy (RDW47)</div>';
+    whtml+='<div style="display:flex;gap:6px;flex-wrap:wrap">';
+    if(wbc.wave_height)whtml+='<img src="'+wbc.wave_height+'?t='+Date.now()+'" style="max-width:48%;height:auto;border-radius:4px;border:1px solid rgba(255,255,255,.1)" alt="Wave Height" onerror="this.style.display=\'none\'">';
+    if(wbc.wave_direction)whtml+='<img src="'+wbc.wave_direction+'?t='+Date.now()+'" style="max-width:48%;height:auto;border-radius:4px;border:1px solid rgba(255,255,255,.1)" alt="Wave Direction" onerror="this.style.display=\'none\'">';
+    whtml+='</div>';
+    wbEl.innerHTML=whtml;
+  } else {
+    wbEl.innerHTML='';
+  }
 }
 
 document.addEventListener('DOMContentLoaded',function(){

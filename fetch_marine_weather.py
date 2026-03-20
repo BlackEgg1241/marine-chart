@@ -263,6 +263,42 @@ def fetch_location(name, loc):
     }
 
 
+BOM_STATIONS = [
+    ("Rottnest", 94602),
+    ("Hillarys", 95605),
+    ("Swanbourne", 94614),
+]
+
+
+def fetch_bom_observations():
+    """Fetch latest BOM observations for each station."""
+    stations = []
+    for label, station_id in BOM_STATIONS:
+        url = f"https://reg.bom.gov.au/fwo/IDW60801/IDW60801.{station_id}.json"
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "MarLEEn/1.0"})
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read().decode())
+            obs_list = data.get("observations", {}).get("data", [])
+            if obs_list:
+                o = obs_list[0]
+                stations.append({
+                    "station": label,
+                    "station_id": station_id,
+                    "time": o.get("local_date_time_full", ""),
+                    "wind_spd_kt": o.get("wind_spd_kt"),
+                    "wind_dir": o.get("wind_dir"),
+                    "gust_kt": o.get("gust_kt"),
+                    "air_temp": o.get("air_temp"),
+                    "press_msl": o.get("press_msl"),
+                    "rain_trace": o.get("rain_trace"),
+                })
+                print(f"  BOM {label}: {o.get('wind_dir')} {o.get('wind_spd_kt')}kn, gusts {o.get('gust_kt')}kn, {o.get('air_temp')}C")
+        except Exception as e:
+            print(f"  BOM fetch failed for {label} ({station_id}): {e}")
+    return stations
+
+
 def main():
     result = {
         "generated": datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
@@ -270,6 +306,16 @@ def main():
     }
     for name, loc in LOCATIONS.items():
         result["locations"][name] = fetch_location(name, loc)
+
+    # Fetch BOM live observations
+    print("Fetching BOM observations...")
+    result["bom_observations"] = fetch_bom_observations()
+
+    # Wave buoy chart URLs (Transport WA, Rottnest Island RDW47)
+    result["wave_buoy_charts"] = {
+        "wave_height": "https://www.transport.wa.gov.au/getmedia/b3dfc548-cd46-4c32-aada-0261a3a66fc1/RDW_WAVE.GIF",
+        "wave_direction": "https://www.transport.wa.gov.au/getmedia/70e0fe88-19fa-49fb-9094-d6c1bf148a01/RDW_POLD.GIF",
+    }
 
     os.makedirs("data", exist_ok=True)
     out_path = "data/marine_weather.json"
