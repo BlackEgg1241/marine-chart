@@ -1644,15 +1644,15 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     if np.any(_feature_band_count > 0):
         _band_single = getattr(sys.modules[__name__], '_opt_band_single', 0.03)
         _band_overlap = getattr(sys.modules[__name__], '_opt_band_overlap', 0.20)
-        _band_overlap_thresh = 4  # overlap bonus only kicks in above this many bands
+        _band_overlap_thresh = 3  # overlap bonus kicks in above this many bands
         # Suppress cells with NO feature bands — without any oceanographic
         # feature nearby, high base scores are just "warm open ocean" not a
         # fishing hotspot. Dampen by 35% so features visually dominate.
         no_band_mask = (_feature_band_count < 0.1) & valid & ~land
         final[no_band_mask] *= 0.65
-        # Single: mild per-band contribution; Overlap: reward only for 4+ bands
-        # With hybrid detection, 3-4 bands is the baseline — only genuine
-        # convergence zones (5+) get the big overlap bonus.
+        # Single: mild per-band contribution; Overlap: reward for 3+ bands
+        # With hybrid detection, 2-3 bands is common — cells with 4+
+        # genuine feature overlaps get the big overlap bonus.
         extra = np.clip(_feature_band_count - _band_overlap_thresh, 0, None)
         band_mult = (1.0
                      + _band_single * _feature_band_count * _feature_band_mean
