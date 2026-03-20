@@ -2280,7 +2280,7 @@ def process_currents(currents_file):
 # ---------------------------------------------------------------------------
 # 5. Bathymetry Contour Extraction (from GEBCO GeoTIFF)
 # ---------------------------------------------------------------------------
-def extract_bathymetry_contours(gebco_file, depths=[-50, -100, -150, -200, -500, -1000]):
+def extract_bathymetry_contours(gebco_file, depths=[-50, -100, -150, -200, -250, -500, -1000]):
     """
     Extract depth contour lines from a GEBCO GeoTIFF file.
     Requires: pip install rasterio
@@ -2303,7 +2303,8 @@ def extract_bathymetry_contours(gebco_file, depths=[-50, -100, -150, -200, -500,
     DEPTH_STYLE = {
         -100:  {"label": "100m contour",    "color": "#a3e635"},
         -150:  {"label": "150m contour",    "color": "#84cc16"},
-        -200:  {"label": "200m shelf edge", "color": "#f59e0b"},
+        -200:  {"label": "200m shelf break","color": "#f59e0b"},
+        -250:  {"label": "250m contour",    "color": "#e17b24"},
         -500:  {"label": "500m contour",    "color": "#06b6d4"},
         -1000: {"label": "1000m contour",   "color": "#3b82f6"},
     }
@@ -2372,7 +2373,7 @@ def extract_contours_gdal(gebco_file, depths=[-50, -100, -200, -500, -1000]):
 # ---------------------------------------------------------------------------
 # 5b. Bathymetry from GMRT (Global Multi-Resolution Topography) REST API
 # ---------------------------------------------------------------------------
-def fetch_bathymetry_gmrt(bbox, depths=[-100, -150, -200, -500, -1000]):
+def fetch_bathymetry_gmrt(bbox, depths=[-100, -150, -200, -250, -500, -1000]):
     """
     Download a bathymetry GeoTIFF from the GMRT GridServer API and extract
     depth contours.  GMRT is freely available, no API key required.

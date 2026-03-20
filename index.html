@@ -201,6 +201,12 @@
 .wx-sum-label{font-size:7px;color:#64748b;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
 .wx-sum-val{font-size:14px;font-weight:700;color:#e2e8f0}
 .wx-sum-sub{font-size:8px;color:#94a3b8;margin-top:1px}
+.an-tbl{width:100%;border-collapse:collapse;font-size:9px;font-family:'JetBrains Mono',monospace}
+.an-tbl th{padding:4px 6px;text-align:center;color:#64748b;font-weight:600;font-size:8px;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.1)}
+.an-tbl td{padding:4px 6px;text-align:center;color:#cbd5e1;white-space:nowrap}
+.an-tbl tr.an-today{background:rgba(56,189,248,.08)}
+.an-tbl .an-day{text-align:left;font-weight:600;color:#e2e8f0}
+.an-go{color:#22c55e;font-weight:700}.an-marginal{color:#fbbf24;font-weight:700}.an-nogo{color:#ef4444;font-weight:700}
 </style>
 
 </head>
@@ -211,7 +217,7 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.182</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.183</span></div>
   <div class="basemap-sw">
     <div class="bm-btn" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#1e5a8a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🗺️</span></div><div class="bm-label">Ocean</div></div>
     <div class="bm-btn active" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
@@ -309,16 +315,17 @@
         <button class="layer-btn" id="btnCatches" onclick="toggleCatches()"><span class="icon">🎣</span> Catches</button>
         <button class="layer-btn" id="btnAllCatches" onclick="toggleAllCatches()"><span class="icon">📍</span> All Catches</button>
         <button class="layer-btn" id="btnWeather" onclick="toggleWeather()"><span class="icon">💨</span> Weather</button>
+        <button class="layer-btn" id="btnAnalysis" onclick="toggleAnalysis()"><span class="icon">📊</span> Analysis</button>
       </div>
       <!-- Row 2: Satellite raster overlays -->
       <div class="layer-row">
+        <button class="layer-btn on-orange" id="btnBathy" onclick="toggleLayer('bathymetry')"><span class="icon">📐</span> Bathymetry</button>
         <button class="layer-btn" id="btnSST" onclick="toggleLayer('sst')"><span class="icon">🌡️</span> SST</button>
         <button class="layer-btn" id="btnChloro" onclick="toggleLayer('chlorophyll')"><span class="icon">🧬</span> Chlorophyll</button>
         <button class="layer-btn" id="btnSSHMap" onclick="toggleLayer('ssh_visual')"><span class="icon">🌊</span> Height Map</button>
         <button class="layer-btn on-red" id="btnSSTFronts" onclick="toggleLayer('sst_fronts')"><span class="icon">🔥</span> SST Fronts</button>
         <button class="layer-btn on-green" id="btnChlEdges" onclick="toggleLayer('chl_edges')"><span class="icon">🌿</span> Chl Edges</button>
         <button class="layer-btn on" id="btnCurrents" onclick="toggleLayer('currents')"><span class="icon">💧</span> Currents</button>
-        <button class="layer-btn on-orange" id="btnBathy" onclick="toggleLayer('bathymetry')"><span class="icon">📐</span> Bathymetry</button>
         <button class="layer-btn on" id="btnClarity" onclick="toggleLayer('clarity')"><span class="icon">🔵</span> Clarity</button>
         <button class="layer-btn on-orange" id="btnSSH" onclick="toggleLayer('ssh')"><span class="icon">🌀</span> Eddies</button>
         <button class="layer-btn on" id="btnMLD" onclick="toggleLayer('mld')"><span class="icon">🫧</span> MLD</button>
@@ -388,6 +395,26 @@
       <div class="wx-comfort-wrap" id="wxComfortWrap"><canvas id="wxComfortChart"></canvas><div class="wx-cursor" id="wxComfortCursor"></div><div class="wx-tooltip" id="wxComfortTip"></div></div>
     </div>
     <div class="wx-summary" id="wxSummary"></div>
+    <div class="wx-section" style="border-top:1px solid rgba(255,255,255,.08);padding-top:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div class="wx-section-title">Current Conditions</div>
+        <button onclick="refreshWeather()" style="background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.3);color:#38bdf8;font-size:8px;padding:3px 8px;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:600">Refresh</button>
+      </div>
+      <div id="wxRealtime" style="font-size:9px;color:#cbd5e1;padding:4px 0 8px"></div>
+    </div>
+  </div>
+  <!-- Analysis panel -->
+  <div class="wx-panel" id="anPanel" style="border-top-color:rgba(139,92,246,.3)">
+    <div class="wx-header">
+      <span class="wx-title" style="color:#a78bfa">Blue Marlin 7-Day Forecast</span>
+      <button class="wx-close" onclick="closeAnalysis()">×</button>
+    </div>
+    <div id="anMarlin" style="padding:0 14px 8px;overflow-x:auto"></div>
+    <div style="border-top:1px solid rgba(255,255,255,.08);padding:0">
+      <div class="wx-header"><span class="wx-title" style="color:#fb923c">FADs Go/No-Go (5.2m boat)</span></div>
+      <div id="anFads" style="padding:0 14px 8px;overflow-x:auto"></div>
+    </div>
+    <div id="anEddy" style="padding:4px 14px 10px;font-size:9px;color:#94a3b8"></div>
   </div>
 </div>
 
@@ -448,7 +475,7 @@ var map,cBM='satellite',gpsWId=null,gM='off',cPos=null,fGPS=false,trk=[];
 var LS={seamark:true,blue_marlin:false,chlorophyll:false,sst:false,ssh_visual:false,sst_fronts:true,chl_edges:true,currents:true,bathymetry:true,clarity:true,ssh:true,mld:true,ssta:true};
 var _displayFloor=0.60; // hotspot display floor — adjustable via legend slider
 // Opacity-based toggling for GeoJSON layers — tiles stay loaded, no cache purge on toggle
-var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.5],'isotherm-label':['text-opacity',1],'mld-very-shallow':['line-opacity',.9],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.8],'mld-deep':['line-opacity',.7],'ssta-cold':['line-opacity',.8],'ssta-warm':['line-opacity',.9],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.95],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'bathy-shade':['raster-opacity',.45],'bathy-glow':['line-opacity',.12],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-150':['line-opacity',.7],'bathy-label':['text-opacity',1],'hs-blue':['fill-opacity',.45]};
+var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.5],'isotherm-label':['text-opacity',1],'mld-very-shallow':['line-opacity',.9],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.8],'mld-deep':['line-opacity',.7],'ssta-cold':['line-opacity',.8],'ssta-warm':['line-opacity',.9],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.95],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'bathy-shade':['raster-opacity',.45],'bathy-glow':['line-opacity',.12],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-150':['line-opacity',.7],'bathy-250':['line-opacity',.8],'bathy-label':['text-opacity',1],'hs-blue':['fill-opacity',.45]};
 function sGL(id,on){if(!map.getLayer(id))return;var e=gLO[id];e?map.setPaintProperty(id,e[0],on?e[1]:0):map.setLayoutProperty(id,'visibility',on?'visible':'none')}
 var iD=new Date();iD.setDate(iD.getDate()-1);var cDate=iD.toISOString().split('T')[0];
 var iG=new Date();iG.setDate(iG.getDate()-3);var gDate=iG.toISOString().split('T')[0];
@@ -505,9 +532,10 @@ function initMap(){
     {id:'bathy-150',type:'line',source:'bathymetry',filter:['==',['get','depth'],-150],paint:{'line-color':'#000000','line-width':1,'line-opacity':.7,'line-dasharray':[4,3]}},
     {id:'bathy-glow',type:'line',source:'bathymetry',filter:['==',['get','depth'],-200],paint:{'line-color':'#000000','line-width':8,'line-opacity':.12,'line-blur':4}},
     {id:'bathy-200',type:'line',source:'bathymetry',filter:['==',['get','depth'],-200],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':.9}},
+    {id:'bathy-250',type:'line',source:'bathymetry',filter:['==',['get','depth'],-250],paint:{'line-color':'#000000','line-width':1.2,'line-opacity':.8,'line-dasharray':[6,3]}},
     {id:'bathy-500',type:'line',source:'bathymetry',filter:['==',['get','depth'],-500],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':.75}},
     {id:'bathy-1000',type:'line',source:'bathymetry',filter:['==',['get','depth'],-1000],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':.65}},
-    {id:'bathy-label',type:'symbol',source:'bathymetry',filter:['any',['==',['get','depth'],-100],['==',['get','depth'],-150],['==',['get','depth'],-200],['==',['get','depth'],-500],['==',['get','depth'],-1000]],layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat',['to-string',['*',['get','depth'],-1]],'m'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#000000','text-halo-color':'rgba(255,255,255,0.85)','text-halo-width':1.5,'text-opacity':1}},
+    {id:'bathy-label',type:'symbol',source:'bathymetry',filter:['any',['==',['get','depth'],-100],['==',['get','depth'],-150],['==',['get','depth'],-200],['==',['get','depth'],-250],['==',['get','depth'],-500],['==',['get','depth'],-1000]],layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat',['to-string',['*',['get','depth'],-1]],'m'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#000000','text-halo-color':'rgba(255,255,255,0.85)','text-halo-width':1.5,'text-opacity':1}},
     {id:'sst-front-glow',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],paint:{'line-color':'#ff6b35','line-width':['interpolate',['linear'],['zoom'],5,12,10,8,15,4],'line-opacity':.18,'line-blur':4}},
     {id:'sst-front-line',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],paint:{'line-color':'#ff6b35','line-width':['interpolate',['linear'],['zoom'],5,3.5,10,2.5,15,1.5],'line-opacity':.9}},
     {id:'isotherm-blue-prime',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'prime']],paint:{'line-color':'#06b6d4','line-width':['interpolate',['linear'],['zoom'],5,3,10,2,15,1.5],'line-opacity':0}},
@@ -555,11 +583,12 @@ function initMap(){
     'sst-front-line':function(p){return '<div class="hp-title">SST Front</div><div class="hp-sub">Sharp temperature gradient — prey aggregation zone</div>'},
     'isotherm-blue-prime':function(p){return '<div class="hp-title">'+p.temperature+'\u00b0C Isotherm (Prime)</div><div class="hp-sub">Blue Marlin prime zone 24–27°C</div>'},
     'isotherm-blue-good':function(p){return '<div class="hp-title">'+p.temperature+'\u00b0C Isotherm (Good)</div><div class="hp-sub">Blue Marlin acceptable range 22–30°C</div>'},
-    'bathy-100':function(p){return '<div class="hp-title">100m Depth Contour</div><div class="hp-sub">Minimum depth for marlin zones — features clipped to this boundary</div>'},
-    'bathy-150':function(p){return '<div class="hp-title">150m Depth Contour</div><div class="hp-sub">Primary catch depth — peak blue marlin zone</div>'},
-    'bathy-200':function(p){return '<div class="hp-title">200m Depth Contour</div><div class="hp-sub">Continental shelf edge — prime bait aggregation zone</div>'},
-    'bathy-500':function(p){return '<div class="hp-title">500m Depth Contour</div>'},
-    'bathy-1000':function(p){return '<div class="hp-title">1000m Depth Contour</div>'},
+    'bathy-100':function(p){return '<div class="hp-title">100m Depth Contour</div><div class="hp-sub">Inner shelf edge — minimum depth for marlin scoring</div>'},
+    'bathy-150':function(p){return '<div class="hp-title">150m Depth Contour</div><div class="hp-sub">Outer shelf — catch zone starts here</div>'},
+    'bathy-200':function(p){return '<div class="hp-title">200m Shelf Break</div><div class="hp-sub">Continental shelf edge — peak marlin zone (200-250m)</div>'},
+    'bathy-250':function(p){return '<div class="hp-title">250m Depth Contour</div><div class="hp-sub">Canyon rim — peak marlin zone (200-250m)</div>'},
+    'bathy-500':function(p){return '<div class="hp-title">500m Depth Contour</div><div class="hp-sub">Upper canyon slope</div>'},
+    'bathy-1000':function(p){return '<div class="hp-title">1000m Depth Contour</div><div class="hp-sub">Deep canyon</div>'},
     'chl-edge-line':function(p){return '<div class="hp-title">Chlorophyll Edge</div><div class="hp-sub">'+(p.concentration||'')+' mg/m\u00b3 — bait fish boundary</div>'},
     'ssh-cold':function(p){return '<div class="hp-title">Cold-core Eddy</div><div class="hp-sub">Upwelling, cyclonic — avoid for marlin</div>'},
     'ssh-neutral':function(p){return '<div class="hp-title">Neutral Zone</div><div class="hp-sub">Low sea level anomaly</div>'},
@@ -576,7 +605,7 @@ function initMap(){
     'ssta-warm':function(p){return '<div class="hp-title">SST Anomaly +'+p.anomaly.toFixed(1)+'°C</div><div class="hp-sub">Warmer than seasonal average — Leeuwin Current active</div>'},
   };
   // Map layer IDs to their LS toggle key so hovers respect visibility
-  var hVis={'hs-blue':'blue_marlin','isotherm-blue-prime':'blue_marlin','isotherm-blue-good':'blue_marlin','sst-front-glow':'sst_fronts','sst-front-line':'sst_fronts','chl-edge-line':'chl_edges','current-line':'currents','bathy-100':'bathymetry','bathy-150':'bathymetry','bathy-200':'bathymetry','bathy-500':'bathymetry','bathy-1000':'bathymetry','clarity-clean':'clarity','clarity-turbid':'clarity','clarity-bloom':'clarity','ssh-cold':'ssh','ssh-neutral':'ssh','ssh-warm':'ssh','ssh-warm-core':'ssh','mld-very-shallow':'mld','mld-shallow':'mld','mld-moderate':'mld','mld-deep':'mld','ssta-cold':'ssta','ssta-warm':'ssta',};
+  var hVis={'hs-blue':'blue_marlin','isotherm-blue-prime':'blue_marlin','isotherm-blue-good':'blue_marlin','sst-front-glow':'sst_fronts','sst-front-line':'sst_fronts','chl-edge-line':'chl_edges','current-line':'currents','bathy-100':'bathymetry','bathy-150':'bathymetry','bathy-200':'bathymetry','bathy-250':'bathymetry','bathy-500':'bathymetry','bathy-1000':'bathymetry','clarity-clean':'clarity','clarity-turbid':'clarity','clarity-bloom':'clarity','ssh-cold':'ssh','ssh-neutral':'ssh','ssh-warm':'ssh','ssh-warm-core':'ssh','mld-very-shallow':'mld','mld-shallow':'mld','mld-moderate':'mld','mld-deep':'mld','ssta-cold':'ssta','ssta-warm':'ssta',};
   // Hide hover panel when mouse leaves the map canvas (over UI panels/buttons)
   document.addEventListener('mousemove',function(e){
     var cv=map.getCanvas();
@@ -697,7 +726,7 @@ function toggleLayer(n){
   var lm={seamark:['sm-layer','spot-glow','spot-dot','spot-label'],chlorophyll:'g-chl-layer',sst:'g-sst-layer',ssh_visual:'g-ssh-layer',
     sst_fronts:['sst-front-glow','sst-front-line'],
     chl_edges:'chl-edge-line',currents:'current-line',
-    bathymetry:['bathy-shade','bathy-100','bathy-150','bathy-glow','bathy-200','bathy-500','bathy-1000','bathy-label'],
+    bathymetry:['bathy-shade','bathy-100','bathy-150','bathy-glow','bathy-200','bathy-250','bathy-500','bathy-1000','bathy-label'],
     clarity:['clarity-clean','clarity-turbid','clarity-bloom'],
     ssh:['ssh-cold','ssh-neutral','ssh-warm','ssh-warm-core'],
     mld:['mld-very-shallow','mld-shallow','mld-moderate','mld-deep'],
@@ -730,7 +759,7 @@ function setBasemap(n){
   if(n===cBM)return;cBM=n;var bm=BM[n];
   var gL=['gps-track-line','gps-acc-fill','gps-acc-line','gps-glow','gps-outer','gps-inner','gps-heading-line'];
   var fg=null;for(var i=0;i<gL.length;i++){if(map.getLayer(gL[i])){fg=gL[i];break}}
-  var rm=['all-catches-dot','all-catches-glow','catch-label','catch-dot','catch-ring','catch-glow','sm-layer','clarity-bloom','clarity-turbid','clarity-clean','ssh-warm-core','ssh-warm','ssh-neutral','ssh-cold','current-line','chl-edge-line','isotherm-label','isotherm-blue-prime','isotherm-blue-good','sst-front-line','sst-front-glow','mld-very-shallow','mld-shallow','mld-moderate','mld-deep','ssta-cold','ssta-warm','hs-blue','bathy-shade','bathy-1000','bathy-500','bathy-200','bathy-150','bathy-glow','bathy-100','bathy-label','depth-grid-pt','spot-label','spot-dot','spot-glow','g-chl-layer','g-sst-layer','g-ssh-layer','ol-layer','basemap-layer'];
+  var rm=['all-catches-dot','all-catches-glow','catch-label','catch-dot','catch-ring','catch-glow','sm-layer','clarity-bloom','clarity-turbid','clarity-clean','ssh-warm-core','ssh-warm','ssh-neutral','ssh-cold','current-line','chl-edge-line','isotherm-label','isotherm-blue-prime','isotherm-blue-good','sst-front-line','sst-front-glow','mld-very-shallow','mld-shallow','mld-moderate','mld-deep','ssta-cold','ssta-warm','hs-blue','bathy-shade','bathy-1000','bathy-500','bathy-250','bathy-200','bathy-150','bathy-glow','bathy-100','bathy-label','depth-grid-pt','spot-label','spot-dot','spot-glow','g-chl-layer','g-sst-layer','g-ssh-layer','ol-layer','basemap-layer'];
   for(var i=0;i<rm.length;i++){if(map.getLayer(rm[i]))map.removeLayer(rm[i])}
   var rs=['basemap','ol','g-chl','g-sst','g-ssh'];
   for(var i=0;i<rs.length;i++){if(map.getSource(rs[i]))map.removeSource(rs[i])}
@@ -756,11 +785,12 @@ function setBasemap(n){
   map.addLayer({id:'bathy-glow',type:'line',source:'bathymetry',filter:['==',['get','depth'],-200],paint:{'line-color':'#000000','line-width':8,'line-opacity':bo?.12:0,'line-blur':4}},bf);
   map.addLayer({id:'bathy-150',type:'line',source:'bathymetry',filter:['==',['get','depth'],-150],paint:{'line-color':'#000000','line-width':1,'line-opacity':bo?.7:0,'line-dasharray':[4,3]}},bf);
   map.addLayer({id:'bathy-200',type:'line',source:'bathymetry',filter:['==',['get','depth'],-200],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':bo?.75:0}},bf);
+  map.addLayer({id:'bathy-250',type:'line',source:'bathymetry',filter:['==',['get','depth'],-250],paint:{'line-color':'#000000','line-width':1.2,'line-opacity':bo?.8:0,'line-dasharray':[6,3]}},bf);
   map.addLayer({id:'bathy-500',type:'line',source:'bathymetry',filter:['==',['get','depth'],-500],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':bo?.75:0}},bf);
   map.addLayer({id:'bathy-1000',type:'line',source:'bathymetry',filter:['==',['get','depth'],-1000],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':bo?.65:0}},bf);
   map.addLayer({id:'bathy-100',type:'line',source:'bathymetry',filter:['==',['get','depth'],-100],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':bo?.85:0}},bf);
   map.addLayer({id:'depth-grid-pt',type:'circle',source:'depth-grid',paint:{'circle-radius':1,'circle-opacity':0}},bf);
-  map.addLayer({id:'bathy-label',type:'symbol',source:'bathymetry',filter:['any',['==',['get','depth'],-100],['==',['get','depth'],-150],['==',['get','depth'],-200],['==',['get','depth'],-500],['==',['get','depth'],-1000]],layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat',['to-string',['*',['get','depth'],-1]],'m'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#000000','text-halo-color':'rgba(255,255,255,0.85)','text-halo-width':1.5,'text-opacity':bo?1:0}},bf);
+  map.addLayer({id:'bathy-label',type:'symbol',source:'bathymetry',filter:['any',['==',['get','depth'],-100],['==',['get','depth'],-150],['==',['get','depth'],-200],['==',['get','depth'],-250],['==',['get','depth'],-500],['==',['get','depth'],-1000]],layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat',['to-string',['*',['get','depth'],-1]],'m'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#000000','text-halo-color':'rgba(255,255,255,0.85)','text-halo-width':1.5,'text-opacity':bo?1:0}},bf);
   var fo=LS.sst_fronts;
   map.addLayer({id:'sst-front-glow',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],paint:{'line-color':'#ff6b35','line-width':['interpolate',['linear'],['zoom'],5,12,10,8,15,4],'line-opacity':fo?.18:0,'line-blur':4}},bf);
   map.addLayer({id:'sst-front-line',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],paint:{'line-color':'#ff6b35','line-width':['interpolate',['linear'],['zoom'],5,3.5,10,2.5,15,1.5],'line-opacity':fo?.9:0}},bf);
@@ -1281,6 +1311,7 @@ function loadWeather(){
   fetch('data/marine_weather.json').then(function(r){return r.json()}).then(function(d){
     wxData=d;
     console.log('Weather loaded for',Object.keys(d.locations).join(', '));
+    updateWxRealtime();
   }).catch(function(e){console.warn('No weather data:',e)});
 }
 
@@ -1854,6 +1885,186 @@ function wxInitCursorEvents(){
     el.addEventListener('touchend',function(){wxHideCursor()});
     el.addEventListener('touchcancel',function(){wxHideCursor()});
   });
+}
+
+// --- Analysis panel ---
+var anOpen=false;
+function toggleAnalysis(){
+  anOpen=!anOpen;
+  var el=document.getElementById('anPanel');
+  var btn=document.getElementById('btnAnalysis');
+  if(anOpen){el.classList.add('active');btn.classList.add('on-cyan');buildAnalysis();}
+  else{closeAnalysis();}
+}
+function closeAnalysis(){
+  anOpen=false;
+  document.getElementById('anPanel').classList.remove('active');
+  document.getElementById('btnAnalysis').classList.remove('on-cyan');
+}
+
+function buildAnalysis(){
+  buildMarlinTable();
+  buildFadsTable();
+}
+
+function buildMarlinTable(){
+  if(!fcData||!fcData.days||!wxData)return;
+  var days=fcData.days;
+  var todayStr=new Date().toISOString().split('T')[0];
+  var WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  // Build comfort lookup from weather data
+  var rotHrs=(wxData.locations.rottnest||{}).hourly||[];
+  var comfortByDate={};
+  for(var i=0;i<rotHrs.length;i++){
+    var dt=rotHrs[i].time.split('T')[0];
+    var hr=parseInt(rotHrs[i].time.split('T')[1].split(':')[0]);
+    if(hr>=5&&hr<=18){
+      if(!comfortByDate[dt])comfortByDate[dt]=[];
+      comfortByDate[dt].push(rotHrs[i].comfort||50);
+    }
+  }
+  var html='<table class="an-tbl"><tr><th>Day</th><th>Habitat</th><th>Comfort</th><th>Rating</th></tr>';
+  for(var i=0;i<days.length;i++){
+    var d=days[i];
+    var dd=new Date(d.date);
+    var dayName=WD[dd.getDay()];
+    var dayNum=dd.getDate();
+    var mon=MN[dd.getMonth()];
+    var isToday=d.date===todayStr;
+    var habitat=d.zone_max||0;
+    var comfArr=comfortByDate[d.date];
+    var comfort=50;
+    if(comfArr&&comfArr.length){var s=0;for(var j=0;j<comfArr.length;j++)s+=comfArr[j];comfort=s/comfArr.length;}
+    var blended=0.60*habitat+0.40*comfort;
+    var label,color;
+    if(comfort<40){label=blended>=45?'FAIR':'POOR';color=blended>=45?'#fbbf24':'#ef4444';}
+    else if(blended>=75){label='GREAT';color='#22c55e';}
+    else if(blended>=60){label='GOOD';color='#86efac';}
+    else if(blended>=45){label='FAIR';color='#fbbf24';}
+    else{label='POOR';color='#ef4444';}
+    html+='<tr class="'+(isToday?'an-today':'')+'"><td class="an-day">'+dayName+' '+dayNum+' '+mon+(isToday?' *':'')+'</td>';
+    html+='<td style="color:'+_scoreClr(habitat)+'">'+Math.round(habitat)+'%</td>';
+    html+='<td style="color:'+comfortColor(Math.round(comfort))+'">'+Math.round(comfort)+'%</td>';
+    html+='<td style="color:'+color+';font-weight:700">'+label+'</td></tr>';
+  }
+  html+='</table>';
+  // Sub-zone breakdown from first day
+  if(days[0]&&days[0].subzones){
+    var sz=days[0].subzones;
+    var parts=[];
+    if(sz.canyon)parts.push('Canyon '+Math.round(sz.canyon.max)+'%');
+    if(sz.pgfc)parts.push('PGFC '+Math.round(sz.pgfc.max)+'%');
+    if(sz.north)parts.push('North '+Math.round(sz.north.max)+'%');
+    if(sz.south)parts.push('South '+Math.round(sz.south.max)+'%');
+    if(parts.length)html+='<div style="font-size:8px;color:#94a3b8;padding:4px 0">Sub-zones: '+parts.join(' | ')+'</div>';
+  }
+  // Eddy status
+  var eddy=fcData.days[0]&&fcData.days[0].eddy;
+  if(eddy&&eddy.status){
+    document.getElementById('anEddy').innerHTML='Eddy: '+eddy.status+(eddy.distance_nm?' ('+Math.round(eddy.distance_nm)+'nm '+eddy.bearing+')':'');
+  }
+  document.getElementById('anMarlin').innerHTML=html;
+}
+
+function _scoreClr(s){return s>=75?'#22c55e':s>=60?'#86efac':s>=45?'#fbbf24':'#ef4444';}
+
+function buildFadsTable(){
+  if(!wxData)return;
+  var rotHrs=(wxData.locations.rottnest||{}).hourly||[];
+  var sunData=(wxData.locations.rottnest||{}).sun||[];
+  var sunMap={};for(var i=0;i<sunData.length;i++)sunMap[sunData[i].date]=sunData[i];
+  var todayStr=new Date().toISOString().split('T')[0];
+  var WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  // Group by date, daylight hours (05:00-18:00)
+  var dayMap={};
+  for(var i=0;i<rotHrs.length;i++){
+    var t=rotHrs[i].time;var dt=t.split('T')[0];var hr=parseInt(t.split('T')[1].split(':')[0]);
+    if(hr>=5&&hr<=18){if(!dayMap[dt])dayMap[dt]=[];dayMap[dt].push(rotHrs[i]);}
+  }
+  var dates=Object.keys(dayMap).sort();
+  var maxDate=new Date();maxDate.setDate(maxDate.getDate()+6);
+  var maxStr=maxDate.toISOString().split('T')[0];
+  dates=dates.filter(function(d){return d>=todayStr&&d<=maxStr;});
+  var html='<table class="an-tbl"><tr><th>Day</th><th>Status</th><th>Wind</th><th>Swell</th><th>Comfort</th><th>Sun</th><th>Warnings</th></tr>';
+  for(var di=0;di<dates.length;di++){
+    var date=dates[di];var dh=dayMap[date];
+    var dd=new Date(date);var dayName=WD[dd.getDay()];var dayNum=dd.getDate();var mon=MN[dd.getMonth()];
+    var isToday=date===todayStr;
+    var mxSw=0,mxWi=0,mxGu=0,mxWmo=0,totRain=0,nHrs=0,comfS=0;
+    for(var j=0;j<dh.length;j++){
+      var h=dh[j];
+      var sw=h.total_swell_height!=null?h.total_swell_height:(h.swell_wave_height||0);
+      if(sw>mxSw)mxSw=sw;
+      if((h.wind_speed_10m||0)>mxWi)mxWi=h.wind_speed_10m||0;
+      if((h.wind_gusts_10m||0)>mxGu)mxGu=h.wind_gusts_10m||0;
+      if((h.weather_code||0)>mxWmo)mxWmo=h.weather_code||0;
+      totRain+=(h.precipitation||0);
+      var wd=h.wind_direction_10m;if(wd!=null&&(wd>=330||wd<=30))nHrs++;
+      comfS+=(h.comfort||50);
+    }
+    var avgComf=comfS/dh.length;
+    var warns=[];
+    if(mxSw>=2)warns.push('SWELL '+mxSw.toFixed(1)+'m');else if(mxSw>=1.5)warns.push('Swell '+mxSw.toFixed(1)+'m');
+    if(mxWi>=15)warns.push('WIND '+Math.round(mxWi)+'kn');else if(mxWi>=10)warns.push('Wind '+Math.round(mxWi)+'kn');
+    if(mxGu>=20)warns.push('Gusts '+Math.round(mxGu)+'kn');
+    if(nHrs>=3)warns.push("N'ly pattern");else if(nHrs>=1)warns.push("N'ly shift");
+    if(mxWmo>=95)warns.push('STORM');else if(mxWmo>=61)warns.push('Rain');else if(totRain>2)warns.push('Showers');
+    var go=true;
+    if(mxSw>=1.5||mxWi>=15||mxGu>=25||nHrs>=3||mxWmo>=80)go=false;
+    var marginal=false;
+    if(go&&(mxSw>=1.2||mxWi>=10||mxGu>=18||nHrs>=1||mxWmo>=51))marginal=true;
+    var stCls,stTxt;
+    if(go&&!marginal){stCls='an-go';stTxt='GO';}
+    else if(go&&marginal){stCls='an-marginal';stTxt='MARGINAL';}
+    else{stCls='an-nogo';stTxt='NO GO';}
+    var sd=sunMap[date];
+    var sunStr='';
+    if(sd){var fl=sd.first_light.split('T')[1].substr(0,5),sr=sd.sunrise.split('T')[1].substr(0,5),ss=sd.sunset.split('T')[1].substr(0,5),ll=sd.last_light.split('T')[1].substr(0,5);sunStr=fl+'/'+sr+'/'+ss+'/'+ll;}
+    html+='<tr class="'+(isToday?'an-today':'')+'"><td class="an-day">'+dayName+' '+dayNum+' '+mon+(isToday?' *':'')+'</td>';
+    html+='<td class="'+stCls+'">'+stTxt+'</td>';
+    html+='<td>'+Math.round(mxWi)+'kn</td>';
+    html+='<td>'+mxSw.toFixed(1)+'m</td>';
+    html+='<td style="color:'+comfortColor(Math.round(avgComf))+'">'+Math.round(avgComf)+'%</td>';
+    html+='<td style="color:#fb923c;font-size:8px">'+sunStr+'</td>';
+    html+='<td style="color:#94a3b8;text-align:left">'+(warns.length?warns.join(', '):'Clear')+'</td></tr>';
+  }
+  html+='</table>';
+  document.getElementById('anFads').innerHTML=html;
+}
+
+// --- Weather realtime ---
+function refreshWeather(){
+  document.getElementById('wxRealtime').innerHTML='<span style="color:#64748b">Refreshing...</span>';
+  fetch('data/marine_weather.json?t='+Date.now()).then(function(r){return r.json()}).then(function(data){
+    wxData=data;drawWeatherCharts();updateWeatherSummary();updateWxRealtime();
+    if(anOpen)buildAnalysis();
+  }).catch(function(){document.getElementById('wxRealtime').innerHTML='<span style="color:#ef4444">Refresh failed</span>';});
+}
+
+function updateWxRealtime(){
+  if(!wxData)return;
+  var rotHrs=(wxData.locations.rottnest||{}).hourly||[];
+  if(!rotHrs.length){document.getElementById('wxRealtime').innerHTML='No data';return;}
+  // Find the hour closest to now
+  var now=Date.now();var bestI=0,bestD=Infinity;
+  for(var i=0;i<rotHrs.length;i++){var d=Math.abs(new Date(rotHrs[i].time).getTime()-now);if(d<bestD){bestD=d;bestI=i;}}
+  var h=rotHrs[bestI];
+  var compass=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+  var windDir=h.wind_direction_10m!=null?compass[Math.round(h.wind_direction_10m/22.5)%16]:'—';
+  var sw=h.total_swell_height!=null?h.total_swell_height:(h.swell_wave_height||0);
+  var sp=h.dominant_swell_period!=null?h.dominant_swell_period:(h.swell_wave_period||0);
+  var sst=h.sea_surface_temperature;
+  var comf=h.comfort||0;
+  var t=h.time.split('T');
+  var el=document.getElementById('wxRealtime');
+  el.innerHTML='<div style="display:flex;gap:10px;flex-wrap:wrap">'+
+    '<span>Wind: <b style="color:'+windColor(h.wind_speed_10m||0)+'">'+Math.round(h.wind_speed_10m||0)+'kn</b> '+windDir+' (gusts '+Math.round(h.wind_gusts_10m||0)+'kn)</span>'+
+    '<span>Swell: <b>'+sw.toFixed(1)+'m</b> '+Math.round(sp)+'s</span>'+
+    (sst!=null?'<span>SST: <b>'+sst.toFixed(1)+'°C</b></span>':'')+
+    '<span>Comfort: <b style="color:'+comfortColor(comf)+'">'+comf+'%</b></span>'+
+    '</div><div style="color:#475569;font-size:8px;margin-top:2px">Forecast for '+t[0]+' '+t[1].substr(0,5)+' (Rottnest)</div>';
 }
 
 document.addEventListener('DOMContentLoaded',function(){
