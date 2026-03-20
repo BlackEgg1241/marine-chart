@@ -1605,6 +1605,16 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             _feature_band_count = band_count
             _feature_band_mean = mean_band
 
+            # Floor boost for SST front lines — cells ON the front line
+            # (band_score > 0.5 = within ~1nm of the line) get lifted to at
+            # least _key_feature_floor.  This makes SST fronts always create
+            # visible zones without inflating already-high cells or clipping.
+            _key_feature_floor = 0.62
+            key_floor = np.zeros((ny, nx))
+            if "sst_front" in band_layers:
+                key_floor = np.where(band_layers["sst_front"] > 0.5, _key_feature_floor, 0)
+            _feature_key_floor = key_floor
+
             n_bands = len(band_layers)
             multi2 = np.sum(band_count[~land] >= 2) / max(np.sum(~land), 1) * 100
             multi3 = np.sum(band_count[~land] >= 3) / max(np.sum(~land), 1) * 100
@@ -1612,9 +1622,11 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         else:
             _feature_band_count = np.zeros((ny, nx))
             _feature_band_mean = np.zeros((ny, nx))
+            _feature_key_floor = np.zeros((ny, nx))
     except Exception as e:
         _feature_band_count = np.zeros((ny, nx))
         _feature_band_mean = np.zeros((ny, nx))
+        _feature_key_floor = np.zeros((ny, nx))
         print(f"[Hotspots] Feature banding failed: {e}")
 
     # --- Normalize by actual weights used (handles missing data gracefully) ---
@@ -1679,6 +1691,17 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         final[valid] = final[valid] / compressed_max
         final = np.clip(final, 0, 1)
         print(f"[Hotspots] Band boost pushed max to {raw_max:.2f}, rescaled to 1.0 (discrimination preserved)")
+
+    # Floor boost for SST front lines — cells on the front are lifted
+    # to at least _key_feature_floor (0.55).  Uses np.maximum so cells
+    # already above the floor are untouched — no clipping, no inflation.
+    if np.any(_feature_key_floor > 0):
+        before = final.copy()
+        final[valid] = np.maximum(final[valid], _feature_key_floor[valid])
+        n_lifted = np.sum((final[valid & ~land] > before[valid & ~land]))
+        n_front = np.sum(_feature_key_floor[valid & ~land] > 0)
+        n_ocean = max(np.sum(valid & ~land), 1)
+        print(f"[Hotspots] SST front floor: {n_lifted}/{n_front} front cells lifted to >=0.62 ({n_front}/{n_ocean} = {n_front/n_ocean*100:.0f}% on front)")
 
     # Spatial smoothing — sigma scales with grid resolution
     # Target ~1nm physical smoothing: just enough to connect pixels into contours
