@@ -23,9 +23,9 @@
         "sst_skew": 31.7,
         "anticyc_frac": 79.9
       },
-      "zone_max": 92.0,
-      "zone_mean": 66.7,
-      "zone_cells": 25,
+      "zone_max": 91.0,
+      "zone_mean": 64.2,
+      "zone_cells": 19,
       "subzones": {
         "canyon": {
           "max": 100.0,
@@ -74,9 +74,9 @@
         "blue_water_frac": 41.9,
         "sst_range": 70.2
       },
-      "zone_max": 90.0,
-      "zone_mean": 70.0,
-      "zone_cells": 29,
+      "zone_max": 82.0,
+      "zone_mean": 62.5,
+      "zone_cells": 19,
       "subzones": {
         "canyon": {
           "max": 100.0,
@@ -125,9 +125,9 @@
         "sst_std": 47.9,
         "sst_range": 49.5
       },
-      "zone_max": 91.0,
-      "zone_mean": 77.2,
-      "zone_cells": 29,
+      "zone_max": 92.0,
+      "zone_mean": 71.4,
+      "zone_cells": 23,
       "subzones": {
         "canyon": {
           "max": 100.0,
@@ -177,8 +177,8 @@
         "sst_std": 47.2
       },
       "zone_max": 87.0,
-      "zone_mean": 58.5,
-      "zone_cells": 26,
+      "zone_mean": 58.6,
+      "zone_cells": 23,
       "subzones": {
         "canyon": {
           "max": 100.0,
@@ -227,9 +227,9 @@
         "vorticity": 39.2,
         "sst_front_frac": 41.1
       },
-      "zone_max": 83.0,
-      "zone_mean": 40.8,
-      "zone_cells": 30,
+      "zone_max": 81.0,
+      "zone_mean": 42.7,
+      "zone_cells": 35,
       "subzones": {
         "canyon": {
           "max": 100.0,
@@ -278,9 +278,9 @@
         "anticyc_frac": 28.9,
         "vorticity": 32.1
       },
-      "zone_max": 77.0,
-      "zone_mean": 55.2,
-      "zone_cells": 18,
+      "zone_max": 69.0,
+      "zone_mean": 44.0,
+      "zone_cells": 22,
       "subzones": {
         "canyon": {
           "max": 100.0,
@@ -329,9 +329,9 @@
         "mld_mean": 12.4,
         "anticyc_frac": 25.6
       },
-      "zone_max": 91.0,
-      "zone_mean": 58.1,
-      "zone_cells": 34,
+      "zone_max": 69.0,
+      "zone_mean": 40.9,
+      "zone_cells": 27,
       "subzones": {
         "canyon": {
           "max": 100.0,
@@ -384,9 +384,9 @@
         "mld_mean": 4.1,
         "vorticity": 24.8
       },
-      "zone_max": 85.0,
-      "zone_mean": 68.8,
-      "zone_cells": 20,
+      "zone_max": 62.0,
+      "zone_mean": 50.0,
+      "zone_cells": 8,
       "subzones": {
         "canyon": {
           "max": 100.0,

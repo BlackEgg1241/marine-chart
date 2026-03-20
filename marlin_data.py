@@ -533,6 +533,23 @@ def detect_sst_fronts(sst_file, threshold=SST_GRADIENT_THRESHOLD, deep_mask=None
             )
             isotherm_features.extend(iso)
 
+    # 23°C isotherm — peak blue marlin catch temperature (median 22.8°C,
+    # 41% of catches at 22-23°C).  Not a range boundary but the empirical
+    # sweet spot from 46 validated Perth Canyon catches.
+    if 23 not in seen_temps and data_min - 0.5 <= 23 <= data_max + 0.5:
+        iso = _contours_to_geojson(
+            np.where(mask, float(np.nanmean(iso_data[~mask])), iso_data),
+            lons, lats, 23,
+            properties={
+                "type": "isotherm",
+                "temperature": 23,
+                "species": "blue",
+                "tier": "peak",
+                "color": "#f59e0b",  # amber — catch hotspot temperature
+            }
+        )
+        isotherm_features.extend(iso)
+
     all_features = features + isotherm_features
 
     geojson = {"type": "FeatureCollection", "features": all_features}
@@ -1407,30 +1424,37 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
 
         band_layers = {}  # name -> band_score array
 
-        # SST front band — fires wherever the visible front line is drawn (absolute
-        # threshold) OR where the gradient is strong relative to the day (relative
-        # threshold), whichever catches more.  This ensures the band always aligns
-        # with the map lines while still rewarding moderate fronts on calm days.
-        abs_mask = (grad_mag > SST_GRADIENT_THRESHOLD) & ~coast_buf & ~land
-        rel_mask = (grad_mag / g90 > _band_front_thresh) & ~coast_buf & ~land if g90 > 0 else abs_mask
-        sst_front_mask = abs_mask | rel_mask
+        # SST front band — absolute gradient threshold only.
+        # The relative threshold (top-quartile) was covering 75%+ of ocean cells,
+        # defeating spatial selectivity.  Absolute-only aligns with the visible
+        # front lines drawn on the map (~10-20% coverage).
+        sst_front_mask = (grad_mag > SST_GRADIENT_THRESHOLD) & ~coast_buf & ~land
         if np.any(sst_front_mask):
             band_layers["sst_front"] = _band_score(sst_front_mask)
 
-        # Isotherm bands — blue marlin prime temperature boundaries (22°C and 24°C)
-        # These are the edges of the optimal range; fish aggregate along these lines
+        # Isotherm bands — contour-crossing detection for a true 1-pixel line
+        # matching the visible isotherm on the map.  The old temp-slab approach
+        # (|SST - temp| < 0.3) covered 9-34% of ocean in gentle gradients.
         try:
             iso_smooth = gaussian_filter(sst_filled, sigma=0.5)
-            for iso_temp in [22, 24]:
-                # Binary mask: cells within 0.3°C of the isotherm
-                iso_mask = (np.abs(iso_smooth - iso_temp) < 0.3) & ~land & ~coast_buf
-                if np.any(iso_mask):
-                    band_layers[f"isotherm_{iso_temp}C"] = _band_score(iso_mask)
+            for iso_temp in [22, 23, 24]:
+                # Cell is on the contour where SST crosses the target between neighbors
+                cross_h = (iso_smooth[:, :-1] - iso_temp) * (iso_smooth[:, 1:] - iso_temp) <= 0
+                cross_v = (iso_smooth[:-1, :] - iso_temp) * (iso_smooth[1:, :] - iso_temp) <= 0
+                cross_mask = np.zeros((ny, nx), dtype=bool)
+                cross_mask[:, :-1] |= cross_h
+                cross_mask[:, 1:] |= cross_h
+                cross_mask[:-1, :] |= cross_v
+                cross_mask[1:, :] |= cross_v
+                cross_mask &= ~land & ~coast_buf
+                if np.any(cross_mask):
+                    band_layers[f"isotherm_{iso_temp}C"] = _band_score(cross_mask)
         except Exception:
             pass
 
-        # CHL edge band — hybrid: fires at visible contour lines (concentration
-        # levels) OR where gradient is strong, so bands align with map lines.
+        # CHL edge band — gradient-only.  The contour tolerance approach
+        # (4 levels x 30% tolerance) covered 67-78% of ocean — not selective.
+        # Gradient-only fires where CHL changes sharply (~10-15% coverage).
         if chl_grid is not None:
             try:
                 chl_for_grad = np.log10(np.clip(chl_grid, 0.01, 10))
@@ -1441,106 +1465,63 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                 chl_grad = np.sqrt(cgx**2 + cgy**2)
                 chl_grad[coast_buf] = 0
                 cg90 = np.nanpercentile(chl_grad[~coast_buf & ~land], 90)
-                # Gradient-based mask (relative threshold)
-                rel_mask = (chl_grad / cg90 > _band_chl_thresh) & ~coast_buf & ~land if cg90 > 0 else np.zeros_like(land)
-                # Contour-based mask — cells near visible CHL concentration lines
-                chl_smoothed_lin = gaussian_filter(np.where(np.isnan(chl_grid) | land, 0, chl_grid), sigma=0.8)
-                contour_mask = np.zeros_like(land)
-                for level, _, _ in CHL_LEVELS:
-                    contour_mask |= (np.abs(chl_smoothed_lin - level) < level * 0.3) & ~land & ~coast_buf
-                chl_edge_mask = rel_mask | contour_mask
+                chl_edge_mask = (chl_grad / cg90 > _band_chl_thresh) & ~coast_buf & ~land if cg90 > 0 else np.zeros_like(land)
                 if np.any(chl_edge_mask):
                     band_layers["chl_edge"] = _band_score(chl_edge_mask)
             except Exception:
                 pass
 
-        # MLD edge band — hybrid: fires at visible contour lines (10/20/30/50m)
-        # OR where gradient is strong, so bands align with map lines.
-        if mld_grid is not None:
-            try:
-                mld_for_grad = mld_grid.copy()
-                mld_for_grad[np.isnan(mld_for_grad) | land] = np.nanmean(mld_grid[~land])
-                mld_smooth = gaussian_filter(mld_for_grad, sigma=1.5)
-                mgx = sobel(mld_smooth, axis=1)
-                mgy = sobel(mld_smooth, axis=0)
-                mld_grad = np.sqrt(mgx**2 + mgy**2)
-                mld_grad[coast_buf] = 0
-                mg90 = np.nanpercentile(mld_grad[~coast_buf & ~land], 90)
-                # Gradient-based mask
-                rel_mask = (mld_grad / mg90 > 0.35) & ~coast_buf & ~land if mg90 > 0 else np.zeros_like(land)
-                # Contour-based mask — cells near visible MLD depth lines
-                mld_smoothed = gaussian_filter(mld_for_grad, sigma=0.8)
-                contour_mask = np.zeros_like(land)
-                for level, _, _ in MLD_LEVELS:
-                    tol = max(2.0, level * 0.15)  # 15% tolerance, min 2m
-                    contour_mask |= (np.abs(mld_smoothed - level) < tol) & ~land & ~coast_buf
-                mld_edge_mask = rel_mask | contour_mask
-                if np.any(mld_edge_mask):
-                    band_layers["mld_edge"] = _band_score(mld_edge_mask)
-            except Exception:
-                pass
+        # MLD edge band — REMOVED.  At 0.083 deg resolution the MLD field is
+        # already smooth (model output, not observed), so contours represent
+        # broad transitions rather than sharp thermocline edges.  The band
+        # covered 66-73% of ocean cells — not selective.
 
-        # Eddy edge bands — hybrid: fires at visible SLA contour lines
-        # AND at eddy boundary edges, so bands align with map lines.
+        # SLA contour bands — contour-crossing only (no erosion edges).
+        # Cold eddy REMOVED: SLA is always positive in Perth Canyon (Leeuwin
+        # Current), so "cold_eddy" at -0.03m never exists — the band was
+        # detecting coastline artifacts and covering 45-47% of ocean.
+        # Warm eddy kept at positive SLA levels only (11-15% coverage).
         if ssh_grid is not None:
             try:
-                from scipy.ndimage import binary_erosion
                 ssh_for_grad = ssh_grid.copy()
                 ssh_for_grad[np.isnan(ssh_for_grad) | land] = np.nanmean(ssh_grid[~land])
                 ssh_smooth_we = gaussian_filter(ssh_for_grad, sigma=1.0)
 
-                # Binary erosion edges (original method)
-                warm_eddy = (ssh_smooth_we > 0.03) & ~land & ~coast_buf
-                warm_edge = np.zeros_like(land)
-                if np.any(warm_eddy) and np.any(~warm_eddy & ~land):
-                    warm_edge = warm_eddy & ~binary_erosion(warm_eddy, iterations=1)
-
-                cold_eddy = (ssh_smooth_we < -0.03) & ~land & ~coast_buf
-                cold_edge = np.zeros_like(land)
-                if np.any(cold_eddy) and np.any(~cold_eddy & ~land):
-                    cold_edge = cold_eddy & ~binary_erosion(cold_eddy, iterations=1)
-
-                # Contour-based masks — cells near visible SLA contour lines
-                warm_contour = np.zeros_like(land)
-                cold_contour = np.zeros_like(land)
+                # Contour-crossing masks at positive SLA levels only
+                warm_contour = np.zeros((ny, nx), dtype=bool)
                 for level, _, _ in SLA_LEVELS:
-                    level_mask = (np.abs(ssh_smooth_we - level) < 0.01) & ~land & ~coast_buf
-                    if level >= 0:
-                        warm_contour |= level_mask
-                    else:
-                        cold_contour |= level_mask
-
-                # Combine: erosion edges + visible contour lines
-                warm_combined = warm_edge | warm_contour
-                if np.any(warm_combined):
-                    band_layers["warm_eddy"] = _band_score(warm_combined)
-                cold_combined = cold_edge | cold_contour
-                if np.any(cold_combined):
-                    band_layers["cold_eddy"] = _band_score(cold_combined)
+                    if level < 0:
+                        continue  # skip negative levels — no cold eddies here
+                    cross_h = (ssh_smooth_we[:, :-1] - level) * (ssh_smooth_we[:, 1:] - level) <= 0
+                    cross_v = (ssh_smooth_we[:-1, :] - level) * (ssh_smooth_we[1:, :] - level) <= 0
+                    cross = np.zeros((ny, nx), dtype=bool)
+                    cross[:, :-1] |= cross_h
+                    cross[:, 1:] |= cross_h
+                    cross[:-1, :] |= cross_v
+                    cross[1:, :] |= cross_v
+                    warm_contour |= cross & ~land & ~coast_buf
+                if np.any(warm_contour):
+                    band_layers["warm_eddy"] = _band_score(warm_contour)
 
             except Exception:
                 pass
 
-        # SSTA edge band — hybrid: fires at visible SSTA contour lines
-        # AND at the +0.5°C intrusion boundary edge.
+        # SSTA edge band — erosion edge only at +0.5C warm intrusion front.
+        # The contour tolerance approach (6 levels x 0.15C) covered 39-41%
+        # of ocean — not selective.  The intrusion front edge is the only
+        # physically meaningful SSTA boundary for fishing.
         if 'ssta' in dir() and ssta is not None:
             try:
                 ssta_clean = ssta.copy()
                 ssta_clean[np.isnan(ssta_clean) | land] = 0.0
                 ssta_smooth_band = gaussian_filter(ssta_clean, sigma=1.0)
-                # Binary erosion edge at +0.5°C intrusion front
                 warm_intrusion = (ssta_smooth_band > 0.5) & ~land & ~coast_buf
                 erosion_edge = np.zeros_like(land)
                 if np.any(warm_intrusion) and np.any(~warm_intrusion & ~land):
                     from scipy.ndimage import binary_erosion
                     erosion_edge = warm_intrusion & ~binary_erosion(warm_intrusion, iterations=1)
-                # Contour-based mask — cells near visible SSTA contour lines
-                contour_mask = np.zeros_like(land)
-                for level, _, _ in SSTA_LEVELS:
-                    contour_mask |= (np.abs(ssta_smooth_band - level) < 0.15) & ~land & ~coast_buf
-                ssta_edge_mask = erosion_edge | contour_mask
-                if np.any(ssta_edge_mask):
-                    band_layers["ssta_edge"] = _band_score(ssta_edge_mask)
+                if np.any(erosion_edge):
+                    band_layers["ssta_edge"] = _band_score(erosion_edge)
             except Exception:
                 pass
 
@@ -1605,14 +1586,18 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             _feature_band_count = band_count
             _feature_band_mean = mean_band
 
-            # Floor boost for SST front lines — cells ON the front line
-            # (band_score > 0.5 = within ~1nm of the line) get lifted to at
-            # least _key_feature_floor.  This makes SST fronts always create
-            # visible zones without inflating already-high cells or clipping.
+            # Floor boost for SST front lines — uses broader mask (absolute OR
+            # relative gradient) for the floor so visible front lines always
+            # create hotspot zones.  The band scoring uses absolute-only for
+            # selectivity, but the floor just ensures visibility.
             _key_feature_floor = 0.62
             key_floor = np.zeros((ny, nx))
-            if "sst_front" in band_layers:
-                key_floor = np.where(band_layers["sst_front"] > 0.5, _key_feature_floor, 0)
+            # Build broader front mask for floor (includes relative threshold)
+            _rel_floor_mask = (grad_mag / g90 > _band_front_thresh) & ~coast_buf & ~land if g90 > 0 else sst_front_mask
+            broad_front_mask = sst_front_mask | _rel_floor_mask
+            if np.any(broad_front_mask):
+                broad_front_band = _band_score(broad_front_mask)
+                key_floor = np.where(broad_front_band > 0.5, _key_feature_floor, 0)
             _feature_key_floor = key_floor
 
             n_bands = len(band_layers)
@@ -1654,17 +1639,16 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     # Two-tier: single_boost per band (being near ANY feature matters),
     # plus overlap_boost for each additional overlapping band (convergence zones).
     if np.any(_feature_band_count > 0):
-        _band_single = getattr(sys.modules[__name__], '_opt_band_single', 0.03)
+        _band_single = getattr(sys.modules[__name__], '_opt_band_single', 0.06)
         _band_overlap = getattr(sys.modules[__name__], '_opt_band_overlap', 0.20)
-        _band_overlap_thresh = 3  # overlap bonus kicks in above this many bands
+        _band_overlap_thresh = 2  # overlap bonus at 2+ (bands are now selective)
         # Suppress cells with NO feature bands — without any oceanographic
         # feature nearby, high base scores are just "warm open ocean" not a
-        # fishing hotspot. Dampen by 35% so features visually dominate.
+        # fishing hotspot. Mild dampen (20%) since bands are now selective.
         no_band_mask = (_feature_band_count < 0.1) & valid & ~land
-        final[no_band_mask] *= 0.65
-        # Single: mild per-band contribution; Overlap: reward for 3+ bands
-        # With hybrid detection, 2-3 bands is common — cells with 4+
-        # genuine feature overlaps get the big overlap bonus.
+        final[no_band_mask] *= 0.80
+        # Single: 6% per band (doubled — each band is now genuinely meaningful)
+        # Overlap: reward for 2+ bands (previously 3+ when bands were broad)
         extra = np.clip(_feature_band_count - _band_overlap_thresh, 0, None)
         band_mult = (1.0
                      + _band_single * _feature_band_count * _feature_band_mean
@@ -1701,7 +1685,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         n_lifted = np.sum((final[valid & ~land] > before[valid & ~land]))
         n_front = np.sum(_feature_key_floor[valid & ~land] > 0)
         n_ocean = max(np.sum(valid & ~land), 1)
-        print(f"[Hotspots] SST front floor: {n_lifted}/{n_front} front cells lifted to >=0.62 ({n_front}/{n_ocean} = {n_front/n_ocean*100:.0f}% on front)")
+        print(f"[Hotspots] Feature line floor: {n_lifted}/{n_front} cells lifted to >=0.62 ({n_front}/{n_ocean} = {n_front/n_ocean*100:.0f}% on feature lines)")
 
     # Spatial smoothing — sigma scales with grid resolution
     # Target ~1nm physical smoothing: just enough to connect pixels into contours
