@@ -362,10 +362,7 @@ def main():
             "wave_height": "https://www.transport.wa.gov.au/getmedia/b3dfc548-cd46-4c32-aada-0261a3a66fc1/RDW_WAVE.GIF",
             "wave_direction": "https://www.transport.wa.gov.au/getmedia/70e0fe88-19fa-49fb-9094-d6c1bf148a01/RDW_POLD.GIF",
         },
-        "hillarys": {
-            "wave_height": "https://www.transport.wa.gov.au/getmedia/1bca5c14-3c5c-4f8a-bbb1-98e6abbc63a0/HIL_WAVE.GIF",
-            "wave_direction": "https://www.transport.wa.gov.au/getmedia/6fe44147-c39a-4ed1-930f-12ecf2d8e1ce/HIL_POLD.GIF",
-        },
+        "hillarys": {},
         "wave_height": "https://www.transport.wa.gov.au/getmedia/b3dfc548-cd46-4c32-aada-0261a3a66fc1/RDW_WAVE.GIF",
         "wave_direction": "https://www.transport.wa.gov.au/getmedia/70e0fe88-19fa-49fb-9094-d6c1bf148a01/RDW_POLD.GIF",
     }

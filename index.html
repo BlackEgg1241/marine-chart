@@ -217,7 +217,7 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.195</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.196</span></div>
   <div class="basemap-sw">
     <div class="bm-btn" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#1e5a8a);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🗺️</span></div><div class="bm-label">Ocean</div></div>
     <div class="bm-btn active" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
@@ -473,30 +473,34 @@ var SPOTS=[
   {c:[115.2333,-32.0],n:'PGFC',d:'FAD buoy (Perth Canyon 47) — in position.',t:'fad'},
   {c:[115.2667,-31.9667],n:'FURUNO',d:'FAD buoy (Perth Canyon 46) — in position.',t:'fad'},
   {c:[115.2,-31.9167],n:'Compleat Angler Nedlands',d:'FAD buoy (Perth Canyon 45) — in position.',t:'fad'},
+  // FAD buoys — Fremantle Sailing Club
+  {c:[115.1833,-32.0833],n:'Fremantle Sailing Club',d:'FAD buoy — in position.',t:'fad'},
   // FAD buoys — Woodman Pt group
-  {c:[115.1667,-32.1667],n:'Fibrelite Boats',d:'FAD buoy (Woodman Pt 6) — in position.',t:'fad'},
-  {c:[115.1193,-32.1191],n:'Woodman Pt 5',d:'FAD buoy (Woodman Pt 5) — in position.',t:'fad'},
+  {c:[115.1600,-32.1130],n:'Fibrelite Boats',d:'FAD buoy — Woodman Pt 06. In position.',t:'fad'},
+  {c:[115.1210,-32.1130],n:'Woodman Pt 05',d:'FAD buoy (Woodman Pt 05) — in position.',t:'fad'},
+  // FAD buoys — Rockingham / Mandurah group
+  {c:[115.1217,-32.2479],n:'Rockingham 08',d:'FAD buoy (Rockingham 08) — in position.',t:'fad'},
+  {c:[115.0736,-32.3585],n:'Rockingham 07',d:'FAD buoy (Rockingham 07) — in position.',t:'fad'},
+  {c:[115.0700,-32.5260],n:'Mandurah 09',d:'FAD buoy (Mandurah 09) — in position.',t:'fad'},
+  {c:[115.0287,-32.6274],n:'Mandurah 10',d:'FAD buoy (Mandurah 10) — in position.',t:'fad'},
   // FAD buoys — North Metro group
   {c:[115.1754,-31.7287],n:'North Metro 04',d:'FAD buoy (North Metro 04) — in position.',t:'fad'},
   {c:[115.1752,-31.7003],n:'North Metro 03',d:'FAD buoy (North Metro 03) — in position.',t:'fad'},
-  {c:[115.1335,-31.6953],n:'North Metro 02',d:'FAD buoy (North Metro 02) — in position.',t:'fad'},
-  {c:[115.1333,-31.6213],n:'North Metro 01',d:'FAD buoy (North Metro 01) — in position.',t:'fad'},
+  {c:[115.1333,-31.6999],n:'North Metro 02',d:'FAD buoy (North Metro 02) — in position.',t:'fad'},
+  {c:[115.1332,-31.6171],n:'North Metro 01',d:'FAD buoy (North Metro 01) — in position.',t:'fad'},
   // Rottnest fuel
   {c:[115.54303,-31.99673],n:'Rottnest Fuel Jetty',d:'Fuel dock — Thomson Bay, Rottnest Island.',t:'ramp'},
-  // Boat ramps — south to north (Mandurah to Two Rocks)
+  // Boat ramps — south to north
   {c:[115.7028,-32.5296],n:'Mandurah Ramp',d:'Boat ramp — Mandurah Ocean Marina.',t:'ramp'},
   {c:[115.6556,-32.3261],n:'Dawesville Ramp',d:'Boat ramp — Dawesville Channel.',t:'ramp'},
   {c:[115.7622,-32.3239],n:'Secret Harbour Ramp',d:'Boat ramp — Secret Harbour.',t:'ramp'},
-  {c:[115.6877,-32.2453],n:'Warnbro Ramp',d:'Boat ramp — Warnbro Sound.',t:'ramp'},
+  {c:[115.6975,-32.2708],n:'Point Peron Ramp',d:'Boat ramp — Point Peron.',t:'ramp'},
   {c:[115.7514,-32.1958],n:'Rockingham Ramp',d:'Boat ramp — Rockingham Beach.',t:'ramp'},
-  {c:[115.7156,-32.1078],n:'Woodman Pt Ramp',d:'Boat ramp — Woodman Point (Jervoise Bay).',t:'ramp'},
-  {c:[115.7583,-32.0614],n:'South Fremantle Ramp',d:'Boat ramp — South Mole, Fremantle.',t:'ramp'},
-  {c:[115.7417,-32.0556],n:'Fremantle Ramp',d:'Boat ramp — Fishing Boat Harbour.',t:'ramp'},
-  {c:[115.7594,-31.9547],n:'Leeuwin Ramp',d:'Boat ramp — Leeuwin, Mosman Park.',t:'ramp'},
-  {c:[115.7553,-31.8428],n:'Hillarys Ramp',d:'Boat ramp — Hillarys Boat Harbour.',t:'ramp'},
-  {c:[115.7458,-31.7803],n:'Ocean Reef Ramp',d:'Boat ramp — Ocean Reef Marina.',t:'ramp'},
-  {c:[115.7331,-31.7356],n:'Mindarie Ramp',d:'Boat ramp — Mindarie Marina.',t:'ramp'},
-  {c:[115.5858,-31.5006],n:'Two Rocks Ramp',d:'Boat ramp — Two Rocks Marina.',t:'ramp'}
+  {c:[115.7639,-32.1391],n:'Woodman Pt Ramp',d:'Boat ramp — Woodman Point (Jervoise Bay).',t:'ramp'},
+  {c:[115.7392,-31.8219],n:'Hillarys Ramp',d:'Boat ramp — Hillarys Boat Harbour.',t:'ramp'},
+  {c:[115.7271,-31.7625],n:'Ocean Reef Ramp',d:'Boat ramp — Ocean Reef Marina.',t:'ramp'},
+  {c:[115.7023,-31.6916],n:'Mindarie Ramp',d:'Boat ramp — Mindarie Marina.',t:'ramp'},
+  {c:[115.5843,-31.4985],n:'Two Rocks Ramp',d:'Boat ramp — Two Rocks Marina.',t:'ramp'}
 ];
 
 var map,cBM='satellite',gpsWId=null,gM='off',cPos=null,fGPS=false,trk=[];
