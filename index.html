@@ -217,7 +217,7 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.186</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.187</span></div>
   <div class="basemap-sw">
     <div class="bm-btn" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#1e5a8a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🗺️</span></div><div class="bm-label">Ocean</div></div>
     <div class="bm-btn active" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
@@ -556,7 +556,7 @@ function initMap(){
     {id:'isotherm-blue-peak',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'peak']],paint:{'line-color':'#f59e0b','line-width':['interpolate',['linear'],['zoom'],5,3.5,10,2.5,15,2],'line-opacity':0}},
     {id:'isotherm-blue-prime',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'prime']],paint:{'line-color':'#06b6d4','line-width':['interpolate',['linear'],['zoom'],5,3,10,2,15,1.5],'line-opacity':0}},
     {id:'isotherm-blue-good',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'good']],paint:{'line-color':'#22d3ee','line-width':['interpolate',['linear'],['zoom'],5,2.5,10,1.5,15,1],'line-opacity':0,'line-dasharray':[6,3]}},
-    {id:'isotherm-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{'symbol-placement':'line','text-field':['concat',['to-string',['get','temperature']],'°'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#fcd34d','text-halo-color':'rgba(0,0,0,0.75)','text-halo-width':1.5,'text-opacity':0}},
+    {id:'isotherm-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{'symbol-placement':'line','text-field':['concat',['to-string',['get','temperature']],'°'],'text-size':11,'text-font':['Open Sans Bold']},paint:{'text-color':'#fcd34d','text-halo-color':'rgba(0,0,0,0.85)','text-halo-width':2,'text-opacity':0}},
     {id:'chl-edge-line',type:'line',source:'chl-edges',paint:{'line-color':['step',['get','concentration'],'#86efac',0.15,'#4ade80',0.30,'#16a34a',0.60,'#14532d'],'line-width':['step',['get','concentration'],1,0.15,1.5,0.30,2,0.60,2.5],'line-opacity':.8}},
     {id:'current-line',type:'line',source:'currents',paint:{'line-color':'#000000','line-width':1,'line-opacity':.75}},
     {id:'ssh-cold',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'cold_eddy'],paint:{'line-color':'#60a5fa','line-width':2,'line-opacity':.8,'line-dasharray':[5,3]}},
@@ -815,7 +815,7 @@ function setBasemap(n){
   map.addLayer({id:'isotherm-blue-peak',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'peak']],paint:{'line-color':'#f59e0b','line-width':['interpolate',['linear'],['zoom'],5,3.5,10,2.5,15,2],'line-opacity':bmo?.95:0}},bf);
   map.addLayer({id:'isotherm-blue-prime',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'prime']],paint:{'line-color':'#06b6d4','line-width':['interpolate',['linear'],['zoom'],5,3,10,2,15,1.5],'line-opacity':bmo?.9:0}},bf);
   map.addLayer({id:'isotherm-blue-good',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'good']],paint:{'line-color':'#22d3ee','line-width':['interpolate',['linear'],['zoom'],5,2.5,10,1.5,15,1],'line-opacity':bmo?.5:0,'line-dasharray':[6,3]}},bf);
-  map.addLayer({id:'isotherm-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{'symbol-placement':'line','text-field':['concat',['to-string',['get','temperature']],'°'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#fcd34d','text-halo-color':'rgba(0,0,0,0.75)','text-halo-width':1.5,'text-opacity':(fo||LS.blue_marlin)?1:0}},bf);
+  map.addLayer({id:'isotherm-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{'symbol-placement':'line','text-field':['concat',['to-string',['get','temperature']],'°'],'text-size':11,'text-font':['Open Sans Bold']},paint:{'text-color':'#fcd34d','text-halo-color':'rgba(0,0,0,0.85)','text-halo-width':2,'text-opacity':(fo||LS.blue_marlin)?1:0}},bf);
   map.addLayer({id:'chl-edge-line',type:'line',source:'chl-edges',paint:{'line-color':['step',['get','concentration'],'#86efac',0.15,'#4ade80',0.30,'#16a34a',0.60,'#14532d'],'line-width':['step',['get','concentration'],1,0.15,1.5,0.30,2,0.60,2.5],'line-opacity':LS.chl_edges?.8:0}},bf);
   map.addLayer({id:'current-line',type:'line',source:'currents',paint:{'line-color':'#000000','line-width':1,'line-opacity':LS.currents?.75:0}},bf);
   var so=LS.ssh;
@@ -1534,43 +1534,22 @@ function drawWindChart(hours){
 
   wxDrawGrid(ctx,W,H,pad,yMax,' kn',hours);
 
+  // Faint horizontal gridlines every 5kn
+  for(var kn=5;kn<yMax;kn+=5){
+    var yg=pad.t+(1-kn/yMax)*gH;
+    ctx.strokeStyle='rgba(255,255,255,.08)';ctx.lineWidth=0.5;
+    ctx.beginPath();ctx.moveTo(pad.l,yg);ctx.lineTo(pad.l+gW,yg);ctx.stroke();
+  }
+
   // 15kn limit line (red dashed)
   var y15=pad.t+(1-15/yMax)*gH;
   ctx.save();ctx.setLineDash([4,3]);ctx.strokeStyle='rgba(239,68,68,.5)';ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(pad.l,y15);ctx.lineTo(pad.l+gW,y15);ctx.stroke();ctx.restore();
-  ctx.fillStyle='rgba(239,68,68,.4)';ctx.font='7px JetBrains Mono';ctx.textAlign='left';
-  ctx.fillText('15kn',pad.l+2,y15-3);
+  ctx.fillStyle='rgba(239,68,68,.5)';ctx.font='italic 7px JetBrains Mono';ctx.textAlign='left';
+  ctx.fillText('15kn limit',pad.l+2,y15-3);
 
-  // Blue fill: 0 to wind speed
-  ctx.beginPath();
-  for(var i=0;i<hours.length;i++){
-    var ws=hours[i].wind_speed_10m||0;
-    var x=pad.l+(i/(hours.length-1))*gW;
-    var y=pad.t+(1-ws/yMax)*gH;
-    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-  }
-  ctx.lineTo(pad.l+gW,pad.t+gH);ctx.lineTo(pad.l,pad.t+gH);ctx.closePath();
-  ctx.fillStyle='rgba(56,189,248,.2)';ctx.fill();
-
-  // Red fill: wind speed to gusts
-  ctx.beginPath();
-  for(var i=0;i<hours.length;i++){
-    var ws=hours[i].wind_speed_10m||0;
-    var x=pad.l+(i/(hours.length-1))*gW;
-    var y=pad.t+(1-ws/yMax)*gH;
-    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-  }
-  for(var i=hours.length-1;i>=0;i--){
-    var g=hours[i].wind_gusts_10m||0;
-    var x=pad.l+(i/(hours.length-1))*gW;
-    var y=pad.t+(1-g/yMax)*gH;
-    ctx.lineTo(x,y);
-  }
-  ctx.closePath();
-  ctx.fillStyle='rgba(239,68,68,.2)';ctx.fill();
-
-  // Gust line (red, thin)
-  ctx.beginPath();ctx.strokeStyle='#ef4444';ctx.lineWidth=1;ctx.globalAlpha=0.7;
+  // Gust line (brown/orange, thin, alpha)
+  ctx.beginPath();ctx.strokeStyle='#fb923c';ctx.lineWidth=1;ctx.globalAlpha=0.3;
   for(var i=0;i<hours.length;i++){
     var g=hours[i].wind_gusts_10m||0;
     var x=pad.l+(i/(hours.length-1))*gW;
@@ -1579,8 +1558,8 @@ function drawWindChart(hours){
   }
   ctx.stroke();ctx.globalAlpha=1;
 
-  // Wind speed line (cyan, thicker)
-  ctx.beginPath();ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;
+  // Wind speed line (cyan, thin like email)
+  ctx.beginPath();ctx.strokeStyle='#38bdf8';ctx.lineWidth=0.8;
   for(var i=0;i<hours.length;i++){
     var ws=hours[i].wind_speed_10m||0;
     var x=pad.l+(i/(hours.length-1))*gW;
@@ -1589,8 +1568,8 @@ function drawWindChart(hours){
   }
   ctx.stroke();
 
-  // Wind direction arrows on the wind line every 3 hours
-  var arrowInterval=Math.max(3,Math.floor(hours.length/24));
+  // Wind direction arrows on the wind line every 3 hours (quiver style like email)
+  var arrowInterval=3;
   for(var i=0;i<hours.length;i+=arrowInterval){
     var dir=hours[i].wind_direction_10m;
     if(dir==null)continue;
@@ -1598,19 +1577,40 @@ function drawWindChart(hours){
     var x=pad.l+(i/(hours.length-1))*gW;
     var y=pad.t+(1-ws/yMax)*gH;
     var clr=windColor(ws);
+    // Quiver arrow: wind comes FROM dir, arrow shows air movement (dir+180)
+    var toRad=(dir+180)*Math.PI/180;
+    var len=8;
+    var dx=Math.sin(toRad)*len;
+    var dy=-Math.cos(toRad)*len;
+    // Arrow shaft
     ctx.save();
-    ctx.translate(x,y);
-    ctx.rotate((dir+180)*Math.PI/180);
-    var sz=5;
-    ctx.beginPath();ctx.moveTo(0,-sz);ctx.lineTo(-sz*0.45,sz*0.5);ctx.lineTo(sz*0.45,sz*0.5);ctx.closePath();
-    ctx.fillStyle=clr;ctx.fill();
-    ctx.strokeStyle='rgba(0,0,0,.4)';ctx.lineWidth=0.5;ctx.stroke();
+    ctx.strokeStyle=clr;ctx.lineWidth=1.5;ctx.globalAlpha=0.9;
+    ctx.beginPath();ctx.moveTo(x-dx*0.5,y-dy*0.5);ctx.lineTo(x+dx*0.5,y+dy*0.5);ctx.stroke();
+    // Arrowhead
+    var hx=x+dx*0.5,hy=y+dy*0.5;
+    var angle=Math.atan2(dy,dx);
+    var hs=4;
+    ctx.fillStyle=clr;
+    ctx.beginPath();
+    ctx.moveTo(hx,hy);
+    ctx.lineTo(hx-hs*Math.cos(angle-0.5),hy-hs*Math.sin(angle-0.5));
+    ctx.lineTo(hx-hs*Math.cos(angle+0.5),hy-hs*Math.sin(angle+0.5));
+    ctx.closePath();ctx.fill();
     ctx.restore();
   }
 
-  // Legend
-  ctx.font='7px JetBrains Mono';ctx.textAlign='left';ctx.fillStyle='#64748b';
-  ctx.fillText('Wind (cyan)  |  Gusts (red)',pad.l+2,pad.t-4);
+  // Legend (top left, matching email style)
+  var lx=pad.l+6,ly=pad.t+6;
+  ctx.globalAlpha=0.7;ctx.fillStyle='#1e293b';ctx.fillRect(lx-4,ly-8,80,20);ctx.globalAlpha=1;
+  ctx.font='7px JetBrains Mono';
+  // Gusts legend
+  ctx.strokeStyle='#fb923c';ctx.lineWidth=1;ctx.globalAlpha=0.5;
+  ctx.beginPath();ctx.moveTo(lx,ly-2);ctx.lineTo(lx+14,ly-2);ctx.stroke();ctx.globalAlpha=1;
+  ctx.fillStyle='#fb923c';ctx.fillText('Gusts',lx+17,ly);
+  // Wind legend
+  ctx.strokeStyle='#38bdf8';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(lx,ly+7);ctx.lineTo(lx+14,ly+7);ctx.stroke();
+  ctx.fillStyle='#38bdf8';ctx.fillText('Wind',lx+17,ly+9);
   wxDrawSunStrip(ctx,W,H,pad,hours);
 }
 
