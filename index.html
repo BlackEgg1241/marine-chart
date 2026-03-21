@@ -155,6 +155,8 @@
 .ctx-menu button:hover{background:rgba(251,146,60,.12);color:#fbbf24}
 /* Measurement overlay */
 .measure-total{position:absolute;top:44px;left:14px;z-index:10;display:none;background:rgba(2,6,23,.9);backdrop-filter:blur(16px);border-radius:8px;padding:6px 14px;border:1px solid rgba(251,146,60,.3);font-size:11px;color:#fbbf24;font-weight:600;white-space:nowrap}
+.poly-panel{position:absolute;top:44px;right:14px;z-index:15;display:none;background:rgba(2,6,23,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:8px;padding:10px;border:1px solid rgba(251,146,60,.3);width:260px;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.poly-panel.active{display:block}
 @supports(padding-top:env(safe-area-inset-top)){.measure-total{top:calc(env(safe-area-inset-top) + 36px)}}
 .measure-total.active{display:block}
 /* Forecast panel */
@@ -219,7 +221,7 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.209</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.210</span></div>
   <div class="basemap-sw">
     <div class="bm-btn" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#1e5a8a);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🗺️</span></div><div class="bm-label">Ocean</div></div>
     <div class="bm-btn active" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
@@ -287,6 +289,19 @@
 <div class="ctx-menu" id="ctxMenu"></div>
 <!-- Measurement total -->
 <div class="measure-total" id="measureTotal"></div>
+<!-- Polygon tool panel -->
+<div class="poly-panel" id="polyPanel">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+    <span style="font-weight:700;color:#fbbf24;font-size:11px">Polygon Tool</span>
+    <span id="polyCount" style="font-size:10px;color:#94a3b8"></span>
+  </div>
+  <textarea id="polyCoords" readonly style="width:100%;height:120px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);border-radius:4px;color:#e2e8f0;font-family:'Consolas','Courier New',monospace;font-size:10px;padding:6px;resize:vertical;cursor:text" onclick="this.select()"></textarea>
+  <div style="display:flex;gap:6px;margin-top:6px">
+    <button onclick="undoPoly()" style="flex:1;padding:5px;border:1px solid rgba(251,146,60,.3);border-radius:4px;background:transparent;color:#fbbf24;font-size:10px;cursor:pointer">Undo</button>
+    <button onclick="endPoly()" style="flex:1;padding:5px;border:1px solid rgba(251,146,60,.3);border-radius:4px;background:transparent;color:#fbbf24;font-size:10px;cursor:pointer">Done</button>
+    <button onclick="clearPoly()" style="flex:1;padding:5px;border:1px solid rgba(239,68,68,.3);border-radius:4px;background:transparent;color:#ef4444;font-size:10px;cursor:pointer">Clear</button>
+  </div>
+</div>
 
 <!-- Draggable info panel (click/pinned) -->
 <div class="info-panel" id="infoPanel">
@@ -539,7 +554,7 @@ function initMap(){
     'currents':{type:'geojson',data:'data/currents.geojson'},
     'nav-aids':{type:'geojson',data:'data/navigation_aids.geojson'},
     'bathymetry':{type:'geojson',data:'data/bathymetry_contours.geojson'},
-    'bathy-hillshade':{type:'image',url:'data/bathy_hillshade.png',coordinates:[[113.8002,-30.7998],[116.1995,-30.7998],[116.1995,-32.7996],[113.8002,-32.7996]]},
+    'bathy-hillshade':{type:'raster',tiles:['data/bathy_tiles/{z}/{x}/{y}.png'],tileSize:256,minzoom:8,maxzoom:12,bounds:[114.499,-32.801,116.001,-31.299]},
     'deep-water':{type:'geojson',data:'data/deep_water.geojson'},
     'mld':{type:'geojson',data:'data/mld_contours.geojson'},
     'water-clarity':{type:'geojson',data:'data/water_clarity.geojson'},
@@ -570,7 +585,7 @@ function initMap(){
     {id:'bathy-500',type:'line',source:'bathymetry',filter:['==',['get','depth'],-500],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':.75}},
     {id:'bathy-1000',type:'line',source:'bathymetry',filter:['==',['get','depth'],-1000],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':.65}},
     {id:'bathy-label',type:'symbol',source:'bathymetry',filter:['any',['==',['get','depth'],-100],['==',['get','depth'],-150],['==',['get','depth'],-200],['==',['get','depth'],-250],['==',['get','depth'],-500],['==',['get','depth'],-1000]],layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat',['to-string',['*',['get','depth'],-1]],'m'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#000000','text-halo-color':'rgba(255,255,255,0.85)','text-halo-width':1.5,'text-opacity':1}},
-    {id:'nav-base',type:'circle',source:'nav-aids',filter:['!',['in',['get','category'],'port','starboard']],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,3,14,6],'circle-color':['match',['get','category'],'cardinal','#eab308','light','#ffffff','lead','#f97316','buoy','#3b82f6','beacon','#a855f7','ais','#06b6d4','#94a3b8'],'circle-stroke-width':1.5,'circle-stroke-color':'#000','circle-opacity':0}},
+    {id:'nav-base',type:'circle',source:'nav-aids',filter:['all',['!=',['get','category'],'port'],['!=',['get','category'],'starboard']],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,3,14,6],'circle-color':['match',['get','category'],'cardinal','#eab308','light','#ffffff','lead','#f97316','buoy','#3b82f6','beacon','#a855f7','ais','#06b6d4','#94a3b8'],'circle-stroke-width':1.5,'circle-stroke-color':'#000','circle-opacity':0}},
     {id:'nav-port',type:'circle',source:'nav-aids',filter:['==',['get','category'],'port'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,4,14,7],'circle-color':'#ef4444','circle-stroke-width':2,'circle-stroke-color':'#7f1d1d','circle-opacity':0}},
     {id:'nav-stbd',type:'circle',source:'nav-aids',filter:['==',['get','category'],'starboard'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,4,14,7],'circle-color':'#22c55e','circle-stroke-width':2,'circle-stroke-color':'#14532d','circle-opacity':0}},
     {id:'nav-cardinal-x',type:'circle',source:'nav-aids',filter:['==',['get','category'],'cardinal'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,1.5,14,3],'circle-color':'#000','circle-stroke-width':0,'circle-opacity':0}},
@@ -625,6 +640,17 @@ function initMap(){
   map.on('click','spot-dot',function(e){var f=e.features[0];var c=f.geometry.coordinates;new maplibregl.Popup({offset:12}).setLngLat(c).setHTML('<div style="font-weight:700;color:#fb923c;margin-bottom:3px">'+f.properties.name+'</div><div style="font-size:10px;color:#94a3b8;line-height:1.4">'+f.properties.desc+'</div><div style="font-size:9px;color:#64748b;margin-top:4px">'+fc(c[1],c[0])+'</div>').addTo(map)});
   map.on('mouseenter','spot-dot',function(){map.getCanvas().style.cursor='pointer'});
   map.on('mouseleave','spot-dot',function(){map.getCanvas().style.cursor=''});
+  // Nav aids hover popup
+  var navPopup=new maplibregl.Popup({offset:10,closeButton:false,closeOnClick:false});
+  var navLayers=['nav-base','nav-port','nav-stbd','nav-cardinal-x','nav-light-dot'];
+  navLayers.forEach(function(lid){
+    map.on('mouseenter',lid,function(e){
+      map.getCanvas().style.cursor='pointer';
+      var f=e.features[0],p=f.properties,c=f.geometry.coordinates;
+      navPopup.setLngLat(c).setHTML('<div style="font-weight:700;color:#e2e8f0;font-size:11px">'+p.name+'</div><div style="font-size:10px;color:#94a3b8">'+p.function+'</div>').addTo(map);
+    });
+    map.on('mouseleave',lid,function(){map.getCanvas().style.cursor='';navPopup.remove()});
+  });
   // Pinned info panel - draggable, stays on click
   var infoEl=document.getElementById('infoPanel'),infoCt=document.getElementById('infoContent');
   // Hover tooltip - follows mouse
@@ -684,23 +710,11 @@ function initMap(){
   });
   map.on('mousemove',function(e){
     if(_hoverOnFeature)return;
-    var html='<div class="hp-title">'+fc(e.lngLat.lat,e.lngLat.lng)+'</div>';
-    // Query depth grid for point-accurate depth
-    if(map.getLayer('depth-grid-pt')){
-      var dfs=map.queryRenderedFeatures([[e.point.x-8,e.point.y-8],[e.point.x+8,e.point.y+8]],{layers:['depth-grid-pt']});
-      if(dfs.length){
-        var closest=dfs[0],cd=Infinity;
-        for(var di=0;di<dfs.length;di++){var dp=map.project(dfs[di].geometry.coordinates);var dd=(dp.x-e.point.x)*(dp.x-e.point.x)+(dp.y-e.point.y)*(dp.y-e.point.y);if(dd<cd){cd=dd;closest=dfs[di]}}
-        html+='<div class="hp-sub">Depth: '+closest.properties.d+'m</div>';
-      }
-    }
-    hoverCt.innerHTML=html;
-    hoverEl.style.left=e.point.x+'px';hoverEl.style.top=(e.point.y-12)+'px';
-    hoverEl.classList.add('active');
+    hoverEl.classList.remove('active');
   });
   // Click/tap to pin info panel at any point
   map.on('click',function(e){
-    if(mActive)return; // don't interfere with measurement
+    if(mActive||polyActive)return; // don't interfere with measurement or polygon tool
     // Don't move info panel if user tapped a mark or catch dot
     var markLayers=['spot-dot','all-catches-dot'].filter(function(l){return map.getLayer(l)});
     if(markLayers.length){var mfs=map.queryRenderedFeatures(e.point,{layers:markLayers});if(mfs.length)return}
@@ -888,7 +902,7 @@ function setBasemap(n){
   map.addLayer({id:'clarity-bloom',type:'line',source:'water-clarity',filter:['==',['get','label'],'bloom'],paint:{'line-color':'#dc2626','line-width':2,'line-opacity':co?.9:0,'line-dasharray':[4,2]}},bf);
   map.addLayer({id:'sm-layer',type:'raster',source:'sm',paint:{'raster-opacity':.85},layout:{visibility:LS.seamark?'visible':'none'}},bf);
   var nao=LS.nav_aids;
-  map.addLayer({id:'nav-base',type:'circle',source:'nav-aids',filter:['!',['in',['get','category'],'port','starboard']],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,3,14,6],'circle-color':['match',['get','category'],'cardinal','#eab308','light','#ffffff','lead','#f97316','buoy','#3b82f6','beacon','#a855f7','ais','#06b6d4','#94a3b8'],'circle-stroke-width':1.5,'circle-stroke-color':'#000','circle-opacity':nao?1:0}},bf);
+  map.addLayer({id:'nav-base',type:'circle',source:'nav-aids',filter:['all',['!=',['get','category'],'port'],['!=',['get','category'],'starboard']],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,3,14,6],'circle-color':['match',['get','category'],'cardinal','#eab308','light','#ffffff','lead','#f97316','buoy','#3b82f6','beacon','#a855f7','ais','#06b6d4','#94a3b8'],'circle-stroke-width':1.5,'circle-stroke-color':'#000','circle-opacity':nao?1:0}},bf);
   map.addLayer({id:'nav-port',type:'circle',source:'nav-aids',filter:['==',['get','category'],'port'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,4,14,7],'circle-color':'#ef4444','circle-stroke-width':2,'circle-stroke-color':'#7f1d1d','circle-opacity':nao?1:0}},bf);
   map.addLayer({id:'nav-stbd',type:'circle',source:'nav-aids',filter:['==',['get','category'],'starboard'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,4,14,7],'circle-color':'#22c55e','circle-stroke-width':2,'circle-stroke-color':'#14532d','circle-opacity':nao?1:0}},bf);
   map.addLayer({id:'nav-cardinal-x',type:'circle',source:'nav-aids',filter:['==',['get','category'],'cardinal'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,1.5,14,3],'circle-color':'#000','circle-stroke-width':0,'circle-opacity':nao?1:0}},bf);
@@ -1187,9 +1201,72 @@ function clearMeasure(){
   map.off('mousedown','m-pin',onMPinDown);map.off('touchstart','m-pin',onMPinDown);
 }
 
+// --- Polygon creation tool ---
+var polyVerts=[],polyActive=false,polyClickHandler=null;
+
+function startPoly(){
+  hideCtx();polyActive=true;polyVerts=[];
+  if(mCtxCoord)polyVerts.push(mCtxCoord);
+  if(!map.getSource('poly-src')){
+    map.addSource('poly-src',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+    map.addSource('poly-pts',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+    map.addLayer({id:'poly-fill',type:'fill',source:'poly-src',paint:{'fill-color':'#fbbf24','fill-opacity':.15}});
+    map.addLayer({id:'poly-line',type:'line',source:'poly-src',paint:{'line-color':'#fbbf24','line-width':2,'line-dasharray':[4,3]}});
+    map.addLayer({id:'poly-dot',type:'circle',source:'poly-pts',paint:{'circle-radius':5,'circle-color':'#fbbf24','circle-stroke-width':2,'circle-stroke-color':'#fff'}});
+    map.addLayer({id:'poly-label',type:'symbol',source:'poly-pts',layout:{'text-field':['get','label'],'text-size':9,'text-offset':[0,-1.2],'text-anchor':'bottom','text-font':['Open Sans Regular'],'text-allow-overlap':true},paint:{'text-color':'#fbbf24','text-halo-color':'rgba(0,0,0,0.9)','text-halo-width':1.5}});
+  }
+  updatePoly();
+  polyClickHandler=function(e){if(!polyActive)return;polyVerts.push([e.lngLat.lng,e.lngLat.lat]);updatePoly()};
+  map.on('click',polyClickHandler);
+  map.getCanvas().style.cursor='crosshair';
+  showPolyPanel();
+}
+
+function updatePoly(){
+  if(!map.getSource('poly-src'))return;
+  var feats=[];
+  if(polyVerts.length>=3){
+    var ring=polyVerts.concat([polyVerts[0]]);
+    feats.push({type:'Feature',geometry:{type:'Polygon',coordinates:[ring]},properties:{}});
+  } else if(polyVerts.length>=2){
+    feats.push({type:'Feature',geometry:{type:'LineString',coordinates:polyVerts},properties:{}});
+  }
+  map.getSource('poly-src').setData({type:'FeatureCollection',features:feats});
+  var pts=polyVerts.map(function(v,i){return{type:'Feature',geometry:{type:'Point',coordinates:v},properties:{label:(i+1).toString()}}});
+  map.getSource('poly-pts').setData({type:'FeatureCollection',features:pts});
+  showPolyPanel();
+}
+
+function showPolyPanel(){
+  var el=document.getElementById('polyPanel');
+  if(!polyActive){el.classList.remove('active');return}
+  el.classList.add('active');
+  var coordsText=polyVerts.map(function(v,i){return'  ['+v[0].toFixed(6)+', '+v[1].toFixed(6)+']'}).join(',\n');
+  var json='[\n'+coordsText+'\n]';
+  document.getElementById('polyCoords').value=json;
+  document.getElementById('polyCount').textContent=polyVerts.length+' vertices';
+}
+
+function undoPoly(){
+  if(polyVerts.length>0){polyVerts.pop();updatePoly()}
+}
+
+function endPoly(){
+  polyActive=false;
+  if(polyClickHandler){map.off('click',polyClickHandler);polyClickHandler=null}
+  map.getCanvas().style.cursor='';
+  showPolyPanel();
+}
+
+function clearPoly(){
+  endPoly();polyVerts=[];
+  if(map.getSource('poly-src')){map.getSource('poly-src').setData({type:'FeatureCollection',features:[]});map.getSource('poly-pts').setData({type:'FeatureCollection',features:[]})}
+  document.getElementById('polyPanel').classList.remove('active');
+}
+
 function showCtx(x,y,items){
   var el=document.getElementById('ctxMenu');
-  el.innerHTML=items.map(function(it){return'<button onclick="'+it[1]+'">'+it[0]+'</button>'}).join('');
+  el.innerHTML='<button onclick="hideCtx()" style="position:absolute;top:2px;right:4px;padding:2px 6px;border:none;background:transparent;color:#94a3b8;font-size:14px;cursor:pointer;min-width:0;width:auto">&times;</button>'+items.map(function(it){return'<button onclick="'+it[1]+'">'+it[0]+'</button>'}).join('');
   el.style.left=x+'px';el.style.top=y+'px';el.classList.add('active');
 }
 function hideCtx(){document.getElementById('ctxMenu').classList.remove('active')}
@@ -2472,11 +2549,12 @@ document.addEventListener('DOMContentLoaded',function(){
     var r=map.getCanvas().getBoundingClientRect();
     var pt=[e.clientX-r.left,e.clientY-r.top];
     mCtxCoord=[map.unproject(pt).lng,map.unproject(pt).lat];
-    if(!mActive){
-      showCtx(e.clientX,e.clientY,[['Start Measurement','startMeasure(mCtxCoord)']]);
-    } else {
-      // Check if near last pin
+    if(!mActive&&!polyActive){
+      showCtx(e.clientX,e.clientY,[['Start Measurement','startMeasure(mCtxCoord)'],['Create Polygon','startPoly()']]);
+    } else if(mActive){
       showCtx(e.clientX,e.clientY,[['Add Pin','addMeasurePin()'],['End Measurement','endMeasure()'],['Clear','clearMeasure()']]);
+    } else if(polyActive){
+      showCtx(e.clientX,e.clientY,[['Undo Vertex','undoPoly()'],['Finish Polygon','endPoly()'],['Clear Polygon','clearPoly()']]);
     }
   });
   // Long press for touch
@@ -2488,10 +2566,12 @@ document.addEventListener('DOMContentLoaded',function(){
       var r=map.getCanvas().getBoundingClientRect();
       var pt=[lpXY.x-r.left,lpXY.y-r.top];
       mCtxCoord=[map.unproject(pt).lng,map.unproject(pt).lat];
-      if(!mActive){
-        showCtx(lpXY.x,lpXY.y,[['Start Measurement','startMeasure(mCtxCoord)']]);
-      } else {
+      if(!mActive&&!polyActive){
+        showCtx(lpXY.x,lpXY.y,[['Start Measurement','startMeasure(mCtxCoord)'],['Create Polygon','startPoly()']]);
+      } else if(mActive){
         showCtx(lpXY.x,lpXY.y,[['Add Pin','addMeasurePin()'],['End Measurement','endMeasure()'],['Clear','clearMeasure()']]);
+      } else if(polyActive){
+        showCtx(lpXY.x,lpXY.y,[['Undo Vertex','undoPoly()'],['Finish Polygon','clearPoly()']]);
       }
     },600);
   },{passive:true});
