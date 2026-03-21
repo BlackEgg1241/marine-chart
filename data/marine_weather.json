@@ -1,5 +1,5 @@
 {
-  "generated": "2026-03-21T09:53:17",
+  "generated": "2026-03-21T12:15:21",
   "locations": {
     "rottnest": {
       "label": "Rottnest Island",
@@ -10888,33 +10888,33 @@
     {
       "station": "Rottnest",
       "station_id": 94602,
-      "time": "20260321093000",
-      "wind_spd_kt": 6,
-      "wind_dir": "NNW",
-      "gust_kt": 9,
-      "air_temp": 24.1,
-      "press_msl": 1012.9,
+      "time": "20260321120000",
+      "wind_spd_kt": 8,
+      "wind_dir": "SSW",
+      "gust_kt": 12,
+      "air_temp": 25.1,
+      "press_msl": 1011.7,
       "rain_trace": "0.0"
     },
     {
       "station": "Hillarys",
       "station_id": 95605,
-      "time": "20260321093000",
+      "time": "20260321120000",
       "wind_spd_kt": 3,
-      "wind_dir": "N",
+      "wind_dir": "WNW",
       "gust_kt": 6,
-      "air_temp": 21.7,
-      "press_msl": 1012.4,
+      "air_temp": 22.7,
+      "press_msl": 1011.5,
       "rain_trace": "-"
     },
     {
       "station": "Swanbourne",
       "station_id": 94614,
-      "time": "20260321093000",
-      "wind_spd_kt": 7,
+      "time": "20260321120000",
+      "wind_spd_kt": 6,
       "wind_dir": "NW",
       "gust_kt": 9,
-      "air_temp": 23.6,
+      "air_temp": 24.6,
       "press_msl": null,
       "rain_trace": "0.0"
     }
@@ -11059,9 +11059,240 @@
       "gust_kt": 9,
       "wind_dir": "NNW",
       "wind_dir_deg": 337.5
+    },
+    {
+      "time": "20260321100000",
+      "wind_spd_kt": 7,
+      "gust_kt": 9,
+      "wind_dir": "NW",
+      "wind_dir_deg": 315
+    },
+    {
+      "time": "20260321103000",
+      "wind_spd_kt": 6,
+      "gust_kt": 9,
+      "wind_dir": "W",
+      "wind_dir_deg": 270
+    },
+    {
+      "time": "20260321110000",
+      "wind_spd_kt": 8,
+      "gust_kt": 11,
+      "wind_dir": "SW",
+      "wind_dir_deg": 225
+    },
+    {
+      "time": "20260321113000",
+      "wind_spd_kt": 7,
+      "gust_kt": 11,
+      "wind_dir": "SW",
+      "wind_dir_deg": 225
+    },
+    {
+      "time": "20260321120000",
+      "wind_spd_kt": 8,
+      "gust_kt": 12,
+      "wind_dir": "SSW",
+      "wind_dir_deg": 202.5
+    },
+    {
+      "time": "20260321123000",
+      "wind_spd_kt": 9,
+      "gust_kt": 11,
+      "wind_dir": "SSW",
+      "wind_dir_deg": 202.5
+    }
+  ],
+  "bom_hillarys_wind": [
+    {
+      "time": "20260321000000",
+      "wind_spd_kt": 3,
+      "gust_kt": 5,
+      "wind_dir": "SSW",
+      "wind_dir_deg": 202.5
+    },
+    {
+      "time": "20260321003000",
+      "wind_spd_kt": 3,
+      "gust_kt": 5,
+      "wind_dir": "SSW",
+      "wind_dir_deg": 202.5
+    },
+    {
+      "time": "20260321010000",
+      "wind_spd_kt": 2,
+      "gust_kt": 4,
+      "wind_dir": "SSW",
+      "wind_dir_deg": 202.5
+    },
+    {
+      "time": "20260321013000",
+      "wind_spd_kt": 3,
+      "gust_kt": 4,
+      "wind_dir": "SW",
+      "wind_dir_deg": 225
+    },
+    {
+      "time": "20260321020000",
+      "wind_spd_kt": 3,
+      "gust_kt": 6,
+      "wind_dir": "SSW",
+      "wind_dir_deg": 202.5
+    },
+    {
+      "time": "20260321023000",
+      "wind_spd_kt": 4,
+      "gust_kt": 6,
+      "wind_dir": "SSW",
+      "wind_dir_deg": 202.5
+    },
+    {
+      "time": "20260321030000",
+      "wind_spd_kt": 4,
+      "gust_kt": 6,
+      "wind_dir": "SSW",
+      "wind_dir_deg": 202.5
+    },
+    {
+      "time": "20260321033000",
+      "wind_spd_kt": 2,
+      "gust_kt": 4,
+      "wind_dir": "S",
+      "wind_dir_deg": 180
+    },
+    {
+      "time": "20260321040000",
+      "wind_spd_kt": 1,
+      "gust_kt": 4,
+      "wind_dir": "S",
+      "wind_dir_deg": 180
+    },
+    {
+      "time": "20260321043000",
+      "wind_spd_kt": 2,
+      "gust_kt": 4,
+      "wind_dir": "ENE",
+      "wind_dir_deg": 67.5
+    },
+    {
+      "time": "20260321050000",
+      "wind_spd_kt": 2,
+      "gust_kt": 4,
+      "wind_dir": "N",
+      "wind_dir_deg": 0
+    },
+    {
+      "time": "20260321053000",
+      "wind_spd_kt": 2,
+      "gust_kt": 4,
+      "wind_dir": "N",
+      "wind_dir_deg": 0
+    },
+    {
+      "time": "20260321060000",
+      "wind_spd_kt": 2,
+      "gust_kt": 4,
+      "wind_dir": "NNW",
+      "wind_dir_deg": 337.5
+    },
+    {
+      "time": "20260321063000",
+      "wind_spd_kt": 2,
+      "gust_kt": 4,
+      "wind_dir": "N",
+      "wind_dir_deg": 0
+    },
+    {
+      "time": "20260321070000",
+      "wind_spd_kt": 3,
+      "gust_kt": 4,
+      "wind_dir": "NNW",
+      "wind_dir_deg": 337.5
+    },
+    {
+      "time": "20260321073000",
+      "wind_spd_kt": 3,
+      "gust_kt": 6,
+      "wind_dir": "N",
+      "wind_dir_deg": 0
+    },
+    {
+      "time": "20260321080000",
+      "wind_spd_kt": 3,
+      "gust_kt": 5,
+      "wind_dir": "N",
+      "wind_dir_deg": 0
+    },
+    {
+      "time": "20260321083000",
+      "wind_spd_kt": 3,
+      "gust_kt": 5,
+      "wind_dir": "NW",
+      "wind_dir_deg": 315
+    },
+    {
+      "time": "20260321090000",
+      "wind_spd_kt": 3,
+      "gust_kt": 5,
+      "wind_dir": "NNW",
+      "wind_dir_deg": 337.5
+    },
+    {
+      "time": "20260321093000",
+      "wind_spd_kt": 3,
+      "gust_kt": 6,
+      "wind_dir": "N",
+      "wind_dir_deg": 0
+    },
+    {
+      "time": "20260321100000",
+      "wind_spd_kt": 4,
+      "gust_kt": 6,
+      "wind_dir": "NW",
+      "wind_dir_deg": 315
+    },
+    {
+      "time": "20260321103000",
+      "wind_spd_kt": 4,
+      "gust_kt": 6,
+      "wind_dir": "WNW",
+      "wind_dir_deg": 292.5
+    },
+    {
+      "time": "20260321110000",
+      "wind_spd_kt": 4,
+      "gust_kt": 6,
+      "wind_dir": "WNW",
+      "wind_dir_deg": 292.5
+    },
+    {
+      "time": "20260321113000",
+      "wind_spd_kt": 4,
+      "gust_kt": 7,
+      "wind_dir": "WNW",
+      "wind_dir_deg": 292.5
+    },
+    {
+      "time": "20260321120000",
+      "wind_spd_kt": 3,
+      "gust_kt": 6,
+      "wind_dir": "WNW",
+      "wind_dir_deg": 292.5
+    },
+    {
+      "time": "20260321123000",
+      "wind_spd_kt": 4,
+      "gust_kt": 6,
+      "wind_dir": "WNW",
+      "wind_dir_deg": 292.5
     }
   ],
   "wave_buoy_charts": {
+    "rottnest": {
+      "wave_height": "https://www.transport.wa.gov.au/getmedia/b3dfc548-cd46-4c32-aada-0261a3a66fc1/RDW_WAVE.GIF",
+      "wave_direction": "https://www.transport.wa.gov.au/getmedia/70e0fe88-19fa-49fb-9094-d6c1bf148a01/RDW_POLD.GIF"
+    },
+    "hillarys": {},
     "wave_height": "https://www.transport.wa.gov.au/getmedia/b3dfc548-cd46-4c32-aada-0261a3a66fc1/RDW_WAVE.GIF",
     "wave_direction": "https://www.transport.wa.gov.au/getmedia/70e0fe88-19fa-49fb-9094-d6c1bf148a01/RDW_POLD.GIF"
   }
