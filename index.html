@@ -217,7 +217,7 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.190</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.191</span></div>
   <div class="basemap-sw">
     <div class="bm-btn" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#1e5a8a);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🗺️</span></div><div class="bm-label">Ocean</div></div>
     <div class="bm-btn active" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
@@ -1788,15 +1788,36 @@ function drawBomWindChart(){
     pts.push({t:dt.getTime(),ws:obs[i].wind_spd_kt||0,g:obs[i].gust_kt||obs[i].wind_spd_kt||0,dir:obs[i].wind_dir,deg:obs[i].wind_dir_deg});
   }
 
-  // Time range: midnight to now
+  // Time range: midnight to end of day
   var d=new Date(pts[0].t);d.setHours(0,0,0,0);
   var t0=d.getTime(),tNow=Date.now();
-  var tRange=tNow-t0;
+  var tEnd=t0+24*3600000; // full day
+  var tRange=tEnd-t0;
+
+  // Build forecast overlay for today from weather hourly data
+  var fcPts=[];
+  if(wxData&&wxData.locations){
+    var locKey=wxLoc==='hillarys'?'hillarys':'rottnest';
+    var locHrs=(wxData.locations[locKey]||{}).hourly||[];
+    var todayStr=new Date(t0).toISOString().split('T')[0];
+    for(var i=0;i<locHrs.length;i++){
+      var ht=locHrs[i].time;
+      if(ht.indexOf(todayStr)!==0)continue;
+      var hdt=new Date(ht);
+      var ws_kn=(locHrs[i].wind_speed_10m||0)*1.94384;
+      fcPts.push({t:hdt.getTime(),ws:ws_kn});
+    }
+  }
 
   var maxG=0;
   for(var i=0;i<pts.length;i++){if(pts[i].g>maxG)maxG=pts[i].g;if(pts[i].ws>maxG)maxG=pts[i].ws;}
+  for(var i=0;i<fcPts.length;i++){if(fcPts[i].ws>maxG)maxG=fcPts[i].ws;}
   var yMax=Math.ceil(maxG/5)*5+5;
   if(yMax<20)yMax=20;
+
+  // Subtitle under title
+  ctx.fillStyle='#475569';ctx.font='7px JetBrains Mono';ctx.textAlign='left';
+  ctx.fillText('BOM observations since midnight',pad.l,pad.t-2);
 
   // Y gridlines
   for(var kn=5;kn<yMax;kn+=5){
@@ -1811,13 +1832,30 @@ function drawBomWindChart(){
   ctx.fillStyle='#64748b';ctx.font='7px JetBrains Mono';ctx.textAlign='center';
   for(var h=0;h<=23;h+=3){
     var ht=t0+h*3600000;
-    if(ht>tNow)break;
     var x=pad.l+((ht-t0)/tRange)*gW;
     ctx.fillText(String(h).padStart(2,'0')+':00',x,H-3);
   }
 
+  // "Now" marker
+  var nowX=pad.l+((tNow-t0)/tRange)*gW;
+  if(nowX>pad.l&&nowX<W-pad.r){
+    ctx.strokeStyle='rgba(255,255,255,.2)';ctx.lineWidth=0.5;ctx.setLineDash([2,2]);
+    ctx.beginPath();ctx.moveTo(nowX,pad.t);ctx.lineTo(nowX,pad.t+gH);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(255,255,255,.3)';ctx.font='6px JetBrains Mono';ctx.textAlign='center';
+    ctx.fillText('now',nowX,pad.t+gH+8);
+  }
+
   function tX(t){return pad.l+((t-t0)/tRange)*gW;}
   function vY(v){return pad.t+(1-v/yMax)*gH;}
+
+  // Forecast line (thin white) — draw first so BOM data overlays it
+  if(fcPts.length>1){
+    ctx.beginPath();ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=1;ctx.setLineDash([3,2]);
+    ctx.moveTo(tX(fcPts[0].t),vY(fcPts[0].ws));
+    for(var i=1;i<fcPts.length;i++)ctx.lineTo(tX(fcPts[i].t),vY(fcPts[i].ws));
+    ctx.stroke();ctx.setLineDash([]);
+  }
 
   // Blue fill: 0 to wind speed
   ctx.beginPath();ctx.moveTo(tX(pts[0].t),vY(pts[0].ws));
@@ -1855,16 +1893,16 @@ function drawBomWindChart(){
     ctx.fillStyle=clr;ctx.fill();
     ctx.strokeStyle='rgba(0,0,0,.3)';ctx.lineWidth=0.5;ctx.stroke();
     ctx.restore();
-    // Direction label below
     if(p.dir&&i%(step*2)===0){
       ctx.fillStyle='#94a3b8';ctx.font='6px JetBrains Mono';ctx.textAlign='center';
       ctx.fillText(p.dir,x,pad.t-2);
     }
   }
 
-  // Legend
-  ctx.font='7px JetBrains Mono';ctx.textAlign='right';ctx.fillStyle='#475569';
-  ctx.fillText('BOM observations since midnight',W-pad.r,pad.t-2);
+  // Legend — bottom right
+  ctx.font='7px JetBrains Mono';ctx.textAlign='right';
+  ctx.fillStyle='#38bdf8';ctx.fillText('\u2014 BOM',W-pad.r,pad.t+8);
+  ctx.fillStyle='rgba(255,255,255,.4)';ctx.fillText('--- Forecast',W-pad.r,pad.t+16);
 }
 
 function updateWeatherSummary(){
