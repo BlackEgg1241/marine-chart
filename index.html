@@ -221,10 +221,11 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.211</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.212</span></div>
   <div class="basemap-sw">
     <div class="bm-btn active" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
     <div class="bm-btn" id="bmStreet" onclick="setBasemap('street')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#d4cbb8,#bfb5a0);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🏙️</span></div><div class="bm-label">Street</div></div>
+    <div class="bm-btn" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#2a5a8c);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🌊</span></div><div class="bm-label">Ocean</div></div>
   </div>
 </div>
 
@@ -324,7 +325,7 @@
         <button class="layer-btn" id="btnSpanishMack" onclick="toggleLayer('spanish_mackerel')"><span class="icon">🐠</span> Sp. Mackerel</button>
         <button class="layer-btn" id="btnSBT" onclick="toggleLayer('sbt')"><span class="icon">🐟</span> SB Tuna</button>
         <button class="layer-btn on" id="btnSeamarks" onclick="toggleLayer('seamark')"><span class="icon">🚩</span> Marks</button>
-        <button class="layer-btn on" id="btnNavAids" onclick="toggleLayer('nav_aids')"><span class="icon">⚓</span> Nav Aids</button>
+        <button class="layer-btn" id="btnNavAids" onclick="toggleLayer('nav_aids')"><span class="icon">⚓</span> Nav Aids</button>
         <button class="layer-btn" id="btnCatches" onclick="toggleCatches()"><span class="icon">🎣</span> Catches</button>
         <button class="layer-btn" id="btnAllCatches" onclick="toggleAllCatches()"><span class="icon">📍</span> All Catches</button>
         <button class="layer-btn" id="btnWeather" onclick="toggleWeather()"><span class="icon">💨</span> Weather</button>
@@ -449,7 +450,7 @@
 </div>
 
 <script>
-var BM={satellite:{tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],attr:'© Esri, Maxar',mz:19,btn:'bmSat'},street:{tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],attr:'© OpenStreetMap',mz:19,btn:'bmStreet'}};
+var BM={satellite:{tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],attr:'© Esri, Maxar',mz:19,btn:'bmSat'},street:{tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],attr:'© OpenStreetMap',mz:19,btn:'bmStreet'},ocean:{tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}'],attr:'© Esri',mz:13,btn:'bmOcean'}};
 var OL_URL='https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}';
 var SM_URL='https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png';
 var BLK='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
@@ -483,9 +484,7 @@ function guSLA(d){return CMEMS_SLA.replace('TIME=DATE','TIME='+d);}
 
 var SPOTS=[
   // Canyon / ocean marks
-  {c:[115.08,-31.92],n:'Perth Canyon Head',d:'200m shelf break into canyon. Prime upwelling zone.',t:'mark'},
-  {c:[114.50,-31.95],n:'Perth Canyon Deep',d:'Canyon floor 4000m+. Leeuwin Current interaction.',t:'mark'},
-  {c:[114.98,-32.01],n:'Rottnest Trench',d:'Perth Canyon eastern edge — 22km west of Rottnest.',t:'mark'},
+  {c:[115.08708,-31.95342],n:'Perth Canyon Head',d:'200m shelf break into canyon. Prime upwelling zone.',t:'mark'},
   {c:[114.854,-31.701],n:'Two Rocks Canyon',d:'Northern canyon branch. Shelf edge 500–800m.',t:'mark'},
   // FAD buoys — Perth Canyon group
   {c:[115.3333,-32.05],n:'Club Marine',d:'FAD buoy (Perth Canyon 48) — in position.',t:'fad'},
@@ -510,11 +509,8 @@ var SPOTS=[
   // Rottnest fuel
   {c:[115.54303,-31.99673],n:'Rottnest Fuel Jetty',d:'Fuel dock — Thomson Bay, Rottnest Island.',t:'ramp'},
   // Boat ramps — south to north
-  {c:[115.7028,-32.5296],n:'Mandurah Ramp',d:'Boat ramp — Mandurah Ocean Marina.',t:'ramp'},
-  {c:[115.6556,-32.3261],n:'Dawesville Ramp',d:'Boat ramp — Dawesville Channel.',t:'ramp'},
   {c:[115.7622,-32.3239],n:'Secret Harbour Ramp',d:'Boat ramp — Secret Harbour.',t:'ramp'},
   {c:[115.6975,-32.2708],n:'Point Peron Ramp',d:'Boat ramp — Point Peron.',t:'ramp'},
-  {c:[115.7514,-32.1958],n:'Rockingham Ramp',d:'Boat ramp — Rockingham Beach.',t:'ramp'},
   {c:[115.7639,-32.1391],n:'Woodman Pt Ramp',d:'Boat ramp — Woodman Point (Jervoise Bay).',t:'ramp'},
   {c:[115.7392,-31.8219],n:'Hillarys Ramp',d:'Boat ramp — Hillarys Boat Harbour.',t:'ramp'},
   {c:[115.7271,-31.7625],n:'Ocean Reef Ramp',d:'Boat ramp — Ocean Reef Marina.',t:'ramp'},
@@ -523,10 +519,10 @@ var SPOTS=[
 ];
 
 var map,cBM='satellite',gpsWId=null,gM='off',cPos=null,fGPS=false,trk=[];
-var LS={seamark:true,nav_aids:true,blue_marlin:true,spanish_mackerel:false,sbt:false,chlorophyll:false,sst:false,ssh_visual:false,sst_fronts:true,chl_edges:true,currents:true,bathymetry:true,clarity:true,ssh:true,mld:true,ssta:true};
+var LS={seamark:true,nav_aids:false,blue_marlin:true,spanish_mackerel:false,sbt:false,chlorophyll:false,sst:false,ssh_visual:false,sst_fronts:true,chl_edges:true,currents:true,bathymetry:true,clarity:true,ssh:true,mld:true,ssta:true};
 var _displayFloor=0.60; // hotspot display floor — adjustable via legend slider
 // Opacity-based toggling for GeoJSON layers — tiles stay loaded, no cache purge on toggle
-var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-peak':['line-opacity',.9],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.9],'isotherm-label':['text-opacity',1],'mld-very-shallow':['line-opacity',.8],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.8],'mld-deep':['line-opacity',.8],'ssta-cold':['line-opacity',.8],'ssta-warm':['line-opacity',.9],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.9],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'sst-front-label':['text-opacity',1],'chl-edge-label':['text-opacity',1],'ssh-label':['text-opacity',1],'mld-label':['text-opacity',1],'ssta-label':['text-opacity',1],'bathy-shade':['raster-opacity',.45],'bathy-glow':['line-opacity',.12],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-150':['line-opacity',.7],'bathy-250':['line-opacity',.8],'bathy-label':['text-opacity',1],'hs-blue':['fill-opacity',.45],'sm-hs':['fill-opacity',.45],'sbt-hs':['fill-opacity',.45],'nav-base':['circle-opacity',1],'nav-port':['circle-opacity',1],'nav-stbd':['circle-opacity',1],'nav-cardinal-x':['circle-opacity',1],'nav-light-dot':['circle-opacity',1],'nav-label':['text-opacity',1]};
+var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-peak':['line-opacity',.9],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.9],'isotherm-label':['text-opacity',1],'mld-very-shallow':['line-opacity',.8],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.8],'mld-deep':['line-opacity',.8],'ssta-cold':['line-opacity',.8],'ssta-warm':['line-opacity',.9],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.9],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'sst-front-label':['text-opacity',1],'chl-edge-label':['text-opacity',1],'ssh-label':['text-opacity',1],'mld-label':['text-opacity',1],'ssta-label':['text-opacity',1],'bathy-shade':['raster-opacity',.25],'bathy-glow':['line-opacity',.12],'bathy-20':['line-opacity',.6],'bathy-50':['line-opacity',.7],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-150':['line-opacity',.7],'bathy-250':['line-opacity',.8],'bathy-label':['text-opacity',1],'hs-blue':['fill-opacity',.15],'hs-blue-line':['line-opacity',1],'sm-hs':['fill-opacity',.15],'sm-hs-line':['line-opacity',1],'sbt-hs':['fill-opacity',.15],'sbt-hs-line':['line-opacity',1],'nav-base':['circle-opacity',1],'nav-port':['circle-opacity',1],'nav-stbd':['circle-opacity',1],'nav-cardinal-x':['circle-opacity',1],'nav-light-dot':['circle-opacity',1],'nav-label':['text-opacity',1]};
 function sGL(id,on){if(!map.getLayer(id))return;var e=gLO[id];e?map.setPaintProperty(id,e[0],on?e[1]:0):map.setLayoutProperty(id,'visibility',on?'visible':'none')}
 var iD=new Date();var cDate=iD.toISOString().split('T')[0];
 var iG=new Date();iG.setDate(iG.getDate()-3);var gDate=iG.toISOString().split('T')[0];
@@ -572,10 +568,15 @@ function initMap(){
     {id:'g-sst-layer',type:'raster',source:'g-sst',layout:{visibility:LS.sst?'visible':'none'},paint:{'raster-opacity':.6}},
     {id:'g-chl-layer',type:'raster',source:'g-chl',layout:{visibility:'none'},paint:{'raster-opacity':.7}},
     {id:'g-ssh-layer',type:'raster',source:'g-ssh',layout:{visibility:'none'},paint:{'raster-opacity':.7}},
-    {id:'hs-blue',type:'fill',source:'blue-hotspots',filter:['>=',['get','intensity'],_displayFloor],paint:{'fill-color':['interpolate',['linear'],['get','intensity'],_displayFloor,'#fde68a',_displayFloor+.06,'#fbbf24',_displayFloor+.12,'#f59e0b',_displayFloor+.18,'#ea580c',_displayFloor+.24,'#dc2626',_displayFloor+.30,'#991b1b'],'fill-opacity':.45,'fill-antialias':false}},
+    {id:'bathy-shade',type:'raster',source:'bathy-hillshade',paint:{'raster-opacity':.25,'raster-fade-duration':0}},
+    {id:'hs-blue',type:'fill',source:'blue-hotspots',filter:['>=',['get','intensity'],_displayFloor],paint:{'fill-color':['interpolate',['linear'],['get','intensity'],_displayFloor,'#fde68a',_displayFloor+.06,'#fbbf24',_displayFloor+.12,'#f59e0b',_displayFloor+.18,'#ea580c',_displayFloor+.24,'#dc2626',_displayFloor+.30,'#991b1b'],'fill-opacity':.15,'fill-antialias':false}},
+    {id:'hs-blue-line',type:'line',source:'blue-hotspots',filter:['>=',['get','intensity'],_displayFloor],paint:{'line-color':['interpolate',['linear'],['get','intensity'],_displayFloor,'#fbbf24',_displayFloor+.30,'#991b1b'],'line-width':1,'line-opacity':1}},
     {id:'sm-hs',type:'fill',source:'sm-hotspots',filter:['>=',['get','intensity'],0.25],paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.25,'#c4b5fd',0.40,'#a78bfa',0.55,'#8b5cf6',0.70,'#7c3aed',0.85,'#6d28d9',0.95,'#4c1d95'],'fill-opacity':0,'fill-antialias':false}},
+    {id:'sm-hs-line',type:'line',source:'sm-hotspots',filter:['>=',['get','intensity'],0.25],paint:{'line-color':['interpolate',['linear'],['get','intensity'],0.25,'#a78bfa',0.95,'#4c1d95'],'line-width':1,'line-opacity':0}},
     {id:'sbt-hs',type:'fill',source:'sbt-hotspots',filter:['>=',['get','intensity'],0.25],paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.25,'#99f6e4',0.40,'#5eead4',0.55,'#2dd4bf',0.70,'#14b8a6',0.85,'#0d9488',0.95,'#0f766e'],'fill-opacity':0,'fill-antialias':false}},
-    {id:'bathy-shade',type:'raster',source:'bathy-hillshade',paint:{'raster-opacity':.45,'raster-fade-duration':0}},
+    {id:'sbt-hs-line',type:'line',source:'sbt-hotspots',filter:['>=',['get','intensity'],0.25],paint:{'line-color':['interpolate',['linear'],['get','intensity'],0.25,'#5eead4',0.95,'#0f766e'],'line-width':1,'line-opacity':0}},
+    {id:'bathy-20',type:'line',source:'bathymetry',filter:['==',['get','depth'],-20],paint:{'line-color':'#000000','line-width':0.8,'line-opacity':.6,'line-dasharray':[3,2]}},
+    {id:'bathy-50',type:'line',source:'bathymetry',filter:['==',['get','depth'],-50],paint:{'line-color':'#000000','line-width':1,'line-opacity':.7,'line-dasharray':[4,2]}},
     {id:'bathy-100',type:'line',source:'bathymetry',filter:['==',['get','depth'],-100],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':.85}},
     {id:'bathy-150',type:'line',source:'bathymetry',filter:['==',['get','depth'],-150],paint:{'line-color':'#000000','line-width':1,'line-opacity':.7,'line-dasharray':[4,3]}},
     {id:'bathy-glow',type:'line',source:'bathymetry',filter:['==',['get','depth'],-200],paint:{'line-color':'#000000','line-width':8,'line-opacity':.12,'line-blur':4}},
@@ -583,10 +584,10 @@ function initMap(){
     {id:'bathy-250',type:'line',source:'bathymetry',filter:['==',['get','depth'],-250],paint:{'line-color':'#000000','line-width':1.2,'line-opacity':.8,'line-dasharray':[6,3]}},
     {id:'bathy-500',type:'line',source:'bathymetry',filter:['==',['get','depth'],-500],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':.75}},
     {id:'bathy-1000',type:'line',source:'bathymetry',filter:['==',['get','depth'],-1000],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':.65}},
-    {id:'bathy-label',type:'symbol',source:'bathymetry',filter:['any',['==',['get','depth'],-100],['==',['get','depth'],-150],['==',['get','depth'],-200],['==',['get','depth'],-250],['==',['get','depth'],-500],['==',['get','depth'],-1000]],layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat',['to-string',['*',['get','depth'],-1]],'m'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#000000','text-halo-color':'rgba(255,255,255,0.85)','text-halo-width':1.5,'text-opacity':1}},
+    {id:'bathy-label',type:'symbol',source:'bathymetry',filter:['any',['==',['get','depth'],-20],['==',['get','depth'],-50],['==',['get','depth'],-100],['==',['get','depth'],-150],['==',['get','depth'],-200],['==',['get','depth'],-250],['==',['get','depth'],-500],['==',['get','depth'],-1000]],layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat',['to-string',['*',['get','depth'],-1]],'m'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#000000','text-halo-color':'rgba(255,255,255,0.85)','text-halo-width':1.5,'text-opacity':1}},
     {id:'nav-base',type:'circle',source:'nav-aids',filter:['all',['!=',['get','category'],'port'],['!=',['get','category'],'starboard']],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,3,14,6],'circle-color':['match',['get','category'],'cardinal','#eab308','light','#ffffff','lead','#f97316','buoy','#3b82f6','beacon','#a855f7','ais','#06b6d4','#94a3b8'],'circle-stroke-width':1.5,'circle-stroke-color':'#000','circle-opacity':.5}},
-    {id:'nav-port',type:'circle',source:'nav-aids',filter:['==',['get','category'],'port'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,4,14,7],'circle-color':'#ef4444','circle-stroke-width':2,'circle-stroke-color':'#7f1d1d','circle-opacity':.5}},
-    {id:'nav-stbd',type:'circle',source:'nav-aids',filter:['==',['get','category'],'starboard'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,4,14,7],'circle-color':'#22c55e','circle-stroke-width':2,'circle-stroke-color':'#14532d','circle-opacity':.5}},
+    {id:'nav-port',type:'circle',source:'nav-aids',filter:['==',['get','category'],'port'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,2,14,3.5],'circle-color':'#ef4444','circle-stroke-width':1.5,'circle-stroke-color':'#7f1d1d','circle-opacity':.5}},
+    {id:'nav-stbd',type:'circle',source:'nav-aids',filter:['==',['get','category'],'starboard'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,2,14,3.5],'circle-color':'#22c55e','circle-stroke-width':1.5,'circle-stroke-color':'#14532d','circle-opacity':.5}},
     {id:'nav-cardinal-x',type:'circle',source:'nav-aids',filter:['==',['get','category'],'cardinal'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,1.5,14,3],'circle-color':'#000','circle-stroke-width':0,'circle-opacity':.5}},
     {id:'nav-light-dot',type:'circle',source:'nav-aids',filter:['==',['get','category'],'light'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,1.5,14,3],'circle-color':'#fef08a','circle-stroke-width':0,'circle-opacity':.5}},
     {id:'nav-label',type:'symbol',source:'nav-aids',minzoom:12,layout:{'text-field':['get','name'],'text-size':9,'text-offset':[0,1.2],'text-anchor':'top','text-font':['Open Sans Regular'],'text-max-width':12},paint:{'text-color':'#e2e8f0','text-halo-color':'rgba(0,0,0,0.9)','text-halo-width':1.5,'text-opacity':.5}},
@@ -665,6 +666,8 @@ function initMap(){
     'isotherm-blue-peak':function(p){return '<div class="hp-title">'+p.temperature+'\u00b0C Isotherm (Peak)</div><div class="hp-sub">Blue Marlin optimal SST — catch hotspot temperature</div>'},
     'isotherm-blue-prime':function(p){return '<div class="hp-title">'+p.temperature+'\u00b0C Isotherm (Prime)</div><div class="hp-sub">Blue Marlin prime zone 24–27°C</div>'},
     'isotherm-blue-good':function(p){return '<div class="hp-title">'+p.temperature+'\u00b0C Isotherm (Good)</div><div class="hp-sub">Blue Marlin acceptable range 22–30°C</div>'},
+    'bathy-20':function(p){return '<div class="hp-title">20m Depth Contour</div><div class="hp-sub">Inshore reef edge — Spanish Mackerel zone</div>'},
+    'bathy-50':function(p){return '<div class="hp-title">50m Depth Contour</div><div class="hp-sub">Mid-shelf — reef to sand transition</div>'},
     'bathy-100':function(p){return '<div class="hp-title">100m Depth Contour</div><div class="hp-sub">Inner shelf edge — minimum depth for marlin scoring</div>'},
     'bathy-150':function(p){return '<div class="hp-title">150m Depth Contour</div><div class="hp-sub">Outer shelf — catch zone starts here</div>'},
     'bathy-200':function(p){return '<div class="hp-title">200m Shelf Break</div><div class="hp-sub">Continental shelf edge — peak marlin zone (200-250m)</div>'},
@@ -685,9 +688,11 @@ function initMap(){
     'mld-deep':function(p){return '<div class="hp-title">Deep Mixed Layer ('+p.mld+'m)</div><div class="hp-sub">Weak stratification — marlin dispersed through water column</div>'},
     'ssta-cold':function(p){return '<div class="hp-title">SST Anomaly '+p.anomaly.toFixed(1)+'°C</div><div class="hp-sub">Cooler than seasonal average</div>'},
     'ssta-warm':function(p){return '<div class="hp-title">SST Anomaly +'+p.anomaly.toFixed(1)+'°C</div><div class="hp-sub">Warmer than seasonal average — Leeuwin Current active</div>'},
+    'sm-hs':function(p){var h='<div class="hp-title" style="color:#a78bfa">Spanish Mackerel — '+Math.round(p.intensity*100)+'%</div>';var items=[];var keys=[['s_sst','w_sst','SST'],['s_sst_front','w_sst_front','Fronts'],['s_reef_structure','w_reef_structure','Reef'],['s_ssh','w_ssh','SSH'],['s_clarity','w_clarity','Clarity'],['s_chl','w_chl','Chl'],['s_current','w_current','Curr']];for(var i=0;i<keys.length;i++){var k=keys[i];if(p[k[0]]!=null&&p[k[1]]>0){items.push(k[2]+' '+Math.round(p[k[0]]*p[k[1]]*100)+'%')}}var mults=[];if(p.s_depth!=null)mults.push('Depth \u00d7'+Math.round(p.s_depth*100)+'%');var sub=items.join(' \u00b7 ');if(mults.length)sub+=' | '+mults.join(' \u00b7 ');return h+'<div class="hp-sub">'+sub+'</div>'},
+    'sbt-hs':function(p){var h='<div class="hp-title" style="color:#2dd4bf">SB Tuna — '+Math.round(p.intensity*100)+'%</div>';var items=[];var keys=[['s_sst','w_sst','SST'],['s_sst_front','w_sst_front','Fronts'],['s_front_corridor','w_front_corridor','Corr'],['s_chl','w_chl','Chl'],['s_chl_curvature','w_chl_curvature','ChlC'],['s_ssh','w_ssh','SSH'],['s_current','w_current','Curr'],['s_convergence','w_convergence','Conv'],['s_mld','w_mld','MLD'],['s_clarity','w_clarity','Clarity'],['s_ssta','w_ssta','SSTA'],['s_o2','w_o2','O2']];for(var i=0;i<keys.length;i++){var k=keys[i];if(p[k[0]]!=null&&p[k[1]]>0){items.push(k[2]+' '+Math.round(p[k[0]]*p[k[1]]*100)+'%')}}var mults=[];if(p.s_depth!=null)mults.push('Depth \u00d7'+Math.round(p.s_depth*100)+'%');if(p.s_shelf_break!=null)mults.push('Canyon \u00d7'+p.s_shelf_break);var sub=items.join(' \u00b7 ');if(mults.length)sub+=' | '+mults.join(' \u00b7 ');return h+'<div class="hp-sub">'+sub+'</div>'},
   };
   // Map layer IDs to their LS toggle key so hovers respect visibility
-  var hVis={'hs-blue':'blue_marlin','isotherm-blue-peak':'blue_marlin','isotherm-blue-prime':'blue_marlin','isotherm-blue-good':'blue_marlin','sst-front-glow':'sst_fronts','sst-front-line':'sst_fronts','sst-front-label':'sst_fronts','chl-edge-line':'chl_edges','chl-edge-label':'chl_edges','current-line':'currents','bathy-100':'bathymetry','bathy-150':'bathymetry','bathy-200':'bathymetry','bathy-250':'bathymetry','bathy-500':'bathymetry','bathy-1000':'bathymetry','clarity-clean':'clarity','clarity-turbid':'clarity','clarity-bloom':'clarity','ssh-cold':'ssh','ssh-neutral':'ssh','ssh-warm':'ssh','ssh-warm-core':'ssh','ssh-label':'ssh','mld-very-shallow':'mld','mld-shallow':'mld','mld-moderate':'mld','mld-deep':'mld','mld-label':'mld','ssta-cold':'ssta','ssta-warm':'ssta','ssta-label':'ssta',};
+  var hVis={'hs-blue':'blue_marlin','sm-hs':'spanish_mackerel','sbt-hs':'sbt','isotherm-blue-peak':'blue_marlin','isotherm-blue-prime':'blue_marlin','isotherm-blue-good':'blue_marlin','sst-front-glow':'sst_fronts','sst-front-line':'sst_fronts','sst-front-label':'sst_fronts','chl-edge-line':'chl_edges','chl-edge-label':'chl_edges','current-line':'currents','bathy-20':'bathymetry','bathy-50':'bathymetry','bathy-100':'bathymetry','bathy-150':'bathymetry','bathy-200':'bathymetry','bathy-250':'bathymetry','bathy-500':'bathymetry','bathy-1000':'bathymetry','clarity-clean':'clarity','clarity-turbid':'clarity','clarity-bloom':'clarity','ssh-cold':'ssh','ssh-neutral':'ssh','ssh-warm':'ssh','ssh-warm-core':'ssh','ssh-label':'ssh','mld-very-shallow':'mld','mld-shallow':'mld','mld-moderate':'mld','mld-deep':'mld','mld-label':'mld','ssta-cold':'ssta','ssta-warm':'ssta','ssta-label':'ssta',};
   // Hide hover panel when mouse leaves the map canvas (over UI panels/buttons)
   document.addEventListener('mousemove',function(e){
     var cv=map.getCanvas();
@@ -796,7 +801,7 @@ function toggleLayer(n){
   var lm={seamark:['sm-layer','spot-glow','spot-dot','spot-label'],chlorophyll:'g-chl-layer',sst:'g-sst-layer',ssh_visual:'g-ssh-layer',
     sst_fronts:['sst-front-glow','sst-front-line','sst-front-label'],
     chl_edges:['chl-edge-line','chl-edge-label'],currents:'current-line',
-    bathymetry:['bathy-shade','bathy-100','bathy-150','bathy-glow','bathy-200','bathy-250','bathy-500','bathy-1000','bathy-label'],
+    bathymetry:['bathy-shade','bathy-20','bathy-50','bathy-100','bathy-150','bathy-glow','bathy-200','bathy-250','bathy-500','bathy-1000','bathy-label'],
     clarity:['clarity-clean','clarity-turbid','clarity-bloom'],
     ssh:['ssh-cold','ssh-neutral','ssh-warm','ssh-warm-core','ssh-label'],
     mld:['mld-very-shallow','mld-shallow','mld-moderate','mld-deep','mld-label'],
@@ -805,12 +810,16 @@ function toggleLayer(n){
   var bm={seamark:{id:'btnSeamarks',c:'on'},chlorophyll:{id:'btnChloro',c:'on-green'},sst:{id:'btnSST',c:'on-red'},ssh_visual:{id:'btnSSHMap',c:'on'},blue_marlin:{id:'btnBlueMarlin',c:'on-cyan'},spanish_mackerel:{id:'btnSpanishMack',c:'on-purple'},sbt:{id:'btnSBT',c:'on-teal'},nav_aids:{id:'btnNavAids',c:'on'},sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},currents:{id:'btnCurrents',c:'on'},bathymetry:{id:'btnBathy',c:'on-orange'},clarity:{id:'btnClarity',c:'on'},ssh:{id:'btnSSH',c:'on-orange'},mld:{id:'btnMLD',c:'on'},ssta:{id:'btnSSTA',c:'on-red'}};
   if(n==='blue_marlin'){
     var ml=document.getElementById('marlinLegend');if(a){ml.classList.add('active');document.getElementById('legendTab').textContent='▶'}else{ml.classList.remove('active');document.getElementById('legendTab').textContent='◀'}
-    sGL('hs-blue',a);sGL('isotherm-blue-peak',a);sGL('isotherm-blue-prime',a);sGL('isotherm-blue-good',a);
+    sGL('hs-blue',a);sGL('hs-blue-line',a);sGL('isotherm-blue-peak',a);sGL('isotherm-blue-prime',a);sGL('isotherm-blue-good',a);
     sGL('isotherm-label',a);
   } else if(n==='spanish_mackerel'){
-    sGL('sm-hs',a);
+    sGL('sm-hs',a);sGL('sm-hs-line',a);
   } else if(n==='sbt'){
-    sGL('sbt-hs',a);
+    sGL('sbt-hs',a);sGL('sbt-hs-line',a);
+  } else if(n==='nav_aids'){
+    var nids=['nav-base','nav-port','nav-stbd','nav-cardinal-x','nav-light-dot'];
+    for(var i=0;i<nids.length;i++){if(map.getLayer(nids[i]))map.setPaintProperty(nids[i],'circle-opacity',a?1:.5)}
+    if(map.getLayer('nav-label'))map.setPaintProperty('nav-label','text-opacity',a?1:0);
   } else {
     var ln=lm[n];
     if(ln){var ids=Array.isArray(ln)?ln:[ln];for(var i=0;i<ids.length;i++){sGL(ids[i],a)}}
@@ -834,38 +843,41 @@ function setBasemap(n){
   if(n===cBM)return;cBM=n;var bm=BM[n];
   var gL=['gps-track-line','gps-acc-fill','gps-acc-line','gps-glow','gps-outer','gps-inner','gps-heading-line'];
   var fg=null;for(var i=0;i<gL.length;i++){if(map.getLayer(gL[i])){fg=gL[i];break}}
-  var rm=['all-catches-dot','all-catches-glow','catch-label','catch-dot','catch-ring','catch-glow','sm-layer','clarity-bloom','clarity-turbid','clarity-clean','ssta-label','ssh-label','ssh-warm-core','ssh-warm','ssh-neutral','ssh-cold','current-line','chl-edge-label','chl-edge-line','isotherm-label','isotherm-blue-peak','isotherm-blue-prime','isotherm-blue-good','sst-front-label','sst-front-line','sst-front-glow','mld-label','mld-very-shallow','mld-shallow','mld-moderate','mld-deep','ssta-cold','ssta-warm','nav-label','nav-light-dot','nav-cardinal-x','nav-stbd','nav-port','nav-base','sbt-hs','sm-hs','hs-blue','bathy-shade','bathy-1000','bathy-500','bathy-250','bathy-200','bathy-150','bathy-glow','bathy-100','bathy-label','depth-grid-pt','spot-label','spot-dot','spot-glow','g-chl-layer','g-sst-layer','g-ssh-layer','ol-layer','basemap-layer'];
+  var rm=['all-catches-dot','all-catches-glow','catch-label','catch-dot','catch-ring','catch-glow','sm-layer','clarity-bloom','clarity-turbid','clarity-clean','ssta-label','ssh-label','ssh-warm-core','ssh-warm','ssh-neutral','ssh-cold','current-line','chl-edge-label','chl-edge-line','isotherm-label','isotherm-blue-peak','isotherm-blue-prime','isotherm-blue-good','sst-front-label','sst-front-line','sst-front-glow','mld-label','mld-very-shallow','mld-shallow','mld-moderate','mld-deep','ssta-cold','ssta-warm','nav-label','nav-light-dot','nav-cardinal-x','nav-stbd','nav-port','nav-base','sbt-hs-line','sbt-hs','sm-hs-line','sm-hs','hs-blue-line','hs-blue','bathy-shade','bathy-1000','bathy-500','bathy-250','bathy-200','bathy-150','bathy-glow','bathy-100','bathy-50','bathy-20','bathy-label','depth-grid-pt','spot-label','spot-dot','spot-glow','g-chl-layer','g-sst-layer','g-ssh-layer','ol-layer','basemap-layer'];
   for(var i=0;i<rm.length;i++){if(map.getLayer(rm[i]))map.removeLayer(rm[i])}
   var rs=['basemap','ol','g-chl','g-sst','g-ssh'];
   for(var i=0;i<rs.length;i++){if(map.getSource(rs[i]))map.removeSource(rs[i])}
   map.addSource('basemap',{type:'raster',tiles:bm.tiles,tileSize:256,attribution:bm.attr,maxzoom:bm.mz});
-  map.addSource('ol',{type:'raster',tiles:[BLK],tileSize:256,maxzoom:16});
+  var isOcean=(n==='ocean');
+  map.addSource('ol',{type:'raster',tiles:[isOcean?OL_URL:BLK],tileSize:256,maxzoom:16});
   var bf=fg||undefined;
   map.addLayer({id:'basemap-layer',type:'raster',source:'basemap'},bf);
-  map.addLayer({id:'ol-layer',type:'raster',source:'ol',paint:{'raster-opacity':0}},bf);
+  map.addLayer({id:'ol-layer',type:'raster',source:'ol',paint:{'raster-opacity':isOcean?.3:0}},bf);
   var go=['g-sst','g-chl'];
   var gc={'g-sst':{l:GL.sst,z:7,o:.6,v:LS.sst},'g-chl':{l:GL.chl,z:7,o:.7,v:LS.chlorophyll}};
   for(var i=0;i<go.length;i++){var k=go[i],c=gc[k];map.addSource(k,{type:'raster',tiles:[gu(c.l,gDate)],tileSize:256,maxzoom:c.z});map.addLayer({id:k+'-layer',type:'raster',source:k,layout:{visibility:c.v?'visible':'none'},paint:{'raster-opacity':c.o}},bf)}
   map.addSource('g-ssh',{type:'raster',tiles:[guSLA(cDate)],tileSize:256,maxzoom:8});
   map.addLayer({id:'g-ssh-layer',type:'raster',source:'g-ssh',layout:{visibility:LS.ssh_visual?'visible':'none'},paint:{'raster-opacity':.7}},bf);
-  var bmo2=LS.blue_marlin;
-  map.addLayer({id:'hs-blue',type:'fill',source:'blue-hotspots',filter:['>=',['get','intensity'],_displayFloor],paint:{'fill-color':['interpolate',['linear'],['get','intensity'],_displayFloor,'#fde68a',_displayFloor+.06,'#fbbf24',_displayFloor+.12,'#f59e0b',_displayFloor+.18,'#ea580c',_displayFloor+.24,'#dc2626',_displayFloor+.30,'#991b1b'],'fill-opacity':bmo2?.45:0,'fill-antialias':false}},bf);
-  var smo=LS.spanish_mackerel;
-  map.addLayer({id:'sm-hs',type:'fill',source:'sm-hotspots',filter:['>=',['get','intensity'],0.25],paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.25,'#c4b5fd',0.40,'#a78bfa',0.55,'#8b5cf6',0.70,'#7c3aed',0.85,'#6d28d9',0.95,'#4c1d95'],'fill-opacity':smo?.45:0,'fill-antialias':false}},bf);
-  var sbto=LS.sbt;
-  map.addLayer({id:'sbt-hs',type:'fill',source:'sbt-hotspots',filter:['>=',['get','intensity'],0.25],paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.25,'#99f6e4',0.40,'#5eead4',0.55,'#2dd4bf',0.70,'#14b8a6',0.85,'#0d9488',0.95,'#0f766e'],'fill-opacity':sbto?.45:0,'fill-antialias':false}},bf);
-  var mv=LS.seamark?'visible':'none';
   var bo=LS.bathymetry;
-  map.addLayer({id:'bathy-shade',type:'raster',source:'bathy-hillshade',paint:{'raster-opacity':bo?0.45:0,'raster-fade-duration':0}},bf);
+  map.addLayer({id:'bathy-shade',type:'raster',source:'bathy-hillshade',paint:{'raster-opacity':bo?0.25:0,'raster-fade-duration':0}},bf);
+  var bmo2=LS.blue_marlin;
+  map.addLayer({id:'hs-blue',type:'fill',source:'blue-hotspots',filter:['>=',['get','intensity'],_displayFloor],paint:{'fill-color':['interpolate',['linear'],['get','intensity'],_displayFloor,'#fde68a',_displayFloor+.06,'#fbbf24',_displayFloor+.12,'#f59e0b',_displayFloor+.18,'#ea580c',_displayFloor+.24,'#dc2626',_displayFloor+.30,'#991b1b'],'fill-opacity':bmo2?.15:0,'fill-antialias':false}},bf);
+  var smo=LS.spanish_mackerel;
+  map.addLayer({id:'sm-hs',type:'fill',source:'sm-hotspots',filter:['>=',['get','intensity'],0.25],paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.25,'#c4b5fd',0.40,'#a78bfa',0.55,'#8b5cf6',0.70,'#7c3aed',0.85,'#6d28d9',0.95,'#4c1d95'],'fill-opacity':smo?.15:0,'fill-antialias':false}},bf);
+  var sbto=LS.sbt;
+  map.addLayer({id:'sbt-hs',type:'fill',source:'sbt-hotspots',filter:['>=',['get','intensity'],0.25],paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.25,'#99f6e4',0.40,'#5eead4',0.55,'#2dd4bf',0.70,'#14b8a6',0.85,'#0d9488',0.95,'#0f766e'],'fill-opacity':sbto?.15:0,'fill-antialias':false}},bf);
+  var mv=LS.seamark?'visible':'none';
   map.addLayer({id:'bathy-glow',type:'line',source:'bathymetry',filter:['==',['get','depth'],-200],paint:{'line-color':'#000000','line-width':8,'line-opacity':bo?.12:0,'line-blur':4}},bf);
   map.addLayer({id:'bathy-150',type:'line',source:'bathymetry',filter:['==',['get','depth'],-150],paint:{'line-color':'#000000','line-width':1,'line-opacity':bo?.7:0,'line-dasharray':[4,3]}},bf);
   map.addLayer({id:'bathy-200',type:'line',source:'bathymetry',filter:['==',['get','depth'],-200],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':bo?.75:0}},bf);
   map.addLayer({id:'bathy-250',type:'line',source:'bathymetry',filter:['==',['get','depth'],-250],paint:{'line-color':'#000000','line-width':1.2,'line-opacity':bo?.8:0,'line-dasharray':[6,3]}},bf);
   map.addLayer({id:'bathy-500',type:'line',source:'bathymetry',filter:['==',['get','depth'],-500],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':bo?.75:0}},bf);
   map.addLayer({id:'bathy-1000',type:'line',source:'bathymetry',filter:['==',['get','depth'],-1000],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':bo?.65:0}},bf);
+  map.addLayer({id:'bathy-20',type:'line',source:'bathymetry',filter:['==',['get','depth'],-20],paint:{'line-color':'#000000','line-width':0.8,'line-opacity':bo?.6:0,'line-dasharray':[3,2]}},bf);
+  map.addLayer({id:'bathy-50',type:'line',source:'bathymetry',filter:['==',['get','depth'],-50],paint:{'line-color':'#000000','line-width':1,'line-opacity':bo?.7:0,'line-dasharray':[4,2]}},bf);
   map.addLayer({id:'bathy-100',type:'line',source:'bathymetry',filter:['==',['get','depth'],-100],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':bo?.85:0}},bf);
   map.addLayer({id:'depth-grid-pt',type:'circle',source:'depth-grid',paint:{'circle-radius':1,'circle-opacity':0}},bf);
-  map.addLayer({id:'bathy-label',type:'symbol',source:'bathymetry',filter:['any',['==',['get','depth'],-100],['==',['get','depth'],-150],['==',['get','depth'],-200],['==',['get','depth'],-250],['==',['get','depth'],-500],['==',['get','depth'],-1000]],layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat',['to-string',['*',['get','depth'],-1]],'m'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#000000','text-halo-color':'rgba(255,255,255,0.85)','text-halo-width':1.5,'text-opacity':bo?1:0}},bf);
+  map.addLayer({id:'bathy-label',type:'symbol',source:'bathymetry',filter:['any',['==',['get','depth'],-20],['==',['get','depth'],-50],['==',['get','depth'],-100],['==',['get','depth'],-150],['==',['get','depth'],-200],['==',['get','depth'],-250],['==',['get','depth'],-500],['==',['get','depth'],-1000]],layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat',['to-string',['*',['get','depth'],-1]],'m'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#000000','text-halo-color':'rgba(255,255,255,0.85)','text-halo-width':1.5,'text-opacity':bo?1:0}},bf);
   var fo=LS.sst_fronts;
   map.addLayer({id:'sst-front-glow',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],paint:{'line-color':'#ff6b35','line-width':['interpolate',['linear'],['zoom'],5,12,10,8,15,4],'line-opacity':fo?.18:0,'line-blur':4}},bf);
   map.addLayer({id:'sst-front-line',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],paint:{'line-color':'#ff6b35','line-width':['interpolate',['linear'],['zoom'],5,3.5,10,2.5,15,1.5],'line-opacity':fo?.9:0}},bf);
@@ -900,11 +912,11 @@ function setBasemap(n){
   map.addLayer({id:'clarity-bloom',type:'line',source:'water-clarity',filter:['==',['get','label'],'bloom'],paint:{'line-color':'#dc2626','line-width':2,'line-opacity':co?.9:0,'line-dasharray':[4,2]}},bf);
   map.addLayer({id:'sm-layer',type:'raster',source:'sm',paint:{'raster-opacity':.85},layout:{visibility:LS.seamark?'visible':'none'}},bf);
   var nao=LS.nav_aids;
-  map.addLayer({id:'nav-base',type:'circle',source:'nav-aids',filter:['all',['!=',['get','category'],'port'],['!=',['get','category'],'starboard']],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,3,14,6],'circle-color':['match',['get','category'],'cardinal','#eab308','light','#ffffff','lead','#f97316','buoy','#3b82f6','beacon','#a855f7','ais','#06b6d4','#94a3b8'],'circle-stroke-width':1.5,'circle-stroke-color':'#000','circle-opacity':nao?1:0}},bf);
-  map.addLayer({id:'nav-port',type:'circle',source:'nav-aids',filter:['==',['get','category'],'port'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,4,14,7],'circle-color':'#ef4444','circle-stroke-width':2,'circle-stroke-color':'#7f1d1d','circle-opacity':nao?1:0}},bf);
-  map.addLayer({id:'nav-stbd',type:'circle',source:'nav-aids',filter:['==',['get','category'],'starboard'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,4,14,7],'circle-color':'#22c55e','circle-stroke-width':2,'circle-stroke-color':'#14532d','circle-opacity':nao?1:0}},bf);
-  map.addLayer({id:'nav-cardinal-x',type:'circle',source:'nav-aids',filter:['==',['get','category'],'cardinal'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,1.5,14,3],'circle-color':'#000','circle-stroke-width':0,'circle-opacity':nao?1:0}},bf);
-  map.addLayer({id:'nav-light-dot',type:'circle',source:'nav-aids',filter:['==',['get','category'],'light'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,1.5,14,3],'circle-color':'#fef08a','circle-stroke-width':0,'circle-opacity':nao?1:0}},bf);
+  map.addLayer({id:'nav-base',type:'circle',source:'nav-aids',filter:['all',['!=',['get','category'],'port'],['!=',['get','category'],'starboard']],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,3,14,6],'circle-color':['match',['get','category'],'cardinal','#eab308','light','#ffffff','lead','#f97316','buoy','#3b82f6','beacon','#a855f7','ais','#06b6d4','#94a3b8'],'circle-stroke-width':1.5,'circle-stroke-color':'#000','circle-opacity':nao?1:.5}},bf);
+  map.addLayer({id:'nav-port',type:'circle',source:'nav-aids',filter:['==',['get','category'],'port'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,2,14,3.5],'circle-color':'#ef4444','circle-stroke-width':1.5,'circle-stroke-color':'#7f1d1d','circle-opacity':nao?1:.5}},bf);
+  map.addLayer({id:'nav-stbd',type:'circle',source:'nav-aids',filter:['==',['get','category'],'starboard'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,2,14,3.5],'circle-color':'#22c55e','circle-stroke-width':1.5,'circle-stroke-color':'#14532d','circle-opacity':nao?1:.5}},bf);
+  map.addLayer({id:'nav-cardinal-x',type:'circle',source:'nav-aids',filter:['==',['get','category'],'cardinal'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,1.5,14,3],'circle-color':'#000','circle-stroke-width':0,'circle-opacity':nao?1:.5}},bf);
+  map.addLayer({id:'nav-light-dot',type:'circle',source:'nav-aids',filter:['==',['get','category'],'light'],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,1.5,14,3],'circle-color':'#fef08a','circle-stroke-width':0,'circle-opacity':nao?1:.5}},bf);
   map.addLayer({id:'nav-label',type:'symbol',source:'nav-aids',minzoom:12,layout:{'text-field':['get','name'],'text-size':9,'text-offset':[0,1.2],'text-anchor':'top','text-font':['Open Sans Regular'],'text-max-width':12},paint:{'text-color':'#e2e8f0','text-halo-color':'rgba(0,0,0,0.9)','text-halo-width':1.5,'text-opacity':nao?1:0}},bf);
   map.addLayer({id:'catch-glow',type:'circle',source:'catch-marker',paint:{'circle-radius':22,'circle-color':'#22c55e','circle-opacity':.2,'circle-blur':.6}},bf);
   map.addLayer({id:'catch-ring',type:'circle',source:'catch-marker',paint:{'circle-radius':10,'circle-color':'transparent','circle-stroke-width':3,'circle-stroke-color':'#22c55e','circle-opacity':1}},bf);
