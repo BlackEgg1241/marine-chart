@@ -221,7 +221,7 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.216</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.217</span></div>
   <div class="basemap-sw">
     <div class="bm-btn active" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#2a5a8c);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🌊</span></div><div class="bm-label">Ocean</div></div>
     <div class="bm-btn" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
@@ -569,9 +569,9 @@ function initMap(){
     {id:'g-chl-layer',type:'raster',source:'g-chl',layout:{visibility:'none'},paint:{'raster-opacity':.7}},
     {id:'g-ssh-layer',type:'raster',source:'g-ssh',layout:{visibility:'none'},paint:{'raster-opacity':.7}},
     {id:'bathy-shade',type:'raster',source:'bathy-hillshade',paint:{'raster-opacity':.5,'raster-fade-duration':0}},
-    {id:'hs-blue',type:'fill',source:'blue-hotspots',filter:['>=',['get','intensity'],_displayFloor],paint:{'fill-color':['interpolate',['linear'],['get','intensity'],_displayFloor,'#fef9c3',_displayFloor+.08,'#fbbf24',_displayFloor+.16,'#f97316',_displayFloor+.24,'#ef4444',_displayFloor+.32,'#be123c',_displayFloor+.38,'#7f1d1d'],'fill-opacity':.30,'fill-antialias':false}},
-    {id:'sm-hs',type:'fill',source:'sm-hotspots',filter:['>=',['get','intensity'],0.25],paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.25,'#c4b5fd',0.40,'#a78bfa',0.55,'#8b5cf6',0.70,'#7c3aed',0.85,'#6d28d9',0.95,'#4c1d95'],'fill-opacity':0,'fill-antialias':false}},
-    {id:'sbt-hs',type:'fill',source:'sbt-hotspots',filter:['>=',['get','intensity'],0.25],paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.25,'#99f6e4',0.40,'#5eead4',0.55,'#2dd4bf',0.70,'#14b8a6',0.85,'#0d9488',0.95,'#0f766e'],'fill-opacity':0,'fill-antialias':false}},
+    {id:'hs-blue',type:'fill',source:'blue-hotspots',filter:['>=',['get','intensity'],_displayFloor],layout:{'fill-sort-key':['get','intensity']},paint:{'fill-color':['interpolate',['linear'],['get','intensity'],_displayFloor,'#fef9c3',_displayFloor+.08,'#fbbf24',_displayFloor+.16,'#f97316',_displayFloor+.24,'#ef4444',_displayFloor+.32,'#be123c',_displayFloor+.38,'#7f1d1d'],'fill-opacity':.30,'fill-antialias':false}},
+    {id:'sm-hs',type:'fill',source:'sm-hotspots',filter:['>=',['get','intensity'],0.25],layout:{'fill-sort-key':['get','intensity']},paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.25,'#c4b5fd',0.40,'#a78bfa',0.55,'#8b5cf6',0.70,'#7c3aed',0.85,'#6d28d9',0.95,'#4c1d95'],'fill-opacity':0,'fill-antialias':false}},
+    {id:'sbt-hs',type:'fill',source:'sbt-hotspots',filter:['>=',['get','intensity'],0.25],layout:{'fill-sort-key':['get','intensity']},paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.25,'#99f6e4',0.40,'#5eead4',0.55,'#2dd4bf',0.70,'#14b8a6',0.85,'#0d9488',0.95,'#0f766e'],'fill-opacity':0,'fill-antialias':false}},
     {id:'bathy-20',type:'line',source:'bathymetry',filter:['==',['get','depth'],-20],paint:{'line-color':'#000000','line-width':0.8,'line-opacity':.6,'line-dasharray':[3,2]}},
     {id:'bathy-50',type:'line',source:'bathymetry',filter:['==',['get','depth'],-50],paint:{'line-color':'#000000','line-width':1,'line-opacity':.7,'line-dasharray':[4,2]}},
     {id:'bathy-100',type:'line',source:'bathymetry',filter:['==',['get','depth'],-100],paint:{'line-color':'#000000','line-width':1.5,'line-opacity':.85}},
@@ -703,7 +703,8 @@ function initMap(){
       var vk=hVis[lid];if(vk&&!LS[vk])return;
       map.getCanvas().style.cursor='crosshair';
       _hoverOnFeature=true;
-      hoverCt.innerHTML=hInfo[lid](e.features[0].properties);
+      var best=e.features[0];for(var fi=1;fi<e.features.length;fi++){if((e.features[fi].properties.intensity||0)>(best.properties.intensity||0))best=e.features[fi]}
+      hoverCt.innerHTML=hInfo[lid](best.properties);
       hoverEl.style.left=e.point.x+'px';hoverEl.style.top=(e.point.y-12)+'px';
       hoverEl.classList.add('active');
     });
@@ -858,11 +859,11 @@ function setBasemap(n){
   var bo=LS.bathymetry;
   map.addLayer({id:'bathy-shade',type:'raster',source:'bathy-hillshade',paint:{'raster-opacity':bo?0.5:0,'raster-fade-duration':0}},bf);
   var bmo2=LS.blue_marlin;
-  map.addLayer({id:'hs-blue',type:'fill',source:'blue-hotspots',filter:['>=',['get','intensity'],_displayFloor],paint:{'fill-color':['interpolate',['linear'],['get','intensity'],_displayFloor,'#fef9c3',_displayFloor+.08,'#fbbf24',_displayFloor+.16,'#f97316',_displayFloor+.24,'#ef4444',_displayFloor+.32,'#be123c',_displayFloor+.38,'#7f1d1d'],'fill-opacity':bmo2?.30:0,'fill-antialias':false}},bf);
+  map.addLayer({id:'hs-blue',type:'fill',source:'blue-hotspots',filter:['>=',['get','intensity'],_displayFloor],layout:{'fill-sort-key':['get','intensity']},paint:{'fill-color':['interpolate',['linear'],['get','intensity'],_displayFloor,'#fef9c3',_displayFloor+.08,'#fbbf24',_displayFloor+.16,'#f97316',_displayFloor+.24,'#ef4444',_displayFloor+.32,'#be123c',_displayFloor+.38,'#7f1d1d'],'fill-opacity':bmo2?.30:0,'fill-antialias':false}},bf);
   var smo=LS.spanish_mackerel;
-  map.addLayer({id:'sm-hs',type:'fill',source:'sm-hotspots',filter:['>=',['get','intensity'],0.25],paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.25,'#c4b5fd',0.40,'#a78bfa',0.55,'#8b5cf6',0.70,'#7c3aed',0.85,'#6d28d9',0.95,'#4c1d95'],'fill-opacity':smo?.30:0,'fill-antialias':false}},bf);
+  map.addLayer({id:'sm-hs',type:'fill',source:'sm-hotspots',filter:['>=',['get','intensity'],0.25],layout:{'fill-sort-key':['get','intensity']},paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.25,'#c4b5fd',0.40,'#a78bfa',0.55,'#8b5cf6',0.70,'#7c3aed',0.85,'#6d28d9',0.95,'#4c1d95'],'fill-opacity':smo?.30:0,'fill-antialias':false}},bf);
   var sbto=LS.sbt;
-  map.addLayer({id:'sbt-hs',type:'fill',source:'sbt-hotspots',filter:['>=',['get','intensity'],0.25],paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.25,'#99f6e4',0.40,'#5eead4',0.55,'#2dd4bf',0.70,'#14b8a6',0.85,'#0d9488',0.95,'#0f766e'],'fill-opacity':sbto?.30:0,'fill-antialias':false}},bf);
+  map.addLayer({id:'sbt-hs',type:'fill',source:'sbt-hotspots',filter:['>=',['get','intensity'],0.25],layout:{'fill-sort-key':['get','intensity']},paint:{'fill-color':['interpolate',['linear'],['get','intensity'],0.25,'#99f6e4',0.40,'#5eead4',0.55,'#2dd4bf',0.70,'#14b8a6',0.85,'#0d9488',0.95,'#0f766e'],'fill-opacity':sbto?.30:0,'fill-antialias':false}},bf);
   var mv=LS.seamark?'visible':'none';
   map.addLayer({id:'bathy-glow',type:'line',source:'bathymetry',filter:['==',['get','depth'],-200],paint:{'line-color':'#000000','line-width':8,'line-opacity':bo?.12:0,'line-blur':4}},bf);
   map.addLayer({id:'bathy-150',type:'line',source:'bathymetry',filter:['==',['get','depth'],-150],paint:{'line-color':'#000000','line-width':1,'line-opacity':bo?.7:0,'line-dasharray':[4,3]}},bf);
