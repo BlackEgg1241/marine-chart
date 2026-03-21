@@ -1548,11 +1548,26 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         # FAD proximity band — small boost near known FAD buoy positions
         # Catches cluster near FADs; this gives a mild nudge to nearby cells.
         _fad_positions = [
-            (115.3333, -32.05),   # Club Marine
-            (115.2333, -32.0),    # PGFC
-            (115.2667, -31.9667), # FURUNO
-            (115.2, -31.9167),    # Compleat Angler
-            (115.1667, -32.1667), # Fibrelite Boats
+            # Perth Canyon group
+            (115.3333, -32.05),    # Club Marine (PC48)
+            (115.2333, -32.0),     # PGFC (PC47)
+            (115.2667, -31.9667),  # FURUNO (PC46)
+            (115.2, -31.9167),     # Compleat Angler (PC45)
+            # Fremantle
+            (115.1833, -32.0833),  # Fremantle Sailing Club
+            # Woodman Pt group
+            (115.1600, -32.1130),  # Fibrelite Boats (WP06)
+            (115.1210, -32.1130),  # Woodman Pt 05
+            # Rockingham / Mandurah
+            (115.1217, -32.2479),  # Rockingham 08
+            (115.0736, -32.3585),  # Rockingham 07
+            (115.0700, -32.5260),  # Mandurah 09
+            (115.0287, -32.6274),  # Mandurah 10
+            # North Metro group
+            (115.1754, -31.7287),  # North Metro 04
+            (115.1752, -31.7003),  # North Metro 03
+            (115.1333, -31.6999),  # North Metro 02
+            (115.1332, -31.6171),  # North Metro 01
         ]
         try:
             fad_mask = np.zeros((ny, nx), dtype=bool)
