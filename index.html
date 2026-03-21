@@ -217,7 +217,7 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.192</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.193</span></div>
   <div class="basemap-sw">
     <div class="bm-btn" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#1e5a8a);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🗺️</span></div><div class="bm-label">Ocean</div></div>
     <div class="bm-btn active" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
@@ -374,6 +374,8 @@
       <span style="width:1px;background:rgba(255,255,255,.1);margin:0 4px"></span>
       <button class="wx-loc-btn active" id="wxRange3" onclick="setWxRange(3)">3 Day</button>
       <button class="wx-loc-btn" id="wxRange7" onclick="setWxRange(7)">7 Day</button>
+      <span style="flex:1"></span>
+      <button class="wx-loc-btn" onclick="refreshWeather()" style="background:rgba(56,189,248,.15);border-color:rgba(56,189,248,.3);color:#38bdf8">Refresh</button>
     </div>
     <div class="wx-section">
       <div class="wx-section-title">Wind Speed (kn) &amp; Gusts</div>
@@ -389,10 +391,7 @@
     </div>
     <div class="wx-summary" id="wxSummary"></div>
     <div class="wx-section" style="border-top:1px solid rgba(255,255,255,.08);padding-top:8px">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <div class="wx-section-title">Current Conditions</div>
-        <button onclick="refreshWeather()" style="background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.3);color:#38bdf8;font-size:8px;padding:3px 8px;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:600">Refresh</button>
-      </div>
+      <div class="wx-section-title">Current Conditions</div>
       <div id="wxRealtime" style="font-size:9px;color:#cbd5e1;padding:4px 0 4px"></div>
       <div id="wxBomStations" style="font-size:9px;color:#cbd5e1;padding:0 0 4px"></div>
     </div>
@@ -2351,12 +2350,13 @@ function refreshWeather(){
 
 function updateWxRealtime(){
   if(!wxData)return;
-  var rotHrs=(wxData.locations.rottnest||{}).hourly||[];
-  if(!rotHrs.length){document.getElementById('wxRealtime').innerHTML='No data';return;}
+  var locName=wxLoc==='hillarys'?'Hillarys':'Rottnest';
+  var locHrs=(wxData.locations[wxLoc]||{}).hourly||[];
+  if(!locHrs.length){document.getElementById('wxRealtime').innerHTML='No data';return;}
   // Find the hour closest to now
   var now=Date.now();var bestI=0,bestD=Infinity;
-  for(var i=0;i<rotHrs.length;i++){var d=Math.abs(new Date(rotHrs[i].time).getTime()-now);if(d<bestD){bestD=d;bestI=i;}}
-  var h=rotHrs[bestI];
+  for(var i=0;i<locHrs.length;i++){var d=Math.abs(new Date(locHrs[i].time).getTime()-now);if(d<bestD){bestD=d;bestI=i;}}
+  var h=locHrs[bestI];
   var compass=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
   var windDir=h.wind_direction_10m!=null?compass[Math.round(h.wind_direction_10m/22.5)%16]:'—';
   var sw=h.total_swell_height!=null?h.total_swell_height:(h.swell_wave_height||0);
@@ -2370,7 +2370,7 @@ function updateWxRealtime(){
     '<span>Swell: <b>'+sw.toFixed(1)+'m</b> '+Math.round(sp)+'s</span>'+
     (sst!=null?'<span>SST: <b>'+sst.toFixed(1)+'°C</b></span>':'')+
     '<span>Comfort: <b style="color:'+comfortColor(comf)+'">'+comf+'%</b></span>'+
-    '</div><div style="color:#475569;font-size:8px;margin-top:2px">Forecast for '+t[0]+' '+t[1].substr(0,5)+' (Rottnest)</div>';
+    '</div><div style="color:#475569;font-size:8px;margin-top:2px">Forecast for '+t[0]+' '+t[1].substr(0,5)+' ('+locName+')</div>';
 
   // BOM live observations — compact table, left-aligned
   var bom=wxData.bom_observations;
