@@ -1,5 +1,5 @@
 """Refresh BOM wind observations for Rottnest and Hillarys in marine_weather.json."""
-import json, os, ssl, urllib.request, urllib.error, time
+import json, os, ssl, subprocess, urllib.request, urllib.error, time
 from datetime import datetime
 
 
@@ -92,6 +92,26 @@ def main():
     rot_n = len(weather.get("bom_rottnest_wind", []))
     hil_n = len(weather.get("bom_hillarys_wind", []))
     print(f"\nBOM wind updated at {now}: Rottnest {rot_n} obs, Hillarys {hil_n} obs -> {WEATHER_PATH}")
+
+    # Git commit and push so online app has fresh data
+    repo_dir = os.path.dirname(os.path.abspath(__file__))
+    try:
+        subprocess.run(["git", "add", "data/marine_weather.json"], cwd=repo_dir, check=True)
+        result = subprocess.run(
+            ["git", "diff", "--cached", "--quiet"],
+            cwd=repo_dir
+        )
+        if result.returncode != 0:
+            subprocess.run(
+                ["git", "commit", "-m", f"BOM wind update {now}"],
+                cwd=repo_dir, check=True
+            )
+            subprocess.run(["git", "push"], cwd=repo_dir, check=True)
+            print("Pushed to remote")
+        else:
+            print("No changes to push")
+    except Exception as e:
+        print(f"Git push failed: {e}")
 
 
 if __name__ == "__main__":
