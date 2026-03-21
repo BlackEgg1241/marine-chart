@@ -270,9 +270,18 @@ BOM_STATIONS = [
 ]
 
 
+DIR_MAP = {
+    "N": 0, "NNE": 22.5, "NE": 45, "ENE": 67.5, "E": 90, "ESE": 112.5,
+    "SE": 135, "SSE": 157.5, "S": 180, "SSW": 202.5, "SW": 225, "WSW": 247.5,
+    "W": 270, "WNW": 292.5, "NW": 315, "NNW": 337.5, "CALM": None,
+}
+
+
 def fetch_bom_observations():
-    """Fetch latest BOM observations for each station."""
+    """Fetch BOM observations for each station. Latest for summary, all today for Rottnest chart."""
     stations = []
+    rottnest_today = []
+    today_str = datetime.now().strftime("%Y%m%d")
     for label, station_id in BOM_STATIONS:
         url = f"https://reg.bom.gov.au/fwo/IDW60801/IDW60801.{station_id}.json"
         try:
@@ -294,9 +303,28 @@ def fetch_bom_observations():
                     "rain_trace": o.get("rain_trace"),
                 })
                 print(f"  BOM {label}: {o.get('wind_dir')} {o.get('wind_spd_kt')}kn, gusts {o.get('gust_kt')}kn, {o.get('air_temp')}C")
+                # Save all Rottnest observations since midnight for the live wind chart
+                if station_id == 94602:
+                    for ob in obs_list:
+                        ts = ob.get("local_date_time_full", "")
+                        if not ts.startswith(today_str):
+                            continue
+                        wind_kt = ob.get("wind_spd_kt")
+                        if wind_kt is None:
+                            continue
+                        deg = DIR_MAP.get(ob.get("wind_dir", ""), None)
+                        rottnest_today.append({
+                            "time": ts,
+                            "wind_spd_kt": wind_kt,
+                            "gust_kt": ob.get("gust_kt"),
+                            "wind_dir": ob.get("wind_dir", ""),
+                            "wind_dir_deg": deg,
+                        })
+                    rottnest_today.sort(key=lambda x: x["time"])
+                    print(f"  BOM Rottnest: {len(rottnest_today)} observations since midnight")
         except Exception as e:
             print(f"  BOM fetch failed for {label} ({station_id}): {e}")
-    return stations
+    return stations, rottnest_today
 
 
 def main():
@@ -309,7 +337,9 @@ def main():
 
     # Fetch BOM live observations
     print("Fetching BOM observations...")
-    result["bom_observations"] = fetch_bom_observations()
+    bom_stations, rottnest_today = fetch_bom_observations()
+    result["bom_observations"] = bom_stations
+    result["bom_rottnest_wind"] = rottnest_today
 
     # Wave buoy chart URLs (Transport WA, Rottnest Island RDW47)
     result["wave_buoy_charts"] = {

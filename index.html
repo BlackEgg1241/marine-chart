@@ -217,7 +217,7 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.184</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.185</span></div>
   <div class="basemap-sw">
     <div class="bm-btn" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#1e5a8a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🗺️</span></div><div class="bm-label">Ocean</div></div>
     <div class="bm-btn active" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
@@ -402,6 +402,13 @@
       </div>
       <div id="wxRealtime" style="font-size:9px;color:#cbd5e1;padding:4px 0 4px"></div>
       <div id="wxBomStations" style="font-size:9px;color:#cbd5e1;padding:0 0 4px"></div>
+    </div>
+    <div class="wx-section" style="border-top:1px solid rgba(255,255,255,.08);padding-top:4px">
+      <div class="wx-section-title">BOM Live Wind — Rottnest</div>
+      <div class="wx-chart-wrap" id="wxBomWindWrap" style="height:100px"><canvas id="wxBomWindChart"></canvas></div>
+    </div>
+    <div class="wx-section" style="border-top:1px solid rgba(255,255,255,.08);padding-top:4px">
+      <div class="wx-section-title">Rottnest Wave Buoy (RDW47)</div>
       <div id="wxWaveBuoy" style="padding:4px 0 8px"></div>
     </div>
   </div>
@@ -1386,6 +1393,7 @@ function drawWeatherCharts(){
   drawWindChart(show);
   drawSwellChart(show);
   drawComfortChart(show);
+  drawBomWindChart();
 }
 
 function wxSetupCanvas(canvasId){
@@ -1529,17 +1537,7 @@ function drawWindChart(hours){
   ctx.fillStyle='rgba(239,68,68,.4)';ctx.font='7px JetBrains Mono';ctx.textAlign='left';
   ctx.fillText('15kn',pad.l+2,y15-3);
 
-  // Gust line (orange, thin)
-  ctx.beginPath();ctx.strokeStyle='#fb923c';ctx.lineWidth=1;ctx.globalAlpha=0.6;
-  for(var i=0;i<hours.length;i++){
-    var g=hours[i].wind_gusts_10m||0;
-    var x=pad.l+(i/(hours.length-1))*gW;
-    var y=pad.t+(1-g/yMax)*gH;
-    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-  }
-  ctx.stroke();ctx.globalAlpha=1;
-
-  // Wind speed area fill (light cyan under the line)
+  // Blue fill: 0 to wind speed
   ctx.beginPath();
   for(var i=0;i<hours.length;i++){
     var ws=hours[i].wind_speed_10m||0;
@@ -1548,7 +1546,34 @@ function drawWindChart(hours){
     i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
   }
   ctx.lineTo(pad.l+gW,pad.t+gH);ctx.lineTo(pad.l,pad.t+gH);ctx.closePath();
-  ctx.fillStyle='rgba(56,189,248,.1)';ctx.fill();
+  ctx.fillStyle='rgba(56,189,248,.2)';ctx.fill();
+
+  // Red fill: wind speed to gusts
+  ctx.beginPath();
+  for(var i=0;i<hours.length;i++){
+    var ws=hours[i].wind_speed_10m||0;
+    var x=pad.l+(i/(hours.length-1))*gW;
+    var y=pad.t+(1-ws/yMax)*gH;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  for(var i=hours.length-1;i>=0;i--){
+    var g=hours[i].wind_gusts_10m||0;
+    var x=pad.l+(i/(hours.length-1))*gW;
+    var y=pad.t+(1-g/yMax)*gH;
+    ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+  ctx.fillStyle='rgba(239,68,68,.2)';ctx.fill();
+
+  // Gust line (red, thin)
+  ctx.beginPath();ctx.strokeStyle='#ef4444';ctx.lineWidth=1;ctx.globalAlpha=0.7;
+  for(var i=0;i<hours.length;i++){
+    var g=hours[i].wind_gusts_10m||0;
+    var x=pad.l+(i/(hours.length-1))*gW;
+    var y=pad.t+(1-g/yMax)*gH;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.stroke();ctx.globalAlpha=1;
 
   // Wind speed line (cyan, thicker)
   ctx.beginPath();ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;
@@ -1581,7 +1606,7 @@ function drawWindChart(hours){
 
   // Legend
   ctx.font='7px JetBrains Mono';ctx.textAlign='left';ctx.fillStyle='#64748b';
-  ctx.fillText('Wind (cyan)  |  Gusts (orange)',pad.l+2,pad.t-4);
+  ctx.fillText('Wind (cyan)  |  Gusts (red)',pad.l+2,pad.t-4);
   wxDrawSunStrip(ctx,W,H,pad,hours);
 }
 
@@ -1726,6 +1751,103 @@ function drawComfortChart(hours){
   ctx.fillStyle='#475569';ctx.font='7px JetBrains Mono';ctx.textAlign='right';
   ctx.fillText('100%',pad.l-4,pad.t+6);
   ctx.fillText('0%',pad.l-4,pad.t+gH);
+}
+
+function drawBomWindChart(){
+  if(!wxData||!wxData.bom_rottnest_wind||wxData.bom_rottnest_wind.length<2)return;
+  var obs=wxData.bom_rottnest_wind;
+  var c=wxSetupCanvas('wxBomWindChart');
+  var ctx=c.ctx,W=c.W,H=c.H;
+  var pad={t:10,b:16,l:30,r:8};
+  var gW=W-pad.l-pad.r,gH=H-pad.t-pad.b;
+  ctx.clearRect(0,0,W,H);
+
+  // Parse times and find range
+  var pts=[];
+  for(var i=0;i<obs.length;i++){
+    var ts=obs[i].time;
+    // BOM format: YYYYMMDDHHMMSS
+    var dt=new Date(ts.substr(0,4)+'-'+ts.substr(4,2)+'-'+ts.substr(6,2)+'T'+ts.substr(8,2)+':'+ts.substr(10,2));
+    pts.push({t:dt.getTime(),ws:obs[i].wind_spd_kt||0,g:obs[i].gust_kt||obs[i].wind_spd_kt||0,dir:obs[i].wind_dir,deg:obs[i].wind_dir_deg});
+  }
+
+  // Time range: midnight to now
+  var d=new Date(pts[0].t);d.setHours(0,0,0,0);
+  var t0=d.getTime(),tNow=Date.now();
+  var tRange=tNow-t0;
+
+  var maxG=0;
+  for(var i=0;i<pts.length;i++){if(pts[i].g>maxG)maxG=pts[i].g;if(pts[i].ws>maxG)maxG=pts[i].ws;}
+  var yMax=Math.ceil(maxG/5)*5+5;
+  if(yMax<20)yMax=20;
+
+  // Y gridlines
+  for(var kn=5;kn<yMax;kn+=5){
+    var y=pad.t+(1-kn/yMax)*gH;
+    ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=0.5;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    ctx.fillStyle='#475569';ctx.font='7px JetBrains Mono';ctx.textAlign='right';
+    ctx.fillText(kn+'kn',pad.l-3,y+3);
+  }
+
+  // Hour labels along bottom
+  ctx.fillStyle='#64748b';ctx.font='7px JetBrains Mono';ctx.textAlign='center';
+  for(var h=0;h<=23;h+=3){
+    var ht=t0+h*3600000;
+    if(ht>tNow)break;
+    var x=pad.l+((ht-t0)/tRange)*gW;
+    ctx.fillText(String(h).padStart(2,'0')+':00',x,H-3);
+  }
+
+  function tX(t){return pad.l+((t-t0)/tRange)*gW;}
+  function vY(v){return pad.t+(1-v/yMax)*gH;}
+
+  // Blue fill: 0 to wind speed
+  ctx.beginPath();ctx.moveTo(tX(pts[0].t),vY(pts[0].ws));
+  for(var i=1;i<pts.length;i++)ctx.lineTo(tX(pts[i].t),vY(pts[i].ws));
+  ctx.lineTo(tX(pts[pts.length-1].t),vY(0));ctx.lineTo(tX(pts[0].t),vY(0));ctx.closePath();
+  ctx.fillStyle='rgba(56,189,248,.25)';ctx.fill();
+
+  // Red fill: wind to gusts
+  ctx.beginPath();ctx.moveTo(tX(pts[0].t),vY(pts[0].ws));
+  for(var i=1;i<pts.length;i++)ctx.lineTo(tX(pts[i].t),vY(pts[i].ws));
+  for(var i=pts.length-1;i>=0;i--)ctx.lineTo(tX(pts[i].t),vY(pts[i].g));
+  ctx.closePath();
+  ctx.fillStyle='rgba(239,68,68,.25)';ctx.fill();
+
+  // Gust line
+  ctx.beginPath();ctx.strokeStyle='#ef4444';ctx.lineWidth=1;ctx.globalAlpha=0.8;
+  for(var i=0;i<pts.length;i++){var x=tX(pts[i].t),y=vY(pts[i].g);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+  ctx.stroke();ctx.globalAlpha=1;
+
+  // Wind line
+  ctx.beginPath();ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;
+  for(var i=0;i<pts.length;i++){var x=tX(pts[i].t),y=vY(pts[i].ws);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+  ctx.stroke();
+
+  // Direction arrows every ~2 hours
+  var step=Math.max(1,Math.floor(pts.length/10));
+  for(var i=0;i<pts.length;i+=step){
+    var p=pts[i];
+    if(p.deg==null)continue;
+    var x=tX(p.t),y=vY(p.ws);
+    var clr=windColor(p.ws);
+    ctx.save();ctx.translate(x,y);
+    ctx.rotate((p.deg+180)*Math.PI/180);
+    ctx.beginPath();ctx.moveTo(0,-4);ctx.lineTo(-2,3);ctx.lineTo(2,3);ctx.closePath();
+    ctx.fillStyle=clr;ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,.3)';ctx.lineWidth=0.5;ctx.stroke();
+    ctx.restore();
+    // Direction label below
+    if(p.dir&&i%(step*2)===0){
+      ctx.fillStyle='#94a3b8';ctx.font='6px JetBrains Mono';ctx.textAlign='center';
+      ctx.fillText(p.dir,x,pad.t-2);
+    }
+  }
+
+  // Legend
+  ctx.font='7px JetBrains Mono';ctx.textAlign='right';ctx.fillStyle='#475569';
+  ctx.fillText('BOM observations since midnight',W-pad.r,pad.t-2);
 }
 
 function updateWeatherSummary(){
@@ -2105,23 +2227,22 @@ function updateWxRealtime(){
     '<span>Comfort: <b style="color:'+comfortColor(comf)+'">'+comf+'%</b></span>'+
     '</div><div style="color:#475569;font-size:8px;margin-top:2px">Forecast for '+t[0]+' '+t[1].substr(0,5)+' (Rottnest)</div>';
 
-  // BOM live observations
+  // BOM live observations — compact table, left-aligned
   var bom=wxData.bom_observations;
   var bomEl=document.getElementById('wxBomStations');
   if(bom&&bom.length){
     var bhtml='<div style="font-size:8px;color:#64748b;font-weight:600;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em">BOM Live Observations</div>';
-    bhtml+='<table style="width:100%;border-collapse:collapse;font-size:9px"><tr style="color:#64748b;font-size:8px"><th style="text-align:left;padding:2px 4px">Station</th><th>Wind</th><th>Gusts</th><th>Temp</th><th>Pressure</th></tr>';
+    bhtml+='<table style="border-collapse:collapse;font-size:9px"><tr style="color:#64748b;font-size:7px"><th style="text-align:left;padding:2px 6px 2px 0">Station</th><th style="padding:2px 6px">Wind</th><th style="padding:2px 6px">Gusts</th><th style="padding:2px 6px">Temp</th><th style="padding:2px 6px">Pres</th></tr>';
     for(var b=0;b<bom.length;b++){
       var o=bom[b];
       var wk=o.wind_spd_kt;var gk=o.gust_kt;
-      bhtml+='<tr><td style="text-align:left;padding:2px 4px;font-weight:600;color:#e2e8f0">'+o.station+'</td>';
-      bhtml+='<td style="text-align:center;padding:2px 4px;color:'+(wk!=null?windColor(wk):'#64748b')+'">'+(wk!=null?o.wind_dir+' '+wk+'kn':'—')+'</td>';
-      bhtml+='<td style="text-align:center;padding:2px 4px;color:'+(gk!=null?windColor(gk):'#64748b')+'">'+(gk!=null?gk+'kn':'—')+'</td>';
-      bhtml+='<td style="text-align:center;padding:2px 4px">'+(o.air_temp!=null?o.air_temp+'°C':'—')+'</td>';
-      bhtml+='<td style="text-align:center;padding:2px 4px;color:#94a3b8">'+(o.press_msl!=null?o.press_msl+'hPa':'—')+'</td></tr>';
+      bhtml+='<tr><td style="text-align:left;padding:2px 6px 2px 0;font-weight:600;color:#e2e8f0">'+o.station+'</td>';
+      bhtml+='<td style="text-align:center;padding:2px 6px;color:'+(wk!=null?windColor(wk):'#64748b')+'">'+(wk!=null?o.wind_dir+' '+wk+'kn':'—')+'</td>';
+      bhtml+='<td style="text-align:center;padding:2px 6px;color:'+(gk!=null?windColor(gk):'#64748b')+'">'+(gk!=null?gk+'kn':'—')+'</td>';
+      bhtml+='<td style="text-align:center;padding:2px 6px">'+(o.air_temp!=null?o.air_temp+'°':'—')+'</td>';
+      bhtml+='<td style="text-align:center;padding:2px 6px;color:#94a3b8">'+(o.press_msl!=null?o.press_msl:'—')+'</td></tr>';
     }
     bhtml+='</table>';
-    // BOM time
     if(bom[0].time){
       var bt=bom[0].time;
       var btStr=bt.substring(6,8)+'/'+bt.substring(4,6)+' '+bt.substring(8,10)+':'+bt.substring(10,12);
@@ -2132,14 +2253,14 @@ function updateWxRealtime(){
     bomEl.innerHTML='<div style="color:#475569;font-size:8px">BOM data unavailable — run Refresh to fetch</div>';
   }
 
-  // Wave buoy charts
+  // Wave buoy charts — white background for visibility
   var wbEl=document.getElementById('wxWaveBuoy');
   var wbc=wxData.wave_buoy_charts;
   if(wbc){
-    var whtml='<div style="font-size:8px;color:#64748b;font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em">Rottnest Wave Buoy (RDW47)</div>';
-    whtml+='<div style="display:flex;gap:6px;flex-wrap:wrap">';
-    if(wbc.wave_height)whtml+='<img src="'+wbc.wave_height+'?t='+Date.now()+'" style="max-width:48%;height:auto;border-radius:4px;border:1px solid rgba(255,255,255,.1)" alt="Wave Height" onerror="this.style.display=\'none\'">';
-    if(wbc.wave_direction)whtml+='<img src="'+wbc.wave_direction+'?t='+Date.now()+'" style="max-width:48%;height:auto;border-radius:4px;border:1px solid rgba(255,255,255,.1)" alt="Wave Direction" onerror="this.style.display=\'none\'">';
+    var imgStyle='max-width:48%;height:auto;border-radius:4px;background:#fff;padding:2px';
+    var whtml='<div style="display:flex;gap:6px;flex-wrap:wrap">';
+    if(wbc.wave_height)whtml+='<img src="'+wbc.wave_height+'?t='+Date.now()+'" style="'+imgStyle+'" alt="Wave Height" onerror="this.style.display=\'none\'">';
+    if(wbc.wave_direction)whtml+='<img src="'+wbc.wave_direction+'?t='+Date.now()+'" style="'+imgStyle+'" alt="Wave Direction" onerror="this.style.display=\'none\'">';
     whtml+='</div>';
     wbEl.innerHTML=whtml;
   } else {
