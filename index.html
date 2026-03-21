@@ -179,10 +179,10 @@
 .wx-title{font-size:11px;color:#38bdf8;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
 .wx-close{background:none;border:none;color:#64748b;font-size:16px;cursor:pointer;padding:2px 6px}
 .wx-close:hover{color:#e2e8f0}
-.wx-loc-toggle{display:flex;gap:4px;padding:0 14px 6px}
+.wx-loc-toggle{display:flex;gap:4px;padding:0 14px 6px;position:sticky;top:36px;z-index:5;background:rgba(2,6,23,.97)}
 .wx-loc-btn{padding:4px 10px;border-radius:5px;border:1px solid rgba(255,255,255,.1);background:rgba(15,23,42,.8);color:#64748b;font-size:9px;font-family:inherit;font-weight:600;cursor:pointer;transition:all .15s}
 .wx-loc-btn.active{border-color:rgba(56,189,248,.5);background:rgba(56,189,248,.15);color:#38bdf8}
-.wx-section{padding:4px 14px}
+.wx-section{padding:4px 14px;max-width:600px}
 .wx-section-title{font-size:8px;color:#64748b;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
 .wx-chart-wrap{height:110px;position:relative;touch-action:none}
 .wx-chart-wrap canvas{width:100%;height:100%}
@@ -196,7 +196,7 @@
 .wx-comfort-wrap canvas{width:100%;height:100%}
 .wx-comfort-label{font-size:8px;color:#64748b;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px;padding:0 14px}
 @media(orientation:landscape){.wx-chart-wrap{height:120px}.wx-comfort-wrap{height:36px}}
-.wx-summary{display:flex;gap:8px;padding:6px 14px 10px;flex-wrap:wrap}
+.wx-summary{display:flex;gap:8px;padding:6px 14px 10px;flex-wrap:wrap;max-width:600px}
 .wx-sum-block{flex:1;min-width:70px;background:rgba(15,23,42,.6);border-radius:6px;padding:6px 8px;border:1px solid rgba(255,255,255,.06)}
 .wx-sum-label{font-size:7px;color:#64748b;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
 .wx-sum-val{font-size:14px;font-weight:700;color:#e2e8f0}
@@ -217,11 +217,11 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.188</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.189</span></div>
   <div class="basemap-sw">
-    <div class="bm-btn" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#1e5a8a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🗺️</span></div><div class="bm-label">Ocean</div></div>
-    <div class="bm-btn active" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
-    <div class="bm-btn" id="bmStreet" onclick="setBasemap('street')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#d4cbb8,#bfb5a0);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🏙️</span></div><div class="bm-label">Street</div></div>
+    <div class="bm-btn" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#1e5a8a);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🗺️</span></div><div class="bm-label">Ocean</div></div>
+    <div class="bm-btn active" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
+    <div class="bm-btn" id="bmStreet" onclick="setBasemap('street')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#d4cbb8,#bfb5a0);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🏙️</span></div><div class="bm-label">Street</div></div>
   </div>
 </div>
 
@@ -429,7 +429,7 @@
         <div id="anFads" style="overflow-x:auto"></div>
       </div>
     </div>
-    <div style="padding:4px 14px 8px">
+    <div style="padding:4px 14px 8px;max-width:600px">
       <div style="font-size:8px;color:#a78bfa;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 4px 4px">Forecast Trend</div>
       <div class="wx-chart-wrap" id="anTrendWrap" style="height:90px"><canvas id="anTrendChart"></canvas></div>
     </div>
@@ -561,15 +561,15 @@ function initMap(){
     {id:'isotherm-blue-prime',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'prime']],paint:{'line-color':'#60a5fa','line-width':['interpolate',['linear'],['zoom'],5,3,10,2,15,1.5],'line-opacity':0}},
     {id:'isotherm-blue-good',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'good']],paint:{'line-color':'#93c5fd','line-width':['interpolate',['linear'],['zoom'],5,2.5,10,1.5,15,1],'line-opacity':0,'line-dasharray':[6,3]}},
     {id:'isotherm-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{'symbol-placement':'line','symbol-spacing':200,'text-field':['concat',['to-string',['get','temperature']],'°'],'text-size':11,'text-font':['Open Sans Bold']},paint:{'text-color':'#fcd34d','text-halo-color':'rgba(0,0,0,0.85)','text-halo-width':2,'text-opacity':0}},
-    {id:'sst-front-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],layout:{'symbol-placement':'line','symbol-spacing':300,'text-field':'SSTF','text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#ff6b35','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':0}},
+    {id:'sst-front-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],layout:{'symbol-placement':'line','symbol-spacing':300,'text-field':'SSTF','text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#ff6b35','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':1}},
     {id:'chl-edge-line',type:'line',source:'chl-edges',paint:{'line-color':['step',['get','concentration'],'#86efac',0.15,'#4ade80',0.30,'#16a34a',0.60,'#14532d'],'line-width':['step',['get','concentration'],1,0.15,1.5,0.30,2,0.60,2.5],'line-opacity':.8}},
-    {id:'chl-edge-label',type:'symbol',source:'chl-edges',layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat',['to-string',['get','concentration']],' mg/m\u00B3'],'text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#4ade80','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':0}},
+    {id:'chl-edge-label',type:'symbol',source:'chl-edges',layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat',['to-string',['get','concentration']],' mg/m\u00B3'],'text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#4ade80','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':1}},
     {id:'current-line',type:'line',source:'currents',paint:{'line-color':'#000000','line-width':1,'line-opacity':.75}},
     {id:'ssh-cold',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'cold_eddy'],paint:{'line-color':'#60a5fa','line-width':2,'line-opacity':.8,'line-dasharray':[5,3]}},
     {id:'ssh-neutral',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'neutral'],paint:{'line-color':'#94a3b8','line-width':1,'line-opacity':.5,'line-dasharray':[2,3]}},
     {id:'ssh-warm',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'warm_eddy'],paint:{'line-color':'#fb923c','line-width':2.5,'line-opacity':.9}},
     {id:'ssh-warm-core',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'warm_core'],paint:{'line-color':'#ef4444','line-width':3,'line-opacity':.95}},
-    {id:'ssh-label',type:'symbol',source:'ssh-eddies',filter:['any',['==',['get','label'],'warm_eddy'],['==',['get','label'],'warm_core'],['==',['get','label'],'cold_eddy']],layout:{'symbol-placement':'line','symbol-spacing':300,'text-field':'EDDY','text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#fb923c','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':0}},
+    {id:'ssh-label',type:'symbol',source:'ssh-eddies',filter:['any',['==',['get','label'],'warm_eddy'],['==',['get','label'],'warm_core'],['==',['get','label'],'cold_eddy']],layout:{'symbol-placement':'line','symbol-spacing':300,'text-field':'EDDY','text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#fb923c','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':1}},
     {id:'clarity-clean',type:'line',source:'water-clarity',filter:['==',['get','label'],'clean'],paint:{'line-color':'#38bdf8','line-width':2,'line-opacity':.9}},
     {id:'clarity-turbid',type:'line',source:'water-clarity',filter:['==',['get','label'],'turbid'],paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':.85,'line-dasharray':[4,2]}},
     {id:'clarity-bloom',type:'line',source:'water-clarity',filter:['==',['get','label'],'bloom'],paint:{'line-color':'#dc2626','line-width':2,'line-opacity':.9,'line-dasharray':[4,2]}},
@@ -577,10 +577,10 @@ function initMap(){
     {id:'mld-shallow',type:'line',source:'mld',filter:['==',['get','label'],'shallow'],paint:{'line-color':'#22d3ee','line-width':1.5,'line-opacity':.8}},
     {id:'mld-moderate',type:'line',source:'mld',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#0ea5e9','line-width':1.5,'line-opacity':.8}},
     {id:'mld-deep',type:'line',source:'mld',filter:['==',['get','label'],'deep'],paint:{'line-color':'#6366f1','line-width':1.5,'line-opacity':.7,'line-dasharray':[4,2]}},
-    {id:'mld-label',type:'symbol',source:'mld',layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat','M',['to-string',['get','mld']],'m'],'text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#a78bfa','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':0}},
+    {id:'mld-label',type:'symbol',source:'mld',layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat','M',['to-string',['get','mld']],'m'],'text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#a78bfa','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':1}},
     {id:'ssta-cold',type:'line',source:'ssta',filter:['<',['get','anomaly'],0],paint:{'line-color':['interpolate',['linear'],['get','anomaly'],-2,'#1d4ed8',-0.5,'#bfdbfe'],'line-width':1.5,'line-opacity':.8,'line-dasharray':[4,2]}},
     {id:'ssta-warm',type:'line',source:'ssta',filter:['>=',['get','anomaly'],0],paint:{'line-color':['interpolate',['linear'],['get','anomaly'],0.5,'#fdba74',2,'#dc2626'],'line-width':2,'line-opacity':.9}},
-    {id:'ssta-label',type:'symbol',source:'ssta',layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat','SSTA ',['to-string',['get','anomaly']],'\u00B0'],'text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#94a3b8','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':0}},
+    {id:'ssta-label',type:'symbol',source:'ssta',layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat','SSTA ',['to-string',['get','anomaly']],'\u00B0'],'text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#94a3b8','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':1}},
     {id:'sm-layer',type:'raster',source:'sm',paint:{'raster-opacity':.85}}
   ];
   map=new maplibregl.Map({container:'map',style:{version:8,sources:src,layers:ly,glyphs:'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf'},center:[115.35,-31.97],zoom:10,maxZoom:18,minZoom:3,attributionControl:true});
@@ -1776,7 +1776,10 @@ function drawBomWindChart(){
   var bomKey=wxLoc==='hillarys'?'bom_hillarys_wind':'bom_rottnest_wind';
   var stationName=wxLoc==='hillarys'?'Hillarys':'Rottnest';
   var titleEl=document.getElementById('wxBomWindTitle');if(titleEl)titleEl.textContent='BOM Live Wind \u2014 '+stationName;
-  if(!wxData||!wxData[bomKey]||wxData[bomKey].length<2)return;
+  if(!wxData||!wxData[bomKey]||wxData[bomKey].length<2){
+    var cv=document.getElementById('wxBomWindChart');if(cv){var ctx2=cv.getContext('2d');ctx2.clearRect(0,0,cv.width,cv.height);var dpr=window.devicePixelRatio||1;ctx2.save();ctx2.scale(dpr,dpr);ctx2.fillStyle='#475569';ctx2.font='9px sans-serif';ctx2.fillText('No '+stationName+' BOM data — run Refresh',10,50);ctx2.restore();}
+    return;
+  }
   var obs=wxData[bomKey];
   var c=wxSetupCanvas('wxBomWindChart');
   var ctx=c.ctx,W=c.W,H=c.H;
@@ -2354,14 +2357,16 @@ function updateWxRealtime(){
   var wbc=wxData.wave_buoy_charts;
   if(wbc){
     var buoyKey=wxLoc==='hillarys'?'hillarys':'rottnest';
-    var buoySet=wbc[buoyKey]||wbc;
+    var buoySet=wbc[buoyKey]||(wbc.wave_height?wbc:null);
     if(wbTitle)wbTitle.textContent=(wxLoc==='hillarys'?'Hillarys Wave Buoy':'Rottnest Wave Buoy (RDW47)');
-    var imgStyle='max-width:48%;height:auto;border-radius:4px;background:#fff;padding:2px';
-    var whtml='<div style="display:flex;gap:6px;flex-wrap:wrap">';
-    if(buoySet.wave_height)whtml+='<img src="'+buoySet.wave_height+'?t='+Date.now()+'" style="'+imgStyle+'" alt="Wave Height" onerror="this.style.display=\'none\'">';
-    if(buoySet.wave_direction)whtml+='<img src="'+buoySet.wave_direction+'?t='+Date.now()+'" style="'+imgStyle+'" alt="Wave Direction" onerror="this.style.display=\'none\'">';
-    whtml+='</div>';
-    wbEl.innerHTML=whtml;
+    if(buoySet){
+      var imgStyle='max-width:48%;height:auto;border-radius:4px;background:#fff;padding:2px';
+      var whtml='<div style="display:flex;gap:6px;flex-wrap:wrap">';
+      if(buoySet.wave_height)whtml+='<img src="'+buoySet.wave_height+'?t='+Date.now()+'" style="'+imgStyle+'" alt="Wave Height" onerror="this.style.display=\'none\'">';
+      if(buoySet.wave_direction)whtml+='<img src="'+buoySet.wave_direction+'?t='+Date.now()+'" style="'+imgStyle+'" alt="Wave Direction" onerror="this.style.display=\'none\'">';
+      whtml+='</div>';
+      wbEl.innerHTML=whtml;
+    } else { wbEl.innerHTML='<div style="color:#475569;font-size:8px">No wave buoy data for '+(wxLoc==='hillarys'?'Hillarys':'Rottnest')+'</div>'; }
   } else {
     wbEl.innerHTML='';
   }
