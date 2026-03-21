@@ -201,7 +201,7 @@
 .wx-sum-label{font-size:7px;color:#64748b;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
 .wx-sum-val{font-size:14px;font-weight:700;color:#e2e8f0}
 .wx-sum-sub{font-size:8px;color:#94a3b8;margin-top:1px}
-.an-tbl{width:100%;border-collapse:collapse;font-size:8px;font-family:'JetBrains Mono',monospace}
+.an-tbl{border-collapse:collapse;font-size:8px;font-family:'JetBrains Mono',monospace}
 .an-tbl th{padding:3px 4px;text-align:center;color:#64748b;font-weight:600;font-size:7px;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.1)}
 .an-tbl td{padding:3px 4px;text-align:center;color:#cbd5e1;white-space:nowrap}
 .an-tbl tr.an-today{background:rgba(56,189,248,.08)}
@@ -217,7 +217,7 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.185</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.186</span></div>
   <div class="basemap-sw">
     <div class="bm-btn" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#1e5a8a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🗺️</span></div><div class="bm-label">Ocean</div></div>
     <div class="bm-btn active" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
@@ -260,6 +260,7 @@
   <div class="ml-row" style="justify-content:space-between;gap:0;margin-top:2px"><div class="ml-text" style="font-size:7px;color:#fb923c">82%+ prime</div><div class="ml-text" style="font-size:7px;color:#dc2626">92%+ peak</div></div>
   <div class="ml-divider"></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#ff6b35;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">SST front (temp break)</div></div>
+  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#f59e0b;border-style:solid;border-width:2px"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Isotherm — 23°C peak (optimal)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#06b6d4;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Isotherm — blue prime (24–27°C)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#22d3ee;border-style:dashed"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Isotherm — blue good (22–30°C)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#86efac;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Chl 0.07 mg/m³ (low)</div></div>
@@ -418,12 +419,12 @@
       <span class="wx-title" style="color:#a78bfa">Analysis</span>
       <button class="wx-close" onclick="closeAnalysis()">×</button>
     </div>
-    <div style="display:flex;gap:8px;padding:0 10px 8px;overflow-x:auto">
-      <div style="flex:1;min-width:0">
+    <div style="display:flex;gap:12px;padding:0 10px 8px;overflow-x:auto;justify-content:flex-start">
+      <div style="flex:0 0 auto">
         <div style="font-size:8px;color:#a78bfa;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 4px 4px">Marlin 7-Day Forecast</div>
         <div id="anMarlin" style="overflow-x:auto"></div>
       </div>
-      <div style="flex:1;min-width:0">
+      <div style="flex:0 0 auto">
         <div style="font-size:8px;color:#fb923c;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 4px 4px">FADs Go/No-Go (5.2m)</div>
         <div id="anFads" style="overflow-x:auto"></div>
       </div>
@@ -489,7 +490,7 @@ var map,cBM='satellite',gpsWId=null,gM='off',cPos=null,fGPS=false,trk=[];
 var LS={seamark:true,blue_marlin:false,chlorophyll:false,sst:false,ssh_visual:false,sst_fronts:true,chl_edges:true,currents:true,bathymetry:true,clarity:true,ssh:true,mld:true,ssta:true};
 var _displayFloor=0.60; // hotspot display floor — adjustable via legend slider
 // Opacity-based toggling for GeoJSON layers — tiles stay loaded, no cache purge on toggle
-var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.5],'isotherm-label':['text-opacity',1],'mld-very-shallow':['line-opacity',.9],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.8],'mld-deep':['line-opacity',.7],'ssta-cold':['line-opacity',.8],'ssta-warm':['line-opacity',.9],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.95],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'bathy-shade':['raster-opacity',.45],'bathy-glow':['line-opacity',.12],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-150':['line-opacity',.7],'bathy-250':['line-opacity',.8],'bathy-label':['text-opacity',1],'hs-blue':['fill-opacity',.45]};
+var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-peak':['line-opacity',.95],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.5],'isotherm-label':['text-opacity',1],'mld-very-shallow':['line-opacity',.9],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.8],'mld-deep':['line-opacity',.7],'ssta-cold':['line-opacity',.8],'ssta-warm':['line-opacity',.9],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.95],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'bathy-shade':['raster-opacity',.45],'bathy-glow':['line-opacity',.12],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-150':['line-opacity',.7],'bathy-250':['line-opacity',.8],'bathy-label':['text-opacity',1],'hs-blue':['fill-opacity',.45]};
 function sGL(id,on){if(!map.getLayer(id))return;var e=gLO[id];e?map.setPaintProperty(id,e[0],on?e[1]:0):map.setLayoutProperty(id,'visibility',on?'visible':'none')}
 var iD=new Date();iD.setDate(iD.getDate()-1);var cDate=iD.toISOString().split('T')[0];
 var iG=new Date();iG.setDate(iG.getDate()-3);var gDate=iG.toISOString().split('T')[0];
@@ -552,6 +553,7 @@ function initMap(){
     {id:'bathy-label',type:'symbol',source:'bathymetry',filter:['any',['==',['get','depth'],-100],['==',['get','depth'],-150],['==',['get','depth'],-200],['==',['get','depth'],-250],['==',['get','depth'],-500],['==',['get','depth'],-1000]],layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat',['to-string',['*',['get','depth'],-1]],'m'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#000000','text-halo-color':'rgba(255,255,255,0.85)','text-halo-width':1.5,'text-opacity':1}},
     {id:'sst-front-glow',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],paint:{'line-color':'#ff6b35','line-width':['interpolate',['linear'],['zoom'],5,12,10,8,15,4],'line-opacity':.18,'line-blur':4}},
     {id:'sst-front-line',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],paint:{'line-color':'#ff6b35','line-width':['interpolate',['linear'],['zoom'],5,3.5,10,2.5,15,1.5],'line-opacity':.9}},
+    {id:'isotherm-blue-peak',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'peak']],paint:{'line-color':'#f59e0b','line-width':['interpolate',['linear'],['zoom'],5,3.5,10,2.5,15,2],'line-opacity':0}},
     {id:'isotherm-blue-prime',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'prime']],paint:{'line-color':'#06b6d4','line-width':['interpolate',['linear'],['zoom'],5,3,10,2,15,1.5],'line-opacity':0}},
     {id:'isotherm-blue-good',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'good']],paint:{'line-color':'#22d3ee','line-width':['interpolate',['linear'],['zoom'],5,2.5,10,1.5,15,1],'line-opacity':0,'line-dasharray':[6,3]}},
     {id:'isotherm-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{'symbol-placement':'line','text-field':['concat',['to-string',['get','temperature']],'°'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#fcd34d','text-halo-color':'rgba(0,0,0,0.75)','text-halo-width':1.5,'text-opacity':0}},
@@ -595,6 +597,7 @@ function initMap(){
   var hInfo={
     'hs-blue':function(p){var h='<div class="hp-title">Blue Marlin Habitat — '+Math.round(p.intensity*100)+'%</div>';var items=[];var keys=[['s_sst','w_sst','SST'],['s_sst_front','w_sst_front','Fronts'],['s_front_corridor','w_front_corridor','Corr'],['s_sst_intrusion','w_sst_intrusion','LC'],['s_chl','w_chl','Chl'],['s_chl_curvature','w_chl_curvature','ChlC'],['s_ssh','w_ssh','SSH'],['s_current','w_current','Current'],['s_convergence','w_convergence','Conv'],['s_mld','w_mld','MLD'],['s_clarity','w_clarity','Clarity'],['s_boundary','w_boundary','Edge'],['s_bathy_align','w_bathy_align','BthA'],];for(var i=0;i<keys.length;i++){var k=keys[i];if(p[k[0]]!=null){items.push(k[2]+' '+Math.round(p[k[0]]*p[k[1]]*100)+'%')}}var mults=[];if(p.s_depth!=null)mults.push('Depth \u00d7'+Math.round(p.s_depth*100)+'%');if(p.s_shelf_break!=null)mults.push('Canyon \u00d7'+p.s_shelf_break);var sub=items.join(' \u00b7 ');if(mults.length)sub+=' | '+mults.join(' \u00b7 ');return h+'<div class="hp-sub">'+sub+'</div>'},
     'sst-front-line':function(p){return '<div class="hp-title">SST Front</div><div class="hp-sub">Sharp temperature gradient — prey aggregation zone</div>'},
+    'isotherm-blue-peak':function(p){return '<div class="hp-title">'+p.temperature+'\u00b0C Isotherm (Peak)</div><div class="hp-sub">Blue Marlin optimal SST — catch hotspot temperature</div>'},
     'isotherm-blue-prime':function(p){return '<div class="hp-title">'+p.temperature+'\u00b0C Isotherm (Prime)</div><div class="hp-sub">Blue Marlin prime zone 24–27°C</div>'},
     'isotherm-blue-good':function(p){return '<div class="hp-title">'+p.temperature+'\u00b0C Isotherm (Good)</div><div class="hp-sub">Blue Marlin acceptable range 22–30°C</div>'},
     'bathy-100':function(p){return '<div class="hp-title">100m Depth Contour</div><div class="hp-sub">Inner shelf edge — minimum depth for marlin scoring</div>'},
@@ -619,7 +622,7 @@ function initMap(){
     'ssta-warm':function(p){return '<div class="hp-title">SST Anomaly +'+p.anomaly.toFixed(1)+'°C</div><div class="hp-sub">Warmer than seasonal average — Leeuwin Current active</div>'},
   };
   // Map layer IDs to their LS toggle key so hovers respect visibility
-  var hVis={'hs-blue':'blue_marlin','isotherm-blue-prime':'blue_marlin','isotherm-blue-good':'blue_marlin','sst-front-glow':'sst_fronts','sst-front-line':'sst_fronts','chl-edge-line':'chl_edges','current-line':'currents','bathy-100':'bathymetry','bathy-150':'bathymetry','bathy-200':'bathymetry','bathy-250':'bathymetry','bathy-500':'bathymetry','bathy-1000':'bathymetry','clarity-clean':'clarity','clarity-turbid':'clarity','clarity-bloom':'clarity','ssh-cold':'ssh','ssh-neutral':'ssh','ssh-warm':'ssh','ssh-warm-core':'ssh','mld-very-shallow':'mld','mld-shallow':'mld','mld-moderate':'mld','mld-deep':'mld','ssta-cold':'ssta','ssta-warm':'ssta',};
+  var hVis={'hs-blue':'blue_marlin','isotherm-blue-peak':'blue_marlin','isotherm-blue-prime':'blue_marlin','isotherm-blue-good':'blue_marlin','sst-front-glow':'sst_fronts','sst-front-line':'sst_fronts','chl-edge-line':'chl_edges','current-line':'currents','bathy-100':'bathymetry','bathy-150':'bathymetry','bathy-200':'bathymetry','bathy-250':'bathymetry','bathy-500':'bathymetry','bathy-1000':'bathymetry','clarity-clean':'clarity','clarity-turbid':'clarity','clarity-bloom':'clarity','ssh-cold':'ssh','ssh-neutral':'ssh','ssh-warm':'ssh','ssh-warm-core':'ssh','mld-very-shallow':'mld','mld-shallow':'mld','mld-moderate':'mld','mld-deep':'mld','ssta-cold':'ssta','ssta-warm':'ssta',};
   // Hide hover panel when mouse leaves the map canvas (over UI panels/buttons)
   document.addEventListener('mousemove',function(e){
     var cv=map.getCanvas();
@@ -748,7 +751,7 @@ function toggleLayer(n){
   var bm={seamark:{id:'btnSeamarks',c:'on'},chlorophyll:{id:'btnChloro',c:'on-green'},sst:{id:'btnSST',c:'on-red'},ssh_visual:{id:'btnSSHMap',c:'on'},blue_marlin:{id:'btnBlueMarlin',c:'on-cyan'},sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},currents:{id:'btnCurrents',c:'on'},bathymetry:{id:'btnBathy',c:'on-orange'},clarity:{id:'btnClarity',c:'on'},ssh:{id:'btnSSH',c:'on-orange'},mld:{id:'btnMLD',c:'on'},ssta:{id:'btnSSTA',c:'on-red'}};
   if(n==='blue_marlin'){
     var ml=document.getElementById('marlinLegend');if(a){ml.classList.add('active');document.getElementById('legendTab').textContent='▶'}else{ml.classList.remove('active');document.getElementById('legendTab').textContent='◀'}
-    sGL('hs-blue',a);sGL('isotherm-blue-prime',a);sGL('isotherm-blue-good',a);
+    sGL('hs-blue',a);sGL('isotherm-blue-peak',a);sGL('isotherm-blue-prime',a);sGL('isotherm-blue-good',a);
     sGL('isotherm-label',a);
   } else {
     var ln=lm[n];
@@ -773,7 +776,7 @@ function setBasemap(n){
   if(n===cBM)return;cBM=n;var bm=BM[n];
   var gL=['gps-track-line','gps-acc-fill','gps-acc-line','gps-glow','gps-outer','gps-inner','gps-heading-line'];
   var fg=null;for(var i=0;i<gL.length;i++){if(map.getLayer(gL[i])){fg=gL[i];break}}
-  var rm=['all-catches-dot','all-catches-glow','catch-label','catch-dot','catch-ring','catch-glow','sm-layer','clarity-bloom','clarity-turbid','clarity-clean','ssh-warm-core','ssh-warm','ssh-neutral','ssh-cold','current-line','chl-edge-line','isotherm-label','isotherm-blue-prime','isotherm-blue-good','sst-front-line','sst-front-glow','mld-very-shallow','mld-shallow','mld-moderate','mld-deep','ssta-cold','ssta-warm','hs-blue','bathy-shade','bathy-1000','bathy-500','bathy-250','bathy-200','bathy-150','bathy-glow','bathy-100','bathy-label','depth-grid-pt','spot-label','spot-dot','spot-glow','g-chl-layer','g-sst-layer','g-ssh-layer','ol-layer','basemap-layer'];
+  var rm=['all-catches-dot','all-catches-glow','catch-label','catch-dot','catch-ring','catch-glow','sm-layer','clarity-bloom','clarity-turbid','clarity-clean','ssh-warm-core','ssh-warm','ssh-neutral','ssh-cold','current-line','chl-edge-line','isotherm-label','isotherm-blue-peak','isotherm-blue-prime','isotherm-blue-good','sst-front-line','sst-front-glow','mld-very-shallow','mld-shallow','mld-moderate','mld-deep','ssta-cold','ssta-warm','hs-blue','bathy-shade','bathy-1000','bathy-500','bathy-250','bathy-200','bathy-150','bathy-glow','bathy-100','bathy-label','depth-grid-pt','spot-label','spot-dot','spot-glow','g-chl-layer','g-sst-layer','g-ssh-layer','ol-layer','basemap-layer'];
   for(var i=0;i<rm.length;i++){if(map.getLayer(rm[i]))map.removeLayer(rm[i])}
   var rs=['basemap','ol','g-chl','g-sst','g-ssh'];
   for(var i=0;i<rs.length;i++){if(map.getSource(rs[i]))map.removeSource(rs[i])}
@@ -809,6 +812,7 @@ function setBasemap(n){
   map.addLayer({id:'sst-front-glow',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],paint:{'line-color':'#ff6b35','line-width':['interpolate',['linear'],['zoom'],5,12,10,8,15,4],'line-opacity':fo?.18:0,'line-blur':4}},bf);
   map.addLayer({id:'sst-front-line',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],paint:{'line-color':'#ff6b35','line-width':['interpolate',['linear'],['zoom'],5,3.5,10,2.5,15,1.5],'line-opacity':fo?.9:0}},bf);
   var bmo=(fo||LS.blue_marlin);
+  map.addLayer({id:'isotherm-blue-peak',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'peak']],paint:{'line-color':'#f59e0b','line-width':['interpolate',['linear'],['zoom'],5,3.5,10,2.5,15,2],'line-opacity':bmo?.95:0}},bf);
   map.addLayer({id:'isotherm-blue-prime',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'prime']],paint:{'line-color':'#06b6d4','line-width':['interpolate',['linear'],['zoom'],5,3,10,2,15,1.5],'line-opacity':bmo?.9:0}},bf);
   map.addLayer({id:'isotherm-blue-good',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'good']],paint:{'line-color':'#22d3ee','line-width':['interpolate',['linear'],['zoom'],5,2.5,10,1.5,15,1],'line-opacity':bmo?.5:0,'line-dasharray':[6,3]}},bf);
   map.addLayer({id:'isotherm-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{'symbol-placement':'line','text-field':['concat',['to-string',['get','temperature']],'°'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#fcd34d','text-halo-color':'rgba(0,0,0,0.75)','text-halo-width':1.5,'text-opacity':(fo||LS.blue_marlin)?1:0}},bf);
@@ -889,7 +893,7 @@ function toggleCatches(){
     // Auto-enable marlin habitat layer when browsing catches
     if(!LS.blue_marlin){
       LS.blue_marlin=true;
-      sGL('hs-blue',true);sGL('isotherm-blue-prime',true);sGL('isotherm-blue-good',true);sGL('isotherm-label',true);
+      sGL('hs-blue',true);sGL('isotherm-blue-peak',true);sGL('isotherm-blue-prime',true);sGL('isotherm-blue-good',true);sGL('isotherm-label',true);
       var ml=document.getElementById('marlinLegend');if(ml)ml.classList.add('active');
       var tb=document.querySelectorAll('.layer-btn');tb.forEach(function(b){if(b.dataset.layer==='blue_marlin')b.classList.add('active')});
     }
@@ -2082,7 +2086,7 @@ function buildMarlinTable(){
       comfortByDate[dt].push(rotHrs[i].comfort||50);
     }
   }
-  var html='<table class="an-tbl"><tr><th>Day</th><th>Habitat</th><th>Trend</th><th>Comfort</th><th>Marlin</th><th>Rating</th></tr>';
+  var html='<table class="an-tbl"><tr><th>Day</th><th>Habitat</th><th>Marlin</th><th>Comfort</th><th>Rating</th><th>Trend</th></tr>';
   for(var i=0;i<days.length;i++){
     var d=days[i];
     var dd=new Date(d.date);
@@ -2104,10 +2108,10 @@ function buildMarlinTable(){
     else{label='POOR';color='#ef4444';}
     html+='<tr class="'+(isToday?'an-today':'')+'"><td class="an-day">'+dayName+' '+dayNum+' '+mon+(isToday?' *':'')+'</td>';
     html+='<td style="color:'+_scoreClr(habitat)+'">'+Math.round(habitat)+'%</td>';
-    html+='<td style="color:'+_scoreClr(trend)+'">'+Math.round(trend)+'%</td>';
-    html+='<td style="color:'+comfortColor(Math.round(comfort))+'">'+Math.round(comfort)+'%</td>';
     html+='<td style="color:'+_scoreClr(blended)+';font-weight:600">'+Math.round(blended)+'%</td>';
-    html+='<td style="color:'+color+';font-weight:700">'+label+'</td></tr>';
+    html+='<td style="color:'+comfortColor(Math.round(comfort))+'">'+Math.round(comfort)+'%</td>';
+    html+='<td style="color:'+color+';font-weight:700">'+label+'</td>';
+    html+='<td style="color:'+_scoreClr(trend)+'">'+Math.round(trend)+'%</td></tr>';
   }
   html+='</table>';
   // Sub-zone breakdown from first day
