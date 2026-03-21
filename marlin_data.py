@@ -2706,6 +2706,20 @@ def main():
     except Exception as e:
         print(f"[Hotspots] Error: {e}")
 
+    # Generate Spanish Mackerel habitat hotspot heatmap
+    try:
+        from species.spanish_mackerel import generate_spanish_mackerel_hotspots
+        generate_spanish_mackerel_hotspots(bbox, tif_path=tif_path, date_str=date_str)
+    except Exception as e:
+        print(f"[SM-Hotspots] Error: {e}")
+
+    # Generate SBT habitat hotspot heatmap
+    try:
+        from species.southern_bluefin_tuna import generate_sbt_hotspots
+        generate_sbt_hotspots(bbox, tif_path=tif_path, date_str=date_str)
+    except Exception as e:
+        print(f"[SBT-Hotspots] Error: {e}")
+
     # Process chlorophyll edges
     chl_file = _nc("chl_raw.nc")
     if chl_file:

@@ -599,6 +599,24 @@ def generate_prediction_geojson(date_str, score, metrics, out_dir):
             # Generate overlay GeoJSONs from raw data (SSH eddies, currents, etc.)
             _generate_overlay_geojsons(out_dir, marlin_data)
 
+            # Generate Spanish Mackerel hotspots
+            try:
+                from species.spanish_mackerel import generate_spanish_mackerel_hotspots
+                generate_spanish_mackerel_hotspots(
+                    BBOX, tif_path=tif_path, date_str=date_str,
+                    output_dir=out_dir)
+            except Exception as e:
+                print(f"    [SM-Map] Spanish Mackerel scoring: {str(e)[:80]}")
+
+            # Generate Southern Bluefin Tuna hotspots
+            try:
+                from species.southern_bluefin_tuna import generate_sbt_hotspots
+                generate_sbt_hotspots(
+                    BBOX, tif_path=tif_path, date_str=date_str,
+                    output_dir=out_dir)
+            except Exception as e:
+                print(f"    [SBT-Map] SBT scoring: {str(e)[:80]}")
+
             return result["path"]
     except Exception as e:
         print(f"    [Map] Error generating hotspot map: {str(e)[:80]}")

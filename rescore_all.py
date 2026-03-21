@@ -131,6 +131,24 @@ def rescore_dir(date_str, dir_path, bbox, bathy_tif_fallback=None):
     if result is None:
         return None
 
+    # Generate Spanish Mackerel hotspots
+    try:
+        from species.spanish_mackerel import generate_spanish_mackerel_hotspots
+        generate_spanish_mackerel_hotspots(
+            bbox, tif_path=tif, date_str=date_str,
+            output_dir=dir_path)
+    except Exception as e:
+        pass  # SM scoring is optional during rescore
+
+    # Generate SBT hotspots
+    try:
+        from species.southern_bluefin_tuna import generate_sbt_hotspots
+        generate_sbt_hotspots(
+            bbox, tif_path=tif, date_str=date_str,
+            output_dir=dir_path)
+    except Exception as e:
+        pass  # SBT scoring is optional during rescore
+
     stats = compute_zone_stats(result["grid"], result["lats"], result["lons"])
     var_scores = {}
     if result.get("sub_scores") and result.get("weights"):
