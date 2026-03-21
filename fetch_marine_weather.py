@@ -1,5 +1,5 @@
 """Fetch marine weather data from Open-Meteo APIs for Rottnest and Hillarys."""
-import json, math, os, urllib.request
+import json, math, os, ssl, urllib.request, urllib.error
 from datetime import datetime
 
 LOCATIONS = {
@@ -23,10 +23,20 @@ WEATHER_PARAMS = [
 FORECAST_DAYS = 8
 
 
-def fetch_json(url):
-    req = urllib.request.Request(url, headers={"User-Agent": "MarLEEn/1.0"})
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        return json.loads(resp.read().decode())
+def fetch_json(url, retries=3):
+    import time
+    for attempt in range(retries):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "MarLEEn/1.0"})
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return json.loads(resp.read().decode())
+        except (ssl.SSLError, urllib.error.URLError) as e:
+            if attempt < retries - 1:
+                wait = 2 ** attempt
+                print(f"  Retry {attempt+1}/{retries} for {url.split('?')[0]}: {e}")
+                time.sleep(wait)
+            else:
+                raise
 
 
 def _offset_time(iso_str, minutes):
@@ -278,10 +288,11 @@ DIR_MAP = {
 
 
 def fetch_bom_observations():
-    """Fetch BOM observations for each station. Latest for summary, all today for Rottnest chart."""
+    """Fetch BOM observations for each station. Latest for summary, all today for wind charts."""
     stations = []
-    rottnest_today = []
+    bom_wind = {}  # keyed by station label lowercase
     today_str = datetime.now().strftime("%Y%m%d")
+    chart_stations = {94602: "rottnest", 95605: "hillarys"}
     for label, station_id in BOM_STATIONS:
         url = f"https://reg.bom.gov.au/fwo/IDW60801/IDW60801.{station_id}.json"
         try:
@@ -303,8 +314,10 @@ def fetch_bom_observations():
                     "rain_trace": o.get("rain_trace"),
                 })
                 print(f"  BOM {label}: {o.get('wind_dir')} {o.get('wind_spd_kt')}kn, gusts {o.get('gust_kt')}kn, {o.get('air_temp')}C")
-                # Save all Rottnest observations since midnight for the live wind chart
-                if station_id == 94602:
+                # Save today's observations for live wind chart
+                if station_id in chart_stations:
+                    key = chart_stations[station_id]
+                    today_obs = []
                     for ob in obs_list:
                         ts = ob.get("local_date_time_full", "")
                         if not ts.startswith(today_str):
@@ -313,18 +326,19 @@ def fetch_bom_observations():
                         if wind_kt is None:
                             continue
                         deg = DIR_MAP.get(ob.get("wind_dir", ""), None)
-                        rottnest_today.append({
+                        today_obs.append({
                             "time": ts,
                             "wind_spd_kt": wind_kt,
                             "gust_kt": ob.get("gust_kt"),
                             "wind_dir": ob.get("wind_dir", ""),
                             "wind_dir_deg": deg,
                         })
-                    rottnest_today.sort(key=lambda x: x["time"])
-                    print(f"  BOM Rottnest: {len(rottnest_today)} observations since midnight")
+                    today_obs.sort(key=lambda x: x["time"])
+                    bom_wind[key] = today_obs
+                    print(f"  BOM {label}: {len(today_obs)} observations since midnight")
         except Exception as e:
             print(f"  BOM fetch failed for {label} ({station_id}): {e}")
-    return stations, rottnest_today
+    return stations, bom_wind
 
 
 def main():
@@ -337,12 +351,21 @@ def main():
 
     # Fetch BOM live observations
     print("Fetching BOM observations...")
-    bom_stations, rottnest_today = fetch_bom_observations()
+    bom_stations, bom_wind = fetch_bom_observations()
     result["bom_observations"] = bom_stations
-    result["bom_rottnest_wind"] = rottnest_today
+    result["bom_rottnest_wind"] = bom_wind.get("rottnest", [])
+    result["bom_hillarys_wind"] = bom_wind.get("hillarys", [])
 
-    # Wave buoy chart URLs (Transport WA, Rottnest Island RDW47)
+    # Wave buoy chart URLs (Transport WA)
     result["wave_buoy_charts"] = {
+        "rottnest": {
+            "wave_height": "https://www.transport.wa.gov.au/getmedia/b3dfc548-cd46-4c32-aada-0261a3a66fc1/RDW_WAVE.GIF",
+            "wave_direction": "https://www.transport.wa.gov.au/getmedia/70e0fe88-19fa-49fb-9094-d6c1bf148a01/RDW_POLD.GIF",
+        },
+        "hillarys": {
+            "wave_height": "https://www.transport.wa.gov.au/getmedia/1bca5c14-3c5c-4f8a-bbb1-98e6abbc63a0/HIL_WAVE.GIF",
+            "wave_direction": "https://www.transport.wa.gov.au/getmedia/6fe44147-c39a-4ed1-930f-12ecf2d8e1ce/HIL_POLD.GIF",
+        },
         "wave_height": "https://www.transport.wa.gov.au/getmedia/b3dfc548-cd46-4c32-aada-0261a3a66fc1/RDW_WAVE.GIF",
         "wave_direction": "https://www.transport.wa.gov.au/getmedia/70e0fe88-19fa-49fb-9094-d6c1bf148a01/RDW_POLD.GIF",
     }

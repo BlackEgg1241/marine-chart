@@ -175,7 +175,7 @@
 /* Weather panel */
 .wx-panel{display:none;background:rgba(2,6,23,.95);border-top:1px solid rgba(56,189,248,.3);padding:0;max-height:55vh;overflow-y:auto;pointer-events:auto}
 .wx-panel.active{display:block}
-.wx-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 6px}
+.wx-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 6px;position:sticky;top:0;z-index:5;background:rgba(2,6,23,.97)}
 .wx-title{font-size:11px;color:#38bdf8;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
 .wx-close{background:none;border:none;color:#64748b;font-size:16px;cursor:pointer;padding:2px 6px}
 .wx-close:hover{color:#e2e8f0}
@@ -217,7 +217,7 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.187</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.188</span></div>
   <div class="basemap-sw">
     <div class="bm-btn" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#1e5a8a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🗺️</span></div><div class="bm-label">Ocean</div></div>
     <div class="bm-btn active" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
@@ -260,9 +260,9 @@
   <div class="ml-row" style="justify-content:space-between;gap:0;margin-top:2px"><div class="ml-text" style="font-size:7px;color:#fb923c">82%+ prime</div><div class="ml-text" style="font-size:7px;color:#dc2626">92%+ peak</div></div>
   <div class="ml-divider"></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#ff6b35;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">SST front (temp break)</div></div>
-  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#f59e0b;border-style:solid;border-width:2px"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Isotherm — 23°C peak (optimal)</div></div>
-  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#06b6d4;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Isotherm — blue prime (24–27°C)</div></div>
-  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#22d3ee;border-style:dashed"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Isotherm — blue good (22–30°C)</div></div>
+  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#3b82f6;border-style:solid;border-width:2px"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Isotherm — 23°C peak (optimal)</div></div>
+  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#60a5fa;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Isotherm — blue prime (24–27°C)</div></div>
+  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#93c5fd;border-style:dashed"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Isotherm — blue good (22–30°C)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#86efac;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Chl 0.07 mg/m³ (low)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#16a34a;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Chl 0.30 mg/m³ (bait zone)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#7dd3fc;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Ocean current vector</div></div>
@@ -405,11 +405,11 @@
       <div id="wxBomStations" style="font-size:9px;color:#cbd5e1;padding:0 0 4px"></div>
     </div>
     <div class="wx-section" style="border-top:1px solid rgba(255,255,255,.08);padding-top:4px">
-      <div class="wx-section-title">BOM Live Wind — Rottnest</div>
+      <div class="wx-section-title" id="wxBomWindTitle">BOM Live Wind — Rottnest</div>
       <div class="wx-chart-wrap" id="wxBomWindWrap" style="height:100px"><canvas id="wxBomWindChart"></canvas></div>
     </div>
     <div class="wx-section" style="border-top:1px solid rgba(255,255,255,.08);padding-top:4px">
-      <div class="wx-section-title">Rottnest Wave Buoy (RDW47)</div>
+      <div class="wx-section-title" id="wxWaveBuoyTitle">Rottnest Wave Buoy (RDW47)</div>
       <div id="wxWaveBuoy" style="padding:4px 0 8px"></div>
     </div>
   </div>
@@ -428,6 +428,10 @@
         <div style="font-size:8px;color:#fb923c;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 4px 4px">FADs Go/No-Go (5.2m)</div>
         <div id="anFads" style="overflow-x:auto"></div>
       </div>
+    </div>
+    <div style="padding:4px 14px 8px">
+      <div style="font-size:8px;color:#a78bfa;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 4px 4px">Forecast Trend</div>
+      <div class="wx-chart-wrap" id="anTrendWrap" style="height:90px"><canvas id="anTrendChart"></canvas></div>
     </div>
     <div id="anEddy" style="padding:4px 14px 6px;font-size:9px;color:#94a3b8"></div>
   </div>
@@ -490,7 +494,7 @@ var map,cBM='satellite',gpsWId=null,gM='off',cPos=null,fGPS=false,trk=[];
 var LS={seamark:true,blue_marlin:false,chlorophyll:false,sst:false,ssh_visual:false,sst_fronts:true,chl_edges:true,currents:true,bathymetry:true,clarity:true,ssh:true,mld:true,ssta:true};
 var _displayFloor=0.60; // hotspot display floor — adjustable via legend slider
 // Opacity-based toggling for GeoJSON layers — tiles stay loaded, no cache purge on toggle
-var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-peak':['line-opacity',.95],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.5],'isotherm-label':['text-opacity',1],'mld-very-shallow':['line-opacity',.9],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.8],'mld-deep':['line-opacity',.7],'ssta-cold':['line-opacity',.8],'ssta-warm':['line-opacity',.9],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.95],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'bathy-shade':['raster-opacity',.45],'bathy-glow':['line-opacity',.12],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-150':['line-opacity',.7],'bathy-250':['line-opacity',.8],'bathy-label':['text-opacity',1],'hs-blue':['fill-opacity',.45]};
+var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-peak':['line-opacity',.95],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.5],'isotherm-label':['text-opacity',1],'mld-very-shallow':['line-opacity',.9],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.8],'mld-deep':['line-opacity',.7],'ssta-cold':['line-opacity',.8],'ssta-warm':['line-opacity',.9],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.95],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'sst-front-label':['text-opacity',1],'chl-edge-label':['text-opacity',1],'ssh-label':['text-opacity',1],'mld-label':['text-opacity',1],'ssta-label':['text-opacity',1],'bathy-shade':['raster-opacity',.45],'bathy-glow':['line-opacity',.12],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-150':['line-opacity',.7],'bathy-250':['line-opacity',.8],'bathy-label':['text-opacity',1],'hs-blue':['fill-opacity',.45]};
 function sGL(id,on){if(!map.getLayer(id))return;var e=gLO[id];e?map.setPaintProperty(id,e[0],on?e[1]:0):map.setLayoutProperty(id,'visibility',on?'visible':'none')}
 var iD=new Date();iD.setDate(iD.getDate()-1);var cDate=iD.toISOString().split('T')[0];
 var iG=new Date();iG.setDate(iG.getDate()-3);var gDate=iG.toISOString().split('T')[0];
@@ -553,16 +557,19 @@ function initMap(){
     {id:'bathy-label',type:'symbol',source:'bathymetry',filter:['any',['==',['get','depth'],-100],['==',['get','depth'],-150],['==',['get','depth'],-200],['==',['get','depth'],-250],['==',['get','depth'],-500],['==',['get','depth'],-1000]],layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat',['to-string',['*',['get','depth'],-1]],'m'],'text-size':9,'text-font':['Open Sans Regular']},paint:{'text-color':'#000000','text-halo-color':'rgba(255,255,255,0.85)','text-halo-width':1.5,'text-opacity':1}},
     {id:'sst-front-glow',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],paint:{'line-color':'#ff6b35','line-width':['interpolate',['linear'],['zoom'],5,12,10,8,15,4],'line-opacity':.18,'line-blur':4}},
     {id:'sst-front-line',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],paint:{'line-color':'#ff6b35','line-width':['interpolate',['linear'],['zoom'],5,3.5,10,2.5,15,1.5],'line-opacity':.9}},
-    {id:'isotherm-blue-peak',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'peak']],paint:{'line-color':'#f59e0b','line-width':['interpolate',['linear'],['zoom'],5,3.5,10,2.5,15,2],'line-opacity':0}},
-    {id:'isotherm-blue-prime',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'prime']],paint:{'line-color':'#06b6d4','line-width':['interpolate',['linear'],['zoom'],5,3,10,2,15,1.5],'line-opacity':0}},
-    {id:'isotherm-blue-good',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'good']],paint:{'line-color':'#22d3ee','line-width':['interpolate',['linear'],['zoom'],5,2.5,10,1.5,15,1],'line-opacity':0,'line-dasharray':[6,3]}},
-    {id:'isotherm-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{'symbol-placement':'line','text-field':['concat',['to-string',['get','temperature']],'°'],'text-size':11,'text-font':['Open Sans Bold']},paint:{'text-color':'#fcd34d','text-halo-color':'rgba(0,0,0,0.85)','text-halo-width':2,'text-opacity':0}},
+    {id:'isotherm-blue-peak',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'peak']],paint:{'line-color':'#3b82f6','line-width':['interpolate',['linear'],['zoom'],5,3.5,10,2.5,15,2],'line-opacity':0}},
+    {id:'isotherm-blue-prime',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'prime']],paint:{'line-color':'#60a5fa','line-width':['interpolate',['linear'],['zoom'],5,3,10,2,15,1.5],'line-opacity':0}},
+    {id:'isotherm-blue-good',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'good']],paint:{'line-color':'#93c5fd','line-width':['interpolate',['linear'],['zoom'],5,2.5,10,1.5,15,1],'line-opacity':0,'line-dasharray':[6,3]}},
+    {id:'isotherm-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{'symbol-placement':'line','symbol-spacing':200,'text-field':['concat',['to-string',['get','temperature']],'°'],'text-size':11,'text-font':['Open Sans Bold']},paint:{'text-color':'#fcd34d','text-halo-color':'rgba(0,0,0,0.85)','text-halo-width':2,'text-opacity':0}},
+    {id:'sst-front-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],layout:{'symbol-placement':'line','symbol-spacing':300,'text-field':'SSTF','text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#ff6b35','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':0}},
     {id:'chl-edge-line',type:'line',source:'chl-edges',paint:{'line-color':['step',['get','concentration'],'#86efac',0.15,'#4ade80',0.30,'#16a34a',0.60,'#14532d'],'line-width':['step',['get','concentration'],1,0.15,1.5,0.30,2,0.60,2.5],'line-opacity':.8}},
+    {id:'chl-edge-label',type:'symbol',source:'chl-edges',layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat',['to-string',['get','concentration']],' mg/m\u00B3'],'text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#4ade80','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':0}},
     {id:'current-line',type:'line',source:'currents',paint:{'line-color':'#000000','line-width':1,'line-opacity':.75}},
     {id:'ssh-cold',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'cold_eddy'],paint:{'line-color':'#60a5fa','line-width':2,'line-opacity':.8,'line-dasharray':[5,3]}},
     {id:'ssh-neutral',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'neutral'],paint:{'line-color':'#94a3b8','line-width':1,'line-opacity':.5,'line-dasharray':[2,3]}},
     {id:'ssh-warm',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'warm_eddy'],paint:{'line-color':'#fb923c','line-width':2.5,'line-opacity':.9}},
     {id:'ssh-warm-core',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'warm_core'],paint:{'line-color':'#ef4444','line-width':3,'line-opacity':.95}},
+    {id:'ssh-label',type:'symbol',source:'ssh-eddies',filter:['any',['==',['get','label'],'warm_eddy'],['==',['get','label'],'warm_core'],['==',['get','label'],'cold_eddy']],layout:{'symbol-placement':'line','symbol-spacing':300,'text-field':'EDDY','text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#fb923c','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':0}},
     {id:'clarity-clean',type:'line',source:'water-clarity',filter:['==',['get','label'],'clean'],paint:{'line-color':'#38bdf8','line-width':2,'line-opacity':.9}},
     {id:'clarity-turbid',type:'line',source:'water-clarity',filter:['==',['get','label'],'turbid'],paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':.85,'line-dasharray':[4,2]}},
     {id:'clarity-bloom',type:'line',source:'water-clarity',filter:['==',['get','label'],'bloom'],paint:{'line-color':'#dc2626','line-width':2,'line-opacity':.9,'line-dasharray':[4,2]}},
@@ -570,8 +577,10 @@ function initMap(){
     {id:'mld-shallow',type:'line',source:'mld',filter:['==',['get','label'],'shallow'],paint:{'line-color':'#22d3ee','line-width':1.5,'line-opacity':.8}},
     {id:'mld-moderate',type:'line',source:'mld',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#0ea5e9','line-width':1.5,'line-opacity':.8}},
     {id:'mld-deep',type:'line',source:'mld',filter:['==',['get','label'],'deep'],paint:{'line-color':'#6366f1','line-width':1.5,'line-opacity':.7,'line-dasharray':[4,2]}},
+    {id:'mld-label',type:'symbol',source:'mld',layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat','M',['to-string',['get','mld']],'m'],'text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#a78bfa','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':0}},
     {id:'ssta-cold',type:'line',source:'ssta',filter:['<',['get','anomaly'],0],paint:{'line-color':['interpolate',['linear'],['get','anomaly'],-2,'#1d4ed8',-0.5,'#bfdbfe'],'line-width':1.5,'line-opacity':.8,'line-dasharray':[4,2]}},
     {id:'ssta-warm',type:'line',source:'ssta',filter:['>=',['get','anomaly'],0],paint:{'line-color':['interpolate',['linear'],['get','anomaly'],0.5,'#fdba74',2,'#dc2626'],'line-width':2,'line-opacity':.9}},
+    {id:'ssta-label',type:'symbol',source:'ssta',layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat','SSTA ',['to-string',['get','anomaly']],'\u00B0'],'text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#94a3b8','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':0}},
     {id:'sm-layer',type:'raster',source:'sm',paint:{'raster-opacity':.85}}
   ];
   map=new maplibregl.Map({container:'map',style:{version:8,sources:src,layers:ly,glyphs:'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf'},center:[115.35,-31.97],zoom:10,maxZoom:18,minZoom:3,attributionControl:true});
@@ -622,7 +631,7 @@ function initMap(){
     'ssta-warm':function(p){return '<div class="hp-title">SST Anomaly +'+p.anomaly.toFixed(1)+'°C</div><div class="hp-sub">Warmer than seasonal average — Leeuwin Current active</div>'},
   };
   // Map layer IDs to their LS toggle key so hovers respect visibility
-  var hVis={'hs-blue':'blue_marlin','isotherm-blue-peak':'blue_marlin','isotherm-blue-prime':'blue_marlin','isotherm-blue-good':'blue_marlin','sst-front-glow':'sst_fronts','sst-front-line':'sst_fronts','chl-edge-line':'chl_edges','current-line':'currents','bathy-100':'bathymetry','bathy-150':'bathymetry','bathy-200':'bathymetry','bathy-250':'bathymetry','bathy-500':'bathymetry','bathy-1000':'bathymetry','clarity-clean':'clarity','clarity-turbid':'clarity','clarity-bloom':'clarity','ssh-cold':'ssh','ssh-neutral':'ssh','ssh-warm':'ssh','ssh-warm-core':'ssh','mld-very-shallow':'mld','mld-shallow':'mld','mld-moderate':'mld','mld-deep':'mld','ssta-cold':'ssta','ssta-warm':'ssta',};
+  var hVis={'hs-blue':'blue_marlin','isotherm-blue-peak':'blue_marlin','isotherm-blue-prime':'blue_marlin','isotherm-blue-good':'blue_marlin','sst-front-glow':'sst_fronts','sst-front-line':'sst_fronts','sst-front-label':'sst_fronts','chl-edge-line':'chl_edges','chl-edge-label':'chl_edges','current-line':'currents','bathy-100':'bathymetry','bathy-150':'bathymetry','bathy-200':'bathymetry','bathy-250':'bathymetry','bathy-500':'bathymetry','bathy-1000':'bathymetry','clarity-clean':'clarity','clarity-turbid':'clarity','clarity-bloom':'clarity','ssh-cold':'ssh','ssh-neutral':'ssh','ssh-warm':'ssh','ssh-warm-core':'ssh','ssh-label':'ssh','mld-very-shallow':'mld','mld-shallow':'mld','mld-moderate':'mld','mld-deep':'mld','mld-label':'mld','ssta-cold':'ssta','ssta-warm':'ssta','ssta-label':'ssta',};
   // Hide hover panel when mouse leaves the map canvas (over UI panels/buttons)
   document.addEventListener('mousemove',function(e){
     var cv=map.getCanvas();
@@ -741,13 +750,13 @@ var ML=['spot-glow','spot-dot','spot-label'];
 function toggleLayer(n){
   LS[n]=!LS[n];var a=LS[n];
   var lm={seamark:['sm-layer','spot-glow','spot-dot','spot-label'],chlorophyll:'g-chl-layer',sst:'g-sst-layer',ssh_visual:'g-ssh-layer',
-    sst_fronts:['sst-front-glow','sst-front-line'],
-    chl_edges:'chl-edge-line',currents:'current-line',
+    sst_fronts:['sst-front-glow','sst-front-line','sst-front-label'],
+    chl_edges:['chl-edge-line','chl-edge-label'],currents:'current-line',
     bathymetry:['bathy-shade','bathy-100','bathy-150','bathy-glow','bathy-200','bathy-250','bathy-500','bathy-1000','bathy-label'],
     clarity:['clarity-clean','clarity-turbid','clarity-bloom'],
-    ssh:['ssh-cold','ssh-neutral','ssh-warm','ssh-warm-core'],
-    mld:['mld-very-shallow','mld-shallow','mld-moderate','mld-deep'],
-    ssta:['ssta-cold','ssta-warm']};
+    ssh:['ssh-cold','ssh-neutral','ssh-warm','ssh-warm-core','ssh-label'],
+    mld:['mld-very-shallow','mld-shallow','mld-moderate','mld-deep','mld-label'],
+    ssta:['ssta-cold','ssta-warm','ssta-label']};
   var bm={seamark:{id:'btnSeamarks',c:'on'},chlorophyll:{id:'btnChloro',c:'on-green'},sst:{id:'btnSST',c:'on-red'},ssh_visual:{id:'btnSSHMap',c:'on'},blue_marlin:{id:'btnBlueMarlin',c:'on-cyan'},sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},currents:{id:'btnCurrents',c:'on'},bathymetry:{id:'btnBathy',c:'on-orange'},clarity:{id:'btnClarity',c:'on'},ssh:{id:'btnSSH',c:'on-orange'},mld:{id:'btnMLD',c:'on'},ssta:{id:'btnSSTA',c:'on-red'}};
   if(n==='blue_marlin'){
     var ml=document.getElementById('marlinLegend');if(a){ml.classList.add('active');document.getElementById('legendTab').textContent='▶'}else{ml.classList.remove('active');document.getElementById('legendTab').textContent='◀'}
@@ -776,7 +785,7 @@ function setBasemap(n){
   if(n===cBM)return;cBM=n;var bm=BM[n];
   var gL=['gps-track-line','gps-acc-fill','gps-acc-line','gps-glow','gps-outer','gps-inner','gps-heading-line'];
   var fg=null;for(var i=0;i<gL.length;i++){if(map.getLayer(gL[i])){fg=gL[i];break}}
-  var rm=['all-catches-dot','all-catches-glow','catch-label','catch-dot','catch-ring','catch-glow','sm-layer','clarity-bloom','clarity-turbid','clarity-clean','ssh-warm-core','ssh-warm','ssh-neutral','ssh-cold','current-line','chl-edge-line','isotherm-label','isotherm-blue-peak','isotherm-blue-prime','isotherm-blue-good','sst-front-line','sst-front-glow','mld-very-shallow','mld-shallow','mld-moderate','mld-deep','ssta-cold','ssta-warm','hs-blue','bathy-shade','bathy-1000','bathy-500','bathy-250','bathy-200','bathy-150','bathy-glow','bathy-100','bathy-label','depth-grid-pt','spot-label','spot-dot','spot-glow','g-chl-layer','g-sst-layer','g-ssh-layer','ol-layer','basemap-layer'];
+  var rm=['all-catches-dot','all-catches-glow','catch-label','catch-dot','catch-ring','catch-glow','sm-layer','clarity-bloom','clarity-turbid','clarity-clean','ssta-label','ssh-label','ssh-warm-core','ssh-warm','ssh-neutral','ssh-cold','current-line','chl-edge-label','chl-edge-line','isotherm-label','isotherm-blue-peak','isotherm-blue-prime','isotherm-blue-good','sst-front-label','sst-front-line','sst-front-glow','mld-label','mld-very-shallow','mld-shallow','mld-moderate','mld-deep','ssta-cold','ssta-warm','hs-blue','bathy-shade','bathy-1000','bathy-500','bathy-250','bathy-200','bathy-150','bathy-glow','bathy-100','bathy-label','depth-grid-pt','spot-label','spot-dot','spot-glow','g-chl-layer','g-sst-layer','g-ssh-layer','ol-layer','basemap-layer'];
   for(var i=0;i<rm.length;i++){if(map.getLayer(rm[i]))map.removeLayer(rm[i])}
   var rs=['basemap','ol','g-chl','g-sst','g-ssh'];
   for(var i=0;i<rs.length;i++){if(map.getSource(rs[i]))map.removeSource(rs[i])}
@@ -812,26 +821,31 @@ function setBasemap(n){
   map.addLayer({id:'sst-front-glow',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],paint:{'line-color':'#ff6b35','line-width':['interpolate',['linear'],['zoom'],5,12,10,8,15,4],'line-opacity':fo?.18:0,'line-blur':4}},bf);
   map.addLayer({id:'sst-front-line',type:'line',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],paint:{'line-color':'#ff6b35','line-width':['interpolate',['linear'],['zoom'],5,3.5,10,2.5,15,1.5],'line-opacity':fo?.9:0}},bf);
   var bmo=(fo||LS.blue_marlin);
-  map.addLayer({id:'isotherm-blue-peak',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'peak']],paint:{'line-color':'#f59e0b','line-width':['interpolate',['linear'],['zoom'],5,3.5,10,2.5,15,2],'line-opacity':bmo?.95:0}},bf);
-  map.addLayer({id:'isotherm-blue-prime',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'prime']],paint:{'line-color':'#06b6d4','line-width':['interpolate',['linear'],['zoom'],5,3,10,2,15,1.5],'line-opacity':bmo?.9:0}},bf);
-  map.addLayer({id:'isotherm-blue-good',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'good']],paint:{'line-color':'#22d3ee','line-width':['interpolate',['linear'],['zoom'],5,2.5,10,1.5,15,1],'line-opacity':bmo?.5:0,'line-dasharray':[6,3]}},bf);
+  map.addLayer({id:'isotherm-blue-peak',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'peak']],paint:{'line-color':'#3b82f6','line-width':['interpolate',['linear'],['zoom'],5,3.5,10,2.5,15,2],'line-opacity':bmo?.95:0}},bf);
+  map.addLayer({id:'isotherm-blue-prime',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'prime']],paint:{'line-color':'#60a5fa','line-width':['interpolate',['linear'],['zoom'],5,3,10,2,15,1.5],'line-opacity':bmo?.9:0}},bf);
+  map.addLayer({id:'isotherm-blue-good',type:'line',source:'sst-fronts',filter:['all',['==',['get','type'],'isotherm'],['==',['get','species'],'blue'],['==',['get','tier'],'good']],paint:{'line-color':'#93c5fd','line-width':['interpolate',['linear'],['zoom'],5,2.5,10,1.5,15,1],'line-opacity':bmo?.5:0,'line-dasharray':[6,3]}},bf);
   map.addLayer({id:'isotherm-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'isotherm'],layout:{'symbol-placement':'line','text-field':['concat',['to-string',['get','temperature']],'°'],'text-size':11,'text-font':['Open Sans Bold']},paint:{'text-color':'#fcd34d','text-halo-color':'rgba(0,0,0,0.85)','text-halo-width':2,'text-opacity':(fo||LS.blue_marlin)?1:0}},bf);
+  map.addLayer({id:'sst-front-label',type:'symbol',source:'sst-fronts',filter:['==',['get','type'],'sst_front'],layout:{'symbol-placement':'line','symbol-spacing':300,'text-field':'SSTF','text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#ff6b35','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':fo?1:0}},bf);
   map.addLayer({id:'chl-edge-line',type:'line',source:'chl-edges',paint:{'line-color':['step',['get','concentration'],'#86efac',0.15,'#4ade80',0.30,'#16a34a',0.60,'#14532d'],'line-width':['step',['get','concentration'],1,0.15,1.5,0.30,2,0.60,2.5],'line-opacity':LS.chl_edges?.8:0}},bf);
+  map.addLayer({id:'chl-edge-label',type:'symbol',source:'chl-edges',layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat',['to-string',['get','concentration']],' mg/m\u00B3'],'text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#4ade80','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':LS.chl_edges?1:0}},bf);
   map.addLayer({id:'current-line',type:'line',source:'currents',paint:{'line-color':'#000000','line-width':1,'line-opacity':LS.currents?.75:0}},bf);
   var so=LS.ssh;
   map.addLayer({id:'ssh-cold',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'cold_eddy'],paint:{'line-color':'#60a5fa','line-width':2,'line-opacity':so?.8:0,'line-dasharray':[5,3]}},bf);
   map.addLayer({id:'ssh-neutral',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'neutral'],paint:{'line-color':'#94a3b8','line-width':1,'line-opacity':so?.5:0,'line-dasharray':[2,3]}},bf);
   map.addLayer({id:'ssh-warm',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'warm_eddy'],paint:{'line-color':'#fb923c','line-width':2.5,'line-opacity':so?.9:0}},bf);
   map.addLayer({id:'ssh-warm-core',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'warm_core'],paint:{'line-color':'#ef4444','line-width':3,'line-opacity':so?.95:0}},bf);
+  map.addLayer({id:'ssh-label',type:'symbol',source:'ssh-eddies',filter:['any',['==',['get','label'],'warm_eddy'],['==',['get','label'],'warm_core'],['==',['get','label'],'cold_eddy']],layout:{'symbol-placement':'line','symbol-spacing':300,'text-field':'EDDY','text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#fb923c','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':so?1:0}},bf);
   var co=LS.clarity;
   var mo=LS.mld;
   map.addLayer({id:'mld-very-shallow',type:'line',source:'mld',filter:['==',['get','label'],'very_shallow'],paint:{'line-color':'#a78bfa','line-width':2,'line-opacity':mo?.9:0}},bf);
   map.addLayer({id:'mld-shallow',type:'line',source:'mld',filter:['==',['get','label'],'shallow'],paint:{'line-color':'#22d3ee','line-width':1.5,'line-opacity':mo?.8:0}},bf);
   map.addLayer({id:'mld-moderate',type:'line',source:'mld',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#0ea5e9','line-width':1.5,'line-opacity':mo?.8:0}},bf);
   map.addLayer({id:'mld-deep',type:'line',source:'mld',filter:['==',['get','label'],'deep'],paint:{'line-color':'#6366f1','line-width':1.5,'line-opacity':mo?.7:0,'line-dasharray':[4,2]}},bf);
+  map.addLayer({id:'mld-label',type:'symbol',source:'mld',layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat','M',['to-string',['get','mld']],'m'],'text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#a78bfa','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':mo?1:0}},bf);
   var sa=LS.ssta;
   map.addLayer({id:'ssta-cold',type:'line',source:'ssta',filter:['<',['get','anomaly'],0],paint:{'line-color':['interpolate',['linear'],['get','anomaly'],-2,'#1d4ed8',-0.5,'#bfdbfe'],'line-width':1.5,'line-opacity':sa?.8:0,'line-dasharray':[4,2]}},bf);
   map.addLayer({id:'ssta-warm',type:'line',source:'ssta',filter:['>=',['get','anomaly'],0],paint:{'line-color':['interpolate',['linear'],['get','anomaly'],0.5,'#fdba74',2,'#dc2626'],'line-width':2,'line-opacity':sa?.9:0}},bf);
+  map.addLayer({id:'ssta-label',type:'symbol',source:'ssta',layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat','SSTA ',['to-string',['get','anomaly']],'\u00B0'],'text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#94a3b8','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':sa?1:0}},bf);
   map.addLayer({id:'clarity-clean',type:'line',source:'water-clarity',filter:['==',['get','label'],'clean'],paint:{'line-color':'#38bdf8','line-width':2,'line-opacity':co?.9:0}},bf);
   map.addLayer({id:'clarity-turbid',type:'line',source:'water-clarity',filter:['==',['get','label'],'turbid'],paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':co?.85:0,'line-dasharray':[4,2]}},bf);
   map.addLayer({id:'clarity-bloom',type:'line',source:'water-clarity',filter:['==',['get','label'],'bloom'],paint:{'line-color':'#dc2626','line-width':2,'line-opacity':co?.9:0,'line-dasharray':[4,2]}},bf);
@@ -1359,6 +1373,7 @@ function setWxLoc(loc){
   document.getElementById('wxLocHill').classList.toggle('active',loc==='hillarys');
   drawWeatherCharts();
   updateWeatherSummary();
+  updateWxRealtime();
 }
 
 function setWxRange(days){
@@ -1758,8 +1773,11 @@ function drawComfortChart(hours){
 }
 
 function drawBomWindChart(){
-  if(!wxData||!wxData.bom_rottnest_wind||wxData.bom_rottnest_wind.length<2)return;
-  var obs=wxData.bom_rottnest_wind;
+  var bomKey=wxLoc==='hillarys'?'bom_hillarys_wind':'bom_rottnest_wind';
+  var stationName=wxLoc==='hillarys'?'Hillarys':'Rottnest';
+  var titleEl=document.getElementById('wxBomWindTitle');if(titleEl)titleEl.textContent='BOM Live Wind \u2014 '+stationName;
+  if(!wxData||!wxData[bomKey]||wxData[bomKey].length<2)return;
+  var obs=wxData[bomKey];
   var c=wxSetupCanvas('wxBomWindChart');
   var ctx=c.ctx,W=c.W,H=c.H;
   var pad={t:10,b:16,l:30,r:8};
@@ -2067,6 +2085,7 @@ function closeAnalysis(){
 function buildAnalysis(){
   buildMarlinTable();
   buildFadsTable();
+  drawTrendChart();
 }
 
 function buildMarlinTable(){
@@ -2199,6 +2218,78 @@ function buildFadsTable(){
   document.getElementById('anFads').innerHTML=html;
 }
 
+function drawTrendChart(){
+  if(!fcData||!fcData.days)return;
+  var cv=document.getElementById('anTrendChart');
+  var wrap=document.getElementById('anTrendWrap');
+  if(!cv||!wrap)return;
+  var dpr=window.devicePixelRatio||1;
+  cv.width=wrap.clientWidth*dpr;cv.height=wrap.clientHeight*dpr;
+  cv.style.width=wrap.clientWidth+'px';cv.style.height=wrap.clientHeight+'px';
+  var ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
+  var W=wrap.clientWidth,H=wrap.clientHeight;
+  var days=fcData.days;var n=days.length;if(!n)return;
+  var pad={l:30,r:10,t:10,b:22};
+  var cW=W-pad.l-pad.r,cH=H-pad.t-pad.b;
+  var barW=Math.min(cW/n*0.6,28);
+  var gap=(cW-barW*n)/(n+1);
+  // Build comfort lookup
+  var rotHrs=wxData?(wxData.locations.rottnest||{}).hourly||[]:[];
+  var comfortByDate={};
+  for(var i=0;i<rotHrs.length;i++){var dt=rotHrs[i].time.split('T')[0];var hr=parseInt(rotHrs[i].time.split('T')[1].split(':')[0]);if(hr>=5&&hr<=18){if(!comfortByDate[dt])comfortByDate[dt]=[];comfortByDate[dt].push(rotHrs[i].comfort||50);}}
+  var WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var todayStr=new Date().toISOString().split('T')[0];
+  ctx.clearRect(0,0,W,H);
+  // Y axis
+  ctx.strokeStyle='rgba(255,255,255,.1)';ctx.lineWidth=0.5;
+  for(var v=0;v<=100;v+=25){var y=pad.t+cH*(1-v/100);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();ctx.fillStyle='rgba(255,255,255,.3)';ctx.font='7px sans-serif';ctx.textAlign='right';ctx.fillText(v+'%',pad.l-3,y+3);}
+  // Bars (habitat) + markers (blended marlin rating)
+  var pts=[];
+  for(var i=0;i<n;i++){
+    var d=days[i];
+    var habitat=d.zone_max||0;
+    var comfArr=comfortByDate[d.date];
+    var comfort=50;if(comfArr&&comfArr.length){var s=0;for(var j=0;j<comfArr.length;j++)s+=comfArr[j];comfort=s/comfArr.length;}
+    var blended=0.60*habitat+0.40*comfort;
+    var x=pad.l+gap+(barW+gap)*i;
+    var bH=cH*habitat/100;
+    var isToday=d.date===todayStr;
+    // Bar fill
+    var clr=habitat>=75?'rgba(34,197,94,.6)':habitat>=60?'rgba(134,239,172,.5)':habitat>=45?'rgba(251,191,36,.5)':'rgba(239,68,68,.5)';
+    ctx.fillStyle=clr;
+    ctx.fillRect(x,pad.t+cH-bH,barW,bH);
+    if(isToday){ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.strokeRect(x,pad.t+cH-bH,barW,bH);}
+    // Habitat % label on bar
+    ctx.fillStyle='rgba(255,255,255,.8)';ctx.font='bold 7px sans-serif';ctx.textAlign='center';
+    ctx.fillText(Math.round(habitat)+'%',x+barW/2,pad.t+cH-bH-3);
+    // X axis label
+    var dd=new Date(d.date);
+    ctx.fillStyle=isToday?'#fff':'rgba(255,255,255,.4)';ctx.font=(isToday?'bold ':'')+' 7px sans-serif';
+    ctx.fillText(WD[dd.getDay()],x+barW/2,H-3);
+    // Blended point for line
+    pts.push({x:x+barW/2,y:pad.t+cH*(1-blended/100),val:blended});
+  }
+  // Blended marlin line
+  if(pts.length>1){
+    ctx.beginPath();ctx.strokeStyle='#a78bfa';ctx.lineWidth=1.5;
+    ctx.moveTo(pts[0].x,pts[0].y);
+    for(var i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y);
+    ctx.stroke();
+  }
+  // Blended dots
+  for(var i=0;i<pts.length;i++){
+    ctx.beginPath();ctx.arc(pts[i].x,pts[i].y,3,0,Math.PI*2);
+    ctx.fillStyle='#a78bfa';ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.6)';ctx.font='bold 7px sans-serif';ctx.textAlign='center';
+    ctx.fillText(Math.round(pts[i].val),pts[i].x,pts[i].y-5);
+  }
+  // Legend
+  ctx.fillStyle='rgba(34,197,94,.6)';ctx.fillRect(pad.l+4,2,8,6);
+  ctx.fillStyle='rgba(255,255,255,.4)';ctx.font='7px sans-serif';ctx.textAlign='left';ctx.fillText('Habitat',pad.l+15,8);
+  ctx.beginPath();ctx.arc(pad.l+70,5,3,0,Math.PI*2);ctx.fillStyle='#a78bfa';ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.4)';ctx.fillText('Marlin Rating',pad.l+76,8);
+}
+
 // --- Weather realtime ---
 function refreshWeather(){
   document.getElementById('wxRealtime').innerHTML='<span style="color:#64748b">Refreshing...</span>';
@@ -2259,12 +2350,16 @@ function updateWxRealtime(){
 
   // Wave buoy charts — white background for visibility
   var wbEl=document.getElementById('wxWaveBuoy');
+  var wbTitle=document.getElementById('wxWaveBuoyTitle');
   var wbc=wxData.wave_buoy_charts;
   if(wbc){
+    var buoyKey=wxLoc==='hillarys'?'hillarys':'rottnest';
+    var buoySet=wbc[buoyKey]||wbc;
+    if(wbTitle)wbTitle.textContent=(wxLoc==='hillarys'?'Hillarys Wave Buoy':'Rottnest Wave Buoy (RDW47)');
     var imgStyle='max-width:48%;height:auto;border-radius:4px;background:#fff;padding:2px';
     var whtml='<div style="display:flex;gap:6px;flex-wrap:wrap">';
-    if(wbc.wave_height)whtml+='<img src="'+wbc.wave_height+'?t='+Date.now()+'" style="'+imgStyle+'" alt="Wave Height" onerror="this.style.display=\'none\'">';
-    if(wbc.wave_direction)whtml+='<img src="'+wbc.wave_direction+'?t='+Date.now()+'" style="'+imgStyle+'" alt="Wave Direction" onerror="this.style.display=\'none\'">';
+    if(buoySet.wave_height)whtml+='<img src="'+buoySet.wave_height+'?t='+Date.now()+'" style="'+imgStyle+'" alt="Wave Height" onerror="this.style.display=\'none\'">';
+    if(buoySet.wave_direction)whtml+='<img src="'+buoySet.wave_direction+'?t='+Date.now()+'" style="'+imgStyle+'" alt="Wave Direction" onerror="this.style.display=\'none\'">';
     whtml+='</div>';
     wbEl.innerHTML=whtml;
   } else {
