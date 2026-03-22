@@ -221,7 +221,7 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.250</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.251</span></div>
   <div class="basemap-sw">
     <div class="bm-btn active" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#2a5a8c);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🌊</span></div><div class="bm-label">Ocean</div></div>
     <div class="bm-btn" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
@@ -344,6 +344,11 @@
         <button class="layer-btn on-orange" id="btnSSH" onclick="toggleLayer('ssh')"><span class="icon">🌀</span> Eddies</button>
         <button class="layer-btn on" id="btnMLD" onclick="toggleLayer('mld')"><span class="icon">🫧</span> MLD</button>
         <button class="layer-btn on-red" id="btnSSTA" onclick="toggleLayer('ssta')"><span class="icon">📊</span> SSTA</button>
+        <button class="layer-btn on-orange" id="btnCorridors" onclick="toggleLayer('corridors')"><span class="icon">🔀</span> Corridors</button>
+        <button class="layer-btn on-purple" id="btnConvergence" onclick="toggleLayer('convergence')"><span class="icon">🌀</span> Conv</button>
+        <button class="layer-btn on" id="btnShear" onclick="toggleLayer('shear')"><span class="icon">⚡</span> Shear</button>
+        <button class="layer-btn on-teal" id="btnUpwelling" onclick="toggleLayer('upwelling')"><span class="icon">⬆</span> Upwell</button>
+        <button class="layer-btn on-green" id="btnChlCurv" onclick="toggleLayer('chl_curv')"><span class="icon">🧬</span> Chl Curv</button>
       </div>
     </div>
   </div>
@@ -519,7 +524,7 @@ var SPOTS=[
 ];
 
 var map,cBM='ocean',gpsWId=null,gM='off',cPos=null,fGPS=false,trk=[];
-var LS={seamark:true,nav_aids:false,blue_marlin:true,spanish_mackerel:false,sbt:false,chlorophyll:false,sst:false,ssh_visual:false,sst_fronts:true,chl_edges:true,currents:true,bathymetry:true,clarity:true,ssh:true,mld:true,ssta:true};
+var LS={seamark:true,nav_aids:false,blue_marlin:true,spanish_mackerel:false,sbt:false,chlorophyll:false,sst:false,ssh_visual:false,sst_fronts:true,chl_edges:true,currents:true,bathymetry:true,clarity:true,ssh:true,mld:true,ssta:true,corridors:false,convergence:false,shear:false,upwelling:false,chl_curv:false};
 var _displayFloor=0.70; // hotspot display floor — adjustable via legend slider
 // Opacity-based toggling for GeoJSON layers — tiles stay loaded, no cache purge on toggle
 var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-peak':['line-opacity',.9],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.9],'isotherm-label':['text-opacity',1],'mld-very-shallow':['line-opacity',.8],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.8],'mld-deep':['line-opacity',.8],'ssta-cold':['line-opacity',.8],'ssta-warm':['line-opacity',.9],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.9],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'sst-front-label':['text-opacity',1],'chl-edge-label':['text-opacity',1],'ssh-label':['text-opacity',1],'mld-label':['text-opacity',1],'ssta-label':['text-opacity',1],'bathy-shade':['raster-opacity',.5],'bathy-glow':['line-opacity',.12],'bathy-20':['line-opacity',.6],'bathy-50':['line-opacity',.7],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-150':['line-opacity',.7],'bathy-250':['line-opacity',.8],'bathy-label':['text-opacity',1],'hs-blue':null,'sm-hs':null,'sbt-hs':null,'nav-base':['circle-opacity',1],'nav-port':['circle-opacity',1],'nav-stbd':['circle-opacity',1],'nav-cardinal-x':['circle-opacity',1],'nav-light-dot':['circle-opacity',1],'nav-label':['text-opacity',1]};
@@ -555,6 +560,11 @@ function initMap(){
     'water-clarity':{type:'geojson',data:'data/water_clarity.geojson'},
     'ssh-eddies':{type:'geojson',data:'data/ssh_eddies.geojson'},
     'ssta':{type:'geojson',data:'data/ssta_contours.geojson'},
+    'front-corridors':{type:'geojson',data:'data/front_corridors.geojson'},
+    'convergence-zones':{type:'geojson',data:'data/convergence_zones.geojson'},
+    'shear-zones':{type:'geojson',data:'data/shear_zones.geojson'},
+    'upwelling-edges':{type:'geojson',data:'data/upwelling_edges.geojson'},
+    'chl-curvature':{type:'geojson',data:'data/chl_curvature.geojson'},
     'blue-hotspots':{type:'geojson',data:'data/blue_marlin_hotspots.geojson'},
     'sm-hotspots':{type:'geojson',data:'data/spanish_mackerel_hotspots.geojson'},
     'sbt-hotspots':{type:'geojson',data:'data/sbt_hotspots.geojson'},
@@ -685,11 +695,24 @@ function initMap(){
     'mld-deep':function(p){return '<div class="hp-title">Deep Mixed Layer ('+p.mld+'m)</div><div class="hp-sub">Weak stratification — marlin dispersed through water column</div>'},
     'ssta-cold':function(p){return '<div class="hp-title">SST Anomaly '+p.anomaly.toFixed(1)+'°C</div><div class="hp-sub">Cooler than seasonal average</div>'},
     'ssta-warm':function(p){return '<div class="hp-title">SST Anomaly +'+p.anomaly.toFixed(1)+'°C</div><div class="hp-sub">Warmer than seasonal average — Leeuwin Current active</div>'},
+    'corridor-mod':function(p){return '<div class="hp-title">Front Corridor</div><div class="hp-sub">SST fronts from 2+ directions — prey funnel zone ('+Math.round(p.level*100)+'%)</div>'},
+    'corridor-strong':function(p){return '<div class="hp-title">Strong Front Corridor</div><div class="hp-sub">Multi-direction frontal convergence — active prey trap ('+Math.round(p.level*100)+'%)</div>'},
+    'corridor-intense':function(p){return '<div class="hp-title">Intense Front Corridor</div><div class="hp-sub">Tight frontal pinch point — highest prey concentration ('+Math.round(p.level*100)+'%)</div>'},
+    'conv-mod':function(p){return '<div class="hp-title">Convergence Zone</div><div class="hp-sub">Current convergence — bait aggregation area ('+Math.round(p.level*100)+'%)</div>'},
+    'conv-strong':function(p){return '<div class="hp-title">Strong Convergence</div><div class="hp-sub">Strong current convergence — active bait trap ('+Math.round(p.level*100)+'%)</div>'},
+    'conv-intense':function(p){return '<div class="hp-title">Intense Convergence</div><div class="hp-sub">Very strong convergence — peak bait concentration ('+Math.round(p.level*100)+'%)</div>'},
+    'shear-mod':function(p){return '<div class="hp-title">Current Shear Zone</div><div class="hp-sub">Vorticity boundary — Leeuwin/Undercurrent interaction ('+Math.round(p.level*100)+'%)</div>'},
+    'shear-strong':function(p){return '<div class="hp-title">Strong Shear Zone</div><div class="hp-sub">High vorticity — LC/LUC shear boundary, bait stacking zone ('+Math.round(p.level*100)+'%)</div>'},
+    'shear-intense':function(p){return '<div class="hp-title">Intense Shear Zone</div><div class="hp-sub">Peak vorticity — active current boundary, prey concentrated ('+Math.round(p.level*100)+'%)</div>'},
+    'upwell-mod':function(p){return '<div class="hp-title">Upwelling Edge</div><div class="hp-sub">Warm side of canyon upwelling — bait meets warm water ('+Math.round(p.level*100)+'%)</div>'},
+    'upwell-strong':function(p){return '<div class="hp-title">Strong Upwelling Edge</div><div class="hp-sub">Active upwelling boundary — nutrient-warm water interface ('+Math.round(p.level*100)+'%)</div>'},
+    'chlcurv-mod':function(p){return '<div class="hp-title">CHL Curvature</div><div class="hp-sub">Chlorophyll pocket/peninsula — dynamic mixing zone ('+Math.round(p.level*100)+'%)</div>'},
+    'chlcurv-strong':function(p){return '<div class="hp-title">Strong CHL Curvature</div><div class="hp-sub">Intense chlorophyll feature — active nutrient pooling ('+Math.round(p.level*100)+'%)</div>'},
     'sm-hs':function(p){var h='<div class="hp-title" style="color:#a78bfa">Spanish Mackerel — '+Math.round(p.intensity*100)+'%</div>';var items=[];var keys=[['s_sst','w_sst','SST'],['s_sst_front','w_sst_front','Fronts'],['s_reef_structure','w_reef_structure','Reef'],['s_ssh','w_ssh','SSH'],['s_clarity','w_clarity','Clarity'],['s_chl','w_chl','Chl'],['s_current','w_current','Curr']];for(var i=0;i<keys.length;i++){var k=keys[i];if(p[k[0]]!=null&&p[k[1]]>0){items.push(k[2]+' '+Math.round(p[k[0]]*p[k[1]]*100)+'%')}}var mults=[];if(p.s_depth!=null)mults.push('Depth \u00d7'+Math.round(p.s_depth*100)+'%');var sub=items.join(' \u00b7 ');if(mults.length)sub+=' | '+mults.join(' \u00b7 ');return h+'<div class="hp-sub">'+sub+'</div>'},
     'sbt-hs':function(p){var h='<div class="hp-title" style="color:#2dd4bf">SB Tuna — '+Math.round(p.intensity*100)+'%</div>';var items=[];var keys=[['s_sst','w_sst','SST'],['s_sst_front','w_sst_front','Fronts'],['s_front_corridor','w_front_corridor','Corr'],['s_chl','w_chl','Chl'],['s_chl_curvature','w_chl_curvature','ChlC'],['s_ssh','w_ssh','SSH'],['s_current','w_current','Curr'],['s_convergence','w_convergence','Conv'],['s_mld','w_mld','MLD'],['s_clarity','w_clarity','Clarity'],['s_ssta','w_ssta','SSTA'],['s_o2','w_o2','O2']];for(var i=0;i<keys.length;i++){var k=keys[i];if(p[k[0]]!=null&&p[k[1]]>0){items.push(k[2]+' '+Math.round(p[k[0]]*p[k[1]]*100)+'%')}}var mults=[];if(p.s_depth!=null)mults.push('Depth \u00d7'+Math.round(p.s_depth*100)+'%');if(p.s_shelf_break!=null)mults.push('Canyon \u00d7'+p.s_shelf_break);var sub=items.join(' \u00b7 ');if(mults.length)sub+=' | '+mults.join(' \u00b7 ');return h+'<div class="hp-sub">'+sub+'</div>'},
   };
   // Map layer IDs to their LS toggle key so hovers respect visibility
-  var hVis={'hs-blue':'blue_marlin','sm-hs':'spanish_mackerel','sbt-hs':'sbt','isotherm-blue-peak':'blue_marlin','isotherm-blue-prime':'blue_marlin','isotherm-blue-good':'blue_marlin','sst-front-glow':'sst_fronts','sst-front-line':'sst_fronts','sst-front-label':'sst_fronts','chl-edge-line':'chl_edges','chl-edge-label':'chl_edges','current-line':'currents','bathy-20':'bathymetry','bathy-50':'bathymetry','bathy-100':'bathymetry','bathy-150':'bathymetry','bathy-200':'bathymetry','bathy-250':'bathymetry','bathy-500':'bathymetry','bathy-1000':'bathymetry','clarity-clean':'clarity','clarity-turbid':'clarity','clarity-bloom':'clarity','ssh-cold':'ssh','ssh-neutral':'ssh','ssh-warm':'ssh','ssh-warm-core':'ssh','ssh-label':'ssh','mld-very-shallow':'mld','mld-shallow':'mld','mld-moderate':'mld','mld-deep':'mld','mld-label':'mld','ssta-cold':'ssta','ssta-warm':'ssta','ssta-label':'ssta',};
+  var hVis={'hs-blue':'blue_marlin','sm-hs':'spanish_mackerel','sbt-hs':'sbt','isotherm-blue-peak':'blue_marlin','isotherm-blue-prime':'blue_marlin','isotherm-blue-good':'blue_marlin','sst-front-glow':'sst_fronts','sst-front-line':'sst_fronts','sst-front-label':'sst_fronts','chl-edge-line':'chl_edges','chl-edge-label':'chl_edges','current-line':'currents','bathy-20':'bathymetry','bathy-50':'bathymetry','bathy-100':'bathymetry','bathy-150':'bathymetry','bathy-200':'bathymetry','bathy-250':'bathymetry','bathy-500':'bathymetry','bathy-1000':'bathymetry','clarity-clean':'clarity','clarity-turbid':'clarity','clarity-bloom':'clarity','ssh-cold':'ssh','ssh-neutral':'ssh','ssh-warm':'ssh','ssh-warm-core':'ssh','ssh-label':'ssh','mld-very-shallow':'mld','mld-shallow':'mld','mld-moderate':'mld','mld-deep':'mld','mld-label':'mld','ssta-cold':'ssta','ssta-warm':'ssta','ssta-label':'ssta','corridor-mod':'corridors','corridor-strong':'corridors','corridor-intense':'corridors','conv-mod':'convergence','conv-strong':'convergence','conv-intense':'convergence','shear-mod':'shear','shear-strong':'shear','shear-intense':'shear','upwell-mod':'upwelling','upwell-strong':'upwelling','chlcurv-mod':'chl_curv','chlcurv-strong':'chl_curv',};
   // Hide hover panel when mouse leaves the map canvas (over UI panels/buttons)
   document.addEventListener('mousemove',function(e){
     var cv=map.getCanvas();
@@ -741,7 +764,7 @@ function initMap(){
 }
 
 function loadDatedGeoJSON(){
-  var gj={'sst-fronts':'sst_fronts.geojson','chl-edges':'chl_edges.geojson','currents':'currents.geojson','water-clarity':'water_clarity.geojson','ssh-eddies':'ssh_eddies.geojson','mld':'mld_contours.geojson','ssta':'ssta_contours.geojson','blue-hotspots':'blue_marlin_hotspots.geojson','sm-hotspots':'spanish_mackerel_hotspots.geojson','sbt-hotspots':'sbt_hotspots.geojson','depth-grid':'depth_grid.geojson'};
+  var gj={'sst-fronts':'sst_fronts.geojson','chl-edges':'chl_edges.geojson','currents':'currents.geojson','water-clarity':'water_clarity.geojson','ssh-eddies':'ssh_eddies.geojson','mld':'mld_contours.geojson','ssta':'ssta_contours.geojson','blue-hotspots':'blue_marlin_hotspots.geojson','sm-hotspots':'spanish_mackerel_hotspots.geojson','sbt-hotspots':'sbt_hotspots.geojson','depth-grid':'depth_grid.geojson','front-corridors':'front_corridors.geojson','convergence-zones':'convergence_zones.geojson','shear-zones':'shear_zones.geojson','upwelling-edges':'upwelling_edges.geojson','chl-curvature':'chl_curvature.geojson'};
   var empty={type:'FeatureCollection',features:[]};
   var cb='?t='+Date.now();
   // Clear old data immediately so stale overlays don't show with new markers
@@ -804,8 +827,13 @@ function toggleLayer(n){
     ssh:['ssh-cold','ssh-neutral','ssh-warm','ssh-warm-core','ssh-label'],
     mld:['mld-very-shallow','mld-shallow','mld-moderate','mld-deep','mld-label'],
     ssta:['ssta-cold','ssta-warm','ssta-label'],
+    corridors:['corridor-mod','corridor-strong','corridor-intense'],
+    convergence:['conv-mod','conv-strong','conv-intense'],
+    shear:['shear-mod','shear-strong','shear-intense'],
+    upwelling:['upwell-mod','upwell-strong'],
+    chl_curv:['chlcurv-mod','chlcurv-strong'],
     nav_aids:['nav-base','nav-port','nav-stbd','nav-cardinal-x','nav-light-dot','nav-label']};
-  var bm={seamark:{id:'btnSeamarks',c:'on'},chlorophyll:{id:'btnChloro',c:'on-green'},sst:{id:'btnSST',c:'on-red'},ssh_visual:{id:'btnSSHMap',c:'on'},blue_marlin:{id:'btnBlueMarlin',c:'on-cyan'},spanish_mackerel:{id:'btnSpanishMack',c:'on-purple'},sbt:{id:'btnSBT',c:'on-teal'},nav_aids:{id:'btnNavAids',c:'on'},sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},currents:{id:'btnCurrents',c:'on'},bathymetry:{id:'btnBathy',c:'on-orange'},clarity:{id:'btnClarity',c:'on'},ssh:{id:'btnSSH',c:'on-orange'},mld:{id:'btnMLD',c:'on'},ssta:{id:'btnSSTA',c:'on-red'}};
+  var bm={seamark:{id:'btnSeamarks',c:'on'},chlorophyll:{id:'btnChloro',c:'on-green'},sst:{id:'btnSST',c:'on-red'},ssh_visual:{id:'btnSSHMap',c:'on'},blue_marlin:{id:'btnBlueMarlin',c:'on-cyan'},spanish_mackerel:{id:'btnSpanishMack',c:'on-purple'},sbt:{id:'btnSBT',c:'on-teal'},nav_aids:{id:'btnNavAids',c:'on'},sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},currents:{id:'btnCurrents',c:'on'},bathymetry:{id:'btnBathy',c:'on-orange'},clarity:{id:'btnClarity',c:'on'},ssh:{id:'btnSSH',c:'on-orange'},mld:{id:'btnMLD',c:'on'},ssta:{id:'btnSSTA',c:'on-red'},corridors:{id:'btnCorridors',c:'on-orange'},convergence:{id:'btnConvergence',c:'on-purple'},shear:{id:'btnShear',c:'on'},upwelling:{id:'btnUpwelling',c:'on-teal'},chl_curv:{id:'btnChlCurv',c:'on-green'}};
   if(n==='blue_marlin'){
     var ml=document.getElementById('marlinLegend');if(a){ml.classList.add('active');document.getElementById('legendTab').textContent='▶'}else{ml.classList.remove('active');document.getElementById('legendTab').textContent='◀'}
     sGL('hs-blue',a);sGL('isotherm-blue-peak',a);sGL('isotherm-blue-prime',a);sGL('isotherm-blue-good',a);
@@ -905,6 +933,29 @@ function setBasemap(n){
   map.addLayer({id:'ssta-cold',type:'line',source:'ssta',filter:['<',['get','anomaly'],0],paint:{'line-color':'#1d4ed8','line-width':1.5,'line-opacity':sa?.8:0,'line-dasharray':[4,2]}},bf);
   map.addLayer({id:'ssta-warm',type:'line',source:'ssta',filter:['>=',['get','anomaly'],0],paint:{'line-color':'#dc2626','line-width':1.5,'line-opacity':sa?.8:0,'line-dasharray':[4,2]}},bf);
   map.addLayer({id:'ssta-label',type:'symbol',source:'ssta',layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat','SSTA ',['to-string',['get','anomaly']],'\u00B0'],'text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#94a3b8','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':sa?1:0}},bf);
+  // Front corridors (orange, dashed — prey funnels from multi-direction fronts)
+  var cro=LS.corridors;
+  map.addLayer({id:'corridor-mod',type:'line',source:'front-corridors',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':cro?.7:0,'line-dasharray':[6,3]}},bf);
+  map.addLayer({id:'corridor-strong',type:'line',source:'front-corridors',filter:['==',['get','label'],'strong'],paint:{'line-color':'#f97316','line-width':2,'line-opacity':cro?.85:0,'line-dasharray':[6,3]}},bf);
+  map.addLayer({id:'corridor-intense',type:'line',source:'front-corridors',filter:['==',['get','label'],'intense'],paint:{'line-color':'#ea580c','line-width':2.5,'line-opacity':cro?.9:0,'line-dasharray':[6,3]}},bf);
+  // Convergence zones (violet, dashed — bait aggregation)
+  var cvo=LS.convergence;
+  map.addLayer({id:'conv-mod',type:'line',source:'convergence-zones',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#a78bfa','line-width':1.5,'line-opacity':cvo?.7:0,'line-dasharray':[4,3]}},bf);
+  map.addLayer({id:'conv-strong',type:'line',source:'convergence-zones',filter:['==',['get','label'],'strong'],paint:{'line-color':'#8b5cf6','line-width':2,'line-opacity':cvo?.85:0,'line-dasharray':[4,3]}},bf);
+  map.addLayer({id:'conv-intense',type:'line',source:'convergence-zones',filter:['==',['get','label'],'intense'],paint:{'line-color':'#7c3aed','line-width':2.5,'line-opacity':cvo?.9:0,'line-dasharray':[4,3]}},bf);
+  // Current shear zones (sky blue, dotted — LC/LUC boundary)
+  var sho=LS.shear;
+  map.addLayer({id:'shear-mod',type:'line',source:'shear-zones',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#38bdf8','line-width':1.5,'line-opacity':sho?.7:0,'line-dasharray':[2,3]}},bf);
+  map.addLayer({id:'shear-strong',type:'line',source:'shear-zones',filter:['==',['get','label'],'strong'],paint:{'line-color':'#0ea5e9','line-width':2,'line-opacity':sho?.85:0,'line-dasharray':[2,3]}},bf);
+  map.addLayer({id:'shear-intense',type:'line',source:'shear-zones',filter:['==',['get','label'],'intense'],paint:{'line-color':'#0284c7','line-width':2.5,'line-opacity':sho?.9:0,'line-dasharray':[2,3]}},bf);
+  // Upwelling edges (teal, solid — warm side of canyon upwelling)
+  var upo=LS.upwelling;
+  map.addLayer({id:'upwell-mod',type:'line',source:'upwelling-edges',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#2dd4bf','line-width':1.5,'line-opacity':upo?.75:0}},bf);
+  map.addLayer({id:'upwell-strong',type:'line',source:'upwelling-edges',filter:['==',['get','label'],'strong'],paint:{'line-color':'#0d9488','line-width':2.5,'line-opacity':upo?.9:0}},bf);
+  // CHL curvature (green, dotted — nutrient pockets)
+  var cco=LS.chl_curv;
+  map.addLayer({id:'chlcurv-mod',type:'line',source:'chl-curvature',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#86efac','line-width':1.5,'line-opacity':cco?.7:0,'line-dasharray':[3,3]}},bf);
+  map.addLayer({id:'chlcurv-strong',type:'line',source:'chl-curvature',filter:['==',['get','label'],'strong'],paint:{'line-color':'#22c55e','line-width':2,'line-opacity':cco?.85:0,'line-dasharray':[3,3]}},bf);
   map.addLayer({id:'clarity-clean',type:'line',source:'water-clarity',filter:['==',['get','label'],'clean'],paint:{'line-color':'#38bdf8','line-width':2,'line-opacity':co?.9:0}},bf);
   map.addLayer({id:'clarity-turbid',type:'line',source:'water-clarity',filter:['==',['get','label'],'turbid'],paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':co?.85:0,'line-dasharray':[4,2]}},bf);
   map.addLayer({id:'clarity-bloom',type:'line',source:'water-clarity',filter:['==',['get','label'],'bloom'],paint:{'line-color':'#dc2626','line-width':2,'line-opacity':co?.9:0,'line-dasharray':[4,2]}},bf);
