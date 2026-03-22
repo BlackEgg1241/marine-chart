@@ -221,7 +221,7 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.271</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.272</span></div>
   <div class="basemap-sw">
     <div class="bm-btn active" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#2a5a8c);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🌊</span></div><div class="bm-label">Ocean</div></div>
     <div class="bm-btn" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
@@ -830,7 +830,7 @@ var ML=['spot-glow','spot-dot','spot-label'];
 function toggleLayer(n){
   LS[n]=!LS[n];var a=LS[n];
   var lm={seamark:['sm-layer','spot-glow','spot-dot','spot-label'],chlorophyll:'g-chl-layer',sst:'g-sst-layer',ssh_visual:'g-ssh-layer',
-    sst_fronts:['sst-front-glow','sst-front-line','sst-front-label'],
+    sst_fronts:['sst-front-glow','sst-front-line','sst-front-label','isotherm-blue-peak','isotherm-blue-prime','isotherm-blue-good','isotherm-label'],
     chl_edges:['chl-edge-line','chl-edge-label'],currents:'current-line',
     bathymetry:['bathy-shade','bathy-20','bathy-50','bathy-100','bathy-150','bathy-glow','bathy-200','bathy-250','bathy-500','bathy-1000','bathy-label'],
     clarity:['clarity-clean','clarity-turbid','clarity-bloom'],
@@ -846,8 +846,7 @@ function toggleLayer(n){
   var bm={seamark:{id:'btnSeamarks',c:'on'},chlorophyll:{id:'btnChloro',c:'on-green'},sst:{id:'btnSST',c:'on-red'},ssh_visual:{id:'btnSSHMap',c:'on'},blue_marlin:{id:'btnBlueMarlin',c:'on-cyan'},spanish_mackerel:{id:'btnSpanishMack',c:'on-purple'},sbt:{id:'btnSBT',c:'on-teal'},nav_aids:{id:'btnNavAids',c:'on'},sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},currents:{id:'btnCurrents',c:'on'},bathymetry:{id:'btnBathy',c:'on-orange'},clarity:{id:'btnClarity',c:'on'},ssh:{id:'btnSSH',c:'on-orange'},mld:{id:'btnMLD',c:'on'},ssta:{id:'btnSSTA',c:'on-red'},corridors:{id:'btnCorridors',c:'on-orange'},convergence:{id:'btnConvergence',c:'on-purple'},shear:{id:'btnShear',c:'on'},upwelling:{id:'btnUpwelling',c:'on-teal'},chl_curv:{id:'btnChlCurv',c:'on-green'}};
   if(n==='blue_marlin'){
     var ml=document.getElementById('marlinLegend');if(a){ml.classList.add('active');document.getElementById('legendTab').textContent='▶'}else{ml.classList.remove('active');document.getElementById('legendTab').textContent='◀'}
-    sGL('hs-blue',a);sGL('isotherm-blue-peak',a);sGL('isotherm-blue-prime',a);sGL('isotherm-blue-good',a);
-    sGL('isotherm-label',a);
+    sGL('hs-blue',a);
   } else if(n==='spanish_mackerel'){
     sGL('sm-hs',a);
   } else if(n==='sbt'){
