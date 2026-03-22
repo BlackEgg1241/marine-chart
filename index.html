@@ -221,7 +221,7 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.261</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.262</span></div>
   <div class="basemap-sw">
     <div class="bm-btn active" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#2a5a8c);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🌊</span></div><div class="bm-label">Ocean</div></div>
     <div class="bm-btn" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
@@ -527,7 +527,7 @@ var map,cBM='ocean',gpsWId=null,gM='off',cPos=null,fGPS=false,trk=[];
 var LS={seamark:true,nav_aids:false,blue_marlin:true,spanish_mackerel:false,sbt:false,chlorophyll:false,sst:false,ssh_visual:false,sst_fronts:true,chl_edges:true,currents:true,bathymetry:true,clarity:true,ssh:true,mld:true,ssta:true,corridors:false,convergence:false,shear:false,upwelling:false,chl_curv:false};
 var _displayFloor=0.70; // hotspot display floor — adjustable via legend slider
 // Opacity-based toggling for GeoJSON layers — tiles stay loaded, no cache purge on toggle
-var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-peak':['line-opacity',.9],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.9],'isotherm-label':['text-opacity',1],'mld-very-shallow':['line-opacity',.8],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.8],'mld-deep':['line-opacity',.8],'ssta-cold':['line-opacity',.8],'ssta-warm':['line-opacity',.9],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.9],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'sst-front-label':['text-opacity',1],'chl-edge-label':['text-opacity',1],'ssh-label':['text-opacity',1],'mld-label':['text-opacity',1],'ssta-label':['text-opacity',1],'bathy-shade':['raster-opacity',.5],'bathy-glow':['line-opacity',.12],'bathy-20':['line-opacity',.6],'bathy-50':['line-opacity',.7],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-150':['line-opacity',.7],'bathy-250':['line-opacity',.8],'bathy-label':['text-opacity',1],'hs-blue':null,'sm-hs':null,'sbt-hs':null,'nav-base':['circle-opacity',1],'nav-port':['circle-opacity',1],'nav-stbd':['circle-opacity',1],'nav-cardinal-x':['circle-opacity',1],'nav-light-dot':['circle-opacity',1],'nav-label':['text-opacity',1]};
+var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-peak':['line-opacity',.9],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.9],'isotherm-label':['text-opacity',1],'mld-very-shallow':['line-opacity',.8],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.8],'mld-deep':['line-opacity',.8],'ssta-cold':['line-opacity',.8],'ssta-warm':['line-opacity',.9],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.9],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'sst-front-label':['text-opacity',1],'chl-edge-label':['text-opacity',1],'ssh-label':['text-opacity',1],'mld-label':['text-opacity',1],'ssta-label':['text-opacity',1],'bathy-shade':['raster-opacity',.5],'bathy-glow':['line-opacity',.12],'bathy-20':['line-opacity',.6],'bathy-50':['line-opacity',.7],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-150':['line-opacity',.7],'bathy-250':['line-opacity',.8],'bathy-label':['text-opacity',1],'hs-blue':null,'sm-hs':null,'sbt-hs':null,'nav-base':['circle-opacity',1],'nav-port':['circle-opacity',1],'nav-stbd':['circle-opacity',1],'nav-cardinal-x':['circle-opacity',1],'nav-light-dot':['circle-opacity',1],'nav-label':['text-opacity',1],'corridor-mod':['line-opacity',.7],'corridor-strong':['line-opacity',.85],'corridor-intense':['line-opacity',.9],'conv-mod':['line-opacity',.7],'conv-strong':['line-opacity',.85],'conv-intense':['line-opacity',.9],'shear-mod':['line-opacity',.7],'shear-strong':['line-opacity',.85],'shear-intense':['line-opacity',.9],'upwell-mod':['line-opacity',.75],'upwell-strong':['line-opacity',.9],'chlcurv-mod':['line-opacity',.7],'chlcurv-strong':['line-opacity',.85]};
 function sGL(id,on){if(!map.getLayer(id))return;var e=gLO[id];e?map.setPaintProperty(id,e[0],on?e[1]:0):map.setLayoutProperty(id,'visibility',on?'visible':'none')}
 var iD=new Date();var cDate=iD.toISOString().split('T')[0];
 var iG=new Date();iG.setDate(iG.getDate()-3);var gDate=iG.toISOString().split('T')[0];
@@ -626,6 +626,19 @@ function initMap(){
     {id:'ssta-cold',type:'line',source:'ssta',filter:['<',['get','anomaly'],0],paint:{'line-color':'#1d4ed8','line-width':1.5,'line-opacity':.8,'line-dasharray':[4,2]}},
     {id:'ssta-warm',type:'line',source:'ssta',filter:['>=',['get','anomaly'],0],paint:{'line-color':'#dc2626','line-width':1.5,'line-opacity':.8,'line-dasharray':[4,2]}},
     {id:'ssta-label',type:'symbol',source:'ssta',layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat','SSTA ',['to-string',['get','anomaly']],'\u00B0'],'text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#94a3b8','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':1}},
+    {id:'corridor-mod',type:'line',source:'front-corridors',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':0,'line-dasharray':[6,3]}},
+    {id:'corridor-strong',type:'line',source:'front-corridors',filter:['==',['get','label'],'strong'],paint:{'line-color':'#f97316','line-width':2,'line-opacity':0,'line-dasharray':[6,3]}},
+    {id:'corridor-intense',type:'line',source:'front-corridors',filter:['==',['get','label'],'intense'],paint:{'line-color':'#ea580c','line-width':2.5,'line-opacity':0,'line-dasharray':[6,3]}},
+    {id:'conv-mod',type:'line',source:'convergence-zones',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#a78bfa','line-width':1.5,'line-opacity':0,'line-dasharray':[4,3]}},
+    {id:'conv-strong',type:'line',source:'convergence-zones',filter:['==',['get','label'],'strong'],paint:{'line-color':'#8b5cf6','line-width':2,'line-opacity':0,'line-dasharray':[4,3]}},
+    {id:'conv-intense',type:'line',source:'convergence-zones',filter:['==',['get','label'],'intense'],paint:{'line-color':'#7c3aed','line-width':2.5,'line-opacity':0,'line-dasharray':[4,3]}},
+    {id:'shear-mod',type:'line',source:'shear-zones',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#38bdf8','line-width':1.5,'line-opacity':0,'line-dasharray':[2,3]}},
+    {id:'shear-strong',type:'line',source:'shear-zones',filter:['==',['get','label'],'strong'],paint:{'line-color':'#0ea5e9','line-width':2,'line-opacity':0,'line-dasharray':[2,3]}},
+    {id:'shear-intense',type:'line',source:'shear-zones',filter:['==',['get','label'],'intense'],paint:{'line-color':'#0284c7','line-width':2.5,'line-opacity':0,'line-dasharray':[2,3]}},
+    {id:'upwell-mod',type:'line',source:'upwelling-edges',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#2dd4bf','line-width':1.5,'line-opacity':0}},
+    {id:'upwell-strong',type:'line',source:'upwelling-edges',filter:['==',['get','label'],'strong'],paint:{'line-color':'#0d9488','line-width':2.5,'line-opacity':0}},
+    {id:'chlcurv-mod',type:'line',source:'chl-curvature',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#86efac','line-width':1.5,'line-opacity':0,'line-dasharray':[3,3]}},
+    {id:'chlcurv-strong',type:'line',source:'chl-curvature',filter:['==',['get','label'],'strong'],paint:{'line-color':'#22c55e','line-width':2,'line-opacity':0,'line-dasharray':[3,3]}},
     {id:'spot-glow',type:'circle',source:'spots',layout:{visibility:'visible'},paint:{'circle-radius':['match',['get','type'],'ramp',10,16],'circle-color':['match',['get','type'],'fad','#f43f5e','ramp','#22d3ee','#94a3b8'],'circle-opacity':.15,'circle-blur':.8}},
     {id:'spot-dot',type:'circle',source:'spots',layout:{visibility:'visible'},paint:{'circle-radius':['match',['get','type'],'ramp',4,6],'circle-color':['match',['get','type'],'fad','#f43f5e','ramp','#22d3ee','#94a3b8'],'circle-stroke-width':['match',['get','type'],'ramp',1.5,2],'circle-stroke-color':'#fff','circle-opacity':.9}},
     {id:'spot-label',type:'symbol',source:'spots',layout:{visibility:'visible','text-field':['get','name'],'text-size':['match',['get','type'],'ramp',8,10],'text-offset':[0,1.5],'text-anchor':'top','text-font':['Open Sans Regular']},paint:{'text-color':['match',['get','type'],'fad','#fbbf24','ramp','#94a3b8','#cbd5e1'],'text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5}},
@@ -769,29 +782,26 @@ function loadDatedGeoJSON(){
   var cb='?t='+Date.now();
   // Clear old data immediately so stale overlays don't show with new markers
   Object.keys(gj).forEach(function(src){if(map.getSource(src))map.getSource(src).setData(empty)});
+  // Determine if this is a future date (prediction) or past (observation)
+  var today=new Date();today.setHours(0,0,0,0);
+  var selDate=new Date(cDate+'T00:00:00');
+  var isFuture=selDate>today;
+  // Build ordered URL list: most-likely path first to avoid 404 console noise
   Object.keys(gj).forEach(function(src){
     if(!map.getSource(src))return;
-    var dated='data/'+cDate+'/'+gj[src]+cb;
+    var obs='data/'+cDate+'/'+gj[src]+cb;
     var pred='data/prediction/'+cDate+'/'+gj[src]+cb;
     var fallback='data/'+gj[src]+cb;
-    // Try dated obs first, then prediction, then fallback
-    fetch(dated).then(function(r){
-      if(!r.ok)throw new Error('not found');
-      return r.json();
-    }).then(function(data){
-      map.getSource(src).setData(data);
-    }).catch(function(){
-      fetch(pred).then(function(r){
+    var urls=isFuture?[pred,obs,fallback]:[obs,pred,fallback];
+    (function tryFetch(i){
+      if(i>=urls.length)return;
+      fetch(urls[i]).then(function(r){
         if(!r.ok)throw new Error('not found');
         return r.json();
       }).then(function(data){
         map.getSource(src).setData(data);
-      }).catch(function(){
-        fetch(fallback).then(function(r){return r.json()}).then(function(data){
-          map.getSource(src).setData(data);
-        }).catch(function(){});
-      });
-    });
+      }).catch(function(){tryFetch(i+1)});
+    })(0);
   });
 }
 
@@ -869,7 +879,7 @@ function setBasemap(n){
   if(n===cBM)return;cBM=n;var bm=BM[n];
   var gL=['gps-track-line','gps-acc-fill','gps-acc-line','gps-glow','gps-outer','gps-inner','gps-heading-line'];
   var fg=null;for(var i=0;i<gL.length;i++){if(map.getLayer(gL[i])){fg=gL[i];break}}
-  var rm=['all-catches-dot','all-catches-glow','catch-label','catch-dot','catch-ring','catch-glow','sm-layer','clarity-bloom','clarity-turbid','clarity-clean','ssta-label','ssh-label','ssh-warm-core','ssh-warm','ssh-neutral','ssh-cold','current-line','chl-edge-label','chl-edge-line','isotherm-label','isotherm-blue-peak','isotherm-blue-prime','isotherm-blue-good','sst-front-label','sst-front-line','sst-front-glow','mld-label','mld-very-shallow','mld-shallow','mld-moderate','mld-deep','ssta-cold','ssta-warm','nav-label','nav-light-dot','nav-cardinal-x','nav-stbd','nav-port','nav-base','sbt-hs','sm-hs','hs-blue','bathy-shade','bathy-1000','bathy-500','bathy-250','bathy-200','bathy-150','bathy-glow','bathy-100','bathy-50','bathy-20','bathy-label','depth-grid-pt','spot-label','spot-dot','spot-glow','g-chl-layer','g-sst-layer','g-ssh-layer','ol-layer','basemap-layer'];
+  var rm=['all-catches-dot','all-catches-glow','catch-label','catch-dot','catch-ring','catch-glow','sm-layer','clarity-bloom','clarity-turbid','clarity-clean','ssta-label','ssh-label','ssh-warm-core','ssh-warm','ssh-neutral','ssh-cold','current-line','chl-edge-label','chl-edge-line','isotherm-label','isotherm-blue-peak','isotherm-blue-prime','isotherm-blue-good','sst-front-label','sst-front-line','sst-front-glow','mld-label','mld-very-shallow','mld-shallow','mld-moderate','mld-deep','ssta-cold','ssta-warm','corridor-mod','corridor-strong','corridor-intense','conv-mod','conv-strong','conv-intense','shear-mod','shear-strong','shear-intense','upwell-mod','upwell-strong','chlcurv-mod','chlcurv-strong','nav-label','nav-light-dot','nav-cardinal-x','nav-stbd','nav-port','nav-base','sbt-hs','sm-hs','hs-blue','bathy-shade','bathy-1000','bathy-500','bathy-250','bathy-200','bathy-150','bathy-glow','bathy-100','bathy-50','bathy-20','bathy-label','depth-grid-pt','spot-label','spot-dot','spot-glow','g-chl-layer','g-sst-layer','g-ssh-layer','ol-layer','basemap-layer'];
   for(var i=0;i<rm.length;i++){if(map.getLayer(rm[i]))map.removeLayer(rm[i])}
   var rs=['basemap','ol','g-chl','g-sst','g-ssh'];
   for(var i=0;i<rs.length;i++){if(map.getSource(rs[i]))map.removeSource(rs[i])}
