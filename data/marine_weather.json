@@ -11087,6 +11087,13 @@
       "gust_kt": 19,
       "wind_dir": "SE",
       "wind_dir_deg": 135
+    },
+    {
+      "time": "20260324120000",
+      "wind_spd_kt": 16,
+      "gust_kt": 21,
+      "wind_dir": "SE",
+      "wind_dir_deg": 135
     }
   ],
   "bom_hillarys_wind": [
@@ -11255,6 +11262,13 @@
       "time": "20260324113000",
       "wind_spd_kt": 4,
       "gust_kt": 9,
+      "wind_dir": "SE",
+      "wind_dir_deg": 135
+    },
+    {
+      "time": "20260324120000",
+      "wind_spd_kt": 5,
+      "gust_kt": 12,
       "wind_dir": "SE",
       "wind_dir_deg": 135
     }
