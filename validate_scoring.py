@@ -338,15 +338,14 @@ def main():
 
     # Save CSV
     output_csv = os.path.join(BASE_DIR, "validation_results.csv")
-    fieldnames = [
+    # Build fieldnames dynamically from all sub-scores and weights present
+    base_fields = [
         "date", "lat", "lon", "species", "weight", "length", "tag",
         "data_available", "hotspot_score",
-        "s_sst", "s_sst_front", "s_sst_intrusion", "s_chl", "s_ssh", "s_current",
-        "s_convergence", "s_mld", "s_o2", "s_clarity",
-        "s_depth", "s_shelf_break",
-        "w_sst", "w_sst_front", "w_sst_intrusion", "w_chl", "w_ssh", "w_current",
-        "w_convergence", "w_mld", "w_o2", "w_clarity",
     ]
+    s_keys = sorted(set(k for r in all_results for k in r if k.startswith("s_")))
+    w_keys = sorted(set(k for r in all_results for k in r if k.startswith("w_")))
+    fieldnames = base_fields + s_keys + w_keys
     with open(output_csv, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
         writer.writeheader()

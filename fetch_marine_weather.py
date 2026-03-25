@@ -23,16 +23,17 @@ WEATHER_PARAMS = [
 FORECAST_DAYS = 8
 
 
-def fetch_json(url, retries=3):
+def fetch_json(url, retries=5):
     import time
     for attempt in range(retries):
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "MarLEEn/1.0"})
             with urllib.request.urlopen(req, timeout=30) as resp:
                 return json.loads(resp.read().decode())
-        except (ssl.SSLError, urllib.error.URLError) as e:
+        except (ssl.SSLError, urllib.error.URLError, ConnectionError,
+                TimeoutError, OSError) as e:
             if attempt < retries - 1:
-                wait = 2 ** attempt
+                wait = 2 ** (attempt + 1)
                 print(f"  Retry {attempt+1}/{retries} for {url.split('?')[0]}: {e}")
                 time.sleep(wait)
             else:
@@ -193,7 +194,11 @@ def fetch_location(name, loc):
     print(f"Fetching marine data for {name}...")
     marine = fetch_json(marine_url)
     print(f"Fetching weather data for {name}...")
-    weather = fetch_json(weather_url)
+    try:
+        weather = fetch_json(weather_url)
+    except Exception as e:
+        print(f"  WARNING: Weather fetch failed for {name}, using marine-only: {e}")
+        weather = None
 
     # Merge into single hourly array
     times = marine["hourly"]["time"]
@@ -202,9 +207,12 @@ def fetch_location(name, loc):
         row = {"time": t}
         for p in MARINE_PARAMS:
             row[p] = marine["hourly"][p][i]
-        # Weather times should align
+        # Weather times should align (if weather data available)
         for p in WEATHER_PARAMS:
-            row[p] = weather["hourly"][p][i] if i < len(weather["hourly"][p]) else None
+            if weather and i < len(weather["hourly"].get(p, [])):
+                row[p] = weather["hourly"][p][i]
+            else:
+                row[p] = None
 
         # Compute combined swell from primary + secondary components.
         # Open-Meteo splits swell into two spectral partitions; BOM/Seabreeze/
@@ -252,7 +260,7 @@ def fetch_location(name, loc):
 
     # Build sun data with civil twilight (~27 min offset for Perth latitude)
     sun = []
-    daily = weather.get("daily", {})
+    daily = weather.get("daily", {}) if weather else {}
     for i, d in enumerate(daily.get("time", [])):
         sr = daily["sunrise"][i]  # e.g. "2026-03-13T06:16"
         ss = daily["sunset"][i]
@@ -347,7 +355,14 @@ def main():
         "locations": {},
     }
     for name, loc in LOCATIONS.items():
-        result["locations"][name] = fetch_location(name, loc)
+        try:
+            result["locations"][name] = fetch_location(name, loc)
+        except Exception as e:
+            print(f"  ERROR: Location {name} failed completely: {e}")
+            result["locations"][name] = {
+                "label": loc["label"], "lat": loc["lat"], "lon": loc["lon"],
+                "hourly": [], "sun": [], "error": str(e),
+            }
 
     # Fetch BOM live observations
     print("Fetching BOM observations...")
@@ -376,9 +391,14 @@ def main():
     # Quick summary
     for name, data in result["locations"].items():
         hrs = data["hourly"]
-        winds = [h["wind_speed_10m"] for h in hrs if h["wind_speed_10m"] is not None]
-        swells = [h["swell_wave_height"] for h in hrs if h["swell_wave_height"] is not None]
-        print(f"  {name}: {len(hrs)} hours, wind {min(winds):.0f}-{max(winds):.0f} kn, swell {min(swells):.1f}-{max(swells):.1f} m")
+        if not hrs:
+            print(f"  {name}: NO DATA (fetch failed)")
+            continue
+        winds = [h["wind_speed_10m"] for h in hrs if h.get("wind_speed_10m") is not None]
+        swells = [h["swell_wave_height"] for h in hrs if h.get("swell_wave_height") is not None]
+        wind_str = f"wind {min(winds):.0f}-{max(winds):.0f} kn" if winds else "wind N/A"
+        swell_str = f"swell {min(swells):.1f}-{max(swells):.1f} m" if swells else "swell N/A"
+        print(f"  {name}: {len(hrs)} hours, {wind_str}, {swell_str}")
 
 
 if __name__ == "__main__":

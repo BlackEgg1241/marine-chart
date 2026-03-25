@@ -2,16 +2,13 @@
 """
 Rescore all historical hotspot GeoJSONs with current weights.
 
-Iterates data/YYYY-MM-DD/ (observations) and data/backtest/YYYY-MM-DD/ (backtest)
-directories, regenerates blue_marlin_hotspots.geojson and ssta_contours.geojson
-using the current BLUE_MARLIN_WEIGHTS, and updates backtest_results.json.
-
-No data is fetched — only existing cached NetCDF files are used.
+Parallelized: uses ProcessPoolExecutor to score multiple dates concurrently.
 
 Usage:
     python rescore_all.py              # rescore everything
     python rescore_all.py --obs-only   # only observation dirs
     python rescore_all.py --bt-only    # only backtest dirs
+    python rescore_all.py --workers 8  # control parallelism
 """
 
 import argparse
@@ -22,15 +19,26 @@ import sys
 import time
 import numpy as np
 from datetime import datetime
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import multiprocessing
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SCRIPT_DIR)
 
-# Zone bounds (same as backtest_habitat.py)
+# Zone bounds (Accessible Trench Zone — same as generate_forecast_summary.py)
 ZONE_W = 114.98
 ZONE_E = 115.3333
 ZONE_S = -32.1667
 ZONE_N = -31.7287
+
+N_WORKERS = 12  # leave headroom for memory (~2GB per worker)
+
+SUB_ZONES = {
+    "canyon": [114.95, -32.02, 115.15, -31.85],
+    "pgfc": [115.15, -32.12, 115.35, -31.92],
+    "north": [114.98, -31.90, 115.25, -31.73],
+    "south": [115.05, -32.17, 115.25, -32.05],
+}
 
 
 def compute_zone_stats(grid, lats, lons):
@@ -66,14 +74,6 @@ def compute_zone_subscores(sub_scores, weights, lats, lons):
     return result
 
 
-SUB_ZONES = {
-    "canyon": [114.95, -32.02, 115.15, -31.85],
-    "pgfc": [115.15, -32.12, 115.35, -31.92],
-    "north": [114.98, -31.90, 115.25, -31.73],
-    "south": [115.05, -32.17, 115.25, -32.05],
-}
-
-
 def compute_subzone_stats(grid, lats, lons):
     result = {}
     for key, (w, s, e, n) in SUB_ZONES.items():
@@ -99,66 +99,76 @@ def find_dated_dirs(base_dir):
         if len(d) == 10 and d[4] == '-' and d[7] == '-':
             full = os.path.join(base_dir, d)
             if os.path.isdir(full):
-                # Must have at least sst_raw.nc
                 if os.path.exists(os.path.join(full, "sst_raw.nc")):
                     dirs.append((d, full))
     return dirs
 
 
-def rescore_dir(date_str, dir_path, bbox, bathy_tif_fallback=None):
-    """Rescore a single directory. Returns (zone_max, zone_mean, zone_median, cells, var_scores) or None."""
-    import marlin_data
+def _rescore_worker(args):
+    """Worker: rescore a single date in its own process."""
+    sys.stdout = open(os.devnull, "w")
+    sys.stderr = open(os.devnull, "w")
 
-    marlin_data.OUTPUT_DIR = dir_path
+    kind, date_str, dir_path, bbox, bathy_fallback, script_dir = args
 
-    # Ensure bathymetry is available
-    local_tif = os.path.join(dir_path, "bathy_gmrt.tif")
-    if not os.path.exists(local_tif) and bathy_tif_fallback and os.path.exists(bathy_tif_fallback):
-        shutil.copy2(bathy_tif_fallback, local_tif)
+    try:
+        if script_dir not in sys.path:
+            sys.path.insert(0, script_dir)
+        import marlin_data
 
-    tif = local_tif if os.path.exists(local_tif) else None
+        marlin_data.OUTPUT_DIR = dir_path
 
-    # Generate SSTA contours
-    sst_file = os.path.join(dir_path, "sst_raw.nc")
-    if os.path.exists(sst_file):
+        local_tif = os.path.join(dir_path, "bathy_gmrt.tif")
+        if not os.path.exists(local_tif) and bathy_fallback and os.path.exists(bathy_fallback):
+            shutil.copy2(bathy_fallback, local_tif)
+
+        tif = local_tif if os.path.exists(local_tif) else None
+
+        # SSTA contours
+        sst_file = os.path.join(dir_path, "sst_raw.nc")
+        if os.path.exists(sst_file):
+            try:
+                marlin_data.generate_ssta_contours(sst_file, date_str)
+            except Exception:
+                pass
+
+        # Blue marlin hotspots
+        result = marlin_data.generate_blue_marlin_hotspots(bbox, tif_path=tif, date_str=date_str)
+        if result is None:
+            return {'kind': kind, 'date': date_str, 'status': 'skip'}
+
+        # Spanish Mackerel
         try:
-            marlin_data.generate_ssta_contours(sst_file, date_str)
-        except Exception as e:
-            pass  # SSTA is optional
+            from species.spanish_mackerel import generate_spanish_mackerel_hotspots
+            generate_spanish_mackerel_hotspots(bbox, tif_path=tif, date_str=date_str, output_dir=dir_path)
+        except Exception:
+            pass
 
-    # Generate hotspots
-    result = marlin_data.generate_blue_marlin_hotspots(bbox, tif_path=tif, date_str=date_str)
-    if result is None:
-        return None
+        # SBT
+        try:
+            from species.southern_bluefin_tuna import generate_sbt_hotspots
+            generate_sbt_hotspots(bbox, tif_path=tif, date_str=date_str, output_dir=dir_path)
+        except Exception:
+            pass
 
-    # Generate Spanish Mackerel hotspots
-    try:
-        from species.spanish_mackerel import generate_spanish_mackerel_hotspots
-        generate_spanish_mackerel_hotspots(
-            bbox, tif_path=tif, date_str=date_str,
-            output_dir=dir_path)
+        stats = compute_zone_stats(result["grid"], result["lats"], result["lons"])
+        var_scores = {}
+        if result.get("sub_scores") and result.get("weights"):
+            var_scores = compute_zone_subscores(
+                result["sub_scores"], result["weights"],
+                result["lats"], result["lons"])
+        sz_scores = compute_subzone_stats(result["grid"], result["lats"], result["lons"])
+        var_scores.update(sz_scores)
+
+        return {
+            'kind': kind, 'date': date_str, 'status': 'ok',
+            'zone_max': stats[0], 'zone_mean': stats[1],
+            'zone_median': stats[2], 'cells': stats[3],
+            'var_scores': var_scores,
+        }
+
     except Exception as e:
-        pass  # SM scoring is optional during rescore
-
-    # Generate SBT hotspots
-    try:
-        from species.southern_bluefin_tuna import generate_sbt_hotspots
-        generate_sbt_hotspots(
-            bbox, tif_path=tif, date_str=date_str,
-            output_dir=dir_path)
-    except Exception as e:
-        pass  # SBT scoring is optional during rescore
-
-    stats = compute_zone_stats(result["grid"], result["lats"], result["lons"])
-    var_scores = {}
-    if result.get("sub_scores") and result.get("weights"):
-        var_scores = compute_zone_subscores(
-            result["sub_scores"], result["weights"],
-            result["lats"], result["lons"])
-    sz_scores = compute_subzone_stats(result["grid"], result["lats"], result["lons"])
-    var_scores.update(sz_scores)
-
-    return stats[0], stats[1], stats[2], stats[3], var_scores
+        return {'kind': kind, 'date': date_str, 'status': 'fail', 'error': str(e)}
 
 
 def main():
@@ -166,6 +176,7 @@ def main():
     parser.add_argument("--obs-only", action="store_true", help="Only rescore observation dirs")
     parser.add_argument("--bt-only", action="store_true", help="Only rescore backtest dirs")
     parser.add_argument("--pred-only", action="store_true", help="Only rescore prediction dirs")
+    parser.add_argument("--workers", type=int, default=N_WORKERS, help=f"Parallel workers (default {N_WORKERS})")
     args = parser.parse_args()
 
     import marlin_data
@@ -175,7 +186,6 @@ def main():
     bt_dir = os.path.join(SCRIPT_DIR, "data", "backtest")
     pred_dir = os.path.join(SCRIPT_DIR, "data", "prediction")
 
-    # Find a shared bathymetry file
     bathy_fallback = None
     for candidate in [
         os.path.join(bt_dir, "bathy_gmrt.tif"),
@@ -185,77 +195,75 @@ def main():
             bathy_fallback = candidate
             break
 
-    # Determine which sets to process (default: all)
     do_obs = not args.bt_only and not args.pred_only
     do_bt = not args.obs_only and not args.pred_only
     do_pred = not args.obs_only and not args.bt_only
 
-    dirs_to_process = []
+    work_items = []
     if do_obs:
-        obs_dirs = find_dated_dirs(obs_dir)
-        dirs_to_process.extend(("obs", d, p) for d, p in obs_dirs)
+        for d, p in find_dated_dirs(obs_dir):
+            work_items.append(("obs", d, p, bbox, bathy_fallback, SCRIPT_DIR))
     if do_bt:
-        bt_dirs = find_dated_dirs(bt_dir)
-        dirs_to_process.extend(("bt", d, p) for d, p in bt_dirs)
+        for d, p in find_dated_dirs(bt_dir):
+            work_items.append(("bt", d, p, bbox, bathy_fallback, SCRIPT_DIR))
     if do_pred:
-        pred_dirs = find_dated_dirs(pred_dir)
-        dirs_to_process.extend(("pred", d, p) for d, p in pred_dirs)
+        for d, p in find_dated_dirs(pred_dir):
+            work_items.append(("pred", d, p, bbox, bathy_fallback, SCRIPT_DIR))
 
-    total = len(dirs_to_process)
-    print(f"Rescoring {total} directories with current weights")
-    print(f"Weights: {marlin_data.BLUE_MARLIN_WEIGHTS}")
-    print()
+    total = len(work_items)
+    n_workers = min(args.workers, total)
+    print(f"Rescoring {total} directories with {n_workers} workers", flush=True)
+    print(f"Weights: {marlin_data.BLUE_MARLIN_WEIGHTS}", flush=True)
+    print(flush=True)
 
     bt_results = []
     succeeded = 0
     failed = 0
     t0 = time.time()
+    completed = 0
 
-    for i, (kind, date_str, dir_path) in enumerate(dirs_to_process):
-        tag = {"obs": "OBS", "bt": " BT", "pred": "PRD"}[kind]
-        print(f"[{i+1}/{total}] [{tag}] {date_str} ... ", end="", flush=True)
+    ctx = multiprocessing.get_context("spawn")
+    with ProcessPoolExecutor(max_workers=n_workers, mp_context=ctx) as pool:
+        futures = {pool.submit(_rescore_worker, item): item for item in work_items}
+        for future in as_completed(futures):
+            completed += 1
+            r = future.result()
+            tag = {"obs": "OBS", "bt": " BT", "pred": "PRD"}[r['kind']]
 
-        try:
-            result = rescore_dir(date_str, dir_path, bbox, bathy_fallback)
-        except Exception as e:
-            print(f"FAILED: {e}")
-            failed += 1
-            continue
+            if r['status'] == 'ok':
+                succeeded += 1
+                print(f"[{completed}/{total}] [{tag}] {r['date']} "
+                      f"max={r['zone_max']}% mean={r['zone_mean']}% ({r['cells']} cells)", flush=True)
 
-        if result is None:
-            print("SKIP (no SST)")
-            failed += 1
-            continue
-
-        zone_max, zone_mean, zone_median, cells, var_scores = result
-        print(f"max={zone_max}% mean={zone_mean}% ({cells} cells)")
-        succeeded += 1
-
-        # Collect backtest results
-        if kind == "bt":
-            dt = datetime.strptime(date_str, "%Y-%m-%d")
-            entry = {
-                "date": date_str,
-                "day_name": dt.strftime("%A"),
-                "month": dt.strftime("%B"),
-                "zone_max": zone_max,
-                "zone_mean": zone_mean,
-                "zone_median": zone_median,
-                "zone_cells": cells,
-            }
-            if var_scores:
-                entry.update(var_scores)
-            bt_results.append(entry)
+                if r['kind'] == 'bt':
+                    dt = datetime.strptime(r['date'], "%Y-%m-%d")
+                    entry = {
+                        "date": r['date'],
+                        "day_name": dt.strftime("%A"),
+                        "month": dt.strftime("%B"),
+                        "zone_max": r['zone_max'],
+                        "zone_mean": r['zone_mean'],
+                        "zone_median": r['zone_median'],
+                        "zone_cells": r['cells'],
+                    }
+                    if r.get('var_scores'):
+                        entry.update(r['var_scores'])
+                    bt_results.append(entry)
+            elif r['status'] == 'skip':
+                failed += 1
+                print(f"[{completed}/{total}] [{tag}] {r['date']} SKIP", flush=True)
+            else:
+                failed += 1
+                print(f"[{completed}/{total}] [{tag}] {r['date']} FAILED: {r.get('error', '?')}", flush=True)
 
     elapsed = time.time() - t0
     print(f"\nDone: {succeeded} succeeded, {failed} failed in {elapsed:.0f}s")
 
-    # Update backtest_results.json
     if bt_results:
         bt_results.sort(key=lambda x: x["date"])
         output_file = os.path.join(bt_dir, "backtest_results.json")
         out = {
-            "description": "Blue marlin habitat backtest — zone scores for Accessible Trench Zone",
+            "description": "Blue marlin habitat backtest - zone scores for Accessible Trench Zone",
             "zone": {"lon_min": ZONE_W, "lon_max": ZONE_E, "lat_min": ZONE_S, "lat_max": ZONE_N},
             "weights": dict(marlin_data.BLUE_MARLIN_WEIGHTS),
             "rescored": datetime.now().strftime("%Y-%m-%d %H:%M"),
@@ -265,12 +273,11 @@ def main():
             json.dump(out, f, indent=2)
         print(f"Updated {output_file} ({len(bt_results)} entries)")
 
-    # Regenerate forecast summary if prediction GeoJSONs were rescored
     if do_pred:
         summary_script = os.path.join(SCRIPT_DIR, "generate_forecast_summary.py")
         if os.path.exists(summary_script):
             print("\nRegenerating forecast summary...")
-            import subprocess, sys
+            import subprocess
             result = subprocess.run(
                 [sys.executable, summary_script],
                 cwd=SCRIPT_DIR, capture_output=True, text=True, timeout=60,

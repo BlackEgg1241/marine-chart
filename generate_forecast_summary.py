@@ -12,7 +12,7 @@ ZONE_E = 115.3333
 ZONE_S = -32.1667
 ZONE_N = -31.7287
 
-# Sub-zones based on GPS catch clustering analysis (45 blue marlin catches):
+# Sub-zones based on GPS catch clustering analysis:
 # - 47% of catches in SE quadrant (PGFC/Club Marine area)
 # - Early season (Jan-Feb) catches 2.7nm further north/west (Canyon Head area)
 # - Late season (Mar-Apr) catches shift SE toward PGFC
@@ -248,105 +248,110 @@ for sz_key, sz in SUB_ZONES.items():
         }
     })
 
-# Load prediction results
-pred_path = "data/prediction/prediction_results.json"
-with open(pred_path) as f:
-    pred = json.load(f)
+def main():
+    # Load prediction results
+    pred_path = "data/prediction/prediction_results.json"
+    with open(pred_path) as f:
+        pred = json.load(f)
 
-summary = {
-    "generated": pred["generated"],
-    "zone_bounds": [ZONE_W, ZONE_S, ZONE_E, ZONE_N],
-    "days": []
-}
-
-for p in pred["predictions"]:
-    date = p["date"]
-    hs_path = f"data/prediction/{date}/blue_marlin_hotspots.geojson"
-    day = {
-        "date": date,
-        "model_score": p["score"],
-        "label": p["label"],
-        "top_params": p.get("top_params", {}),
-        "bottom_params": p.get("bottom_params", {})
+    summary = {
+        "generated": pred["generated"],
+        "zone_bounds": [ZONE_W, ZONE_S, ZONE_E, ZONE_N],
+        "days": []
     }
-    if os.path.exists(hs_path):
-        with open(hs_path) as f:
-            hs = json.load(f)
-        zone_max = 0
-        zone_vals = []
-        for feat in hs["features"]:
-            rings = feat["geometry"]["coordinates"]
-            if poly_intersects_zone(rings[0]):
-                v = feat["properties"]["intensity"]
-                zone_vals.append(v)
-                zone_max = max(zone_max, v)
-        day["zone_max"] = round(zone_max * 100, 1)
-        day["zone_mean"] = round((sum(zone_vals) / len(zone_vals) * 100), 1) if zone_vals else 0
-        day["zone_cells"] = len(zone_vals)
-        # Sub-zone scoring: prefer raw grid scores (fine-grained), fallback to polygon
-        sz_path = f"data/prediction/{date}/subzone_scores.json"
-        if os.path.exists(sz_path):
-            with open(sz_path) as f:
-                day["subzones"] = json.load(f)
-        else:
-            day["subzones"] = score_subzones(hs["features"])
-    else:
-        day["zone_max"] = None
-        day["zone_mean"] = None
-        day["zone_cells"] = 0
-        day["subzones"] = {}
-    # Eddy proximity analysis
-    eddy = analyze_eddy_proximity(date)
-    if eddy:
-        day["eddy"] = eddy
-        eddy_str = f"  eddy: {eddy['status']}"
-        if eddy.get("distance_nm") and eddy["distance_nm"] > 0:
-            eddy_str += f" ({eddy['distance_nm']}nm)"
-    else:
-        eddy_str = ""
 
-    summary["days"].append(day)
-    sz_str = ""
-    if day.get("subzones"):
-        sz_parts = [f"{k}={v['max']}%" for k, v in day["subzones"].items() if v["cells"] > 0]
-        if sz_parts:
-            sz_str = f"  sub: {', '.join(sz_parts)}"
-    print(f"{date}: model={p['score']}%  zone_max={day['zone_max']}%  zone_mean={day.get('zone_mean')}%  cells={day['zone_cells']}{sz_str}{eddy_str}")
-
-# Compute eddy movement trends between consecutive days
-prev_eddy = None
-for day in summary["days"]:
-    eddy = day.get("eddy")
-    if eddy and prev_eddy:
-        d_now = eddy.get("distance_nm")
-        d_prev = prev_eddy.get("distance_nm")
-        if d_now is not None and d_prev is not None and d_prev > 0:
-            delta = d_now - d_prev
-            eddy["distance_change_nm"] = round(delta, 1)
-            if delta < -5:
-                eddy["movement"] = "APPROACHING"
-            elif delta > 5:
-                eddy["movement"] = "DEPARTING"
+    for p in pred["predictions"]:
+        date = p["date"]
+        hs_path = f"data/prediction/{date}/blue_marlin_hotspots.geojson"
+        day = {
+            "date": date,
+            "model_score": p["score"],
+            "label": p["label"],
+            "top_params": p.get("top_params", {}),
+            "bottom_params": p.get("bottom_params", {})
+        }
+        if os.path.exists(hs_path):
+            with open(hs_path) as f:
+                hs = json.load(f)
+            zone_max = 0
+            zone_vals = []
+            for feat in hs["features"]:
+                rings = feat["geometry"]["coordinates"]
+                if poly_intersects_zone(rings[0]):
+                    v = feat["properties"]["intensity"]
+                    zone_vals.append(v)
+                    zone_max = max(zone_max, v)
+            day["zone_max"] = round(zone_max * 100, 1)
+            day["zone_mean"] = round((sum(zone_vals) / len(zone_vals) * 100), 1) if zone_vals else 0
+            day["zone_cells"] = len(zone_vals)
+            # Sub-zone scoring: prefer raw grid scores (fine-grained), fallback to polygon
+            sz_path = f"data/prediction/{date}/subzone_scores.json"
+            if os.path.exists(sz_path):
+                with open(sz_path) as f:
+                    day["subzones"] = json.load(f)
             else:
-                eddy["movement"] = "STATIONARY"
-    prev_eddy = eddy
+                day["subzones"] = score_subzones(hs["features"])
+        else:
+            day["zone_max"] = None
+            day["zone_mean"] = None
+            day["zone_cells"] = 0
+            day["subzones"] = {}
+        # Eddy proximity analysis
+        eddy = analyze_eddy_proximity(date)
+        if eddy:
+            day["eddy"] = eddy
+            eddy_str = f"  eddy: {eddy['status']}"
+            if eddy.get("distance_nm") and eddy["distance_nm"] > 0:
+                eddy_str += f" ({eddy['distance_nm']}nm)"
+        else:
+            eddy_str = ""
 
-# Print eddy movement summary
-eddy_days = [d for d in summary["days"] if d.get("eddy")]
-if eddy_days:
-    print(f"\nEddy Proximity Forecast:")
-    for d in eddy_days:
-        e = d["eddy"]
-        dist_str = f"{e['distance_nm']}nm" if e.get("distance_nm") and e["distance_nm"] > 0 else "IN ZONE"
-        move_str = f" [{e['movement']}]" if e.get("movement") else ""
-        delta_str = f" ({e['distance_change_nm']:+.0f}nm/day)" if e.get("distance_change_nm") is not None else ""
-        print(f"  {d['date']}: {e['status']}  dist={dist_str}{delta_str}{move_str}")
+        summary["days"].append(day)
+        sz_str = ""
+        if day.get("subzones"):
+            sz_parts = [f"{k}={v['max']}%" for k, v in day["subzones"].items() if v["cells"] > 0]
+            if sz_parts:
+                sz_str = f"  sub: {', '.join(sz_parts)}"
+        print(f"{date}: model={p['score']}%  zone_max={day['zone_max']}%  zone_mean={day.get('zone_mean')}%  cells={day['zone_cells']}{sz_str}{eddy_str}")
 
-# Write outputs
-os.makedirs("data/prediction", exist_ok=True)
-with open("data/prediction/forecast_zone.geojson", "w") as f:
-    json.dump(zone_geojson, f)
-with open("data/prediction/forecast_summary.json", "w") as f:
-    json.dump(summary, f, indent=2)
+    # Compute eddy movement trends between consecutive days
+    prev_eddy = None
+    for day in summary["days"]:
+        eddy = day.get("eddy")
+        if eddy and prev_eddy:
+            d_now = eddy.get("distance_nm")
+            d_prev = prev_eddy.get("distance_nm")
+            if d_now is not None and d_prev is not None and d_prev > 0:
+                delta = d_now - d_prev
+                eddy["distance_change_nm"] = round(delta, 1)
+                if delta < -5:
+                    eddy["movement"] = "APPROACHING"
+                elif delta > 5:
+                    eddy["movement"] = "DEPARTING"
+                else:
+                    eddy["movement"] = "STATIONARY"
+        prev_eddy = eddy
 
-print(f"\nWrote forecast_zone.geojson and forecast_summary.json")
+    # Print eddy movement summary
+    eddy_days = [d for d in summary["days"] if d.get("eddy")]
+    if eddy_days:
+        print(f"\nEddy Proximity Forecast:")
+        for d in eddy_days:
+            e = d["eddy"]
+            dist_str = f"{e['distance_nm']}nm" if e.get("distance_nm") and e["distance_nm"] > 0 else "IN ZONE"
+            move_str = f" [{e['movement']}]" if e.get("movement") else ""
+            delta_str = f" ({e['distance_change_nm']:+.0f}nm/day)" if e.get("distance_change_nm") is not None else ""
+            print(f"  {d['date']}: {e['status']}  dist={dist_str}{delta_str}{move_str}")
+
+    # Write outputs
+    os.makedirs("data/prediction", exist_ok=True)
+    with open("data/prediction/forecast_zone.geojson", "w") as f:
+        json.dump(zone_geojson, f)
+    with open("data/prediction/forecast_summary.json", "w") as f:
+        json.dump(summary, f, indent=2)
+
+    print(f"\nWrote forecast_zone.geojson and forecast_summary.json")
+
+
+if __name__ == "__main__":
+    main()

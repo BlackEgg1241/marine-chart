@@ -445,6 +445,83 @@ def fetch_copernicus_oxygen(date_str, bbox):
     return None
 
 
+def fetch_copernicus_salinity(date_str, bbox):
+    """Download surface salinity from CMEMS physics model.
+    The Leeuwin Current carries distinctively low-salinity tropical water (~34.5-35 PSU)
+    vs surrounding Indian Ocean (~35.5-36 PSU). In summer, SST fronts can be masked by
+    solar heating, but salinity (halocline) remains a reliable current boundary marker."""
+    import copernicusmarine
+
+    output_file = os.path.join(OUTPUT_DIR, "salinity_raw.nc")
+
+    for ds_id in [
+        "cmems_mod_glo_phy_anfc_0.083deg_P1D-m",
+        "cmems_mod_glo_phy_my_0.083deg_P1D-m",
+    ]:
+        try:
+            print(f"[Salinity] Fetching surface salinity for {date_str}...")
+            copernicusmarine.subset(
+                dataset_id=ds_id,
+                variables=["so"],
+                minimum_longitude=bbox["lon_min"],
+                maximum_longitude=bbox["lon_max"],
+                minimum_latitude=bbox["lat_min"],
+                maximum_latitude=bbox["lat_max"],
+                start_datetime=f"{date_str}T00:00:00",
+                end_datetime=f"{date_str}T23:59:59",
+                minimum_depth=0, maximum_depth=1,
+                output_filename=output_file,
+                output_directory=".",
+                overwrite=True,
+            )
+            print(f"[Salinity] Saved to {output_file}")
+            return output_file
+        except Exception as e:
+            print(f"[Salinity] {ds_id} failed: {str(e)[:60]}")
+            continue
+
+    print(f"[Salinity] No salinity data available for {date_str}")
+    return None
+
+
+def fetch_copernicus_subsurface_temp(date_str, bbox):
+    """Download subsurface temperature at 200-250m from CMEMS physics model.
+    Doming isotherms at 250m reveal canyon-driven upwelling structure. The target
+    signature is warm surface (LC cap) + cold lifted basement = productive biology."""
+    import copernicusmarine
+
+    output_file = os.path.join(OUTPUT_DIR, "subsurface_temp_raw.nc")
+
+    for ds_id in [
+        "cmems_mod_glo_phy_anfc_0.083deg_P1D-m",
+        "cmems_mod_glo_phy_my_0.083deg_P1D-m",
+    ]:
+        try:
+            print(f"[SubsurfaceTemp] Fetching thetao at 200-250m for {date_str}...")
+            copernicusmarine.subset(
+                dataset_id=ds_id,
+                variables=["thetao"],
+                minimum_longitude=bbox["lon_min"],
+                maximum_longitude=bbox["lon_max"],
+                minimum_latitude=bbox["lat_min"],
+                maximum_latitude=bbox["lat_max"],
+                start_datetime=f"{date_str}T00:00:00",
+                end_datetime=f"{date_str}T23:59:59",
+                minimum_depth=200, maximum_depth=260,
+                output_filename=output_file,
+                output_directory=".",
+                overwrite=True,
+            )
+            print(f"[SubsurfaceTemp] Saved to {output_file}")
+            return output_file
+        except Exception as e:
+            print(f"[SubsurfaceTemp] {ds_id} failed: {str(e)[:60]}")
+            continue
+
+    print(f"[SubsurfaceTemp] No subsurface temp data available for {date_str}")
+    return None
+
+
 # ---------------------------------------------------------------------------
 # 2. SST Front Detection
 # ---------------------------------------------------------------------------
@@ -687,27 +764,36 @@ def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None, tif_
 # Composite score 0–1 per grid cell based on all available ocean variables.
 # Weights reflect relative importance for blue marlin habitat selection.
 BLUE_MARLIN_WEIGHTS = {
-    # Rebalanced from Optuna v4 using catch-vs-control discrimination analysis.
-    # Optuna over-weighted current (high everywhere in summer, +5% discrim) at
-    # expense of SSH (+32% discrim), MLD (+12%), CHL (+8%). Redistributed to
-    # features that actually separate catch days from non-catch days.
-    "sst":           0.17,  # SST — primary habitat driver
-    "sst_front":     0.10,  # SST gradient — prey aggregation at fronts
-    "front_corridor":0.06,  # SST front corridors — narrow front pinch points
-    "sst_intrusion": 0.01,  # Cross-shelf SST gradient — Leeuwin Current
-    "chl":           0.13,  # Chlorophyll — bait productivity indicator
-    "chl_curvature": 0.02,  # CHL pockets/peninsulas — dynamic mixing zones
-    "ssh":           0.19,  # Sea level anomaly — best catch discriminator (+32%)
-    "current":       0.04,  # Current favorability — uniformly high in summer, halved
-    "convergence":   0.04,  # Current convergence — bait aggregation
-    "mld":           0.08,  # Mixed layer depth — uniformly shallow in summer, halved
-    "o2":            0.00,  # Dissolved oxygen — removed (0.25° too coarse, always >220 mmol/m³ off Perth)
-    "clarity":       0.01,  # Water clarity (near-1.0 in summer, minimal discrimination)
-    "ssta":          0.00,  # SST anomaly — no discrimination (69% of catches in cool anomaly)
+    # Optuna v19b (400 trials, obj=28.3). Weights normalized to sum=1.0.
+    "sst":           0.059,  # SST Gaussian
+    "sst_front":     0.088,  # SST front gradient
+    "front_corridor":0.118,  # SST front corridors
+    "chl":           0.029,  # Chlorophyll
+    "chl_curvature": 0.235,  # CHL curvature (edge-scored)
+    "ssh":           0.059,  # Sea level anomaly
+    "current_shear": 0.039,  # Vorticity shear (edge-scored)
+    "upwelling_edge":0.039,  # Canyon upwelling boundaries (edge-scored)
+    "salinity_front":0.157,  # Halocline gradient
+    "okubo_weiss":   0.098,  # Strain vs rotation (edge-scored)
+    "shelf_break":   0.00,   # Optuna dropped
+    # Active minor features:
+    "sst_intrusion": 0.00,
+    "sst_chl_bivariate": 0.00,
+    "current":       0.010,  # Ocean current speed/direction
+    "convergence":   0.00,
+    "ftle":          0.020,  # Lagrangian coherent structures
+    "vertical_velocity": 0.049,  # Derived vertical velocity
+    "mld":           0.00,
+    "o2":            0.00,
+    "clarity":       0.00,
+    "ssta":          0.00,
+    "rugosity":      0.00,
+    "sst_roc":       0.00,
+    "thermocline_lift": 0.00,
+    "stratification": 0.00,
     # Static factors applied as MULTIPLIERS, not additive:
     # depth:       0->1 gate (zero if <100m)
-    # shelf_break: 1.0->1.60 boost (canyon walls get up to +60%)
-    # feature_bands: multiplicative overlap boost where 2+ feature bands intersect
+    # shelf_break: ALSO multiplicative boost (hybrid: additive + multiplicative)
 }
 
 # Intensity bands for contourf polygon export
@@ -718,7 +804,9 @@ BLUE_MARLIN_WEIGHTS = {
 # Visual band breaks — floor at 0.65 so background ocean stays transparent
 # and only elevated zones (feature intersections, shelf break) render.
 # Finer spacing in 0.80–0.98 for contrast within hot zones.
-HOTSPOT_BANDS = [0.25, 0.32, 0.39, 0.46, 0.53, 0.60, 0.67, 0.74, 0.80, 0.85, 0.90, 0.95]
+# Display floor raised to 0.70 — below this is "background" ocean, not actionable.
+# 2% bands 70-80%, 1% bands above 80% where the real discrimination happens.
+HOTSPOT_BANDS = [0.70, 0.72, 0.74, 0.76, 0.78, 0.80, 0.81, 0.82, 0.83, 0.84, 0.85, 0.86, 0.87, 0.88, 0.89, 0.90, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97]
 
 
 def compute_ssta(sst_grid, lats, lons, date_str, clim_path="data/sst_climatology.nc"):
@@ -813,6 +901,146 @@ def generate_ssta_contours(sst_file, date_str, clim_path="data/sst_climatology.n
     return output_path
 
 
+def compute_ftle(date_str, bbox, window_days=3):
+    """Compute Finite-Time Lyapunov Exponents from multi-day velocity data.
+    FTLE identifies Lagrangian Coherent Structures — transport barriers where
+    baitfish passively accumulate. High FTLE ridges mark boundaries between
+    water masses that separate or converge over the integration window.
+
+    Requires current data for date_str and window_days-1 preceding days.
+    Returns (ftle_field, lons, lats) or None if insufficient data.
+    """
+    import xarray as xr
+    from scipy.interpolate import RegularGridInterpolator
+    from datetime import datetime, timedelta
+
+    target = datetime.strptime(date_str, "%Y-%m-%d")
+    # OUTPUT_DIR is e.g. "data/2000-04-23" — go up to "data/" to find sibling dates
+    data_dir = os.path.dirname(OUTPUT_DIR) or "data"
+
+    # Collect velocity fields for the integration window
+    u_fields = []
+    v_fields = []
+    dates = []
+    for d in range(window_days):
+        dt = target - timedelta(days=window_days - 1 - d)
+        ds = dt.strftime("%Y-%m-%d")
+        # Check multiple possible locations for current data
+        for base in [
+            os.path.join(data_dir, ds),
+            os.path.join(data_dir, "lookback", ds),
+            os.path.join(data_dir, "backtest", ds),
+        ]:
+            cur_file = os.path.join(base, "currents_raw.nc")
+            if os.path.exists(cur_file):
+                try:
+                    cds = xr.open_dataset(cur_file)
+                    uo = cds["uo"]
+                    vo = cds["vo"]
+                    if "depth" in uo.dims and uo.sizes["depth"] > 1:
+                        uo = uo.isel(depth=0)
+                        vo = vo.isel(depth=0)
+                    uo = uo.squeeze()
+                    vo = vo.squeeze()
+                    c_lons = uo.longitude.values if "longitude" in uo.dims else uo.lon.values
+                    c_lats = uo.latitude.values if "latitude" in uo.dims else uo.lat.values
+                    u_fields.append((uo.values.astype(float), c_lons, c_lats))
+                    v_fields.append((vo.values.astype(float), c_lons, c_lats))
+                    dates.append(ds)
+                    cds.close()
+                except Exception:
+                    pass
+                break
+
+    if len(u_fields) < 2:
+        return None
+
+    # Use the first day's grid as reference
+    ref_lons = u_fields[0][1]
+    ref_lats = u_fields[0][2]
+    n_lat, n_lon = u_fields[0][0].shape
+
+    # Build velocity interpolators for each day
+    u_interps = []
+    v_interps = []
+    for (u_data, u_lons, u_lats), (v_data, v_lons, v_lats) in zip(u_fields, v_fields):
+        u_filled = np.where(np.isnan(u_data), 0, u_data)
+        v_filled = np.where(np.isnan(v_data), 0, v_data)
+        u_interps.append(RegularGridInterpolator(
+            (u_lats, u_lons), u_filled, method="linear",
+            bounds_error=False, fill_value=0))
+        v_interps.append(RegularGridInterpolator(
+            (v_lats, v_lons), v_filled, method="linear",
+            bounds_error=False, fill_value=0))
+
+    # Seed particles on the reference grid
+    lat_grid, lon_grid = np.meshgrid(ref_lats, ref_lons, indexing="ij")
+    x0 = lon_grid.copy()
+    y0 = lat_grid.copy()
+    x = x0.copy()
+    y = y0.copy()
+
+    # Integration: forward advection using RK4
+    # dt in seconds (1 day), n_steps = window_days
+    dt_sec = 86400.0
+    m_per_deg_lat = 111320.0
+    cos_lat = np.cos(np.radians(np.mean(ref_lats)))
+    m_per_deg_lon = 111320.0 * cos_lat
+
+    n_steps = len(u_fields) - 1
+    for step in range(n_steps):
+        # Time fraction for interpolating between daily velocity snapshots
+        u_interp = u_interps[step]
+        v_interp = v_interps[step]
+        u_next = u_interps[min(step + 1, len(u_interps) - 1)]
+        v_next = v_interps[min(step + 1, len(v_interps) - 1)]
+
+        def _vel(px, py, u_int, v_int):
+            pts = np.column_stack([py.ravel(), px.ravel()])
+            u = u_int(pts).reshape(px.shape) / m_per_deg_lon
+            v = v_int(pts).reshape(px.shape) / m_per_deg_lat
+            return u, v  # degrees/second
+
+        # RK4 integration
+        k1u, k1v = _vel(x, y, u_interp, v_interp)
+        k2u, k2v = _vel(x + 0.5*dt_sec*k1u, y + 0.5*dt_sec*k1v, u_interp, v_interp)
+        k3u, k3v = _vel(x + 0.5*dt_sec*k2u, y + 0.5*dt_sec*k2v, u_next, v_next)
+        k4u, k4v = _vel(x + dt_sec*k3u, y + dt_sec*k3v, u_next, v_next)
+        x += dt_sec / 6.0 * (k1u + 2*k2u + 2*k3u + k4u)
+        y += dt_sec / 6.0 * (k1v + 2*k2v + 2*k3v + k4v)
+
+    # Compute deformation gradient tensor and FTLE
+    # dx_f/dx_0, dx_f/dy_0, dy_f/dx_0, dy_f/dy_0
+    dx = x - x0
+    dy = y - y0
+    # Finite differences for the deformation gradient
+    dxdx = np.gradient(dx, axis=1) + 1.0  # +1 for identity
+    dxdy = np.gradient(dx, axis=0)
+    dydx = np.gradient(dy, axis=1)
+    dydy = np.gradient(dy, axis=0) + 1.0
+
+    # Cauchy-Green strain tensor eigenvalues
+    # C = F^T * F, lambda_max = max eigenvalue
+    a = dxdx**2 + dydx**2
+    b = dxdx * dxdy + dydx * dydy
+    c = dxdy**2 + dydy**2
+    # Max eigenvalue of 2x2 symmetric matrix
+    trace = a + c
+    det = a * c - b**2
+    discriminant = np.clip(trace**2 - 4 * det, 0, None)
+    lambda_max = 0.5 * (trace + np.sqrt(discriminant))
+    lambda_max = np.clip(lambda_max, 1.0, None)
+
+    # FTLE = (1/T) * ln(sqrt(lambda_max))
+    T = n_steps * dt_sec
+    ftle = np.log(np.sqrt(lambda_max)) / T
+
+    print(f"[FTLE] Computed from {len(dates)} days of velocity data "
+          f"(max FTLE: {np.nanmax(ftle):.2e})")
+
+    return ftle, ref_lons, ref_lats
+
+
 def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     """
     Build a composite habitat suitability grid for blue marlin by scoring
@@ -846,11 +1074,20 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     lats = sst_da.latitude.values if "latitude" in sst_da.dims else sst_da.lat.values
     sst = _kelvin_to_celsius(sst_da.values.copy().astype(float))
 
+    # Preserve native-resolution data for gradient computation BEFORE upsampling.
+    # Computing Sobel on interpolated data creates artifact edges at the source resolution.
+    # Gradients should be computed at native resolution, then interpolated to master grid.
+    sst_native = sst.copy()
+    lons_native = lons.copy()
+    lats_native = lats.copy()
+    was_upsampled = False
+
     # Upsample coarse grids (>0.05 deg) to ~0.02 deg for finer spatial detail
     # ANFC forecast data is 0.083 deg (~5nm cells) which is too coarse for sub-zone
     # discrimination. Upsampling to 0.02 deg (~1.2nm) matches IMOS observation resolution.
     grid_step = abs(np.diff(lons).mean()) if len(lons) > 1 else 1
     if grid_step > 0.05:
+        was_upsampled = True
         from scipy.interpolate import RegularGridInterpolator as _RGI
         target_step = 0.02
         fine_lons = np.arange(lons.min(), lons.max() + target_step * 0.5, target_step)
@@ -885,10 +1122,13 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         lat_grid, lon_grid = np.meshgrid(lats, lons, indexing="ij")
         return interp((lat_grid, lon_grid))
 
+    _pool_pct = getattr(sys.modules[__name__], '_opt_pool_percentile', 70)
+
     def _maxpool_to_grid(data_hr, hr_lons, hr_lats):
-        """Max-pool a high-res array to the master grid.
-        For each coarse cell, take the max value from all high-res pixels
-        that fall within it. Prevents shelf-edge dilution from linear interp."""
+        """Percentile-pool a high-res array to the master grid.
+        For each coarse cell, take the Nth percentile from all high-res pixels
+        that fall within it. Default 85th — reduces offshore bias from extreme
+        deep-edge pixels while still preserving shelf-edge signal."""
         result = np.zeros((ny, nx))
         dlat = abs(lats[1] - lats[0]) / 2 if ny > 1 else 0.04
         dlon = abs(lons[1] - lons[0]) / 2 if nx > 1 else 0.04
@@ -897,24 +1137,68 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                 b_row = (hr_lats >= lats[yi] - dlat) & (hr_lats <= lats[yi] + dlat)
                 b_col = (hr_lons >= lons[xi] - dlon) & (hr_lons <= lons[xi] + dlon)
                 if np.any(b_row) and np.any(b_col):
-                    result[yi, xi] = np.max(data_hr[np.ix_(b_row, b_col)])
+                    patch = data_hr[np.ix_(b_row, b_col)]
+                    result[yi, xi] = np.percentile(patch, _pool_pct) if _pool_pct < 100 else np.max(patch)
                 else:
                     byi = np.argmin(np.abs(hr_lats - lats[yi]))
                     bxi = np.argmin(np.abs(hr_lons - lons[xi]))
                     result[yi, xi] = data_hr[byi, bxi]
         return result
 
+    def _native_gradient(data_native, src_lons, src_lats, sigma=1.5):
+        """Compute Sobel gradient at native resolution, then interpolate magnitude
+        to master grid. Avoids artifact edges from computing gradients on
+        linearly interpolated data."""
+        filled = data_native.copy()
+        native_land = np.isnan(filled)
+        filled[native_land] = np.nanmean(filled) if np.any(~native_land) else 0
+        smoothed = gaussian_filter(filled, sigma=sigma)
+        gx_n = sobel(smoothed, axis=1)
+        gy_n = sobel(smoothed, axis=0)
+        gmag = np.sqrt(gx_n**2 + gy_n**2)
+        gmag[native_land] = 0
+        # Interpolate gradient magnitude to master grid
+        gmag_master = _interp_to_grid(gmag, src_lons, src_lats)
+        # Also interpolate component vectors for alignment calculations
+        gx_master = _interp_to_grid(gx_n, src_lons, src_lats)
+        gy_master = _interp_to_grid(gy_n, src_lons, src_lats)
+        return gmag_master, gx_master, gy_master
+
+    # Value-space edge scoring: Gaussian centered on a "sweet spot" value.
+    # Catches cluster at feature EDGES (not peaks), so we score proximity to
+    # a calibrated center value with configurable width.
+    EDGE_FEATURES = {"okubo_weiss", "upwelling_edge",
+                     "current_shear", "chl_curvature"}
+    EDGE_DEFAULTS = {
+        "okubo_weiss":    (1.00, 0.15),
+        "upwelling_edge": (0.25, 0.35),
+        "current_shear":  (0.50, 0.55),
+        "chl_curvature":  (0.85, 0.25),
+    }
+
     def _add_score(name, values, mask=None):
-        """Add a weighted sub-score. Values should be 0–1."""
+        """Add a weighted sub-score. Values should be 0–1.
+        Edge features get value-space Gaussian transform before weighting."""
         w = BLUE_MARLIN_WEIGHTS.get(name, 0)
         if w == 0:
+            # Store for diagnostics even at zero weight
+            sub_scores[name] = np.where(np.isnan(values), np.nan, np.clip(values, 0, 1))
             return
         v = np.clip(values, 0, 1)
-        valid = ~np.isnan(v) & ~land
+        if name in EDGE_FEATURES:
+            # Store raw values for diagnostics
+            sub_scores[f"{name}_raw"] = v.copy()
+            # Value-space Gaussian: score peaks at center, decays with width
+            c_default, w_default = EDGE_DEFAULTS[name]
+            center = getattr(sys.modules[__name__], f'_opt_{name}_edge_center', c_default)
+            width = getattr(sys.modules[__name__], f'_opt_{name}_edge_width', w_default)
+            v = np.exp(-0.5 * ((v - center) / max(width, 0.01)) ** 2)
+            v = np.clip(v, 0, 1)
+        valid_cells = ~np.isnan(v) & ~land
         if mask is not None:
-            valid &= ~mask
-        score[valid] += w * v[valid]
-        weight_sum[valid] += w
+            valid_cells &= ~mask
+        score[valid_cells] += w * v[valid_cells]
+        weight_sum[valid_cells] += w
         sub_scores[name] = v.copy()
 
     # 1. SST score — Gaussian centered at optimal temp
@@ -923,8 +1207,8 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     sst_filled[land] = np.nanmean(sst)
     sst_smooth = gaussian_filter(sst_filled, sigma=0.5)
     sst_smooth[land] = np.nan
-    optimal_temp = getattr(sys.modules[__name__], '_opt_sst_optimal', 22.52)
-    sst_sigma = getattr(sys.modules[__name__], '_opt_sst_sigma', 1.88)
+    optimal_temp = getattr(sys.modules[__name__], '_opt_sst_optimal', 23.0)
+    sst_sigma = getattr(sys.modules[__name__], '_opt_sst_sigma', 2.0)
     sst_sigma_above = getattr(sys.modules[__name__], '_opt_sst_sigma_above', 4.0)
     if sst_sigma_above is not None:
         # Asymmetric Gaussian: tighter below optimal (cooling penalty), wider above
@@ -941,22 +1225,34 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
 
     # 2. SST front score — Sobel gradient magnitude, modulated by SST suitability
     #    A front at 20°C is useless for marlin — only score fronts in warm water
-    sst_for_grad = sst_filled.copy()
-    sst_grad = gaussian_filter(sst_for_grad, sigma=1.5)
-    gx = sobel(sst_grad, axis=1)
-    gy = sobel(sst_grad, axis=0)
-    grad_mag = np.sqrt(gx**2 + gy**2)
+    #    Compute gradient at NATIVE resolution to avoid interpolation artifacts,
+    #    then interpolate gradient magnitude to master grid.
     from scipy.ndimage import binary_dilation
     coast_buf = binary_dilation(land, iterations=2)
+    if was_upsampled:
+        grad_mag, gx, gy = _native_gradient(sst_native, lons_native, lats_native, sigma=1.5)
+    else:
+        sst_for_grad = sst_filled.copy()
+        sst_grad = gaussian_filter(sst_for_grad, sigma=1.5)
+        gx = sobel(sst_grad, axis=1)
+        gy = sobel(sst_grad, axis=0)
+        grad_mag = np.sqrt(gx**2 + gy**2)
     grad_mag[coast_buf] = 0
     # Normalize by 90th percentile (robust to outlier pixels, more
     # temporally consistent than max-based normalization)
     ocean_grad = grad_mag[~coast_buf & ~land]
     g90 = np.nanpercentile(ocean_grad, 90) if len(ocean_grad) > 0 else 0
     if g90 > 0:
-        front_score = np.clip(grad_mag / g90, 0, 1)
+        front_raw = np.clip(grad_mag / g90, 0, 1)
     else:
-        front_score = np.zeros_like(grad_mag)
+        front_raw = np.zeros_like(grad_mag)
+    # Edge-hunting: catches sit ADJACENT to SST fronts, not on the sharpest gradient.
+    # Widen the front influence so score bleeds to both sides of the front line.
+    _front_sig = getattr(sys.modules[__name__], '_edge_front_sigma', 3.5)
+    front_widened = gaussian_filter(np.where(np.isnan(front_raw), 0, front_raw), sigma=max(_front_sig, 0.1))
+    fw_ocean = front_widened[~land & ~coast_buf]
+    fw_90 = np.nanpercentile(fw_ocean, 90) if len(fw_ocean) > 0 else 1
+    front_score = np.clip(front_widened / fw_90, 0, 1) if fw_90 > 0 else front_raw
     # Modulate: fronts only count where SST is suitable for marlin
     front_score = front_score * sst_score
     # Floor: warm water (SST score > 0.6) gets minimum front score
@@ -970,7 +1266,8 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     #     Catches often sit inside tight front pockets where gradients converge
     #     from multiple directions. Score cells near fronts from 2+ quadrants.
     try:
-        _corr_thresh = getattr(sys.modules[__name__], '_opt_corridor_thresh', 0.26)
+        _corr_pct = getattr(sys.modules[__name__], '_opt_corridor_pct', 60)
+        _corr_thresh = np.nanpercentile(front_score[~land & ~coast_buf], _corr_pct) if np.any(~land & ~coast_buf) else 0.26
         front_mask = (front_score > _corr_thresh).astype(float)
         front_mask[land | coast_buf] = 0
 
@@ -1050,15 +1347,35 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                     break
             chl_lons = chl_da.longitude.values if "longitude" in chl_da.dims else chl_da.lon.values
             chl_lats = chl_da.latitude.values if "latitude" in chl_da.dims else chl_da.lat.values
-            chl_data = _interp_to_grid(chl_da.values.astype(float), chl_lons, chl_lats)
+            chl_native = chl_da.values.astype(float)  # preserve for native-res gradients
+            chl_data = _interp_to_grid(chl_native, chl_lons, chl_lats)
             chl_grid = chl_data  # save for boundary convergence
             # Peak score at optimal CHL, Gaussian falloff in log space
-            _chl_opt = getattr(sys.modules[__name__], '_opt_chl_optimal', 0.14)
-            _chl_sig = getattr(sys.modules[__name__], '_opt_chl_sigma', 0.20)
+            _chl_opt = getattr(sys.modules[__name__], '_opt_chl_threshold', 0.10)
+            _chl_sig = getattr(sys.modules[__name__], '_opt_chl_sigma', 0.25)
             chl_log = np.log10(np.clip(chl_data, 0.01, 10))
             optimal_chl = np.log10(_chl_opt)
             chl_score = np.exp(-0.5 * ((chl_log - optimal_chl) / _chl_sig) ** 2)
             _add_score("chl", chl_score)
+
+            # 3a2. Bivariate SST-CHL kernel — captures interaction that linear
+            #      sum misses. Warm+barren and cold+productive both score LOW
+            #      in a 2D Gaussian, whereas linear sum scores them MEDIUM.
+            #      Sweet spot: SST 22.2-23.4C + CHL 0.12-0.16 mg/m3 = "clean
+            #      blue water adjacent to upwelling productivity"
+            try:
+                _bv_rho = getattr(sys.modules[__name__], '_opt_bivariate_rho', 0.0)
+                sst_dev = (sst_smooth - optimal_temp) / sst_sigma
+                chl_dev = (chl_log - optimal_chl) / _chl_sig
+                rho = np.clip(_bv_rho, -0.9, 0.9)
+                rho2 = rho ** 2
+                # 2D Gaussian: exp(-0.5/(1-rho^2) * (x^2 + y^2 - 2*rho*x*y))
+                z = (sst_dev**2 + chl_dev**2 - 2 * rho * sst_dev * chl_dev) / (1 - rho2)
+                bivariate_score = np.exp(-0.5 * z)
+                bivariate_score[land] = np.nan
+                _add_score("sst_chl_bivariate", bivariate_score)
+            except Exception as e:
+                print(f"[Hotspots] Bivariate SST-CHL scoring failed: {e}")
 
             # 3b. CHL Curvature — pockets & peninsulas indicate dynamic mixing
             #     High absolute Laplacian = concave/convex CHL features where
@@ -1096,21 +1413,90 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                     bathy[bathy == nd] = np.nan
 
             # Shelf break: Sobel gradient on raw bathy (high res)
+            # Already gradient-based, but catches sit 1.70x gradient lift from peaks —
+            # marlin patrol the EDGE of steep zones, not the steepest point.
+            # Widen influence with gaussian blur so score bleeds outward.
             bathy_filled = bathy.copy()
             bathy_filled[np.isnan(bathy_filled)] = 0
             dgx = sobel(bathy_filled, axis=1)
             dgy = sobel(bathy_filled, axis=0)
             depth_gradient = np.sqrt(dgx**2 + dgy**2)
             depth_gradient[np.isnan(bathy)] = 0
-            # Interpolate gradient to master grid (linear interp is fine for
-            # shelf break — we want the average steepness, not the max)
+            # Interpolate gradient to master grid
             shelf_break = _interp_to_grid(depth_gradient, b_lons, b_lats)
-            shelf_score = np.clip(shelf_break / 100, 0, 1)
+            shelf_raw = np.clip(shelf_break / 100, 0, 1)
+            # Widen: blur the gradient score so high values bleed to adjacent water
+            _shelf_sig = getattr(sys.modules[__name__], '_edge_shelf_sigma', 7.5)
+            shelf_widened = gaussian_filter(np.where(np.isnan(shelf_raw), 0, shelf_raw), sigma=max(_shelf_sig, 0.1))
+            # Renormalize
+            sw_ocean = shelf_widened[~land]
+            sw_90 = np.nanpercentile(sw_ocean, 90) if len(sw_ocean) > 0 else 1
+            shelf_score = np.clip(shelf_widened / sw_90, 0, 1) if sw_90 > 0 else shelf_raw
             shelf_score[land] = np.nan
-            # Store for hover breakdown but don't add to weighted sum
-            sub_scores["shelf_break"] = shelf_score.copy()
+
+            # Proximity-to-shelf-edge complement: catches cluster on the FLAT
+            # shelf lip (median depth 229m, 0.69x Sobel gradient of 5nm offshore).
+            # Blend Sobel gradient with a Gaussian proximity score centered at
+            # the shelf break depth to pull peaks shoreward toward catch locations.
+            depth_master_early = _interp_to_grid(
+                np.where(np.isnan(bathy), 0, -bathy), b_lons, b_lats)
+            _shelf_prox_depth = getattr(sys.modules[__name__], '_shelf_prox_depth', 200)
+            _shelf_prox_sigma = getattr(sys.modules[__name__], '_shelf_prox_sigma', 30)
+            _shelf_prox_blend = getattr(sys.modules[__name__], '_shelf_prox_blend', 0.50)
+            if _shelf_prox_blend > 0:
+                shelf_prox = np.exp(-0.5 * ((depth_master_early - _shelf_prox_depth) / max(_shelf_prox_sigma, 1))**2)
+                shelf_prox[land] = np.nan
+                shelf_score = (1.0 - _shelf_prox_blend) * shelf_score + _shelf_prox_blend * shelf_prox
+
+            # Hybrid: additive component via weighted sum + multiplicative boost later
+            _add_score("shelf_break", shelf_score)
             sb_pct = np.sum(shelf_score[~np.isnan(shelf_score)] > 0.5) / np.sum(~np.isnan(shelf_score)) * 100
             print(f"[Hotspots] Shelf break: {sb_pct:.0f}% of cells >50% (applied as x1.0-1.5 multiplier)")
+
+            # 4b2. Bathymetric Rugosity (VRM) — Vector Ruggedness Measure
+            #      Distinguishes complex rocky holding zones from smooth transit slopes.
+            #      High VRM = rugged terrain where baitfish shelter and predators ambush.
+            #      Computed at native bathy resolution, then interpolated to master grid.
+            try:
+                # Surface normal vectors from slopes (dgx, dgy already computed)
+                # Normal = (-dz/dx, -dz/dy, 1) — normalize to unit vectors
+                norm_mag = np.sqrt(dgx**2 + dgy**2 + 1.0)
+                nx_comp = -dgx / norm_mag
+                ny_comp = -dgy / norm_mag
+                nz_comp = 1.0 / norm_mag
+
+                # VRM: in a moving window, compute resultant vector length
+                # VRM = 1 - (|resultant| / n_cells)
+                _vrm_window = 5  # 5x5 cells at native bathy res
+                from scipy.ndimage import uniform_filter
+                sum_nx = uniform_filter(nx_comp, size=_vrm_window, mode='constant', cval=0)
+                sum_ny = uniform_filter(ny_comp, size=_vrm_window, mode='constant', cval=0)
+                sum_nz = uniform_filter(nz_comp, size=_vrm_window, mode='constant', cval=0)
+                # uniform_filter returns mean, multiply by n_cells to get sum
+                n_cells = _vrm_window ** 2
+                resultant_len = np.sqrt((sum_nx * n_cells)**2 + (sum_ny * n_cells)**2 + (sum_nz * n_cells)**2)
+                vrm_raw = 1.0 - (resultant_len / n_cells)
+                vrm_raw[np.isnan(bathy)] = 0
+
+                # Interpolate to master grid
+                vrm_master = _interp_to_grid(vrm_raw, b_lons, b_lats)
+                # Normalize: 0-1 by 95th percentile (rugosity is rare)
+                vrm_ocean = vrm_master[~land & ~np.isnan(vrm_master)]
+                vrm_95 = np.nanpercentile(vrm_ocean, 95) if len(vrm_ocean) > 0 else 1
+                if vrm_95 > 0:
+                    rugosity_score = np.clip(vrm_master / vrm_95, 0, 1)
+                else:
+                    rugosity_score = np.zeros((ny, nx))
+                # Only meaningful in the 100-500m zone where marlin operate
+                if depth_master_early is not None:
+                    rug_depth_mod = np.clip((depth_master_early - 80) / 70, 0, 1) * np.clip((600 - depth_master_early) / 200, 0, 1)
+                    rugosity_score *= rug_depth_mod
+                rugosity_score[land] = np.nan
+                _add_score("rugosity", rugosity_score)
+                rug_pct = np.sum(rugosity_score[~np.isnan(rugosity_score)] > 0.3) / max(np.sum(~np.isnan(rugosity_score)), 1) * 100
+                print(f"[Hotspots] Rugosity (VRM): {rug_pct:.0f}% of cells in rugged zones")
+            except Exception as e:
+                print(f"[Hotspots] Rugosity scoring failed: {e}")
 
             # 4c. Bathymetry-Feature Alignment — features following canyon walls
             #     When SST fronts or CHL edges align with the bathymetry gradient,
@@ -1151,13 +1537,34 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             # being scored as shallow due to linear interpolation averaging
             # deep water with nearby land/shallow cells.
             abs_depth_hr = np.where(np.isnan(bathy), 0, -bathy)
-            # Depth score: ramp 50-150m, full 150-800m, taper 800-2000m
-            # Catches cluster at median 239m — shift peak zone deeper
-            depth_score_hr = np.where(abs_depth_hr < 50, 0,
-                             np.where(abs_depth_hr < 150, 0.5 + 0.5 * (abs_depth_hr - 50) / 100,
-                             np.where(abs_depth_hr < 800, 1.0,
-                             np.where(abs_depth_hr < 2000, 0.85 + 0.15 * (1.0 - (abs_depth_hr - 800) / 1200),
-                             0.7))))
+            # Depth score: based on catch depth distribution (n=49)
+            # Min=93m, 5th%=108m, 25th%=166m, median=229m, mean=365m
+            # 0 catches <50m, 2 in 50-100m, 5 in 100-150m, 65% in 150-500m
+            # Gate must be gentle since it's multiplicative (harsh penalties cascade).
+            # Key: suppress <80m strongly, ramp 80-200m, full 200m+
+            # 0m-80m:    0.0 (zero catches anywhere near this shallow)
+            # 80-150m:   0.7-0.9 (7 catches in this range, keep viable)
+            # 150-200m:  0.9-1.0 (15 catches, ramp to full)
+            # 200-500m:  1.0 (primary catch zone - 65% of catches)
+            # 500-800m:  1.0-0.80 (catches drop off sharply beyond 500m)
+            # 800-1500m: 0.80-0.55 (very few catches, suppress offshore)
+            # 1500m+:    0.50 (screenshot analysis: red zones extend into
+            #            deep offshore where zero catches occur)
+            _dt_start = getattr(sys.modules[__name__], '_depth_taper_start', 600)
+            _dt_mid = getattr(sys.modules[__name__], '_depth_taper_mid', 500)
+            _dt_floor = getattr(sys.modules[__name__], '_depth_floor', 0.10)
+            # Shallow side: 40% of catches at 100-200m — must not suppress this zone
+            _dt_shallow_full = getattr(sys.modules[__name__], '_depth_shallow_full', 160)
+            _dt_shallow_floor = getattr(sys.modules[__name__], '_depth_shallow_floor', 0.50)
+            # Taper: full at _dt_start, 0.80 at _dt_mid, _dt_floor beyond 2x _dt_mid
+            _dt_knee = 0.80  # score at _dt_mid
+            depth_score_hr = np.where(abs_depth_hr < 80, 0,
+                             np.where(abs_depth_hr < _dt_shallow_full,
+                                      _dt_shallow_floor + (1.0 - _dt_shallow_floor) * (abs_depth_hr - 80) / max(_dt_shallow_full - 80, 1),
+                             np.where(abs_depth_hr < _dt_start, 1.0,
+                             np.where(abs_depth_hr < _dt_mid, 1.0 - (1.0 - _dt_knee) * (abs_depth_hr - _dt_start) / max(_dt_mid - _dt_start, 1),
+                             np.where(abs_depth_hr < _dt_mid * 2, _dt_knee - (_dt_knee - _dt_floor) * (abs_depth_hr - _dt_mid) / max(_dt_mid, 1),
+                             _dt_floor)))))
             depth_score_hr[np.isnan(bathy)] = 0
             depth_score = _maxpool_to_grid(depth_score_hr, b_lons, b_lats)
             depth_score[land] = np.nan
@@ -1189,8 +1596,12 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             sla_bg = gaussian_filter(sla_filled, sigma=4)
             sla_relative = sla_data - sla_bg
             rel_score = np.clip(sla_relative / 0.04, 0, 1)
-            # Blend: 60% absolute (warm water presence) + 40% relative (eddy edges)
-            ssh_score = 0.6 * abs_score + 0.4 * rel_score
+            # Blend: 40% absolute + 60% relative (eddy edges)
+            # Screenshot analysis: absolute SLA biases scoring offshore into deep
+            # water where catches never occur. Eddy EDGES (relative) are where
+            # marlin hunt — the boundary between warm/cool water masses.
+            _ssh_ab = getattr(sys.modules[__name__], '_ssh_abs_blend', 0.2)
+            ssh_score = _ssh_ab * abs_score + (1.0 - _ssh_ab) * rel_score
             ssh_score[land] = np.nan
             _add_score("ssh", ssh_score)
             mean_abs = np.nanmean(sla_data[~land])
@@ -1199,7 +1610,10 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         except Exception as e:
             print(f"[Hotspots] SSH scoring failed: {e}")
 
-    # 6. MLD score — shallower = better (marlin compressed at surface)
+    # 6. MLD score — edge-hunting: marlin hunt MLD TRANSITIONS, not shallowest MLD
+    #    Analysis shows 1.83x gradient lift at catch locations — catches sit where
+    #    MLD changes rapidly (thermocline depth fronts), not where it's shallowest.
+    #    Blend: 60% value (shallow is still good) + 40% edge (transitions score high)
     mld_grid = None  # saved for boundary convergence
     mld_file = os.path.join(OUTPUT_DIR, "mld_raw.nc")
     if os.path.exists(mld_file):
@@ -1213,8 +1627,24 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             m_lats = mld_da.latitude.values if "latitude" in mld_da.dims else mld_da.lat.values
             mld_data = _interp_to_grid(mld_da.values.astype(float), m_lons, m_lats)
             mld_grid = mld_data  # save for boundary convergence
-            # Score: 1.0 at MLD<20m, 0.5 at 50m, 0 at 100m
-            mld_score = np.clip(1.0 - (mld_data - 20) / 80, 0, 1)
+            # Value component: 1.0 at MLD<20m, 0.5 at 50m, 0 at 100m
+            mld_value = np.clip(1.0 - (mld_data - 20) / 80, 0, 1)
+            # Edge component: gradient of MLD field (where thermocline depth changes rapidly)
+            mld_for_grad = mld_data.copy()
+            mld_for_grad[np.isnan(mld_for_grad)] = 0
+            mld_smooth = gaussian_filter(mld_for_grad, sigma=1.5)
+            mld_gy, mld_gx = np.gradient(mld_smooth)
+            mld_edge = np.sqrt(mld_gx**2 + mld_gy**2)
+            mld_edge[land | coast_buf] = 0
+            mld_e90 = np.nanpercentile(mld_edge[~land & ~coast_buf], 90) if np.any(~land & ~coast_buf) else 0
+            mld_edge_score = np.clip(mld_edge / mld_e90, 0, 1) if mld_e90 > 0 else np.zeros((ny, nx))
+            # Widen edge influence so it reaches where marlin actually sit
+            mld_edge_score = gaussian_filter(mld_edge_score, sigma=1.5)
+            mld_edge_score = np.clip(mld_edge_score / (np.nanpercentile(mld_edge_score[~land & ~coast_buf], 90) + 1e-6), 0, 1)
+            # Blend: 60% value + 40% edge
+            _mld_eb = getattr(sys.modules[__name__], '_edge_mld_blend', 0.0)
+            mld_score = (1.0 - _mld_eb) * mld_value + _mld_eb * mld_edge_score
+            mld_score[land] = np.nan
             _add_score("mld", mld_score)
         except Exception as e:
             print(f"[Hotspots] MLD scoring failed: {e}")
@@ -1256,8 +1686,10 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             vo_da = vo_raw.squeeze()
             c_lons = uo_da.longitude.values if "longitude" in uo_da.dims else uo_da.lon.values
             c_lats = uo_da.latitude.values if "latitude" in uo_da.dims else uo_da.lat.values
-            uo_data = _interp_to_grid(uo_da.values.astype(float), c_lons, c_lats)
-            vo_data = _interp_to_grid(vo_da.values.astype(float), c_lons, c_lats)
+            uo_native = uo_da.values.astype(float)  # preserve for native-res derivatives
+            vo_native = vo_da.values.astype(float)
+            uo_data = _interp_to_grid(uo_native, c_lons, c_lats)
+            vo_data = _interp_to_grid(vo_native, c_lons, c_lats)
             cur_speed = np.sqrt(uo_data**2 + vo_data**2)
 
             # Score 1: eastward component — positive uo = flow toward coast/canyon
@@ -1308,8 +1740,28 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             # Base score = speed × upstream_temp; eastward adds 30% bonus
             _east_bonus_factor = getattr(sys.modules[__name__], '_opt_east_bonus', 0.03)
             east_bonus = 1.0 + _east_bonus_factor * east_score
-            current_score = speed_score * upstream_temp_score * east_bonus
-            current_score = np.clip(current_score, 0, 1)
+            current_value = speed_score * upstream_temp_score * east_bonus
+            current_value = np.clip(current_value, 0, 1)
+
+            # Edge-hunting: marlin hunt current BOUNDARIES (1.64x gradient lift).
+            # Score the gradient of current speed — where speed changes rapidly
+            # = shear lines between fast/slow water = bait aggregation zones.
+            # Compute speed gradient at NATIVE current resolution.
+            spd_native = np.sqrt(np.where(np.isnan(uo_native), 0, uo_native)**2 +
+                                 np.where(np.isnan(vo_native), 0, vo_native)**2)
+            spd_native_smooth = gaussian_filter(spd_native, sigma=1.5)
+            ceg_y, ceg_x = np.gradient(spd_native_smooth)
+            cur_edge_native = np.sqrt(ceg_x**2 + ceg_y**2)
+            cur_edge = _interp_to_grid(cur_edge_native, c_lons, c_lats)
+            cur_edge[land | coast_buf] = 0
+            cur_e90 = np.nanpercentile(cur_edge[~land & ~coast_buf], 90) if np.any(~land & ~coast_buf) else 0
+            cur_edge_score = np.clip(cur_edge / cur_e90, 0, 1) if cur_e90 > 0 else np.zeros((ny, nx))
+            # Widen edge influence
+            cur_edge_score = gaussian_filter(cur_edge_score, sigma=1.5)
+            cur_edge_score = np.clip(cur_edge_score / (np.nanpercentile(cur_edge_score[~land & ~coast_buf], 90) + 1e-6), 0, 1)
+            # Blend: 60% value + 40% edge
+            _cur_eb = getattr(sys.modules[__name__], '_edge_current_blend', 0.4)
+            current_score = (1.0 - _cur_eb) * current_value + _cur_eb * cur_edge_score
             current_score[land] = np.nan
             _add_score("current", current_score)
 
@@ -1318,36 +1770,406 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             mean_up_sst = np.nanmean(upstream_sst[ocean])
             print(f"[Hotspots] Current scoring: {fav_pct:.0f}% favorable, upstream SST mean {mean_up_sst:.1f}C")
 
-            # 10. Current convergence — negative divergence = converging flow
-            #     Convergence concentrates bait (pilchards, squid) at canyon head,
-            #     which is the primary mechanism that aggregates marlin.
-            #     Use the current grid (already on master grid via interpolation).
-            dudx = np.gradient(uo_data, axis=1)
-            dvdy = np.gradient(vo_data, axis=0)
-            divergence = dudx + dvdy
-            # Convergence = negative divergence. Stronger convergence = higher score.
-            # Score: 0 at div>=0 (diverging), 1.0 at div<=-0.005 (strong convergence)
-            conv_score = np.clip(-divergence / 0.005, 0, 1)
-            # Smooth to reduce noise from grid-scale artefacts
-            conv_filled = conv_score.copy()
+            # 10. Current convergence — edge-hunting scoring
+            #     Analysis shows 88% of catches sit on the EDGE of convergence
+            #     zones (ratio 0.29), not inside them. Marlin patrol the boundary
+            #     where bait is being pushed together, not the centre.
+            #     Compute divergence at NATIVE current resolution to avoid artifacts.
+            dudx_n = np.gradient(np.where(np.isnan(uo_native), 0, uo_native), axis=1)
+            dvdy_n = np.gradient(np.where(np.isnan(vo_native), 0, vo_native), axis=0)
+            divergence_n = dudx_n + dvdy_n
+            divergence = _interp_to_grid(divergence_n, c_lons, c_lats)
+            # Raw convergence field (negative divergence)
+            conv_raw = np.clip(-divergence / 0.005, 0, 1)
+            conv_filled = conv_raw.copy()
             conv_filled[np.isnan(conv_filled)] = 0
-            conv_score = gaussian_filter(conv_filled, sigma=1.0)
+            conv_smooth = gaussian_filter(conv_filled, sigma=1.0)
+            conv_smooth[land] = np.nan
+
+            # Edge score: gradient of the convergence field
+            # High gradient = boundary between converging and non-converging water
+            conv_for_grad = conv_smooth.copy()
+            conv_for_grad[np.isnan(conv_for_grad)] = 0
+            conv_gy, conv_gx = np.gradient(conv_for_grad)
+            conv_edge = np.sqrt(conv_gx**2 + conv_gy**2)
+            conv_edge[land | coast_buf] = 0
+            # Normalize to 90th percentile
+            ce_ocean = conv_edge[~land & ~coast_buf]
+            ce90 = np.nanpercentile(ce_ocean, 90) if len(ce_ocean) > 0 else 0
+            conv_edge_score = np.clip(conv_edge / ce90, 0, 1) if ce90 > 0 else np.zeros((ny, nx))
+
+            # Blend: 70% edge score + 30% raw proximity (must be near convergence)
+            # The raw component ensures we don't score edges of divergence
+            conv_proximity = np.clip(conv_smooth / 0.5, 0, 1)  # 1.0 if conv_raw >= 0.5
+            # Expand proximity: also score cells adjacent to convergence
+            prox_filled = conv_proximity.copy()
+            prox_filled[np.isnan(prox_filled)] = 0
+            conv_nearby = gaussian_filter(prox_filled, sigma=1.5)
+            conv_nearby = np.clip(conv_nearby * 3, 0, 1)  # boost so 0.33 nearby -> 1.0
+            conv_nearby[land] = np.nan
+
+            _conv_eb = getattr(sys.modules[__name__], '_edge_conv_blend', 0.0)
+            conv_score = _conv_eb * conv_edge_score + (1.0 - _conv_eb) * conv_nearby
             conv_score[land] = np.nan
 
-            # Bait trap synergy: convergence is more effective with strong current
-            # (currents push bait into convergence zones = active aggregation)
-            # Validated: both high = 69%, neither = 53% at catch locations
+            # Bait trap synergy: convergence edges more effective with strong current
             _synergy = getattr(sys.modules[__name__], '_opt_synergy_factor', 0.25)
             synergy = 1.0 + _synergy * np.clip(current_score, 0, 1)
             conv_score_synergy = np.clip(conv_score * synergy, 0, 1)
             conv_score_synergy[land] = np.nan
             _add_score("convergence", conv_score_synergy)
             conv_pct = np.sum(conv_score_synergy[~np.isnan(conv_score_synergy) & ~land] > 0.3) / np.sum(~np.isnan(conv_score_synergy) & ~land) * 100
-            print(f"[Hotspots] Convergence scoring: {conv_pct:.0f}% of cells have bait-concentrating flow")
+            print(f"[Hotspots] Convergence scoring: {conv_pct:.0f}% of cells near convergence boundaries")
+
+            # 10a. Vertical velocity (derived from continuity equation)
+            #      Continuity: ∇·u + ∂w/∂z = 0 → positive surface divergence = upwelling
+            #      Complements convergence (which uses negative divergence).
+            #      No new data needed — reuses divergence computed above.
+            if BLUE_MARLIN_WEIGHTS.get("vertical_velocity", 0) > 0:
+                w_proxy = np.clip(divergence / 0.005, 0, 1)
+                w_proxy[land] = np.nan
+                _add_score("vertical_velocity", w_proxy)
+
+            # 10b. Current shear (vorticity) — Leeuwin/Undercurrent boundary
+            #      Vorticity = dv/dx - du/dy. High |vorticity| at canyon edges
+            #      marks the shear boundary where baitfish get "stacked".
+            #      The Leeuwin Current flows south along the shelf while the
+            #      Capes Undercurrent flows north at depth — their interface
+            #      creates strong lateral shear that concentrates prey.
+            # Compute vorticity at NATIVE current resolution
+            dvdx_n = np.gradient(np.where(np.isnan(vo_native), 0, vo_native), axis=1)
+            dudy_n = np.gradient(np.where(np.isnan(uo_native), 0, uo_native), axis=0)
+            vorticity_n = dvdx_n - dudy_n
+            vorticity = _interp_to_grid(vorticity_n, c_lons, c_lats)
+            abs_vort = np.abs(vorticity)
+            abs_vort[land] = np.nan
+            # Smooth to reduce grid noise
+            vort_filled = abs_vort.copy()
+            vort_filled[np.isnan(vort_filled)] = 0
+            abs_vort = gaussian_filter(vort_filled, sigma=1.0)
+            abs_vort[land] = np.nan
+            # Normalize to 90th percentile (same approach as SST gradient)
+            vort_ocean = abs_vort[~land & ~np.isnan(abs_vort)]
+            v90 = np.nanpercentile(vort_ocean, 90) if len(vort_ocean) > 0 else 0
+            if v90 > 0:
+                shear_score = np.clip(abs_vort / v90, 0, 1)
+            else:
+                shear_score = np.zeros((ny, nx))
+            shear_score[land] = np.nan
+            # Modulate by depth: shear at the shelf edge (80-150m) is surface
+            # friction, not Leeuwin/Undercurrent interaction. Only score shear
+            # where depth >150m (where the undercurrent actually operates).
+            # Dedicated shear depth ramp — Undercurrent operates at 100-150m shelf slope
+            # in Perth Canyon context, so use a lower threshold than the main depth gate
+            _shear_depth_thresh = getattr(sys.modules[__name__], '_opt_shear_depth_thresh', 120)
+            _shear_depth_full = getattr(sys.modules[__name__], '_opt_shear_depth_full', 200)
+            if depth_master_early is not None:
+                shear_depth_mod = np.clip(
+                    (depth_master_early - _shear_depth_thresh) / max(_shear_depth_full - _shear_depth_thresh, 1),
+                    0, 1)
+                shear_score = shear_score * shear_depth_mod
+            elif "depth" in sub_scores:
+                depth_mod = np.where(np.isnan(sub_scores["depth"]), 0, sub_scores["depth"])
+                shear_score = shear_score * depth_mod
+            _add_score("current_shear", shear_score)
+            shear_pct = np.sum(shear_score[~np.isnan(shear_score) & ~land] > 0.3) / np.sum(~np.isnan(shear_score) & ~land) * 100
+            print(f"[Hotspots] Current shear: {shear_pct:.0f}% of cells in shear zones (Leeuwin/Undercurrent boundary)")
+
         except Exception as e:
             print(f"[Hotspots] Current scoring failed: {e}")
 
+    # 10c. Upwelling proxy — canyon-forced upwelling edges
+    #      Upwelling = cooler SST + elevated CHL + shallow MLD near shelf break.
+    #      Blue marlin hunt the WARM SIDE of upwelling boundaries where bait
+    #      is pushed up by topographic forcing. Score the edge, not the core.
+    #      Research: "Filter out cold-water upwellings unsuitable for Blue Marlin"
+    #      — we want the warm-water boundary adjacent to upwelling.
+    try:
+        # Need SST, CHL, and either MLD or shelf break data
+        if sst_smooth is not None and chl_grid is not None:
+            # Upwelling indicator: cooler-than-mean SST + above-median CHL
+            # (upwelling brings cold, nutrient-rich water to surface)
+            sst_mean_ocean = np.nanmean(sst_smooth[~land])
+            sst_cool = np.clip((sst_mean_ocean - sst_smooth) / 1.5, 0, 1)  # 1.0 if 1.5C cooler than mean
+            sst_cool[land] = 0
+
+            chl_med_ocean = np.nanmedian(chl_grid[~land & ~np.isnan(chl_grid)])
+            chl_elevated = np.clip((chl_grid - chl_med_ocean) / (chl_med_ocean * 2), 0, 1) if chl_med_ocean > 0 else np.zeros((ny, nx))
+            chl_elevated[land | np.isnan(chl_grid)] = 0
+
+            # Upwelling core: where SST is cool AND CHL is elevated
+            upwelling_core = sst_cool * chl_elevated
+            if mld_grid is not None:
+                # Shallow MLD reinforces upwelling signal
+                mld_shallow = np.clip(1.0 - (mld_grid - 15) / 35, 0, 1)  # 1.0 at <15m, 0 at 50m
+                mld_shallow[land | np.isnan(mld_grid)] = 0.5  # neutral where missing
+                upwelling_core = upwelling_core * (0.5 + 0.5 * mld_shallow)
+
+            # Smooth the core to get stable edges
+            up_filled = upwelling_core.copy()
+            up_filled[np.isnan(up_filled)] = 0
+            upwelling_smooth = gaussian_filter(up_filled, sigma=1.5)
+
+            # Upwelling EDGE: gradient of the upwelling field
+            # This marks the boundary where warm Leeuwin water meets cold upwelled water
+            up_gx = sobel(upwelling_smooth, axis=1)
+            up_gy = sobel(upwelling_smooth, axis=0)
+            up_edge_raw = np.sqrt(up_gx**2 + up_gy**2)
+            up_edge_raw[land | coast_buf] = 0
+
+            # Edge-hunting: marlin patrol the WARM SIDE of upwelling edges,
+            # sitting further out than the sharp gradient peak (ratio=0.21).
+            # Widen the edge influence with gaussian blur so score bleeds
+            # outward to where marlin actually hunt.
+            _up_sig = getattr(sys.modules[__name__], '_edge_upwell_sigma', 4.0)
+            up_edge = gaussian_filter(up_edge_raw, sigma=max(_up_sig, 0.1))
+            up_edge[land | coast_buf] = 0
+
+            # Score the warm side of the edge: where SST is suitable
+            # "Filter out cold-water upwellings unsuitable for Blue Marlin"
+            up_e90 = np.nanpercentile(up_edge[~land & ~coast_buf], 90) if np.any(~land & ~coast_buf) else 0
+            if up_e90 > 0:
+                upwelling_edge_score = np.clip(up_edge / up_e90, 0, 1)
+                # Only score where SST is still suitable for marlin (warm side)
+                upwelling_edge_score *= sst_score
+                upwelling_edge_score[land] = np.nan
+                _add_score("upwelling_edge", upwelling_edge_score)
+                up_pct = np.sum(upwelling_edge_score[~np.isnan(upwelling_edge_score) & ~land] > 0.3) / np.sum(~np.isnan(upwelling_edge_score) & ~land) * 100
+                print(f"[Hotspots] Upwelling edge: {up_pct:.0f}% of cells near canyon upwelling boundaries")
+            else:
+                _add_score("upwelling_edge", np.where(land, np.nan, 0.0))
+        else:
+            _add_score("upwelling_edge", np.where(land, np.nan, 0.0))
+    except Exception as e:
+        print(f"[Hotspots] Upwelling edge scoring failed: {e}")
+        _add_score("upwelling_edge", np.where(land, np.nan, 0.0))
+
+    # 10d. Vertical velocity (wo) — REMOVED
+    #      CMEMS physics models (ANFC + reanalysis) do not provide the 'wo' variable.
+    #      Upwelling detection relies on SST/CHL proxy via upwelling_edge scoring.
+
+    # 10e. FTLE / Lagrangian Coherent Structures — transport barriers
+    #      High FTLE ridges mark boundaries where water parcels separate,
+    #      creating accumulation zones for passively drifting baitfish.
+    #      Uses multi-day velocity fields (requires adjacent-day current data).
+    if date_str and BLUE_MARLIN_WEIGHTS.get("ftle", 0) > 0:
+        try:
+            ftle_result = compute_ftle(date_str, bbox, window_days=3)
+            if ftle_result is not None:
+                ftle_field, ftle_lons, ftle_lats = ftle_result
+                ftle_master = _interp_to_grid(ftle_field, ftle_lons, ftle_lats)
+                # Normalize by 95th percentile (FTLE ridges are sparse)
+                ftle_ocean = ftle_master[~land & ~np.isnan(ftle_master)]
+                ftle_95 = np.nanpercentile(ftle_ocean, 95) if len(ftle_ocean) > 0 else 1
+                if ftle_95 > 0:
+                    ftle_score = np.clip(ftle_master / ftle_95, 0, 1)
+                else:
+                    ftle_score = np.zeros((ny, nx))
+                ftle_score[land] = np.nan
+                _add_score("ftle", ftle_score)
+                ftle_pct = np.sum(ftle_score[~np.isnan(ftle_score)] > 0.3) / max(np.sum(~np.isnan(ftle_score)), 1) * 100
+                print(f"[Hotspots] FTLE: {ftle_pct:.0f}% of cells on transport barriers")
+        except Exception as e:
+            print(f"[Hotspots] FTLE scoring failed: {e}")
+
+    # 11. Salinity front — halocline marks LC edge when SST front is masked
+    #     The Leeuwin Current carries low-salinity tropical water (~34.5-35 PSU)
+    #     vs surrounding Indian Ocean (~35.5-36 PSU). In summer when SST fronts
+    #     disappear due to solar heating, salinity gradients remain sharp.
+    sal_file = os.path.join(OUTPUT_DIR, "salinity_raw.nc")
+    sal_grid = None
+    if os.path.exists(sal_file) and BLUE_MARLIN_WEIGHTS.get("salinity_front", 0) > 0:
+        try:
+            sal_ds = xr.open_dataset(sal_file)
+            sal_da = sal_ds["so"].squeeze()
+            if "depth" in sal_da.dims:
+                sal_da = sal_da.isel(depth=0)
+            s_lons = sal_da.longitude.values if "longitude" in sal_da.dims else sal_da.lon.values
+            s_lats = sal_da.latitude.values if "latitude" in sal_da.dims else sal_da.lat.values
+            sal_grid = _interp_to_grid(sal_da.values.astype(float), s_lons, s_lats)
+
+            # Compute Sobel gradient of salinity (same pattern as SST front)
+            sal_filled = sal_grid.copy()
+            sal_filled[np.isnan(sal_filled)] = np.nanmean(sal_filled)
+            sal_smooth = gaussian_filter(sal_filled, sigma=1.5)
+            sal_gx = sobel(sal_smooth, axis=1)
+            sal_gy = sobel(sal_smooth, axis=0)
+            sal_grad = np.sqrt(sal_gx**2 + sal_gy**2)
+            sal_grad[coast_buf] = 0
+
+            # Normalize by 90th percentile
+            sal_ocean = sal_grad[~coast_buf & ~land]
+            sg90 = np.nanpercentile(sal_ocean, 90) if len(sal_ocean) > 0 else 0
+            if sg90 > 0:
+                sal_front_raw = np.clip(sal_grad / sg90, 0, 1)
+            else:
+                sal_front_raw = np.zeros_like(sal_grad)
+
+            # Widen front influence (edge-hunting pattern)
+            sal_front_widened = gaussian_filter(np.where(np.isnan(sal_front_raw), 0, sal_front_raw), sigma=4.0)
+            sf_ocean = sal_front_widened[~land & ~coast_buf]
+            sf_90 = np.nanpercentile(sf_ocean, 90) if len(sf_ocean) > 0 else 1
+            sal_front_score = np.clip(sal_front_widened / sf_90, 0, 1) if sf_90 > 0 else sal_front_raw
+            sal_front_score[land] = np.nan
+            _add_score("salinity_front", sal_front_score)
+            sf_pct = np.sum(sal_front_score[~np.isnan(sal_front_score) & ~land] > 0.3) / np.sum(~np.isnan(sal_front_score) & ~land) * 100
+            print(f"[Hotspots] Salinity front: {sf_pct:.0f}% of cells near halocline boundaries")
+        except Exception as e:
+            print(f"[Hotspots] Salinity front scoring failed: {e}")
+
+    # 12. Thermocline lift — cold 250m water = canyon upwelling structure
+    #     Warm Surface + Cold Lifted Basement is the most productive vertical profile.
+    #     Score inversely proportional to 250m temperature: colder = more upwelling.
+    sub_file = os.path.join(OUTPUT_DIR, "subsurface_temp_raw.nc")
+    if os.path.exists(sub_file) and BLUE_MARLIN_WEIGHTS.get("thermocline_lift", 0) > 0:
+        try:
+            sub_ds = xr.open_dataset(sub_file)
+            sub_da = sub_ds["thetao"].squeeze()
+            if "depth" in sub_da.dims:
+                sub_da = sub_da.isel(depth=0)
+            st_lons = sub_da.longitude.values if "longitude" in sub_da.dims else sub_da.lon.values
+            st_lats = sub_da.latitude.values if "latitude" in sub_da.dims else sub_da.lat.values
+            sub_grid = _interp_to_grid(sub_da.values.astype(float), st_lons, st_lats)
+
+            # Score: inverse temperature. Colder at 250m = stronger upwelling structure.
+            # Typical range off Perth: 8-16C at 250m. Upwelling domes might be 8-10C.
+            # Background ~14-16C. Score: 1.0 at <=8C, 0.0 at >=16C.
+            _thermo_cold = getattr(sys.modules[__name__], '_opt_thermo_cold', 8.0)
+            _thermo_warm = getattr(sys.modules[__name__], '_opt_thermo_warm', 16.0)
+            thermo_score = np.clip((_thermo_warm - sub_grid) / max(_thermo_warm - _thermo_cold, 1), 0, 1)
+            thermo_score[land] = np.nan
+
+            # Bonus: warm surface + cold basement signature
+            # Where SST is suitable (high sst_score) AND basement is cold,
+            # we have the ideal Warm Cap + Cold Upwelling profile
+            if sst_score is not None:
+                warm_cap = np.clip(sst_score, 0, 1)
+                # Multiply: high score only where BOTH conditions met
+                thermo_combined = thermo_score * warm_cap
+                # Blend: 60% raw thermocline + 40% combined signature
+                thermo_final = 0.6 * thermo_score + 0.4 * thermo_combined
+                thermo_final[land] = np.nan
+            else:
+                thermo_final = thermo_score
+
+            _add_score("thermocline_lift", thermo_final)
+            th_pct = np.sum(thermo_final[~np.isnan(thermo_final) & ~land] > 0.3) / np.sum(~np.isnan(thermo_final) & ~land) * 100
+            print(f"[Hotspots] Thermocline lift: {th_pct:.0f}% of cells showing upwelling structure")
+        except Exception as e:
+            print(f"[Hotspots] Thermocline lift scoring failed: {e}")
+
+    # 12b. Stratification Index — thermal barrier strength (bait entrapment)
+    #      ΔT = SST - T_250m. High ΔT = strong thermocline = baitfish compressed
+    #      into warm surface layer where marlin hunt. Perth Canyon: warm Leeuwin
+    #      Current capping cold Leeuwin Undercurrent creates ideal stratification.
+    #      Score: Gaussian centered on optimal ΔT (~6-8°C), with configurable params.
+    if os.path.exists(sub_file) and BLUE_MARLIN_WEIGHTS.get("stratification", 0) > 0:
+        try:
+            sub_ds2 = xr.open_dataset(sub_file)
+            sub_da2 = sub_ds2["thetao"].squeeze()
+            if "depth" in sub_da2.dims:
+                sub_da2 = sub_da2.isel(depth=0)
+            st2_lons = sub_da2.longitude.values if "longitude" in sub_da2.dims else sub_da2.lon.values
+            st2_lats = sub_da2.latitude.values if "latitude" in sub_da2.dims else sub_da2.lat.values
+            t_deep = _interp_to_grid(sub_da2.values.astype(float), st2_lons, st2_lats)
+
+            # ΔT = surface SST - deep temp
+            delta_t = sst - t_deep
+
+            # Score: 1.0 when ΔT >= threshold (strong barrier), taper below
+            # Typical Perth range: 4-12°C. Strong stratification > 6°C.
+            _strat_strong = getattr(sys.modules[__name__], '_opt_strat_strong', 6.0)
+            _strat_weak = getattr(sys.modules[__name__], '_opt_strat_weak', 2.0)
+            strat_score = np.clip((delta_t - _strat_weak) / max(_strat_strong - _strat_weak, 1), 0, 1)
+            strat_score[land] = np.nan
+            _add_score("stratification", strat_score)
+            mean_dt = np.nanmean(delta_t[~land]) if np.any(~land) else 0
+            print(f"[Hotspots] Stratification: mean ΔT={mean_dt:.1f}°C (strong>{_strat_strong}°C)")
+        except Exception as e:
+            print(f"[Hotspots] Stratification scoring failed: {e}")
+
     _depth_grid = None  # populated if bathy data available; used in hover info
+
+    # 13. SST Rate of Change (Heating/Cooling)
+    #      Reward areas that are actively warming (new water arriving).
+    #      Penalize areas that are cooling (upwelling/mixing).
+    #      This is highly specific to "today" vs general location.
+    if BLUE_MARLIN_WEIGHTS.get("sst_roc", 0) > 0 and date_str:
+        try:
+            dt = datetime.strptime(date_str, "%Y-%m-%d")
+            prev_date = (dt - timedelta(days=1)).strftime("%Y-%m-%d")
+            
+            # Look for yesterday's data in data/YYYY-MM-DD or main dir
+            prev_file = os.path.join(os.path.dirname(OUTPUT_DIR), prev_date, "sst_raw.nc")
+            if not os.path.exists(prev_file):
+                prev_file = os.path.join("data", prev_date, "sst_raw.nc")
+                
+            if os.path.exists(prev_file):
+                pds = xr.open_dataset(prev_file)
+                prev_da = None
+                for var in ["thetao", "analysed_sst", "sst"]:
+                    if var in pds: prev_da = pds[var].squeeze(); break
+                
+                if prev_da is not None:
+                    prev_val = prev_da.values.astype(float)
+                    if np.nanmean(prev_val) > 100: prev_val -= 273.15
+                    
+                    prev_grid = _interp_to_grid(prev_val, 
+                                              prev_da.longitude.values if "longitude" in prev_da.dims else prev_da.lon.values, 
+                                              prev_da.latitude.values if "latitude" in prev_da.dims else prev_da.lat.values)
+                    
+                    # Calculate Delta
+                    sst_delta = sst_smooth - prev_grid
+                    
+                    # Score: sigmoid centered at +0.2C (slight warming is good)
+                    # < -0.5C (cooling) -> 0.0
+                    # > +0.5C (warming) -> 1.0
+                    roc_score = np.clip((sst_delta + 0.5) / 1.0, 0, 1)
+                    roc_score[land] = np.nan
+                    _add_score("sst_roc", roc_score)
+                pds.close()
+        except Exception as e:
+            print(f"[Hotspots] SST RoC failed: {e}")
+
+    # 14. Okubo-Weiss Parameter (Strain vs Vorticity)
+    #      W = Sn^2 + Ss^2 - w^2
+    #      Positive W = Strain dominated (deformation, fronts, filaments) -> Bait aggregation
+    #      Negative W = Vorticity dominated (eddy cores) -> Trapping/Stable
+    #      We want positive W (edges/filaments).
+    if BLUE_MARLIN_WEIGHTS.get("okubo_weiss", 0) > 0 and 'uo_native' in locals():
+        try:
+            # Use native resolution currents to capture gradients
+            u_n = np.where(np.isnan(uo_native), 0, uo_native)
+            v_n = np.where(np.isnan(vo_native), 0, vo_native)
+            
+            # Gradients (indices)
+            ux = np.gradient(u_n, axis=1); uy = np.gradient(u_n, axis=0)
+            vx = np.gradient(v_n, axis=1); vy = np.gradient(v_n, axis=0)
+            
+            # Strain and Vorticity components
+            normal_strain = ux - vy
+            shear_strain = vx + uy
+            vorticity = vx - uy
+            
+            # Okubo-Weiss W
+            W = normal_strain**2 + shear_strain**2 - vorticity**2
+            
+            # Interpolate W to master grid
+            W_grid = _interp_to_grid(W, c_lons, c_lats)
+            
+            # Score: We want Strain (>0). Vorticity (<0) is the core.
+            # Normalize positive values.
+            W_pos = np.clip(W_grid, 0, None)
+            w90 = np.nanpercentile(W_pos[~land & (W_pos > 0)], 90) if np.any(W_pos > 0) else 1
+            
+            ow_score = np.clip(W_pos / w90, 0, 1) if w90 > 0 else np.zeros_like(W_grid)
+            ow_score[land] = np.nan
+            _add_score("okubo_weiss", ow_score)
+            
+            ow_pct = np.sum(ow_score[~np.isnan(ow_score)] > 0.3) / max(np.sum(~np.isnan(ow_score)), 1) * 100
+            print(f"[Hotspots] Okubo-Weiss: {ow_pct:.0f}% of cells in strain/filament zones")
+        except Exception as e:
+            print(f"[Hotspots] Okubo-Weiss failed: {e}")
 
     # 11. Feature banding — distance-decay bands around oceanographic feature lines
     #     Instead of scoring only at exact contour cells, create ~2nm bands around
@@ -1355,9 +2177,9 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     #     Score decays smoothly from 1.0 at the feature to 0 at band_width distance.
     #     Where multiple bands overlap, multiplicative boost rewards convergence zones.
     try:
-        _band_width_nm = getattr(sys.modules[__name__], '_opt_band_width_nm', 2.0)
-        _band_boost = getattr(sys.modules[__name__], '_opt_band_boost', 0.34)
-        _band_decay = getattr(sys.modules[__name__], '_opt_band_decay', 0.80)
+        _band_width_nm = getattr(sys.modules[__name__], '_opt_band_width_nm', 1.5)
+        _band_boost = getattr(sys.modules[__name__], '_opt_band_boost', 0.25)
+        _band_decay = getattr(sys.modules[__name__], '_opt_band_decay', 0.50)
         _band_front_thresh = getattr(sys.modules[__name__], '_opt_band_front_thresh', 0.25)
         _band_chl_thresh = getattr(sys.modules[__name__], '_opt_band_chl_thresh', 0.45)
 
@@ -1436,7 +2258,9 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                 cross_mask[1:, :] |= cross_v
                 cross_mask &= ~land & ~coast_buf
                 if np.any(cross_mask):
-                    band_layers[f"isotherm_{iso_temp}C"] = _band_score(cross_mask)
+                    # Isotherms have weak catch proximity (median 16-49nm)
+                    # vs SST fronts (2.92nm). Downweight to 0.3.
+                    band_layers[f"isotherm_{iso_temp}C"] = _band_score(cross_mask, weight=0.3)
         except Exception:
             pass
 
@@ -1518,29 +2342,51 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         # SSTA edge band — REMOVED. No discriminative value for blue marlin.
         # 69% of catches in cool anomaly, warm intrusion edge is not a fish feature.
 
-        # Bathymetry contour bands — weighted by fishing relevance.
-        # Catch depth analysis: median 239m, 39% at 300-1000m.
-        # Bands use asymmetric tolerance: tight shoreward, wider seaward
-        # to shift hotspots toward deeper water where catches actually occur.
-        _bathy_band_weights = {100: 0.2, 150: 0.5, 200: 0.6, 300: 0.6, 500: 0.6, 1000: 0.2}
+        # Bathymetry contour bands — weighted by catch proximity analysis.
+        # Proximity ranking (median nm to nearest contour, % within 3nm):
+        #   200m: 1.51nm, 67% | 400m: 2.33nm, 59% | 300m: 2.45nm, 53%
+        #   500m: 2.57nm, 65% | 600m: 2.95nm, 57% | 700m: 3.27nm, 41%
+        #   800m: 3.69nm, 33% | 900m: 4.22nm, 31% | 1000m: 4.55nm, 29%
+        #   100m: 6.95nm, 10% (too shallow — catches are offshore of shelf)
+        # Only 200m and 500m exceed 0.3 threshold for band-overlap counting.
+        # Intermediate contours add gentle score without inflating band count
+        # in deep water (which pulls peaks seaward of catches).
+        _bw200 = getattr(sys.modules[__name__], '_opt_bathy_w_200', 1.0)
+        _bw500 = getattr(sys.modules[__name__], '_opt_bathy_w_500', 0.4)
+        _bathy_band_weights = {
+            100: 0.1,
+            200: _bw200,
+            300: 0.25,
+            400: 0.25,
+            500: _bw500,
+            600: 0.2,
+            700: 0.15,
+            800: 0.1,
+            900: 0.1,
+            1000: 0.1,
+        }
         if tif_path and 'bathy' in dir():
             try:
                 depth_master = _interp_to_grid(
                     np.where(np.isnan(bathy), 0, -bathy), b_lons, b_lats
                 )
                 _depth_grid = depth_master  # make available for hover info
+                _band_shore_ratio = getattr(sys.modules[__name__], '_opt_band_shore_ratio', 0.25)
+                _band_deep_ratio = getattr(sys.modules[__name__], '_opt_band_deep_ratio', 0.30)
+                _shallow_cut = getattr(sys.modules[__name__], '_opt_shallow_cut', 0.35)
                 for depth_m, bw in _bathy_band_weights.items():
-                    # Asymmetric: tight shoreward tolerance, wider seaward
-                    tol_shore = max(20, depth_m * 0.15)  # narrow toward land
-                    tol_deep = max(30, depth_m * 0.30)   # wider toward deep
+                    # Symmetric tolerances — catches sit on shoreward side of contours
+                    tol_shore = max(20, depth_m * _band_shore_ratio)
+                    tol_deep = max(30, depth_m * _band_deep_ratio)
                     contour_mask = ((depth_master >= depth_m - tol_shore) &
                                     (depth_master <= depth_m + tol_deep) & ~land)
                     if np.any(contour_mask):
                         bathy_band = _band_score(contour_mask, weight=bw)
-                        # Suppress shoreward side: zero out cells shallower than
-                        # 65% of contour depth to prevent bands boosting inner shelf
-                        shallow_mask = (depth_master < depth_m * 0.65) & ~land
-                        bathy_band[shallow_mask] = 0
+                        # Soft taper instead of hard zero for shoreward suppression
+                        shallow_taper_depth = depth_m * _shallow_cut
+                        shallow_taper = np.clip(
+                            (depth_master - shallow_taper_depth) / max(depth_m * 0.15, 10), 0, 1)
+                        bathy_band *= shallow_taper
                         band_layers[f"bathy_{depth_m}m"] = bathy_band
             except Exception as e:
                 print(f"[Hotspots] Bathy contour banding failed: {e}")
@@ -1600,7 +2446,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             # lifted to at least 0.62 so they always create visible zones.
             # SST front: broader mask (abs OR rel gradient) for floor only.
             # CHL 0.15: the catch-clustering boundary (4-10% coverage).
-            _key_feature_floor = 0.62
+            _key_feature_floor = getattr(sys.modules[__name__], '_opt_key_feature_floor', 0.40)
             key_floor = np.zeros((ny, nx))
             # SST front floor (broad mask)
             _rel_floor_mask = (grad_mag / g90 > _band_front_thresh) & ~coast_buf & ~land if g90 > 0 else sst_front_mask
@@ -1642,29 +2488,113 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         dmask = ~np.isnan(depth_mult) & valid
         final[dmask] *= depth_mult[dmask]  # zero out shallow water
     if "shelf_break" in sub_scores:
-        _shelf_boost = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.10)
+        # Multiplicative component of hybrid shelf scoring (additive part already in weighted sum)
+        _shelf_boost = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.12)
         shelf_mult = 1.0 + _shelf_boost * sub_scores["shelf_break"]
         smask = ~np.isnan(shelf_mult) & valid
         final[smask] *= shelf_mult[smask]
         final = np.clip(final, 0, 1)  # cap at 1.0
 
-    # Feature band boost — proximity to oceanographic feature lines.
-    # Two-tier: single_boost per band (being near ANY feature matters),
-    # plus overlap_boost for each additional overlapping band (convergence zones).
+    # SST x shelf_break interaction — catches happen where warm water meets the
+    # shelf edge. Neither feature alone is sufficient: warm water offshore scores
+    # high on SST but has no shelf; shelf inshore scores high on shelf but may be
+    # cool. The interaction rewards cells where BOTH are strong.
+    _sst_shelf_interact = getattr(sys.modules[__name__], '_opt_sst_shelf_interact', 0.0)
+    if _sst_shelf_interact > 0 and "sst" in sub_scores and "shelf_break" in sub_scores:
+        sst_s = sub_scores["sst"]
+        shelf_s = sub_scores["shelf_break"]
+        # Geometric mean: high only when both are high
+        interact = np.sqrt(np.clip(sst_s, 0, 1) * np.clip(shelf_s, 0, 1))
+        interact_mult = 1.0 + _sst_shelf_interact * interact
+        imask = ~np.isnan(interact) & valid
+        final[imask] *= interact_mult[imask]
+        final = np.clip(final, 0, 1)
+
+    # Multi-feature edge overlap — catches have 24% more features simultaneously
+    # transitioning than score peaks (3.81 vs 3.07). Marlin hunt where multiple
+    # oceanographic features are all changing at once (convergence of gradients),
+    # not where any single feature peaks. Boost pixels where 3+ sub_scores have
+    # above-average gradient magnitude.
+    try:
+        edge_features = ["sst_front", "convergence", "current_shear", "upwelling_edge",
+                         "chl_curvature", "current", "mld", "shelf_break", "front_corridor"]
+        edge_count = np.zeros((ny, nx))
+        for feat in edge_features:
+            if feat not in sub_scores or not isinstance(sub_scores[feat], np.ndarray):
+                continue
+            fg = sub_scores[feat].copy()
+            fg[np.isnan(fg)] = 0
+            fg_smooth = gaussian_filter(fg, sigma=1.0)
+            gy, gx = np.gradient(fg_smooth)
+            gmag = np.sqrt(gx**2 + gy**2)
+            gmag[land | coast_buf] = 0
+            # Count this feature as "transitioning" if gradient > 75th percentile
+            g75 = np.nanpercentile(gmag[~land & ~coast_buf], 75) if np.any(~land & ~coast_buf) else 0
+            if g75 > 0:
+                edge_count += (gmag > g75).astype(float)
+        # Boost: 3+ transitioning features get a multiplier
+        # 0-2 features: x1.0 (no boost), 3: x1.05, 4: x1.10, 5+: x1.15
+        _edge_bs = getattr(sys.modules[__name__], '_edge_boost_strength', 0.05)
+        edge_mult = np.clip(1.0 + _edge_bs * (edge_count - 2), 1.0, 1.0 + _edge_bs * 3)
+        final[valid] *= edge_mult[valid]
+        final = np.clip(final, 0, 1)
+        ec3 = np.sum(edge_count[~land] >= 3) / max(np.sum(~land), 1) * 100
+        ec4 = np.sum(edge_count[~land] >= 4) / max(np.sum(~land), 1) * 100
+        print(f"[Hotspots] Multi-feature edges: {ec3:.0f}% with 3+ transitions, {ec4:.0f}% with 4+")
+    except Exception as e:
+        print(f"[Hotspots] Multi-feature edge scoring failed: {e}")
+
+    # Lunar phase modifier — habitat compression via Diel Vertical Migration
+    # New moon: DSL rises higher, MLD shallower (17m), bait compressed at surface
+    # Full moon: DSL stays deep, MLD deeper (23m), bait dispersed vertically
+    # Effect: new moon = ~5% boost, full moon = neutral (no penalty)
+    # Lunar phase 0 = new moon, 0.5 = full moon
+    if date_str:
+        try:
+            from math import sin, pi
+            dt = datetime.strptime(date_str, "%Y-%m-%d")
+            # Approximate lunar phase using synodic month (29.53 days)
+            # Reference: 2000-01-06 was a new moon
+            ref_new = datetime(2000, 1, 6)
+            days_since = (dt - ref_new).days
+            lunar_cycle = (days_since % 29.53) / 29.53  # 0=new, 0.5=full
+            # Moon illumination: 0 at new, 1 at full
+            moon_illum = 0.5 * (1 - np.cos(2 * pi * lunar_cycle))
+            # Habitat compression bonus: strongest at new moon (illum=0)
+            # Range: 1.0 (full moon) to 1.05 (new moon)
+            _lunar_mod = getattr(sys.modules[__name__], '_opt_lunar_boost', 0.04)
+            lunar_boost = 1.0 + _lunar_mod * (1.0 - moon_illum)
+            final[valid] *= lunar_boost
+            final = np.clip(final, 0, 1)
+            phase_name = "New" if moon_illum < 0.25 else "Full" if moon_illum > 0.75 else "Quarter"
+            print(f"[Hotspots] Lunar phase: {phase_name} ({moon_illum:.0%} illum) -> x{lunar_boost:.3f} habitat compression boost")
+        except Exception:
+            pass
+
+    # Feature band boost — graduated multiplier based on band count.
+    # Cells with more overlapping feature bands score progressively higher.
+    # Cells with 0 bands get suppressed; 1 band gets mild suppression;
+    # 2+ bands get a boost. This creates a gradient instead of a cliff.
     if np.any(_feature_band_count > 0):
         _band_single = getattr(sys.modules[__name__], '_opt_band_single', 0.06)
         _band_overlap = getattr(sys.modules[__name__], '_opt_band_overlap', 0.20)
-        _band_overlap_thresh = 2  # overlap bonus at 2+ (bands are now selective)
-        # Suppress cells with NO feature bands — without any oceanographic
-        # feature nearby, high base scores are just "warm open ocean" not a
-        # fishing hotspot. Mild dampen (20%) since bands are now selective.
-        no_band_mask = (_feature_band_count < 0.1) & valid & ~land
-        final[no_band_mask] *= 0.80
-        # Single: 6% per band (doubled — each band is now genuinely meaningful)
-        # Overlap: reward for 2+ bands (previously 3+ when bands were broad)
-        extra = np.clip(_feature_band_count - _band_overlap_thresh, 0, None)
-        band_mult = (1.0
-                     + _band_single * _feature_band_count * _feature_band_mean
+        # Graduated band multiplier — smooth ramp from 0 bands to 3+
+        # Softened: catches average 2.19 bands vs peaks at 2.85. Old penalties
+        # (0-band x0.65, 1-band x0.85) pushed zones offshore where bands converge.
+        # 0 bands: ×0.75 (25% penalty — still penalize featureless water)
+        # 1 band:  ×0.90 (10% penalty — legitimate edge, don't penalize hard)
+        # 2 bands: ×1.0 + boost (baseline)
+        # 3+ bands: ×1.0 + larger boost (convergence zone)
+        _zero_bm = getattr(sys.modules[__name__], '_opt_zero_band_mult', 0.55)
+        _one_bm = getattr(sys.modules[__name__], '_opt_one_band_mult', 0.80)
+        band_base_mult = np.where(
+            _feature_band_count < 0.1, _zero_bm,
+            np.where(_feature_band_count < 1.5, _one_bm,
+                     1.0))
+        # Additive boost for 2+ bands (convergence)
+        extra = np.clip(_feature_band_count - 2, 0, None)
+        band_mult = (band_base_mult
+                     + _band_single * np.clip(_feature_band_count - 1, 0, None) * _feature_band_mean
                      + _band_overlap * extra * _feature_band_mean)
         final[valid] *= band_mult[valid]
         # Don't clip to 1.0 here — allow scores >1.0 so band-boosted cells
@@ -1674,20 +2604,47 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         ov3 = np.sum(_feature_band_count[valid & ~land] >= 3) / max(np.sum(valid & ~land), 1) * 100
         print(f"[Hotspots] Band boost: {ov1:.0f}% 1+ bands, {ov2:.0f}% 2+ bands, {ov3:.0f}% 3+ bands")
 
-    # Rescale: band boost can push scores above 1.0. Compress the excess
-    # range so band-boosted cells still rank visually above non-boosted cells,
-    # but without unlimited range that would crush the lower bands.
-    # Uses sqrt compression on the >1.0 portion: 1.5 -> 1.22, 2.0 -> 1.41
+    # Rescale: band boost can push scores above 1.0. Compress cells
+    # above 1.0 back into [0.75, 1.0] range — wide enough to preserve
+    # discrimination between 2-band and 3+-band cells.
+    # Cells at or below 1.0 keep their original scores.
     raw_max = float(np.nanmax(final[valid & ~land])) if np.any(valid & ~land) else 1.0
     if raw_max > 1.0:
-        over = np.clip(final - 1.0, 0, None)
-        over = np.sqrt(over)
-        final = np.where(final > 1.0, 1.0 + over, final)
-        compressed_max = float(np.nanmax(final[valid & ~land]))
-        # Rescale so the max maps to 1.0
-        final[valid] = final[valid] / compressed_max
+        above = final > 1.0
+        if np.any(above):
+            # Linear map [1.0, raw_max] -> [0.75, 1.0]
+            final[above] = 0.75 + 0.25 * (final[above] - 1.0) / (raw_max - 1.0)
         final = np.clip(final, 0, 1)
-        print(f"[Hotspots] Band boost pushed max to {raw_max:.2f}, rescaled to 1.0 (discrimination preserved)")
+        print(f"[Hotspots] Band boost pushed max to {raw_max:.2f}, top-only rescale [1.0-{raw_max:.2f}] -> [0.75-1.0]")
+
+    # Score-gradient reward — catches happen at transition zones (~87% of
+    # local peak, steep E-W gradient at shelf edge).  Boost cells where the
+    # combined score landscape is changing rapidly AND the score is already
+    # moderate-to-high (>0.5).  This lifts the edges of good zones without
+    # inflating featureless water.
+    _score_grad_blend = getattr(sys.modules[__name__], '_opt_score_grad_blend', 0.20)
+    if _score_grad_blend > 0:
+        try:
+            score_for_grad = np.where(np.isnan(final), 0, final)
+            score_smooth = gaussian_filter(score_for_grad, sigma=1.5)
+            gy, gx = np.gradient(score_smooth)
+            grad_mag = np.sqrt(gx**2 + gy**2)
+            grad_mag[land] = 0
+            # Normalize to [0, 1] using 99th percentile
+            ocean_grad = grad_mag[~land & valid]
+            g99 = np.nanpercentile(ocean_grad, 99) if len(ocean_grad) > 0 else 1
+            grad_norm = np.clip(grad_mag / max(g99, 1e-6), 0, 1)
+            # Only reward transitions within decent-scoring zones (>0.5)
+            zone_mask = score_for_grad > 0.5
+            grad_reward = np.where(zone_mask, grad_norm, 0)
+            # Multiplicative boost: transition zones get up to +blend boost
+            grad_mult = 1.0 + _score_grad_blend * grad_reward
+            final[valid] *= grad_mult[valid]
+            final = np.clip(final, 0, 1)
+            pct_boosted = np.sum(grad_reward[~land & valid] > 0.3) / max(np.sum(~land & valid), 1) * 100
+            print(f"[Hotspots] Score-gradient reward: {pct_boosted:.0f}% of ocean cells boosted (blend={_score_grad_blend})")
+        except Exception as e:
+            print(f"[Hotspots] Score-gradient reward failed: {e}")
 
     # Floor boost for SST front lines — cells on the front are lifted
     # to at least _key_feature_floor (0.55).  Uses np.maximum so cells
@@ -1716,12 +2673,12 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     print(f"[Hotspots] Score range: {fmin:.3f} - {fmax:.3f} (mean {fmean:.3f})")
 
     # --- Build depth mask for clipping to >100m ---
+    from shapely.geometry import Polygon as ShapelyPolygon, mapping
     clip_mask = None
     if tif_path and os.path.exists(tif_path):
         try:
-            from shapely.geometry import Polygon as ShapelyPolygon, mapping
             clip_mask = build_deep_water_mask(tif_path, depth_threshold=-50)
-        except ImportError:
+        except Exception:
             pass
 
     # --- Helper to sample mean sub-scores within a polygon's bounding box ---
@@ -1761,8 +2718,8 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
                 if name == "depth":
                     result[name] = {"score": mean_score, "weight": -1}
                 elif name == "shelf_break":
-                    _sb = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.10)
-                    result[name] = {"score": round(1.0 + _sb * mean_score, 2), "weight": -2}
+                    _sb = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.12)
+                    result[name] = {"score": round(1.0 + _sb * mean_score, 2), "weight": w}
                 else:
                     result[name] = {"score": mean_score, "weight": w}
         if _depth_grid is not None:
@@ -1788,54 +2745,73 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     cf = ax.contourf(lons, lats, plot_data, levels=levels, extend="neither")
     plt.close(fig)
 
-    features = []
+    # Build filled polygons per band, then subtract higher bands for non-overlapping rings
+    from shapely.ops import unary_union
+    band_polys = {}
     for band_idx, seg_list in enumerate(cf.allsegs):
         if band_idx == 0:
-            continue  # skip the 0–0.15 band (background noise)
-        intensity = round((levels[band_idx] + levels[band_idx + 1]) / 2, 2) if band_idx + 1 < len(levels) else 1.0
-        band_label = f"{levels[band_idx]:.0%}–{levels[band_idx+1]:.0%}" if band_idx + 1 < len(levels) else f">{levels[band_idx]:.0%}"
-
+            continue
+        parts = []
         for seg in seg_list:
             if len(seg) < 4:
                 continue
-            coords = [[round(float(x), 4), round(float(y), 4)] for x, y in seg]
+            coords = [(round(float(x), 4), round(float(y), 4)) for x, y in seg]
             if coords[0] != coords[-1]:
                 coords.append(coords[0])
+            try:
+                p = ShapelyPolygon(coords).buffer(0)
+                if not p.is_empty and p.area > 0:
+                    parts.append(p)
+            except Exception:
+                pass
+        if parts:
+            band_polys[band_idx] = unary_union(parts)
 
-            # Sample actual composite score and sub-scores for this polygon
-            actual_intensity, breakdown = _sample_scores(coords)
+    features = []
+    for band_idx in sorted(band_polys.keys()):
+        intensity = round(levels[band_idx], 2)
+        band_label = f"{levels[band_idx]:.0%}–{levels[band_idx+1]:.0%}" if band_idx + 1 < len(levels) else f">{levels[band_idx]:.0%}"
 
-            props = {
-                "species": "blue",
-                "type": "hotspot",
-                "intensity": actual_intensity,
-                "band": band_label,
-            }
-            for name, info in breakdown.items():
-                props[f"s_{name}"] = info["score"]
-                props[f"w_{name}"] = info["weight"]
-
-            if clip_mask is not None:
+        ring = band_polys[band_idx]
+        for higher_idx in sorted(band_polys.keys()):
+            if higher_idx > band_idx:
                 try:
-                    poly = ShapelyPolygon([(c[0], c[1]) for c in coords]).buffer(0)
-                    clipped = poly.intersection(clip_mask)
-                    if clipped.is_empty:
-                        continue
-                    geom = mapping(clipped)
-                    if geom["type"] == "Polygon":
-                        features.append({"type": "Feature", "geometry": geom, "properties": props})
-                    elif geom["type"] == "MultiPolygon":
-                        for mc in geom["coordinates"]:
-                            features.append({"type": "Feature", "geometry": {"type": "Polygon", "coordinates": mc}, "properties": props})
-                    continue
+                    ring = ring.difference(band_polys[higher_idx])
                 except Exception:
                     pass
+        if ring.is_empty:
+            continue
+        if clip_mask is not None:
+            try:
+                ring = ring.intersection(clip_mask)
+            except Exception:
+                pass
+        if ring.is_empty:
+            continue
 
-            features.append({
-                "type": "Feature",
-                "geometry": {"type": "Polygon", "coordinates": [coords]},
-                "properties": props,
-            })
+        # Sample sub-scores from ring's representative point
+        rep = ring.representative_point()
+        sample_coords = [[rep.x - 0.01, rep.y - 0.01], [rep.x + 0.01, rep.y - 0.01],
+                         [rep.x + 0.01, rep.y + 0.01], [rep.x - 0.01, rep.y + 0.01],
+                         [rep.x - 0.01, rep.y - 0.01]]
+        _, breakdown = _sample_scores(sample_coords)
+
+        props = {
+            "species": "blue",
+            "type": "hotspot",
+            "intensity": intensity,
+            "band": band_label,
+        }
+        for name, info in breakdown.items():
+            props[f"s_{name}"] = info["score"]
+            props[f"w_{name}"] = info["weight"]
+
+        geom = mapping(ring)
+        if geom["type"] == "Polygon":
+            features.append({"type": "Feature", "geometry": geom, "properties": props})
+        elif geom["type"] == "MultiPolygon":
+            for mc in geom["coordinates"]:
+                features.append({"type": "Feature", "geometry": {"type": "Polygon", "coordinates": mc}, "properties": props})
 
     geojson = {"type": "FeatureCollection", "features": features}
     output_path = os.path.join(OUTPUT_DIR, "blue_marlin_hotspots.geojson")
@@ -1864,6 +2840,63 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             with open(depth_path, "w") as f:
                 json.dump(depth_geojson, f)
             print(f"[Hotspots] Depth grid: {len(depth_pts)} points ->{depth_path}")
+
+    # ---- Export invisible scoring features as GeoJSON overlays ----
+    # These features contribute to the score but have no visible map overlay.
+    # Generating contour lines lets the user see what the model "sees".
+
+    _overlay_configs = [
+        # (score_key, filename, contour_levels, type_name, labels, colors)
+        ("front_corridor", "front_corridors.geojson",
+         [0.3, 0.5, 0.7],
+         "front_corridor",
+         ["moderate", "strong", "intense"],
+         ["#fb923c", "#f97316", "#ea580c"]),   # orange tones
+        ("convergence", "convergence_zones.geojson",
+         [0.3, 0.5, 0.7],
+         "convergence",
+         ["moderate", "strong", "intense"],
+         ["#a78bfa", "#8b5cf6", "#7c3aed"]),   # violet tones
+        ("current_shear", "shear_zones.geojson",
+         [0.3, 0.5, 0.7],
+         "current_shear",
+         ["moderate", "strong", "intense"],
+         ["#38bdf8", "#0ea5e9", "#0284c7"]),   # sky blue tones
+        ("upwelling_edge", "upwelling_edges.geojson",
+         [0.3, 0.5],
+         "upwelling_edge",
+         ["moderate", "strong"],
+         ["#2dd4bf", "#0d9488"]),               # teal tones
+        ("chl_curvature", "chl_curvature.geojson",
+         [0.4, 0.6],
+         "chl_curvature",
+         ["moderate", "strong"],
+         ["#86efac", "#22c55e"]),               # green tones
+    ]
+
+    for score_key, fname, levels, type_name, labels, colors in _overlay_configs:
+        if score_key not in sub_scores:
+            continue
+        sgrid = sub_scores[score_key]
+        if not isinstance(sgrid, np.ndarray) or np.all(np.isnan(sgrid)):
+            continue
+        # Fill NaN for contour extraction
+        sgrid_filled = sgrid.copy()
+        sgrid_filled[np.isnan(sgrid_filled)] = 0
+        all_feats = []
+        for lvl, lbl, clr in zip(levels, labels, colors):
+            feats = _contours_to_geojson(
+                sgrid_filled, lons, lats, lvl,
+                properties={"type": type_name, "level": lvl, "label": lbl, "color": clr},
+                min_pts=4,
+            )
+            all_feats.extend(feats)
+        if all_feats:
+            ov_geojson = {"type": "FeatureCollection", "features": all_feats}
+            ov_path = os.path.join(OUTPUT_DIR, fname)
+            with open(ov_path, "w") as f:
+                json.dump(ov_geojson, f)
+            print(f"[Hotspots] {type_name}: {len(all_feats)} contours ->{ov_path}")
 
     return {
         "path": output_path,
@@ -2295,11 +3328,11 @@ def process_currents(currents_file):
 # ---------------------------------------------------------------------------
 # 5. Bathymetry Contour Extraction (from GEBCO GeoTIFF)
 # ---------------------------------------------------------------------------
-def extract_bathymetry_contours(gebco_file, depths=[-50, -100, -150, -200, -250, -500, -1000]):
+def extract_bathymetry_contours(gebco_file, depths=[-50, -100, -200, -300, -400, -500, -600, -700, -800, -900, -1000]):
     """
     Extract depth contour lines from a GEBCO GeoTIFF file.
     Requires: pip install rasterio
-    
+
     Download GEBCO GeoTIFF from:
         https://download.gebco.net/
         Select Perth region: lon 113-117, lat -34 to -30
@@ -2317,10 +3350,14 @@ def extract_bathymetry_contours(gebco_file, depths=[-50, -100, -150, -200, -250,
 
     DEPTH_STYLE = {
         -100:  {"label": "100m contour",    "color": "#a3e635"},
-        -150:  {"label": "150m contour",    "color": "#84cc16"},
         -200:  {"label": "200m shelf break","color": "#f59e0b"},
-        -250:  {"label": "250m contour",    "color": "#e17b24"},
+        -300:  {"label": "300m contour",    "color": "#e17b24"},
+        -400:  {"label": "400m contour",    "color": "#d97706"},
         -500:  {"label": "500m contour",    "color": "#06b6d4"},
+        -600:  {"label": "600m contour",    "color": "#0891b2"},
+        -700:  {"label": "700m contour",    "color": "#0e7490"},
+        -800:  {"label": "800m contour",    "color": "#155e75"},
+        -900:  {"label": "900m contour",    "color": "#1e40af"},
         -1000: {"label": "1000m contour",   "color": "#3b82f6"},
     }
 
@@ -2651,6 +3688,20 @@ def main():
             fetch_copernicus_mld(date_str, bbox)
         except Exception as e:
             print(f"[MLD] Fetch error: {e}")
+
+        # Salinity — halocline marks LC boundary when SST front is masked in summer
+        if BLUE_MARLIN_WEIGHTS.get("salinity_front", 0) > 0:
+            try:
+                fetch_copernicus_salinity(date_str, bbox)
+            except Exception as e:
+                print(f"[Salinity] Fetch error: {e}")
+
+        # Subsurface temperature at 250m — canyon upwelling + stratification index
+        if BLUE_MARLIN_WEIGHTS.get("thermocline_lift", 0) > 0 or BLUE_MARLIN_WEIGHTS.get("stratification", 0) > 0:
+            try:
+                fetch_copernicus_subsurface_temp(date_str, bbox)
+            except Exception as e:
+                print(f"[SubsurfaceTemp] Fetch error: {e}")
 
         # Oxygen fetch removed — 0.25° too coarse, never limiting off Perth
 

@@ -4,7 +4,7 @@ fetch_prediction.py — Fetch ocean data for marlin prediction.
 
 Downloads 8 days of recent observations + 7 days of forecast data,
 computes trend features, and scores each upcoming day using the
-prediction model from analyze_trends_v2.py.
+prediction model from prediction_model_v2.json.
 
 Data sources:
   OBSERVATIONS (past 8 days):
@@ -267,6 +267,48 @@ def fetch_copernicus_forecast(date_str, out_dir, variable_set="all"):
     else:
         results["ssh"] = True
 
+    # --- Subsurface Temperature (for trend model; stratification/thermocline_lift have w=0 in scoring) ---
+    sub_path = os.path.join(out_dir, "subsurface_temp_raw.nc")
+    if not os.path.exists(sub_path):
+        try:
+            print(f"    [SubsurfaceTemp] ANFC: {date_str}...")
+            copernicusmarine.subset(
+                dataset_id="cmems_mod_glo_phy-thetao_anfc_0.083deg_P1D-m",
+                variables=["thetao"],
+                minimum_longitude=BBOX["lon_min"], maximum_longitude=BBOX["lon_max"],
+                minimum_latitude=BBOX["lat_min"], maximum_latitude=BBOX["lat_max"],
+                start_datetime=f"{date_str}T00:00:00",
+                end_datetime=f"{date_str}T23:59:59",
+                minimum_depth=200, maximum_depth=260,
+                output_filename=sub_path, output_directory=".", overwrite=True,
+            )
+            results["subsurface_temp"] = True
+        except Exception as e:
+            print(f"    [SubsurfaceTemp] failed: {str(e)[:60]}")
+    else:
+        results["subsurface_temp"] = True
+
+    # --- Salinity (for salinity_front) ---
+    sal_path = os.path.join(out_dir, "salinity_raw.nc")
+    if not os.path.exists(sal_path):
+        try:
+            print(f"    [Salinity] ANFC: {date_str}...")
+            copernicusmarine.subset(
+                dataset_id="cmems_mod_glo_phy-so_anfc_0.083deg_P1D-m",
+                variables=["so"],
+                minimum_longitude=BBOX["lon_min"], maximum_longitude=BBOX["lon_max"],
+                minimum_latitude=BBOX["lat_min"], maximum_latitude=BBOX["lat_max"],
+                start_datetime=f"{date_str}T00:00:00",
+                end_datetime=f"{date_str}T23:59:59",
+                minimum_depth=0, maximum_depth=1,
+                output_filename=sal_path, output_directory=".", overwrite=True,
+            )
+            results["salinity"] = True
+        except Exception as e:
+            print(f"    [Salinity] failed: {str(e)[:60]}")
+    else:
+        results["salinity"] = True
+
     return results
 
 
@@ -309,7 +351,7 @@ def fetch_day(date_str, out_dir, is_forecast=False):
 
 
 # ---------------------------------------------------------------------------
-# Extract metrics + score (reuse from analyze_trends_v2)
+# Extract metrics + score
 # ---------------------------------------------------------------------------
 def _extract_var(ds, var_names):
     for v in var_names:
@@ -761,7 +803,7 @@ def main():
             try:
                 results = fetch_day(d["date"], out_dir, is_forecast=d["is_forecast"])
                 n_ok = sum(1 for v in results.values() if v)
-                print(f"    -> {n_ok}/5 variables OK")
+                print(f"    -> {n_ok}/{len(results)} variables OK")
             except Exception as e:
                 print(f"    -> ERROR: {str(e)[:80]}")
 

@@ -18,7 +18,7 @@ Email setup:
 
 Windows Task Scheduler:
     The --install flag creates a task "MarLEEn Daily Update" that runs
-    daily at 05:00 AWST (21:00 UTC previous day), after ECMWF model runs complete.
+    daily at 05:00 AWST (21:00 UTC previous day), after Copernicus ANFC model updates.
 """
 import json, os, smtplib, subprocess, sys, time, urllib.request
 from datetime import datetime, timedelta
@@ -151,14 +151,16 @@ def push_to_github(today):
         "data/prediction/forecast_summary.json",
         "data/prediction/forecast_zone.geojson",
     ]
-    # Add per-day hotspot GeoJSONs
+    # Add per-day prediction outputs (hotspots, subzone scores, species)
     pred_dir = os.path.join(SCRIPT_DIR, "data", "prediction")
     for name in os.listdir(pred_dir):
         day_dir = os.path.join(pred_dir, name)
         if os.path.isdir(day_dir) and len(name) == 10 and name[4] == "-":  # date dirs
-            hs = os.path.join(day_dir, "blue_marlin_hotspots.geojson")
-            if os.path.exists(hs):
-                data_files.append(f"data/prediction/{name}/blue_marlin_hotspots.geojson")
+            for fname in ["blue_marlin_hotspots.geojson", "subzone_scores.json",
+                          "sbt_hotspots.geojson", "spanish_mackerel_hotspots.geojson"]:
+                fpath = os.path.join(day_dir, fname)
+                if os.path.exists(fpath):
+                    data_files.append(f"data/prediction/{name}/{fname}")
 
     try:
         # Stage data files

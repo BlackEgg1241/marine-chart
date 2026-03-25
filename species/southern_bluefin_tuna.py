@@ -50,6 +50,58 @@ _opt_front_floor = 0.05       # Min front score in suitable SST water
 _opt_corridor_thresh = 0.26   # Front cell mask threshold
 _opt_shelf_boost = 0.15       # Higher than marlin (0.10) — more shelf-dependent
 
+# Island exclusion polygons — mask out land masses from hotspot output
+ISLAND_MASKS = [
+    # Rottnest Island
+    [[115.510856,-31.986400],[115.513406,-31.986233],[115.519684,-31.986766],
+     [115.523804,-31.986699],[115.528513,-31.986433],[115.538087,-31.987165],
+     [115.543070,-31.987564],[115.544413,-31.990733],[115.546462,-31.993838],
+     [115.548161,-31.997202],[115.556659,-32.000491],[115.560582,-31.998976],
+     [115.562151,-31.998828],[115.562935,-32.001230],[115.562935,-32.003041],
+     [115.558359,-32.005221],[115.556747,-32.006847],[115.559666,-32.009841],
+     [115.558185,-32.012095],[115.553301,-32.017870],[115.552386,-32.019644],
+     [115.550693,-32.019940],[115.548340,-32.016688],[115.544374,-32.016318],
+     [115.540496,-32.017205],[115.536922,-32.017944],[115.534525,-32.018979],
+     [115.531692,-32.021787],[115.530821,-32.024484],[115.529818,-32.026701],
+     [115.528555,-32.027329],[115.525199,-32.027034],[115.523412,-32.026775],
+     [115.521059,-32.025593],[115.520579,-32.023524],[115.517660,-32.021861],
+     [115.516396,-32.021750],[115.513720,-32.016305],[115.510626,-32.015234],
+     [115.507223,-32.014162],[115.500319,-32.017512],[115.498794,-32.019064],
+     [115.497094,-32.020394],[115.493433,-32.021613],[115.490426,-32.021835],
+     [115.487724,-32.020468],[115.485981,-32.018842],[115.482887,-32.017992],
+     [115.481056,-32.017142],[115.478877,-32.016699],[115.475783,-32.016440],
+     [115.473953,-32.016995],[115.472471,-32.018177],[115.472558,-32.019655],
+     [115.472428,-32.022205],[115.470510,-32.023202],[115.466936,-32.024163],
+     [115.465498,-32.024237],[115.462876,-32.023335],[115.461264,-32.023705],
+     [115.461220,-32.025109],[115.460218,-32.025959],[115.458562,-32.026808],
+     [115.457167,-32.027621],[115.455075,-32.027880],[115.453289,-32.027732],
+     [115.452243,-32.027510],[115.452112,-32.026845],[115.451240,-32.026033],
+     [115.447828,-32.027323],[115.445519,-32.027249],[115.445344,-32.026362],
+     [115.447801,-32.024238],[115.447844,-32.022945],[115.447931,-32.020913],
+     [115.448280,-32.018548],[115.448411,-32.015814],[115.451984,-32.015814],
+     [115.454425,-32.016220],[115.457548,-32.012784],[115.460555,-32.011453],
+     [115.466393,-32.009699],[115.469225,-32.009846],[115.473060,-32.009736],
+     [115.476678,-32.007814],[115.477985,-32.007186],[115.483119,-32.004673],
+     [115.485479,-32.001913],[115.485944,-31.999881],[115.490400,-31.995756],
+     [115.491616,-31.994665],[115.497797,-31.991793],[115.502053,-31.989032],
+     [115.510856,-31.986400]],
+    # Carnac Island
+    [[115.663867,-32.115580],[115.657733,-32.119077],[115.657438,-32.120775],
+     [115.658735,-32.123173],[115.662215,-32.125971],[115.666285,-32.127519],
+     [115.667583,-32.127170],[115.667996,-32.123173],[115.666344,-32.119127],
+     [115.663867,-32.115580]],
+    # Garden Island
+    [[115.657678,-32.156398],[115.658567,-32.172439],[115.660787,-32.184092],
+     [115.664488,-32.199377],[115.673075,-32.223927],[115.677368,-32.241585],
+     [115.679145,-32.245842],[115.686991,-32.247970],[115.698983,-32.245967],
+     [115.704460,-32.244214],[115.700019,-32.239205],[115.694985,-32.234071],
+     [115.695281,-32.230314],[115.702091,-32.230064],[115.699129,-32.219763],
+     [115.693355,-32.215254],[115.687878,-32.207362],[115.681808,-32.188696],
+     [115.679883,-32.178171],[115.683288,-32.174663],[115.680327,-32.171029],
+     [115.675442,-32.161755],[115.670112,-32.154361],[115.662414,-32.152481],
+     [115.657678,-32.156398]],
+]
+
 # Band system parameters
 _opt_band_width_nm = 2.5      # Slightly wider than marlin (2.0)
 _opt_band_boost = 0.30
@@ -718,6 +770,15 @@ def generate_sbt_hotspots(bbox, tif_path=None, date_str=None, output_dir=None):
     final[valid] = score[valid] / weight_sum[valid]
     final[land] = np.nan
 
+    # Mask out islands
+    from matplotlib.path import Path as MplPath
+    lon_grid, lat_grid = np.meshgrid(lons, lats)
+    pts = np.column_stack([lon_grid.ravel(), lat_grid.ravel()])
+    for island_poly in ISLAND_MASKS:
+        ip = MplPath(island_poly)
+        mask = ip.contains_points(pts).reshape(ny, nx)
+        final[mask] = np.nan
+
     # Depth gate multiplier
     if "depth" in sub_scores:
         depth_mult = sub_scores["depth"]
@@ -764,6 +825,17 @@ def generate_sbt_hotspots(bbox, tif_path=None, date_str=None, output_dir=None):
     final_smooth = gaussian_filter(final_filled, sigma=_smooth_sigma)
     final_smooth[land | ~valid] = np.nan
 
+    # Re-apply island masks after smoothing (smoothing bleeds into masked areas)
+    from matplotlib.path import Path as MplPath
+    pts = np.column_stack([
+        np.repeat(lons[np.newaxis, :], ny, axis=0).ravel(),
+        np.repeat(lats[:, np.newaxis], nx, axis=1).ravel(),
+    ])
+    for island_poly in ISLAND_MASKS:
+        ip = MplPath(island_poly)
+        mask = ip.contains_points(pts).reshape(ny, nx)
+        final_smooth[mask] = np.nan
+
     fmin = float(np.nanmin(final_smooth[~land & valid]))
     fmax = float(np.nanmax(final_smooth[~land & valid]))
     fmean = float(np.nanmean(final_smooth[~land & valid]))
@@ -802,7 +874,8 @@ def generate_sbt_hotspots(bbox, tif_path=None, date_str=None, output_dir=None):
         inside = poly_path.contains_points(points).reshape(mesh_lon.shape)
         region_composite = final_smooth[np.ix_(row_idx, col_idx)]
         valid_composite = region_composite[inside & ~np.isnan(region_composite)]
-        actual_intensity = round(float(np.mean(valid_composite)), 2) if len(valid_composite) > 0 else 0.0
+        # Use median instead of mean to avoid higher-band cells pulling average up
+        actual_intensity = round(float(np.median(valid_composite)), 2) if len(valid_composite) > 0 else 0.0
         result = {}
         for name, arr in sub_scores.items():
             region = arr[np.ix_(row_idx, col_idx)]
@@ -834,48 +907,78 @@ def generate_sbt_hotspots(bbox, tif_path=None, date_str=None, output_dir=None):
     cf = ax.contourf(lons, lats, plot_data, levels=levels, extend="neither")
     plt.close(fig)
 
-    features = []
+    # Build filled polygons per band, then subtract higher bands to make non-overlapping rings
+    from shapely.geometry import Polygon as ShapelyPolygon2, MultiPolygon as ShapelyMultiPolygon
+    from shapely.ops import unary_union
+    band_polys = {}  # band_idx -> union of all segments at that level
     for band_idx, seg_list in enumerate(cf.allsegs):
         if band_idx == 0:
             continue
-        intensity = round((levels[band_idx] + levels[band_idx + 1]) / 2, 2) if band_idx + 1 < len(levels) else 1.0
-        band_label = f"{levels[band_idx]:.0%}-{levels[band_idx+1]:.0%}" if band_idx + 1 < len(levels) else f">{levels[band_idx]:.0%}"
+        parts = []
         for seg in seg_list:
             if len(seg) < 4:
                 continue
-            coords = [[round(float(x), 4), round(float(y), 4)] for x, y in seg]
+            coords = [(round(float(x), 4), round(float(y), 4)) for x, y in seg]
             if coords[0] != coords[-1]:
                 coords.append(coords[0])
-            actual_intensity, breakdown = _sample_scores(coords)
-            props = {
-                "species": "sbt",
-                "type": "hotspot",
-                "intensity": actual_intensity,
-                "band": band_label,
-            }
-            for name, info in breakdown.items():
-                props[f"s_{name}"] = info["score"]
-                props[f"w_{name}"] = info["weight"]
-            if clip_mask is not None:
+            try:
+                p = ShapelyPolygon2(coords).buffer(0)
+                if not p.is_empty and p.area > 0:
+                    parts.append(p)
+            except Exception:
+                pass
+        if parts:
+            band_polys[band_idx] = unary_union(parts)
+
+    features = []
+    for band_idx in sorted(band_polys.keys()):
+        intensity = round(levels[band_idx], 2)
+        band_label = f"{levels[band_idx]:.0%}-{levels[band_idx+1]:.0%}" if band_idx + 1 < len(levels) else f">{levels[band_idx]:.0%}"
+
+        ring = band_polys[band_idx]
+        # Subtract all higher bands to create non-overlapping donut
+        for higher_idx in sorted(band_polys.keys()):
+            if higher_idx > band_idx:
                 try:
-                    poly = ShapelyPolygon([(c[0], c[1]) for c in coords]).buffer(0)
-                    clipped = poly.intersection(clip_mask)
-                    if clipped.is_empty:
-                        continue
-                    geom = mapping(clipped)
-                    if geom["type"] == "Polygon":
-                        features.append({"type": "Feature", "geometry": geom, "properties": props})
-                    elif geom["type"] == "MultiPolygon":
-                        for mc in geom["coordinates"]:
-                            features.append({"type": "Feature", "geometry": {"type": "Polygon", "coordinates": mc}, "properties": props})
-                    continue
+                    ring = ring.difference(band_polys[higher_idx])
                 except Exception:
                     pass
-            features.append({
-                "type": "Feature",
-                "geometry": {"type": "Polygon", "coordinates": [coords]},
-                "properties": props,
-            })
+        if ring.is_empty:
+            continue
+
+        # Clip to depth mask if available
+        if clip_mask is not None:
+            try:
+                ring = ring.intersection(clip_mask)
+            except Exception:
+                pass
+        if ring.is_empty:
+            continue
+
+        # Sample sub-scores from the ring's representative point
+        rep = ring.representative_point()
+        sample_coords = [[rep.x - 0.01, rep.y - 0.01], [rep.x + 0.01, rep.y - 0.01],
+                         [rep.x + 0.01, rep.y + 0.01], [rep.x - 0.01, rep.y + 0.01],
+                         [rep.x - 0.01, rep.y - 0.01]]
+        _, breakdown = _sample_scores(sample_coords)
+
+        props = {
+            "species": "sbt",
+            "type": "hotspot",
+            "intensity": intensity,
+            "band": band_label,
+        }
+        for name, info in breakdown.items():
+            props[f"s_{name}"] = info["score"]
+            props[f"w_{name}"] = info["weight"]
+
+        # Export as individual polygons
+        geom = mapping(ring)
+        if geom["type"] == "Polygon":
+            features.append({"type": "Feature", "geometry": geom, "properties": props})
+        elif geom["type"] == "MultiPolygon":
+            for mc in geom["coordinates"]:
+                features.append({"type": "Feature", "geometry": {"type": "Polygon", "coordinates": mc}, "properties": props})
 
     geojson = {"type": "FeatureCollection", "features": features}
     output_path = os.path.join(_output_dir, "sbt_hotspots.geojson")
