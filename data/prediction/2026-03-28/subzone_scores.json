@@ -1,0 +1,22 @@
+{
+  "canyon": {
+    "max": 95.4,
+    "mean": 65.1,
+    "cells": 90
+  },
+  "pgfc": {
+    "max": 93.9,
+    "mean": 66.7,
+    "cells": 100
+  },
+  "north": {
+    "max": 95.3,
+    "mean": 72.8,
+    "cells": 117
+  },
+  "south": {
+    "max": 88.5,
+    "mean": 75.1,
+    "cells": 60
+  }
+}
