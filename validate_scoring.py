@@ -260,6 +260,41 @@ def sample_hotspot_at_locations(hotspot_path, locations):
     return results
 
 
+def _is_duplicate_location(catch, all_catches):
+    """Check if this catch shares coordinates with another catch on a different date."""
+    key = (round(catch["lat"], 4), round(catch["lon"], 4))
+    dates_at_loc = set()
+    for c in all_catches:
+        if (round(c["lat"], 4), round(c["lon"], 4)) == key:
+            dates_at_loc.add(c["date"])
+    return len(dates_at_loc) > 1
+
+
+def _proximity_max(grid, lats, lons, lat, lon, radius_deg=0.017):
+    """Find max score within radius_deg (~1nm) of the target point.
+
+    Returns (max_score, best_yi, best_xi).
+    """
+    lat_mask = np.abs(lats - lat) <= radius_deg
+    lon_mask = np.abs(lons - lon) <= radius_deg
+    yi_indices = np.where(lat_mask)[0]
+    xi_indices = np.where(lon_mask)[0]
+
+    best_score = 0.0
+    best_yi = np.argmin(np.abs(lats - lat))
+    best_xi = np.argmin(np.abs(lons - lon))
+
+    for yi in yi_indices:
+        for xi in xi_indices:
+            val = grid[yi, xi]
+            if not np.isnan(val) and val > best_score:
+                best_score = val
+                best_yi = yi
+                best_xi = xi
+
+    return float(best_score), best_yi, best_xi
+
+
 def main():
     catches = load_catches()
     dates = sorted(set(c["date"] for c in catches))
@@ -311,8 +346,12 @@ def main():
             continue
 
         # Pixel-level sampling from the grid
+        # Two-tier scoring: exact pixel for unique GPS locations,
+        # max within ~1nm radius for duplicate (DDM-rounded) locations
         for c in date_catches:
             result = {**c, "data_available": True}
+            is_dupe = _is_duplicate_location(c, catches)
+            result["scoring_mode"] = "proximity" if is_dupe else "exact"
             if grid_result and isinstance(grid_result, dict):
                 grid = grid_result["grid"]
                 glats = grid_result["lats"]
@@ -322,18 +361,36 @@ def main():
                 # Find nearest pixel
                 yi = np.argmin(np.abs(glats - c["lat"]))
                 xi = np.argmin(np.abs(glons - c["lon"]))
-                pixel_score = float(grid[yi, xi]) if not np.isnan(grid[yi, xi]) else 0
+
+                if is_dupe:
+                    # Proximity mode: max score within ~1nm (~0.017 deg) radius
+                    # This accounts for DDM rounding error at shared coordinates
+                    pixel_score, yi_best, xi_best = _proximity_max(
+                        grid, glats, glons, c["lat"], c["lon"], radius_deg=0.017
+                    )
+                    result["exact_score"] = round(
+                        float(grid[yi, xi]) if not np.isnan(grid[yi, xi]) else 0, 2
+                    )
+                    # Sample sub-scores at best pixel location
+                    for name, arr in sscores.items():
+                        val = float(arr[yi_best, xi_best]) if not np.isnan(arr[yi_best, xi_best]) else None
+                        result[f"s_{name}"] = round(val, 2) if val is not None else None
+                else:
+                    # Exact mode: score at nearest pixel (unique GPS mark)
+                    pixel_score = float(grid[yi, xi]) if not np.isnan(grid[yi, xi]) else 0
+                    for name, arr in sscores.items():
+                        val = float(arr[yi, xi]) if not np.isnan(arr[yi, xi]) else None
+                        result[f"s_{name}"] = round(val, 2) if val is not None else None
+
                 result["hotspot_score"] = round(pixel_score, 2)
-                for name, arr in sscores.items():
-                    val = float(arr[yi, xi]) if not np.isnan(arr[yi, xi]) else None
-                    result[f"s_{name}"] = round(val, 2) if val is not None else None
                 for name, w in weights.items():
                     result[f"w_{name}"] = w
             else:
                 result["hotspot_score"] = 0
             all_results.append(result)
             sc = result["hotspot_score"]
-            print(f"  {c['species'][:4]} ({c['lon']:.2f}E, {abs(c['lat']):.2f}S): {sc:.0%}" if sc else
+            mode_tag = " [prox]" if is_dupe else ""
+            print(f"  {c['species'][:4]} ({c['lon']:.2f}E, {abs(c['lat']):.2f}S): {sc:.0%}{mode_tag}" if sc else
                   f"  {c['species'][:4]} ({c['lon']:.2f}E, {abs(c['lat']):.2f}S): outside zones")
 
     # Save CSV
@@ -341,7 +398,7 @@ def main():
     # Build fieldnames dynamically from all sub-scores and weights present
     base_fields = [
         "date", "lat", "lon", "species", "weight", "length", "tag",
-        "data_available", "hotspot_score",
+        "data_available", "hotspot_score", "scoring_mode", "exact_score",
     ]
     s_keys = sorted(set(k for r in all_results for k in r if k.startswith("s_")))
     w_keys = sorted(set(k for r in all_results for k in r if k.startswith("w_")))
@@ -362,12 +419,30 @@ def main():
     print(f"  Outside all zones: {len(no_zone)}/{len(scored)}")
     if in_zone:
         scores = [r["hotspot_score"] for r in in_zone]
-        print(f"  Score range: {min(scores):.0%} – {max(scores):.0%}")
+        print(f"  Score range: {min(scores):.0%} - {max(scores):.0%}")
         print(f"  Mean score at catch locations: {np.mean(scores):.0%}")
         print(f"  Median score: {np.median(scores):.0%}")
         for thresh in [0.3, 0.5, 0.7]:
             n = sum(1 for s in scores if s >= thresh)
             print(f"  Score >= {thresh:.0%}: {n}/{len(scored)} ({n/len(scored)*100:.0f}%)")
+
+    # Two-tier breakdown
+    exact_catches = [r for r in scored if r.get("scoring_mode") == "exact"]
+    prox_catches = [r for r in scored if r.get("scoring_mode") == "proximity"]
+    if exact_catches and prox_catches:
+        print(f"\n  Two-tier scoring breakdown:")
+        ex_scores = [r["hotspot_score"] for r in exact_catches if r["hotspot_score"] and r["hotspot_score"] > 0]
+        pr_scores = [r["hotspot_score"] for r in prox_catches if r["hotspot_score"] and r["hotspot_score"] > 0]
+        if ex_scores:
+            print(f"    Unique GPS (exact):    n={len(exact_catches)}, mean={np.mean(ex_scores):.0%}, median={np.median(ex_scores):.0%}")
+        if pr_scores:
+            print(f"    Duplicate loc (prox):  n={len(prox_catches)}, mean={np.mean(pr_scores):.0%}, median={np.median(pr_scores):.0%}")
+            # Show how much proximity scoring helped
+            exact_at_prox = [r.get("exact_score", r["hotspot_score"]) for r in prox_catches if r["hotspot_score"] and r["hotspot_score"] > 0]
+            if exact_at_prox:
+                lift = np.mean(pr_scores) - np.mean(exact_at_prox)
+                print(f"    Proximity lift:        {lift:+.0%} (exact mean {np.mean(exact_at_prox):.0%} -> prox mean {np.mean(pr_scores):.0%})")
+
     print(f"\nSaved to {output_csv}")
 
 

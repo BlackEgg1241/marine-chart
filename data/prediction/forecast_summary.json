@@ -23,9 +23,9 @@
         "mld_mean": 4.1,
         "vorticity": 24.8
       },
-      "zone_max": 90.0,
-      "zone_mean": 80.1,
-      "zone_cells": 27,
+      "zone_max": 97.0,
+      "zone_mean": 85.0,
+      "zone_cells": 49,
       "subzones": {
         "canyon": {
           "max": 74.8,
@@ -74,9 +74,9 @@
         "mld_mean": 0.0,
         "vorticity": 27.6
       },
-      "zone_max": 94.0,
-      "zone_mean": 84.7,
-      "zone_cells": 69,
+      "zone_max": 97.0,
+      "zone_mean": 86.5,
+      "zone_cells": 51,
       "subzones": {
         "canyon": {
           "max": 94.0,
@@ -125,9 +125,9 @@
         "sst_skew": 30.2,
         "sst_warm_frac": 31.9
       },
-      "zone_max": 95.0,
+      "zone_max": 97.0,
       "zone_mean": 85.6,
-      "zone_cells": 74,
+      "zone_cells": 48,
       "subzones": {
         "canyon": {
           "max": 95.4,
@@ -176,9 +176,9 @@
         "sst_front_frac": 49.2,
         "blue_water_frac": 65.0
       },
-      "zone_max": 97.0,
-      "zone_mean": 84.5,
-      "zone_cells": 62,
+      "zone_max": 96.0,
+      "zone_mean": 86.1,
+      "zone_cells": 58,
       "subzones": {
         "canyon": {
           "max": 98.7,
@@ -227,9 +227,9 @@
         "sst_front_frac": 46.4,
         "sst_iqr": 48.8
       },
-      "zone_max": 89.0,
-      "zone_mean": 80.5,
-      "zone_cells": 26,
+      "zone_max": 97.0,
+      "zone_mean": 83.3,
+      "zone_cells": 51,
       "subzones": {
         "canyon": {
           "max": 73.9,
@@ -278,9 +278,9 @@
         "sst_std": 46.2,
         "sst_warm_frac": 63.3
       },
-      "zone_max": 95.0,
-      "zone_mean": 82.2,
-      "zone_cells": 39,
+      "zone_max": 96.0,
+      "zone_mean": 82.5,
+      "zone_cells": 55,
       "subzones": {
         "canyon": {
           "max": 95.9,
@@ -329,9 +329,9 @@
         "sst_iqr": 41.2,
         "sst_std": 45.5
       },
-      "zone_max": 84.0,
-      "zone_mean": 77.2,
-      "zone_cells": 25,
+      "zone_max": 96.0,
+      "zone_mean": 84.4,
+      "zone_cells": 56,
       "subzones": {
         "canyon": {
           "max": 85.9,

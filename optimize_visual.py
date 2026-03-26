@@ -48,7 +48,9 @@ def ddm_to_dd(raw_str, negative=False):
     return -dd if negative else dd
 
 
-def load_catches():
+def load_catches(unique_only=False):
+    """Load catches. If unique_only=True, exclude ALL catches at locations
+    that appear on multiple dates (removes potential DDM-rounded duplicates)."""
     catches = []
     seen = set()
 
@@ -113,6 +115,19 @@ def load_catches():
                     except ValueError:
                         continue
 
+    if unique_only:
+        # Count dates per location
+        from collections import Counter
+        loc_dates = {}
+        for c in catches:
+            loc_key = (round(c['lat'], 4), round(c['lon'], 4))
+            if loc_key not in loc_dates:
+                loc_dates[loc_key] = set()
+            loc_dates[loc_key].add(c['date'])
+        # Keep only locations that appear on exactly one date
+        catches = [c for c in catches
+                   if len(loc_dates[(round(c['lat'], 4), round(c['lon'], 4))]) == 1]
+
     return catches
 
 
@@ -147,7 +162,7 @@ def _score_one_date(args):
         # Dropped features — processing bugs or redundancy (see scoring_antipatterns.md)
         marlin_data.BLUE_MARLIN_WEIGHTS['mld'] = 0
         marlin_data.BLUE_MARLIN_WEIGHTS['rugosity'] = 0
-        marlin_data.BLUE_MARLIN_WEIGHTS['sst_chl_bivariate'] = 0
+        marlin_data.BLUE_MARLIN_WEIGHTS['sst_chl_bivariate'] = params.get('w_bivariate', 0)
         marlin_data.BLUE_MARLIN_WEIGHTS['thermocline_lift'] = 0
         marlin_data.BLUE_MARLIN_WEIGHTS['stratification'] = 0
         marlin_data.BLUE_MARLIN_WEIGHTS['convergence'] = 0
@@ -162,6 +177,7 @@ def _score_one_date(args):
         marlin_data._shelf_prox_sigma = params['shelf_prox_sigma']
         marlin_data._depth_shallow_full = params['depth_shallow_full']
         marlin_data._opt_pool_percentile = params['pool_pct']
+        marlin_data._depth_zero_cut = params.get('depth_zero_cut', 50)
         marlin_data._depth_taper_start = params.get('depth_taper_start', 300)
         marlin_data._depth_taper_mid = params.get('depth_taper_mid', 800)
         marlin_data._depth_floor = params.get('depth_floor', 0.25)
@@ -235,7 +251,7 @@ def _score_one_date(args):
                 continue
 
             catch_score = float(val) * 100
-            catch_data = {'score': catch_score}
+            catch_data = {'score': catch_score, 'lat': c['lat'], 'lon': c['lon']}
 
             # Percentile rank
             if len(eval_vals) > 0:
@@ -301,7 +317,9 @@ def run_trial(catches, params):
     if not results:
         return None
 
-    # Aggregate
+    # Aggregate — deduplicate by location so clusters don't dominate.
+    # Each unique GPS coordinate contributes ONE score (mean across dates).
+    # This prevents Optuna from getting 8x reward for scoring PGFC well.
     catch_scores = []
     catch_percentiles = []
     catch_gradients = []
@@ -310,6 +328,13 @@ def run_trial(catches, params):
     ocean_pct70 = []
     ocean_top10_areas = []
 
+    # Collect per-catch data keyed by location
+    from collections import defaultdict
+    loc_scores = defaultdict(list)
+    loc_percentiles = defaultdict(list)
+    loc_gradients = defaultdict(list)
+    loc_peak_ratios = defaultdict(list)
+
     for dr in results:
         if dr['ocean_mean'] is not None:
             ocean_means.append(dr['ocean_mean'])
@@ -317,13 +342,25 @@ def run_trial(catches, params):
             ocean_top10_areas.append(dr['top10_area'])
 
         for cd in dr['catches']:
-            catch_scores.append(cd['score'])
+            # Use rounded coords as location key (matches DDM precision)
+            loc_key = (round(cd.get('lat', 0), 4), round(cd.get('lon', 0), 4))
+            loc_scores[loc_key].append(cd['score'])
             if 'percentile' in cd:
-                catch_percentiles.append(cd['percentile'])
+                loc_percentiles[loc_key].append(cd['percentile'])
             if 'gradient' in cd:
-                catch_gradients.append(cd['gradient'])
+                loc_gradients[loc_key].append(cd['gradient'])
             if 'peak_ratio' in cd:
-                catch_peak_ratios.append(cd['peak_ratio'])
+                loc_peak_ratios[loc_key].append(cd['peak_ratio'])
+
+    # Average each location's scores across dates, then aggregate
+    for loc_key, scores in loc_scores.items():
+        catch_scores.append(np.mean(scores))
+        if loc_key in loc_percentiles:
+            catch_percentiles.append(np.mean(loc_percentiles[loc_key]))
+        if loc_key in loc_gradients:
+            catch_gradients.append(np.mean(loc_gradients[loc_key]))
+        if loc_key in loc_peak_ratios:
+            catch_peak_ratios.append(np.mean(loc_peak_ratios[loc_key]))
 
     if not catch_scores:
         return None
@@ -392,8 +429,8 @@ def main():
     import optuna
     optuna.logging.set_verbosity(optuna.logging.WARNING)
 
-    catches = load_catches()
-    print(f"Loaded {len(catches)} catches")
+    catches = load_catches(unique_only=True)
+    print(f"Loaded {len(catches)} catches (unique locations only, duplicates excluded)")
     print(f"Using {N_WORKERS} parallel workers on {os.cpu_count()} cores")
 
     best_result = {'objective': -999}
@@ -411,16 +448,17 @@ def main():
         w_shelf = trial.suggest_float('w_shelf', 0.00, 0.18, step=0.01)
         w_current = trial.suggest_float('w_current', 0.00, 0.08, step=0.01)
         w_shear = trial.suggest_float('w_shear', 0.00, 0.18, step=0.01)
-        w_upwell = trial.suggest_float('w_upwell', 0.00, 0.18, step=0.01)
+        w_upwell = trial.suggest_float('w_upwell', 0.00, 0.08, step=0.01)
         w_ftle = trial.suggest_float('w_ftle', 0.00, 0.15, step=0.01)
         w_vert_vel = trial.suggest_float('w_vert_vel', 0.00, 0.08, step=0.01)
         w_salinity_front = trial.suggest_float('w_salinity_front', 0.00, 0.20, step=0.01)
         w_okubo_weiss = trial.suggest_float('w_okubo_weiss', 0.00, 0.12, step=0.01)
+        w_bivariate = trial.suggest_float('w_bivariate', 0.00, 0.20, step=0.01)
 
         # Normalize to sum to 1.0
         all_weights = [w_sst, w_sst_front, w_front_corridor, w_chl, w_chl_curvature,
                        w_ssh, w_shelf, w_current, w_shear, w_upwell,
-                       w_ftle, w_vert_vel, w_salinity_front, w_okubo_weiss]
+                       w_ftle, w_vert_vel, w_salinity_front, w_okubo_weiss, w_bivariate]
         total_w = sum(all_weights)
         if total_w == 0:
             return -999
@@ -429,7 +467,7 @@ def main():
         w_chl *= scale; w_chl_curvature *= scale; w_ssh *= scale
         w_shelf *= scale; w_current *= scale; w_shear *= scale
         w_upwell *= scale; w_ftle *= scale; w_vert_vel *= scale
-        w_salinity_front *= scale; w_okubo_weiss *= scale
+        w_salinity_front *= scale; w_okubo_weiss *= scale; w_bivariate *= scale
 
         # Geometry params
         shelf_prox_blend = trial.suggest_float('shelf_prox_blend', 0.0, 0.8, step=0.1)
@@ -438,10 +476,11 @@ def main():
         pool_pct = trial.suggest_int('pool_pct', 65, 100, step=5)
 
         # Depth gate params
+        depth_zero_cut = trial.suggest_int('depth_zero_cut', 30, 80, step=10)
         depth_shallow_floor = trial.suggest_float('depth_shallow_floor', 0.50, 0.95, step=0.05)
-        depth_taper_start = trial.suggest_int('depth_taper_start', 200, 700, step=50)
-        depth_taper_mid = trial.suggest_int('depth_taper_mid', 500, 1500, step=100)
-        depth_floor = trial.suggest_float('depth_floor', 0.10, 0.60, step=0.05)
+        depth_taper_start = trial.suggest_int('depth_taper_start', 500, 3000, step=250)
+        depth_taper_mid = trial.suggest_int('depth_taper_mid', 1500, 5000, step=500)
+        depth_floor = trial.suggest_float('depth_floor', 0.60, 0.95, step=0.05)
 
         # Shelf proximity
         shelf_prox_depth = trial.suggest_int('shelf_prox_depth', 100, 300, step=10)
@@ -449,7 +488,7 @@ def main():
 
         # SST / CHL core params
         sst_optimal = trial.suggest_float('sst_optimal', 21.0, 25.0, step=0.25)
-        sst_sigma = trial.suggest_float('sst_sigma', 0.50, 2.0, step=0.25)
+        sst_sigma = trial.suggest_float('sst_sigma', 1.0, 4.0, step=0.25)
         sst_sigma_above = trial.suggest_float('sst_sigma_above', 1.5, 5.0, step=0.5)
         chl_threshold = trial.suggest_float('chl_threshold', 0.06, 0.30, step=0.02)
         chl_sigma = trial.suggest_float('chl_sigma', 0.05, 0.50, step=0.05)
@@ -501,11 +540,13 @@ def main():
             'w_ftle': w_ftle, 'w_vert_vel': w_vert_vel,
             'w_salinity_front': w_salinity_front,
             'w_okubo_weiss': w_okubo_weiss,
+            'w_bivariate': w_bivariate,
             'shelf_prox_blend': shelf_prox_blend,
             'shelf_prox_sigma': shelf_prox_sigma,
             'depth_shallow_full': depth_shallow_full,
             'pool_pct': pool_pct,
             # Depth gate
+            'depth_zero_cut': depth_zero_cut,
             'depth_shallow_floor': depth_shallow_floor,
             'depth_taper_start': depth_taper_start,
             'depth_taper_mid': depth_taper_mid,
@@ -579,13 +620,13 @@ def main():
         'w_ssh': 0.163, 'w_shelf': 0.00, 'w_current': 0.00,
         'w_shear': 0.124, 'w_upwell': 0.116,
         'w_ftle': 0.03, 'w_vert_vel': 0.00,
-        'w_salinity_front': 0.047, 'w_okubo_weiss': 0.078,
+        'w_salinity_front': 0.047, 'w_okubo_weiss': 0.078, 'w_bivariate': 0.00,
         # Geometry
         'shelf_prox_blend': 0.70, 'shelf_prox_sigma': 90,
         'depth_shallow_full': 100, 'pool_pct': 65,
         # Depth gate
-        'depth_shallow_floor': 0.50, 'depth_taper_start': 650,
-        'depth_taper_mid': 500, 'depth_floor': 0.30,
+        'depth_zero_cut': 50, 'depth_shallow_floor': 0.50, 'depth_taper_start': 2000,
+        'depth_taper_mid': 4000, 'depth_floor': 0.85,
         # Shelf proximity
         'shelf_prox_depth': 140, 'edge_shelf_sigma': 3.5,
         # SST / CHL
@@ -624,7 +665,7 @@ def main():
 
     n_trials = 400
     print(f"\n{'='*90}")
-    print(f"OPTUNA -- {n_trials} trials ({N_WORKERS} workers), 50 params")
+    print(f"OPTUNA -- {n_trials} trials ({N_WORKERS} workers), 50 params, location-deduplicated")
     print(f"{'='*90}")
 
     study = optuna.create_study(direction='maximize',
