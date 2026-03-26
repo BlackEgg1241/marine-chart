@@ -221,7 +221,7 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.453</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.454</span></div>
   <div class="basemap-sw">
     <div class="bm-btn active" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#2a5a8c);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🌊</span></div><div class="bm-label">Ocean</div></div>
     <div class="bm-btn" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
@@ -644,8 +644,8 @@ function initMap(){
     {id:'spot-label',type:'symbol',source:'spots',layout:{visibility:'visible','text-field':['get','name'],'text-size':['match',['get','type'],'ramp',8,10],'text-offset':[0,1.5],'text-anchor':'top','text-font':['Open Sans Regular']},paint:{'text-color':['match',['get','type'],'fad','#fbbf24','ramp','#94a3b8','#cbd5e1'],'text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5}},
     {id:'catch-dot',type:'circle',source:'catch-marker',paint:{'circle-radius':5,'circle-color':'#22c55e','circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':1}},
     {id:'catch-label',type:'symbol',source:'catch-marker',layout:{'text-field':['get','tag'],'text-size':10,'text-offset':[0,-2],'text-anchor':'bottom','text-font':['Open Sans Regular']},paint:{'text-color':'#22c55e','text-halo-color':'rgba(0,0,0,0.9)','text-halo-width':2}},
-    {id:'all-catches-glow',type:'circle',source:'all-catches',paint:{'circle-radius':12,'circle-color':['case',['==',['get','duplicate'],1],'#f472b6',['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24']],'circle-opacity':0,'circle-blur':.6}},
-    {id:'all-catches-dot',type:'circle',source:'all-catches',paint:{'circle-radius':['case',['==',['get','duplicate'],1],7,5],'circle-color':['case',['==',['get','duplicate'],1],'#f472b6',['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24']],'circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':0,'circle-stroke-opacity':0}},
+    {id:'all-catches-glow',type:'circle',source:'all-catches',paint:{'circle-radius':12,'circle-color':['case',['==',['get','duplicate'],1],'#166534',['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24']],'circle-opacity':0,'circle-blur':.6}},
+    {id:'all-catches-dot',type:'circle',source:'all-catches',paint:{'circle-radius':['case',['==',['get','duplicate'],1],7,5],'circle-color':['case',['==',['get','duplicate'],1],'#166534',['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24']],'circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':0,'circle-stroke-opacity':0}},
     {id:'sm-layer',type:'raster',source:'sm',paint:{'raster-opacity':.85}}
   ];
   map=new maplibregl.Map({container:'map',style:{version:8,sources:src,layers:ly,glyphs:'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf'},center:[115.35,-31.97],zoom:10,maxZoom:18,minZoom:3,attributionControl:true});
@@ -984,8 +984,8 @@ function setBasemap(n){
   map.addLayer({id:'catch-dot',type:'circle',source:'catch-marker',paint:{'circle-radius':5,'circle-color':'#22c55e','circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':1}},bf);
   map.addLayer({id:'catch-label',type:'symbol',source:'catch-marker',layout:{'text-field':['get','tag'],'text-size':10,'text-offset':[0,-2],'text-anchor':'bottom','text-font':['Open Sans Regular']},paint:{'text-color':'#22c55e','text-halo-color':'rgba(0,0,0,0.9)','text-halo-width':2}},bf);
   var aco=allCatchesOn;
-  map.addLayer({id:'all-catches-glow',type:'circle',source:'all-catches',paint:{'circle-radius':12,'circle-color':['case',['==',['get','duplicate'],1],'#f472b6',['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24']],'circle-opacity':aco?.15:0,'circle-blur':.6}},bf);
-  map.addLayer({id:'all-catches-dot',type:'circle',source:'all-catches',paint:{'circle-radius':['case',['==',['get','duplicate'],1],7,5],'circle-color':['case',['==',['get','duplicate'],1],'#f472b6',['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24']],'circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':aco?.9:0,'circle-stroke-opacity':aco?1:0}},bf);
+  map.addLayer({id:'all-catches-glow',type:'circle',source:'all-catches',paint:{'circle-radius':12,'circle-color':['case',['==',['get','duplicate'],1],'#166534',['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24']],'circle-opacity':aco?.15:0,'circle-blur':.6}},bf);
+  map.addLayer({id:'all-catches-dot',type:'circle',source:'all-catches',paint:{'circle-radius':['case',['==',['get','duplicate'],1],7,5],'circle-color':['case',['==',['get','duplicate'],1],'#166534',['match',['get','species'],'BLUE MARLIN','#06b6d4','STRIPED MARLIN','#818cf8','BLACK MARLIN','#f43f5e','#fbbf24']],'circle-stroke-width':1.5,'circle-stroke-color':'#fff','circle-opacity':aco?.9:0,'circle-stroke-opacity':aco?1:0}},bf);
   document.querySelectorAll('.bm-btn').forEach(function(b){b.classList.remove('active')});
   document.getElementById(bm.btn).classList.add('active');
   // Re-show forecast zone if panel is open (layers survive but may need z-order fix)
@@ -1076,7 +1076,7 @@ function showCatch(idx){
   var p=f.properties;
   var coords=f.geometry.coordinates;
   var isDupe=_isDupeLoc(f);
-  var markerColor=isDupe?'#f472b6':'#22c55e';
+  var markerColor=isDupe?'#166534':'#22c55e';
 
   // Update marker on map
   var pt={type:'FeatureCollection',features:[{
