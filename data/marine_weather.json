@@ -11094,6 +11094,20 @@
       "gust_kt": 32,
       "wind_dir": "E",
       "wind_dir_deg": 90
+    },
+    {
+      "time": "20260326093000",
+      "wind_spd_kt": 22,
+      "gust_kt": 30,
+      "wind_dir": "E",
+      "wind_dir_deg": 90
+    },
+    {
+      "time": "20260326093500",
+      "wind_spd_kt": 23,
+      "gust_kt": 33,
+      "wind_dir": "E",
+      "wind_dir_deg": 90
     }
   ],
   "bom_hillarys_wind": [
@@ -11226,6 +11240,13 @@
     {
       "time": "20260326090000",
       "wind_spd_kt": 12,
+      "gust_kt": 23,
+      "wind_dir": "ENE",
+      "wind_dir_deg": 67.5
+    },
+    {
+      "time": "20260326093000",
+      "wind_spd_kt": 13,
       "gust_kt": 23,
       "wind_dir": "ENE",
       "wind_dir_deg": 67.5
