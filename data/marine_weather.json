@@ -10919,8 +10919,24 @@
       "rain_trace": "0.0"
     }
   ],
-  "bom_rottnest_wind": [],
-  "bom_hillarys_wind": [],
+  "bom_rottnest_wind": [
+    {
+      "time": "20260328000000",
+      "wind_spd_kt": 13,
+      "gust_kt": 19,
+      "wind_dir": "ENE",
+      "wind_dir_deg": 67.5
+    }
+  ],
+  "bom_hillarys_wind": [
+    {
+      "time": "20260328000000",
+      "wind_spd_kt": 3,
+      "gust_kt": 7,
+      "wind_dir": "SSE",
+      "wind_dir_deg": 157.5
+    }
+  ],
   "wave_buoy_charts": {
     "rottnest": {
       "wave_height": "https://www.transport.wa.gov.au/getmedia/b3dfc548-cd46-4c32-aada-0261a3a66fc1/RDW_WAVE.GIF",
