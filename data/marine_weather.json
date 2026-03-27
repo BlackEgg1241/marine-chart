@@ -11136,6 +11136,48 @@
       "gust_kt": 21,
       "wind_dir": "E",
       "wind_dir_deg": 90
+    },
+    {
+      "time": "20260327143000",
+      "wind_spd_kt": 14,
+      "gust_kt": 21,
+      "wind_dir": "E",
+      "wind_dir_deg": 90
+    },
+    {
+      "time": "20260327150000",
+      "wind_spd_kt": 15,
+      "gust_kt": 22,
+      "wind_dir": "ESE",
+      "wind_dir_deg": 112.5
+    },
+    {
+      "time": "20260327153000",
+      "wind_spd_kt": 16,
+      "gust_kt": 24,
+      "wind_dir": "E",
+      "wind_dir_deg": 90
+    },
+    {
+      "time": "20260327160000",
+      "wind_spd_kt": 14,
+      "gust_kt": 19,
+      "wind_dir": "E",
+      "wind_dir_deg": 90
+    },
+    {
+      "time": "20260327163000",
+      "wind_spd_kt": 14,
+      "gust_kt": 21,
+      "wind_dir": "E",
+      "wind_dir_deg": 90
+    },
+    {
+      "time": "20260327170000",
+      "wind_spd_kt": 15,
+      "gust_kt": 21,
+      "wind_dir": "E",
+      "wind_dir_deg": 90
     }
   ],
   "bom_hillarys_wind": [
@@ -11341,6 +11383,48 @@
       "gust_kt": 9,
       "wind_dir": "E",
       "wind_dir_deg": 90
+    },
+    {
+      "time": "20260327143000",
+      "wind_spd_kt": 6,
+      "gust_kt": 15,
+      "wind_dir": "E",
+      "wind_dir_deg": 90
+    },
+    {
+      "time": "20260327150000",
+      "wind_spd_kt": 5,
+      "gust_kt": 13,
+      "wind_dir": "ENE",
+      "wind_dir_deg": 67.5
+    },
+    {
+      "time": "20260327153000",
+      "wind_spd_kt": 7,
+      "gust_kt": 12,
+      "wind_dir": "ENE",
+      "wind_dir_deg": 67.5
+    },
+    {
+      "time": "20260327160000",
+      "wind_spd_kt": 7,
+      "gust_kt": 14,
+      "wind_dir": "ENE",
+      "wind_dir_deg": 67.5
+    },
+    {
+      "time": "20260327163000",
+      "wind_spd_kt": 11,
+      "gust_kt": 20,
+      "wind_dir": "ENE",
+      "wind_dir_deg": 67.5
+    },
+    {
+      "time": "20260327170000",
+      "wind_spd_kt": 10,
+      "gust_kt": 17,
+      "wind_dir": "ENE",
+      "wind_dir_deg": 67.5
     }
   ],
   "wave_buoy_charts": {
