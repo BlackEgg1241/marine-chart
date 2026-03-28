@@ -1169,21 +1169,12 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     # Catches cluster at feature EDGES (not peaks), so we score proximity to
     # a calibrated center value with configurable width.
     EDGE_FEATURES = {"okubo_weiss", "upwelling_edge",
-                     "current_shear", "chl_curvature",
-                     "ftle", "ssh", "salinity_front",
-                     "vertical_velocity", "front_corridor"}
-    # NOTE: CHL and SST excluded — they already apply their own Gaussian transforms
-    # before _add_score. Adding edge scoring would be double-Gaussian (anti-pattern #1).
+                     "current_shear", "chl_curvature"}
     EDGE_DEFAULTS = {
         "okubo_weiss":         (0.30, 0.65),
         "upwelling_edge":      (0.75, 0.10),
         "current_shear":       (0.80, 0.60),
         "chl_curvature":       (0.50, 0.80),
-        "ftle":                (1.00, 9.00),   # passthrough by default (center=1, width=huge)
-        "ssh":                 (1.00, 9.00),
-        "salinity_front":      (1.00, 9.00),
-        "vertical_velocity":   (1.00, 9.00),
-        "front_corridor":      (1.00, 9.00),
     }
 
     def _add_score(name, values, mask=None):
@@ -2490,15 +2481,85 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     final[valid] = score[valid] / weight_sum[valid]
     final[land] = np.nan
 
+    # --- Profile / Hybrid scoring modes ---
+    _scoring_mode = getattr(sys.modules[__name__], '_scoring_mode', 'weighted_sum')
+    _default_profile = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'catch_profile.npz')
+    _profile_path = getattr(sys.modules[__name__], '_profile_path', _default_profile)
+    if _scoring_mode in ('profile', 'hybrid') and _profile_path:
+        try:
+            profile = np.load(_profile_path, allow_pickle=True)
+            prof_mu = profile['mean']
+            prof_inv_cov = profile['inv_cov']
+            prof_features = list(profile['feature_names'])
+            n_feat = len(prof_features)
+
+            feat_matrix = np.zeros((ny * nx, n_feat))
+            feat_available = np.ones(ny * nx, dtype=bool)
+            for fi, fname in enumerate(prof_features):
+                if fname in sub_scores and isinstance(sub_scores[fname], np.ndarray):
+                    vals = sub_scores[fname].ravel().copy()
+                    nan_mask = np.isnan(vals)
+                    vals[nan_mask] = 0.0
+                    feat_available &= ~nan_mask
+                    feat_matrix[:, fi] = vals
+                else:
+                    feat_matrix[:, fi] = prof_mu[fi]
+
+            diff = feat_matrix - prof_mu
+            mahal_sq = np.sum(diff @ prof_inv_cov * diff, axis=1)
+            mahal_score = np.exp(-0.5 * mahal_sq / n_feat).reshape((ny, nx))
+
+            ocean_valid = valid & ~land & feat_available.reshape((ny, nx))
+            ocean_mahal = mahal_score[ocean_valid]
+            p90_m = np.nanpercentile(ocean_mahal, 90)
+
+            print(f"[Hotspots] Profile scoring: {n_feat} features, "
+                  f"Mahalanobis d^2 range: {np.min(mahal_sq[feat_available]):.1f} - "
+                  f"{np.percentile(mahal_sq[feat_available], 99):.1f}")
+
+            if _scoring_mode == 'profile':
+                # Pure profile: replace weighted sum entirely
+                final[:] = np.nan
+                if p90_m > 0:
+                    final[ocean_valid] = np.clip(mahal_score[ocean_valid] / p90_m, 0, 1)
+                else:
+                    final[ocean_valid] = mahal_score[ocean_valid]
+                _profile_pure = getattr(sys.modules[__name__], '_profile_pure', False)
+                if _profile_pure:
+                    if "depth" in sub_scores:
+                        depth_mult = sub_scores["depth"]
+                        dmask = ~np.isnan(depth_mult) & valid
+                        final[dmask] *= depth_mult[dmask]
+                    print("[Hotspots] PURE PROFILE: skipping all post-processing")
+                    # Skip to output
+                    final[land] = np.nan
+            elif _scoring_mode == 'hybrid':
+                # Hybrid: geometric mean of weighted sum and profile similarity
+                ws_score = final.copy()
+                prof_rescaled = np.full((ny, nx), np.nan)
+                if p90_m > 0:
+                    prof_rescaled[ocean_valid] = np.clip(mahal_score[ocean_valid] / p90_m, 0, 1)
+                else:
+                    prof_rescaled[ocean_valid] = mahal_score[ocean_valid]
+                # Geometric mean: sqrt(weighted_sum * profile)
+                hmask = ocean_valid & ~np.isnan(ws_score)
+                final[hmask] = np.sqrt(np.clip(ws_score[hmask], 0, 1) * np.clip(prof_rescaled[hmask], 0, 1))
+                print(f"[Hotspots] HYBRID: geometric mean of weighted sum and profile")
+        except Exception as e:
+            print(f"[Hotspots] Profile/hybrid scoring failed ({e}), using weighted sum")
+
+    _skip_post_processing = (_scoring_mode == 'profile' and
+                             getattr(sys.modules[__name__], '_profile_pure', False))
+
     # --- Gamma contrast: compress the bloated 0.8-1.0 range so feature band
     # multipliers have headroom to selectively boost cells near oceanographic
     # feature lines.  gamma > 1 compresses high scores; 1.0 = no change.
     # Apply static multipliers: depth gates, shelf break boosts
-    if "depth" in sub_scores:
+    if "depth" in sub_scores and not _skip_post_processing:
         depth_mult = sub_scores["depth"]
         dmask = ~np.isnan(depth_mult) & valid
         final[dmask] *= depth_mult[dmask]  # zero out shallow water
-    if "shelf_break" in sub_scores:
+    if "shelf_break" in sub_scores and not _skip_post_processing:
         # Multiplicative component of hybrid shelf scoring (additive part already in weighted sum)
         _shelf_boost = getattr(sys.modules[__name__], '_opt_shelf_boost', 0.12)
         shelf_mult = 1.0 + _shelf_boost * sub_scores["shelf_break"]
@@ -2511,7 +2572,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     # high on SST but has no shelf; shelf inshore scores high on shelf but may be
     # cool. The interaction rewards cells where BOTH are strong.
     _sst_shelf_interact = getattr(sys.modules[__name__], '_opt_sst_shelf_interact', 0.0)
-    if _sst_shelf_interact > 0 and "sst" in sub_scores and "shelf_break" in sub_scores:
+    if _sst_shelf_interact > 0 and "sst" in sub_scores and "shelf_break" in sub_scores and not _skip_post_processing:
         sst_s = sub_scores["sst"]
         shelf_s = sub_scores["shelf_break"]
         # Geometric mean: high only when both are high
@@ -2526,7 +2587,8 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     # oceanographic features are all changing at once (convergence of gradients),
     # not where any single feature peaks. Boost pixels where 3+ sub_scores have
     # above-average gradient magnitude.
-    try:
+    if not _skip_post_processing:
+      try:
         edge_features = ["sst_front", "convergence", "current_shear", "upwelling_edge",
                          "chl_curvature", "current", "mld", "shelf_break", "front_corridor"]
         edge_count = np.zeros((ny, nx))
@@ -2539,12 +2601,9 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             gy, gx = np.gradient(fg_smooth)
             gmag = np.sqrt(gx**2 + gy**2)
             gmag[land | coast_buf] = 0
-            # Count this feature as "transitioning" if gradient > 75th percentile
             g75 = np.nanpercentile(gmag[~land & ~coast_buf], 75) if np.any(~land & ~coast_buf) else 0
             if g75 > 0:
                 edge_count += (gmag > g75).astype(float)
-        # Boost: 3+ transitioning features get a multiplier
-        # 0-2 features: x1.0 (no boost), 3: x1.05, 4: x1.10, 5+: x1.15
         _edge_bs = getattr(sys.modules[__name__], '_edge_boost_strength', 0.05)
         edge_mult = np.clip(1.0 + _edge_bs * (edge_count - 2), 1.0, 1.0 + _edge_bs * 3)
         final[valid] *= edge_mult[valid]
@@ -2552,7 +2611,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         ec3 = np.sum(edge_count[~land] >= 3) / max(np.sum(~land), 1) * 100
         ec4 = np.sum(edge_count[~land] >= 4) / max(np.sum(~land), 1) * 100
         print(f"[Hotspots] Multi-feature edges: {ec3:.0f}% with 3+ transitions, {ec4:.0f}% with 4+")
-    except Exception as e:
+      except Exception as e:
         print(f"[Hotspots] Multi-feature edge scoring failed: {e}")
 
     # Lunar phase modifier — habitat compression via Diel Vertical Migration
@@ -2560,7 +2619,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     # Full moon: DSL stays deep, MLD deeper (23m), bait dispersed vertically
     # Effect: new moon = ~5% boost, full moon = neutral (no penalty)
     # Lunar phase 0 = new moon, 0.5 = full moon
-    if date_str:
+    if date_str and not _skip_post_processing:
         try:
             from math import sin, pi
             dt = datetime.strptime(date_str, "%Y-%m-%d")
@@ -2586,7 +2645,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     # Cells with more overlapping feature bands score progressively higher.
     # Cells with 0 bands get suppressed; 1 band gets mild suppression;
     # 2+ bands get a boost. This creates a gradient instead of a cliff.
-    if np.any(_feature_band_count > 0):
+    if np.any(_feature_band_count > 0) and not _skip_post_processing:
         _band_single = getattr(sys.modules[__name__], '_opt_band_single', 0.06)
         _band_overlap = getattr(sys.modules[__name__], '_opt_band_overlap', 0.20)
         # Graduated band multiplier — smooth ramp from 0 bands to 3+
@@ -2620,7 +2679,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     # discrimination between 2-band and 3+-band cells.
     # Cells at or below 1.0 keep their original scores.
     raw_max = float(np.nanmax(final[valid & ~land])) if np.any(valid & ~land) else 1.0
-    if raw_max > 1.0:
+    if raw_max > 1.0 and not _skip_post_processing:
         above = final > 1.0
         if np.any(above):
             # Linear map [1.0, raw_max] -> [0.75, 1.0]
@@ -2634,7 +2693,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     # moderate-to-high (>0.5).  This lifts the edges of good zones without
     # inflating featureless water.
     _score_grad_blend = getattr(sys.modules[__name__], '_opt_score_grad_blend', 0.20)
-    if _score_grad_blend > 0:
+    if _score_grad_blend > 0 and not _skip_post_processing:
         try:
             score_for_grad = np.where(np.isnan(final), 0, final)
             score_smooth = gaussian_filter(score_for_grad, sigma=1.5)
@@ -2660,7 +2719,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     # Floor boost for SST front lines — cells on the front are lifted
     # to at least _key_feature_floor (0.55).  Uses np.maximum so cells
     # already above the floor are untouched — no clipping, no inflation.
-    if np.any(_feature_key_floor > 0):
+    if np.any(_feature_key_floor > 0) and not _skip_post_processing:
         before = final.copy()
         final[valid] = np.maximum(final[valid], _feature_key_floor[valid])
         n_lifted = np.sum((final[valid & ~land] > before[valid & ~land]))
