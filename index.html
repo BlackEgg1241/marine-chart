@@ -221,7 +221,7 @@
 
 <div class="top-gradient"></div>
 <div class="top-bar">
-  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.537</span></div>
+  <div class="brand"><span style="font-size:17px">⚓</span><span class="brand-title">MarLEEn Tracker</span><span class="brand-badge">v0.538</span></div>
   <div class="basemap-sw">
     <div class="bm-btn active" id="bmOcean" onclick="setBasemap('ocean')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c,#2a5a8c);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🌊</span></div><div class="bm-label">Ocean</div></div>
     <div class="bm-btn" id="bmSat" onclick="setBasemap('satellite')"><div style="width:100%;height:100%;background:linear-gradient(135deg,#2d4a1a,#3d5a2a);display:flex;align-items:center;justify-content:center;padding-bottom:10px"><span style="font-size:14px">🛰️</span></div><div class="bm-label">Sat</div></div>
@@ -480,7 +480,7 @@ var OL_URL='https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Oce
 var SM_URL='https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png';
 var BLK='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 var GW='https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/';
-var GM={'GHRSST_L4_AVHRR-OI_Sea_Surface_Temperature':{t:'GoogleMapsCompatible_Level7',f:'png',z:7},'MODIS_Aqua_L2_Chlorophyll_A':{t:'GoogleMapsCompatible_Level7',f:'png',z:7}};
+var GM={'GHRSST_L4_MUR_Sea_Surface_Temperature':{t:'GoogleMapsCompatible_Level7',f:'png',z:7},'MODIS_Aqua_L2_Chlorophyll_A':{t:'GoogleMapsCompatible_Level7',f:'png',z:7}};
 // Use gibs:// protocol to fix palette PNG transparency (MapLibre doesn't decode tRNS in P-mode PNGs)
 maplibregl.addProtocol('gibs',function(params){
   var url=params.url.replace('gibs://','https://');
@@ -502,7 +502,7 @@ maplibregl.addProtocol('gibs',function(params){
   });
 });
 function gu(l,d){var m=GM[l];return 'gibs://gibs.earthdata.nasa.gov/wmts/epsg3857/best/'+l+'/default/'+d+'/'+m.t+'/{z}/{y}/{x}.'+m.f}
-var GL={chl:'MODIS_Aqua_L2_Chlorophyll_A',sst:'GHRSST_L4_AVHRR-OI_Sea_Surface_Temperature'};
+var GL={chl:'MODIS_Aqua_L2_Chlorophyll_A',sst:'GHRSST_L4_MUR_Sea_Surface_Temperature'};
 // CMEMS Sea Level Anomaly WMTS — NRT daily, no auth required
 var CMEMS_SLA='https://wmts.marine.copernicus.eu/teroWmts/?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=SEALEVEL_GLO_PHY_L4_NRT_008_046/cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.125deg_P1D_202506/sla&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&TIME=DATE&STYLE=cmap:balance,range:-0.5/0.5';
 function guSLA(d){return CMEMS_SLA.replace('TIME=DATE','TIME='+d);}
@@ -550,8 +550,8 @@ var _displayFloor=0.70; // hotspot display floor — adjustable via legend slide
 // Opacity-based toggling for GeoJSON layers — tiles stay loaded, no cache purge on toggle
 var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-peak':['line-opacity',.9],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.9],'isotherm-label':['text-opacity',1],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.9],'sst-front-label':['text-opacity',1],'chl-edge-label':['text-opacity',1],'ssh-label':['text-opacity',1],'bathy-shade':['raster-opacity',.5],'bathy-glow':['line-opacity',.12],'bathy-20':['line-opacity',.6],'bathy-50':['line-opacity',.7],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-150':['line-opacity',.7],'bathy-250':['line-opacity',.8],'bathy-label':['text-opacity',1],'hs-blue':null,'sm-hs':null,'sbt-hs':null,'nav-base':['circle-opacity',1],'nav-port':['circle-opacity',1],'nav-stbd':['circle-opacity',1],'nav-cardinal-x':['circle-opacity',1],'nav-light-dot':['circle-opacity',1],'nav-label':['text-opacity',1],'corridor-mod':['line-opacity',.7],'corridor-strong':['line-opacity',.85],'corridor-intense':['line-opacity',.9],'shear-mod':['line-opacity',.7],'shear-strong':['line-opacity',.85],'shear-intense':['line-opacity',.9],'upwell-mod':['line-opacity',.75],'upwell-strong':['line-opacity',.9],'chlcurv-mod':['line-opacity',.7],'chlcurv-strong':['line-opacity',.85],'sal-mod':['line-opacity',.7],'sal-strong':['line-opacity',.85],'sal-intense':['line-opacity',.9],'ftle-mod':['line-opacity',.7],'ftle-strong':['line-opacity',.9],'vvel-mod':['line-opacity',.7],'vvel-strong':['line-opacity',.85],'okubo-mod':['line-opacity',.7],'okubo-strong':['line-opacity',.85],'bivar-mod':['line-opacity',.7],'bivar-strong':['line-opacity',.85]};
 function sGL(id,on){if(!map.getLayer(id))return;var e=gLO[id];e?map.setPaintProperty(id,e[0],on?e[1]:0):map.setLayoutProperty(id,'visibility',on?'visible':'none')}
-var iD=new Date();var cDate='2026-03-18';
-var iG=new Date('2026-03-16');var gDate=iG.toISOString().split('T')[0];
+var iD=new Date();var cDate=iD.toISOString().split('T')[0];
+var iG=new Date();iG.setDate(iG.getDate()-3);var gDate=iG.toISOString().split('T')[0];
 
 function fc(a,b){var d=Math.floor(Math.abs(a)),m=((Math.abs(a)-d)*60).toFixed(3),d2=Math.floor(Math.abs(b)),m2=((Math.abs(b)-d2)*60).toFixed(3);return d+'°'+m+"'"+(a>=0?'N':'S')+'  '+d2+'°'+m2+"'"+(b>=0?'E':'W')}
 function fs(s){return(s==null||isNaN(s))?'—':(s*1.94384).toFixed(1)+' kn'}
