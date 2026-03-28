@@ -2922,11 +2922,6 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
          "front_corridor",
          ["moderate", "strong", "intense"],
          ["#fb923c", "#f97316", "#ea580c"]),   # orange tones
-        ("convergence", "convergence_zones.geojson",
-         [0.3, 0.5, 0.7],
-         "convergence",
-         ["moderate", "strong", "intense"],
-         ["#a78bfa", "#8b5cf6", "#7c3aed"]),   # violet tones
         ("current_shear", "shear_zones.geojson",
          [0.3, 0.5, 0.7],
          "current_shear",
@@ -2942,6 +2937,31 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
          "chl_curvature",
          ["moderate", "strong"],
          ["#86efac", "#22c55e"]),               # green tones
+        ("salinity_front", "salinity_fronts.geojson",
+         [0.3, 0.5, 0.7],
+         "salinity_front",
+         ["moderate", "strong", "intense"],
+         ["#c084fc", "#a855f7", "#7c3aed"]),   # purple tones
+        ("ftle", "ftle_ridges.geojson",
+         [0.3, 0.5],
+         "ftle",
+         ["moderate", "strong"],
+         ["#fca5a5", "#ef4444"]),               # red tones
+        ("vertical_velocity", "vertical_velocity.geojson",
+         [0.3, 0.5],
+         "vertical_velocity",
+         ["moderate", "strong"],
+         ["#93c5fd", "#3b82f6"]),               # blue tones
+        ("okubo_weiss", "okubo_weiss.geojson",
+         [0.3, 0.5],
+         "okubo_weiss",
+         ["moderate", "strong"],
+         ["#fde68a", "#f59e0b"]),               # amber tones
+        ("sst_chl_bivariate", "bivariate.geojson",
+         [0.4, 0.6],
+         "sst_chl_bivariate",
+         ["moderate", "strong"],
+         ["#67e8f9", "#06b6d4"]),               # cyan tones
     ]
 
     for score_key, fname, levels, type_name, labels, colors in _overlay_configs:
@@ -2967,6 +2987,50 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             with open(ov_path, "w") as f:
                 json.dump(ov_geojson, f)
             print(f"[Hotspots] {type_name}: {len(all_feats)} contours ->{ov_path}")
+
+    # ---- Generate feature score heatmap PNGs for map overlay ----
+    _heatmap_features = [
+        "sst", "chl", "ssh", "salinity_front", "current_shear",
+        "chl_curvature", "okubo_weiss", "upwelling_edge", "ftle",
+        "vertical_velocity", "front_corridor", "shelf_break",
+        "sst_front", "sst_chl_bivariate",
+    ]
+    try:
+        from PIL import Image
+        hm_bounds = [float(lons[0]), float(lats[-1]), float(lons[-1]), float(lats[0])]
+        for feat_name in _heatmap_features:
+            if feat_name not in sub_scores:
+                continue
+            grid = sub_scores[feat_name]
+            if not isinstance(grid, np.ndarray) or np.all(np.isnan(grid)):
+                continue
+            h, w = grid.shape
+            rgba = np.zeros((h, w, 4), dtype=np.uint8)
+            valid = ~np.isnan(grid)
+            vals = np.clip(grid[valid], 0, 1)
+            # Colormap: blue(0) -> cyan(0.25) -> green(0.5) -> yellow(0.75) -> red(1.0)
+            r = np.clip(np.where(vals < 0.5, 0, (vals - 0.5) * 2) * 255, 0, 255).astype(np.uint8)
+            g = np.clip(np.where(vals < 0.5, vals * 2, 2 - vals * 2) * 255, 0, 255).astype(np.uint8)
+            b = np.clip(np.where(vals < 0.5, (0.5 - vals) * 2, 0) * 255, 0, 255).astype(np.uint8)
+            alpha = np.full_like(vals, 160, dtype=np.uint8)  # ~63% opacity
+            rgba[valid, 0] = r
+            rgba[valid, 1] = g
+            rgba[valid, 2] = b
+            rgba[valid, 3] = alpha
+            img = Image.fromarray(rgba, 'RGBA')
+            # Upscale 4x with nearest-neighbor for crisp pixels
+            img = img.resize((w * 4, h * 4), Image.NEAREST)
+            hm_path = os.path.join(OUTPUT_DIR, f"{feat_name}_heatmap.png")
+            img.save(hm_path)
+        # Save bounds metadata for the JS to use
+        hm_meta = {"bounds": hm_bounds, "features": [f for f in _heatmap_features if f in sub_scores]}
+        hm_meta_path = os.path.join(OUTPUT_DIR, "heatmap_meta.json")
+        with open(hm_meta_path, "w") as f:
+            json.dump(hm_meta, f)
+    except ImportError:
+        pass  # PIL not available, skip heatmaps
+    except Exception as e:
+        print(f"[Hotspots] Heatmap generation failed: {e}")
 
     return {
         "path": output_path,
