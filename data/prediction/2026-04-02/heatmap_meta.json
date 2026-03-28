@@ -1,0 +1,1 @@
+{"bounds": [113.5, -30.49993133544922, 116.49949645996094, -33.5], "features": ["sst", "chl", "ssh", "salinity_front", "current_shear", "chl_curvature", "okubo_weiss", "upwelling_edge", "ftle", "vertical_velocity", "front_corridor", "shelf_break", "sst_front", "sst_chl_bivariate"]}

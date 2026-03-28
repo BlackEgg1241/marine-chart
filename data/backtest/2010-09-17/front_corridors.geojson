@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "LineString", "coordinates": [[114.65981, -30.64167], [114.65986, -30.63993], [114.65981, -30.63988], [114.65939, -30.63993], [114.65981, -30.64167]]}, "properties": {"type": "front_corridor", "level": 0.3, "label": "moderate", "color": "#fb923c"}}]}
