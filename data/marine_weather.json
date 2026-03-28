@@ -11031,6 +11031,13 @@
       "gust_kt": 13,
       "wind_dir": "ESE",
       "wind_dir_deg": 112.5
+    },
+    {
+      "time": "20260328080000",
+      "wind_spd_kt": 10,
+      "gust_kt": 13,
+      "wind_dir": "ESE",
+      "wind_dir_deg": 112.5
     }
   ],
   "bom_hillarys_wind": [
@@ -11145,6 +11152,13 @@
       "gust_kt": 10,
       "wind_dir": "ENE",
       "wind_dir_deg": 67.5
+    },
+    {
+      "time": "20260328080000",
+      "wind_spd_kt": 3,
+      "gust_kt": 7,
+      "wind_dir": "E",
+      "wind_dir_deg": 90
     }
   ],
   "wave_buoy_charts": {
