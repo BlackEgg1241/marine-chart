@@ -764,12 +764,12 @@ def _generate_marlin_zones(sst_data, land_mask, lons, lats, deep_mask=None, tif_
 # Composite score 0–1 per grid cell based on all available ocean variables.
 # Weights reflect relative importance for blue marlin habitat selection.
 BLUE_MARLIN_WEIGHTS = {
-    # Optuna v22 (400 trials, unique-only, bivariate+wider SST, obj=25.4).
+    # v22: Optuna 400-trial unique-only, obj=25.4
     "sst":           0.150,  # SST Gaussian
     "sst_front":     0.007,  # SST front gradient
     "front_corridor":0.064,  # SST front corridors
     "chl":           0.107,  # Chlorophyll
-    "chl_curvature": 0.100,  # CHL curvature (edge-scored)
+    "chl_curvature": 0.100,  # CHL curvature
     "ssh":           0.100,  # Sea level anomaly
     "current_shear": 0.129,  # Vorticity shear (edge-scored)
     "upwelling_edge":0.043,  # Canyon upwelling boundaries (edge-scored)
@@ -1169,12 +1169,21 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     # Catches cluster at feature EDGES (not peaks), so we score proximity to
     # a calibrated center value with configurable width.
     EDGE_FEATURES = {"okubo_weiss", "upwelling_edge",
-                     "current_shear", "chl_curvature"}
+                     "current_shear", "chl_curvature",
+                     "ftle", "ssh", "salinity_front",
+                     "vertical_velocity", "front_corridor"}
+    # NOTE: CHL and SST excluded — they already apply their own Gaussian transforms
+    # before _add_score. Adding edge scoring would be double-Gaussian (anti-pattern #1).
     EDGE_DEFAULTS = {
-        "okubo_weiss":    (0.30, 0.65),
-        "upwelling_edge": (0.75, 0.10),
-        "current_shear":  (0.80, 0.60),
-        "chl_curvature":  (0.50, 0.80),
+        "okubo_weiss":         (0.30, 0.65),
+        "upwelling_edge":      (0.75, 0.10),
+        "current_shear":       (0.80, 0.60),
+        "chl_curvature":       (0.50, 0.80),
+        "ftle":                (1.00, 9.00),   # passthrough by default (center=1, width=huge)
+        "ssh":                 (1.00, 9.00),
+        "salinity_front":      (1.00, 9.00),
+        "vertical_velocity":   (1.00, 9.00),
+        "front_corridor":      (1.00, 9.00),
     }
 
     def _add_score(name, values, mask=None):
