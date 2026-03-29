@@ -1,5 +1,5 @@
 {
-  "generated": "2026-03-29 04:00",
+  "generated": "2026-03-30 04:00",
   "zone_bounds": [
     114.98,
     -32.1667,
@@ -8,60 +8,9 @@
   ],
   "days": [
     {
-      "date": "2026-03-29",
-      "model_score": 77.2,
-      "label": "TODAY",
-      "top_params": {
-        "leeuwin": 92.1,
-        "sst_min": 91.9,
-        "sst_iqr": 91.2,
-        "sst_max": 91.1,
-        "sst_p25": 90.4
-      },
-      "bottom_params": {
-        "sst_skew": 25.4,
-        "sst_front_frac": 49.2,
-        "blue_water_frac": 65.0
-      },
-      "zone_max": 96.0,
-      "zone_mean": 86.1,
-      "zone_cells": 58,
-      "subzones": {
-        "canyon": {
-          "max": 96.6,
-          "mean": 84.3,
-          "cells": 90
-        },
-        "pgfc": {
-          "max": 94.9,
-          "mean": 69.0,
-          "cells": 100
-        },
-        "north": {
-          "max": 95.5,
-          "mean": 79.3,
-          "cells": 117
-        },
-        "south": {
-          "max": 94.9,
-          "mean": 83.6,
-          "cells": 60
-        }
-      },
-      "eddy": {
-        "zone_max_sla_m": 0.493,
-        "warm_in_zone": true,
-        "strong_in_zone": true,
-        "status": "WARM EDDY IN ZONE",
-        "distance_nm": 0,
-        "bearing": null,
-        "n_warm_features": 1
-      }
-    },
-    {
       "date": "2026-03-30",
       "model_score": 78.2,
-      "label": "FORECAST",
+      "label": "TODAY",
       "top_params": {
         "sst_gradient": 96.4,
         "sst_range": 94.7,
@@ -407,6 +356,57 @@
       },
       "eddy": {
         "zone_max_sla_m": 0.414,
+        "warm_in_zone": true,
+        "strong_in_zone": true,
+        "status": "WARM EDDY IN ZONE",
+        "distance_nm": 0,
+        "bearing": null,
+        "n_warm_features": 1
+      }
+    },
+    {
+      "date": "2026-04-06",
+      "model_score": 58.9,
+      "label": "FORECAST",
+      "top_params": {
+        "sst_p75": 93.4,
+        "sst_mean": 92.6,
+        "sst_min": 92.4,
+        "sst_max": 92.2,
+        "sst_p25": 90.7
+      },
+      "bottom_params": {
+        "blue_water_frac": 0.0,
+        "sst_iqr": 30.0,
+        "vorticity": 32.6
+      },
+      "zone_max": 95.0,
+      "zone_mean": 85.3,
+      "zone_cells": 56,
+      "subzones": {
+        "canyon": {
+          "max": 89.3,
+          "mean": 75.7,
+          "cells": 90
+        },
+        "pgfc": {
+          "max": 94.9,
+          "mean": 70.3,
+          "cells": 100
+        },
+        "north": {
+          "max": 91.3,
+          "mean": 80.1,
+          "cells": 117
+        },
+        "south": {
+          "max": 94.6,
+          "mean": 89.2,
+          "cells": 60
+        }
+      },
+      "eddy": {
+        "zone_max_sla_m": 0.442,
         "warm_in_zone": true,
         "strong_in_zone": true,
         "status": "WARM EDDY IN ZONE",
