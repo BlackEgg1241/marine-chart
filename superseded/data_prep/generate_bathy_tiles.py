@@ -17,7 +17,7 @@ import rasterio
 import mercantile
 
 # --- Config ---
-GMRT_TIF = "data/bathy_merged.tif"
+GMRT_TIF = "data/bathy_combined.tif"
 TILE_DIR = "data/bathy_tiles"
 TILE_SIZE = 256
 MIN_ZOOM = 8
@@ -51,12 +51,25 @@ def load_bathy():
 
 
 def compute_hillshade(elevation, cellsize_x, cellsize_y, azimuth=315, altitude=45, z_factor=1.0):
-    """Compute hillshade from elevation grid."""
+    """Compute hillshade from elevation grid with depth-dependent exaggeration.
+
+    Shallow shelf gets much higher vertical exaggeration to reveal reef detail.
+    Deep canyon uses base z_factor.
+    """
+    from scipy.ndimage import gaussian_filter
     az_rad = math.radians(360 - azimuth + 90)
     alt_rad = math.radians(altitude)
 
-    # Gradient using numpy
-    dy, dx = np.gradient(elevation * z_factor, cellsize_y, cellsize_x)
+    # Depth-dependent z_factor: shallow (0-100m) gets 15x, deep (>500m) gets base
+    abs_depth = np.abs(elevation)
+    depth_scale = np.where(abs_depth < 100, 15.0,
+                  np.where(abs_depth < 200, 15.0 - 9.0 * (abs_depth - 100) / 100,
+                  np.where(abs_depth < 500, 6.0 - 3.0 * (abs_depth - 200) / 300,
+                  z_factor)))
+
+    # Smooth elevation with depth-dependent exaggeration
+    exaggerated = gaussian_filter(elevation * depth_scale, sigma=2.0)
+    dy, dx = np.gradient(exaggerated, cellsize_y, cellsize_x)
     slope = np.arctan(np.sqrt(dx**2 + dy**2))
     aspect = np.arctan2(-dy, dx)
 
@@ -67,24 +80,29 @@ def compute_hillshade(elevation, cellsize_x, cellsize_y, azimuth=315, altitude=4
 
 
 def depth_to_color(depth, shade):
-    """Map depth + hillshade to RGB color."""
-    # Normalise depth to 0-1 range
-    d_min, d_max = DEPTH_RANGE
-    norm = np.clip((depth - d_min) / (d_max - d_min), 0, 1)
+    """Map depth + hillshade to shadow/highlight overlay.
 
-    # Blend between deep ocean and shelf colors based on depth
-    r = OCEAN_COLOR[0] + (SHELF_COLOR[0] - OCEAN_COLOR[0]) * norm
-    g = OCEAN_COLOR[1] + (SHELF_COLOR[1] - OCEAN_COLOR[1]) * norm
-    b = OCEAN_COLOR[2] + (SHELF_COLOR[2] - OCEAN_COLOR[2]) * norm
+    Renders as a neutral overlay: shadows are dark, highlights are bright,
+    flat areas are transparent. No base colour — just relief detail.
+    """
+    # shade is 0 (shadow) to 1 (highlight), neutral = ~0.5
+    # Map to: shadow -> black with alpha, highlight -> white with alpha, neutral -> transparent
+    neutral = 0.5
+    deviation = shade - neutral  # -0.5 to +0.5
 
-    # Apply hillshade as brightness multiplier
-    brightness = 0.4 + 0.6 * shade  # keep some ambient light
-    r = np.clip(r * brightness, 0, 255).astype(np.uint8)
-    g = np.clip(g * brightness, 0, 255).astype(np.uint8)
-    b = np.clip(b * brightness, 0, 255).astype(np.uint8)
+    # Shadows: black pixels with alpha proportional to shadow depth
+    # Highlights: white pixels with alpha proportional to highlight strength
+    is_shadow = deviation < 0
+    r = np.where(is_shadow, 0, 255).astype(np.uint8)
+    g = np.where(is_shadow, 0, 255).astype(np.uint8)
+    b = np.where(is_shadow, 0, 255).astype(np.uint8)
+
+    # Alpha: sqrt curve boosts subtle shelf features while keeping canyon detail
+    alpha_norm = np.clip(np.abs(deviation) * 2.0, 0, 1)  # 0-1 range
+    alpha_raw = np.clip(np.sqrt(alpha_norm) * 220, 0, 220).astype(np.uint8)
 
     # Land (above sea level) -> transparent
-    alpha = np.where(depth >= 0, 0, 220).astype(np.uint8)
+    alpha = np.where(depth >= 0, 0, alpha_raw).astype(np.uint8)
 
     return np.stack([r, g, b, alpha], axis=-1)
 

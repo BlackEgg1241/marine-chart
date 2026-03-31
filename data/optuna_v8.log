@@ -1,0 +1,279 @@
+Loaded 47 catches
+Using 16 parallel workers on 24 cores
+
+--- Baseline (current settings) ---
+  Baseline: mean=81.8% >=70%=83% min=59% | ocean=71% lift=11 grad=6.9 ratio=0.868 pctl=67 obj=26.2
+
+==========================================================================================
+OPTUNA v6 — Edge-aligned optimization (200 trials, 16 workers)
+Objective: accuracy + edge_quality(gradient + peak_ratio) + discrimination - inflation
+Tunable: 7 weights + 8 geometry params = 15 params
+==========================================================================================
+C:\Github\marine-chart\optimize_visual.py:381: UserWarning: Fixed parameter 'w_ssh' with value 0.17 is out of range for distribution FloatDistribution(high=0.2, log=False, low=0.06, step=0.02).
+  w_ssh = trial.suggest_float('w_ssh', 0.06, 0.20, step=0.02)
+  T  1 [   23s] mean=80.8 >=70=81% min=54 | ocean=70% lift=10 grad=7.0 ratio=0.860 pctl=66 obj=25.8
+  T  2 [   34s] mean=81.0 >=70=81% min=57 | ocean=70% lift=11 grad=8.0 ratio=0.860 pctl=67 obj=26.9 ** BEST **
+  T  3 [   46s] mean=83.7 >=70=91% min=58 | ocean=75% lift=8 grad=5.7 ratio=0.878 pctl=65 obj=24.7
+  T  4 [   57s] mean=83.6 >=70=91% min=60 | ocean=73% lift=11 grad=5.8 ratio=0.884 pctl=68 obj=25.9
+  T  5 [   68s] mean=83.2 >=70=94% min=65 | ocean=74% lift=9 grad=5.1 ratio=0.889 pctl=65 obj=24.9
+  T  6 [   79s] mean=80.4 >=70=85% min=60 | ocean=70% lift=10 grad=6.0 ratio=0.880 pctl=69 obj=25.4
+  T  7 [   90s] mean=79.0 >=70=83% min=51 | ocean=68% lift=10 grad=7.1 ratio=0.859 pctl=68 obj=25.8
+  T  8 [  101s] mean=86.0 >=70=94% min=61 | ocean=75% lift=11 grad=6.9 ratio=0.888 pctl=69 obj=27.4 ** BEST **
+  T  9 [  111s] mean=77.3 >=70=77% min=51 | ocean=67% lift=10 grad=7.3 ratio=0.851 pctl=68 obj=25.4
+  T 10 [  123s] mean=84.0 >=70=94% min=63 | ocean=75% lift=9 grad=4.8 ratio=0.898 pctl=69 obj=24.8
+  T 11 [  134s] mean=86.7 >=70=98% min=68 | ocean=76% lift=11 grad=6.2 ratio=0.892 pctl=68 obj=26.5
+  T 12 [  146s] mean=84.6 >=70=87% min=66 | ocean=74% lift=11 grad=7.0 ratio=0.875 pctl=66 obj=26.9
+  T 13 [  157s] mean=83.5 >=70=87% min=62 | ocean=73% lift=11 grad=7.0 ratio=0.873 pctl=66 obj=26.7
+  T 14 [  168s] mean=83.8 >=70=91% min=57 | ocean=73% lift=10 grad=6.2 ratio=0.892 pctl=69 obj=26.2
+  T 15 [  180s] mean=85.0 >=70=91% min=64 | ocean=74% lift=11 grad=6.5 ratio=0.882 pctl=67 obj=26.8
+  T 16 [  192s] mean=84.3 >=70=91% min=64 | ocean=74% lift=10 grad=6.9 ratio=0.875 pctl=65 obj=26.8
+  T 17 [  203s] mean=82.4 >=70=87% min=56 | ocean=71% lift=12 grad=6.5 ratio=0.879 pctl=70 obj=26.5
+  T 18 [  214s] mean=85.3 >=70=94% min=66 | ocean=77% lift=8 grad=4.8 ratio=0.890 pctl=65 obj=19.1
+  T 19 [  226s] mean=81.2 >=70=83% min=62 | ocean=71% lift=11 grad=7.1 ratio=0.871 pctl=66 obj=26.3
+  T 20 [  237s] mean=81.4 >=70=81% min=59 | ocean=70% lift=11 grad=8.8 ratio=0.853 pctl=67 obj=27.8 ** BEST **
+  T 21 [  248s] mean=82.4 >=70=81% min=61 | ocean=72% lift=11 grad=8.0 ratio=0.865 pctl=66 obj=27.1
+  T 22 [  260s] mean=82.4 >=70=81% min=61 | ocean=72% lift=11 grad=8.0 ratio=0.865 pctl=66 obj=27.1
+  T 23 [  272s] mean=83.1 >=70=89% min=63 | ocean=73% lift=11 grad=7.6 ratio=0.871 pctl=66 obj=27.2
+  T 24 [  283s] mean=82.0 >=70=85% min=62 | ocean=72% lift=10 grad=7.4 ratio=0.867 pctl=66 obj=26.6
+  T 25 [  294s] mean=83.4 >=70=89% min=65 | ocean=73% lift=10 grad=7.2 ratio=0.875 pctl=65 obj=26.7
+  T 26 [  306s] mean=81.9 >=70=81% min=62 | ocean=71% lift=11 grad=7.9 ratio=0.865 pctl=65 obj=26.9
+  T 27 [  317s] mean=83.3 >=70=87% min=61 | ocean=73% lift=10 grad=6.4 ratio=0.872 pctl=65 obj=26.0
+  T 28 [  328s] mean=84.6 >=70=91% min=64 | ocean=74% lift=10 grad=6.8 ratio=0.873 pctl=65 obj=26.7
+  T 29 [  340s] mean=82.8 >=70=87% min=64 | ocean=73% lift=10 grad=7.0 ratio=0.874 pctl=66 obj=26.4
+  T 30 [  351s] mean=84.2 >=70=91% min=65 | ocean=75% lift=10 grad=6.2 ratio=0.874 pctl=63 obj=25.9
+  T 31 [  362s] mean=83.7 >=70=83% min=63 | ocean=72% lift=12 grad=7.3 ratio=0.873 pctl=67 obj=27.2
+  T 32 [  374s] mean=83.7 >=70=83% min=63 | ocean=72% lift=12 grad=7.3 ratio=0.873 pctl=67 obj=27.2
+  T 33 [  385s] mean=84.7 >=70=87% min=62 | ocean=73% lift=12 grad=7.7 ratio=0.874 pctl=67 obj=27.8 ** BEST **
+  T 34 [  397s] mean=83.7 >=70=85% min=62 | ocean=73% lift=11 grad=7.6 ratio=0.864 pctl=66 obj=27.2
+  T 35 [  407s] mean=81.1 >=70=81% min=56 | ocean=70% lift=12 grad=8.3 ratio=0.859 pctl=68 obj=27.3
+  T 36 [  418s] mean=83.0 >=70=87% min=59 | ocean=72% lift=11 grad=7.6 ratio=0.873 pctl=68 obj=27.1
+  T 37 [  429s] mean=83.3 >=70=89% min=59 | ocean=72% lift=12 grad=7.5 ratio=0.877 pctl=69 obj=27.5
+  T 38 [  439s] mean=81.3 >=70=87% min=57 | ocean=69% lift=12 grad=7.3 ratio=0.877 pctl=71 obj=27.3
+  T 39 [  450s] mean=84.6 >=70=91% min=61 | ocean=75% lift=10 grad=5.9 ratio=0.892 pctl=69 obj=26.1
+  T 40 [  460s] mean=84.2 >=70=89% min=54 | ocean=74% lift=10 grad=6.4 ratio=0.879 pctl=67 obj=26.1
+  T 41 [  471s] mean=82.3 >=70=85% min=60 | ocean=72% lift=11 grad=7.2 ratio=0.875 pctl=68 obj=26.7
+  T 42 [  481s] mean=81.6 >=70=81% min=59 | ocean=71% lift=10 grad=7.4 ratio=0.861 pctl=66 obj=26.3
+  T 43 [  492s] mean=83.7 >=70=87% min=60 | ocean=73% lift=11 grad=7.4 ratio=0.879 pctl=68 obj=27.2
+  T 44 [  502s] mean=82.2 >=70=83% min=56 | ocean=70% lift=12 grad=8.1 ratio=0.867 pctl=69 obj=27.5
+  T 45 [  513s] mean=80.1 >=70=81% min=55 | ocean=69% lift=12 grad=8.1 ratio=0.865 pctl=70 obj=27.1
+  T 46 [  523s] mean=79.4 >=70=74% min=53 | ocean=68% lift=12 grad=7.8 ratio=0.868 pctl=70 obj=26.5
+  T 47 [  534s] mean=80.7 >=70=79% min=57 | ocean=70% lift=11 grad=7.6 ratio=0.858 pctl=67 obj=26.3
+  T 48 [  545s] mean=83.2 >=70=89% min=58 | ocean=73% lift=10 grad=5.9 ratio=0.886 pctl=69 obj=25.7
+  T 49 [  555s] mean=84.4 >=70=89% min=58 | ocean=74% lift=11 grad=6.7 ratio=0.882 pctl=68 obj=26.6
+  T 50 [  566s] mean=83.7 >=70=85% min=61 | ocean=73% lift=11 grad=7.7 ratio=0.865 pctl=66 obj=27.2
+  T 51 [  577s] mean=84.5 >=70=87% min=60 | ocean=73% lift=12 grad=7.0 ratio=0.882 pctl=69 obj=27.2
+  T 52 [  587s] mean=83.1 >=70=85% min=59 | ocean=72% lift=11 grad=7.7 ratio=0.873 pctl=68 obj=27.2
+  T 53 [  597s] mean=79.9 >=70=81% min=52 | ocean=68% lift=12 grad=8.8 ratio=0.853 pctl=67 obj=27.4
+  T 54 [  608s] mean=79.4 >=70=79% min=52 | ocean=68% lift=11 grad=8.5 ratio=0.850 pctl=68 obj=27.0
+  T 55 [  619s] mean=83.1 >=70=87% min=58 | ocean=71% lift=12 grad=7.4 ratio=0.876 pctl=69 obj=27.3
+  T 56 [  629s] mean=83.6 >=70=87% min=55 | ocean=72% lift=12 grad=7.6 ratio=0.865 pctl=67 obj=27.3
+  T 57 [  641s] mean=80.0 >=70=81% min=55 | ocean=70% lift=10 grad=7.9 ratio=0.861 pctl=67 obj=26.4
+  T 58 [  652s] mean=84.8 >=70=94% min=64 | ocean=74% lift=11 grad=6.9 ratio=0.882 pctl=67 obj=27.1
+  T 59 [  662s] mean=81.1 >=70=77% min=54 | ocean=69% lift=12 grad=9.0 ratio=0.850 pctl=68 obj=27.8 ** BEST **
+  T 60 [  673s] mean=80.0 >=70=77% min=54 | ocean=68% lift=12 grad=8.4 ratio=0.852 pctl=69 obj=27.2
+  T 61 [  683s] mean=79.2 >=70=77% min=54 | ocean=68% lift=12 grad=9.3 ratio=0.832 pctl=65 obj=27.5
+  T 62 [  693s] mean=79.2 >=70=77% min=54 | ocean=68% lift=12 grad=9.2 ratio=0.833 pctl=65 obj=27.5
+  T 63 [  704s] mean=79.3 >=70=77% min=53 | ocean=68% lift=12 grad=9.2 ratio=0.832 pctl=65 obj=27.5
+  T 64 [  714s] mean=79.8 >=70=77% min=53 | ocean=68% lift=12 grad=9.2 ratio=0.837 pctl=66 obj=27.6
+  T 65 [  725s] mean=81.1 >=70=79% min=54 | ocean=69% lift=12 grad=8.9 ratio=0.847 pctl=66 obj=27.6
+  T 66 [  735s] mean=80.6 >=70=77% min=53 | ocean=69% lift=12 grad=9.0 ratio=0.841 pctl=66 obj=27.4
+  T 67 [  745s] mean=80.7 >=70=77% min=52 | ocean=69% lift=12 grad=9.2 ratio=0.842 pctl=66 obj=27.6
+  T 68 [  756s] mean=81.5 >=70=79% min=54 | ocean=70% lift=12 grad=8.7 ratio=0.849 pctl=65 obj=27.6
+  T 69 [  767s] mean=81.6 >=70=79% min=55 | ocean=70% lift=12 grad=8.8 ratio=0.849 pctl=65 obj=27.6
+  T 70 [  778s] mean=82.9 >=70=83% min=59 | ocean=71% lift=12 grad=8.5 ratio=0.862 pctl=67 obj=28.0 ** BEST **
+  T 71 [  788s] mean=83.3 >=70=83% min=60 | ocean=71% lift=12 grad=8.4 ratio=0.866 pctl=67 obj=28.0 ** BEST **
+  T 72 [  799s] mean=83.1 >=70=83% min=59 | ocean=71% lift=12 grad=8.6 ratio=0.864 pctl=67 obj=28.1 ** BEST **
+  T 73 [  810s] mean=83.1 >=70=83% min=59 | ocean=71% lift=12 grad=8.6 ratio=0.864 pctl=67 obj=28.1 ** BEST **
+  T 74 [  821s] mean=83.1 >=70=83% min=59 | ocean=71% lift=12 grad=8.6 ratio=0.864 pctl=67 obj=28.1 ** BEST **
+  T 75 [  831s] mean=82.8 >=70=83% min=59 | ocean=71% lift=12 grad=8.4 ratio=0.860 pctl=65 obj=27.8
+  T 76 [  842s] mean=82.8 >=70=83% min=59 | ocean=71% lift=12 grad=8.4 ratio=0.860 pctl=66 obj=27.8
+  T 77 [  853s] mean=82.9 >=70=85% min=60 | ocean=71% lift=12 grad=8.4 ratio=0.861 pctl=66 obj=28.0
+  T 78 [  864s] mean=82.9 >=70=83% min=60 | ocean=71% lift=12 grad=8.4 ratio=0.860 pctl=66 obj=27.8
+  T 79 [  875s] mean=83.5 >=70=89% min=60 | ocean=72% lift=12 grad=8.2 ratio=0.865 pctl=67 obj=28.0
+  T 80 [  886s] mean=82.4 >=70=85% min=58 | ocean=70% lift=12 grad=8.5 ratio=0.862 pctl=67 obj=28.0
+  T 81 [  897s] mean=82.4 >=70=85% min=58 | ocean=70% lift=12 grad=8.5 ratio=0.862 pctl=67 obj=28.0
+  T 82 [  908s] mean=82.4 >=70=85% min=58 | ocean=70% lift=12 grad=8.5 ratio=0.862 pctl=67 obj=28.0
+  T 83 [  919s] mean=82.4 >=70=85% min=58 | ocean=70% lift=12 grad=8.5 ratio=0.862 pctl=67 obj=28.0
+  T 84 [  929s] mean=82.6 >=70=87% min=59 | ocean=71% lift=12 grad=8.1 ratio=0.865 pctl=67 obj=27.9
+  T 85 [  940s] mean=82.5 >=70=85% min=59 | ocean=70% lift=12 grad=8.5 ratio=0.863 pctl=67 obj=28.0
+  T 86 [  950s] mean=82.3 >=70=85% min=59 | ocean=70% lift=12 grad=8.4 ratio=0.861 pctl=67 obj=27.9
+  T 87 [  961s] mean=82.7 >=70=87% min=60 | ocean=71% lift=12 grad=8.1 ratio=0.866 pctl=67 obj=27.9
+  T 88 [  972s] mean=82.3 >=70=85% min=59 | ocean=70% lift=12 grad=8.5 ratio=0.862 pctl=67 obj=28.0
+  T 89 [  983s] mean=83.0 >=70=87% min=60 | ocean=71% lift=12 grad=8.1 ratio=0.868 pctl=68 obj=27.9
+  T 90 [  994s] mean=82.7 >=70=85% min=58 | ocean=71% lift=12 grad=8.2 ratio=0.866 pctl=67 obj=27.9
+  T 91 [ 1004s] mean=82.1 >=70=83% min=56 | ocean=70% lift=12 grad=8.5 ratio=0.860 pctl=67 obj=27.9
+  T 92 [ 1015s] mean=82.3 >=70=85% min=59 | ocean=70% lift=12 grad=8.5 ratio=0.862 pctl=67 obj=28.0
+  T 93 [ 1026s] mean=82.3 >=70=85% min=59 | ocean=70% lift=12 grad=8.5 ratio=0.862 pctl=67 obj=28.0
+  T 94 [ 1038s] mean=82.7 >=70=85% min=59 | ocean=70% lift=12 grad=8.5 ratio=0.865 pctl=67 obj=28.1
+  T 95 [ 1049s] mean=83.0 >=70=85% min=60 | ocean=71% lift=12 grad=8.1 ratio=0.869 pctl=68 obj=27.9
+  T 96 [ 1059s] mean=82.3 >=70=83% min=58 | ocean=70% lift=12 grad=8.6 ratio=0.861 pctl=67 obj=28.0
+  T 97 [ 1070s] mean=82.7 >=70=87% min=59 | ocean=71% lift=12 grad=8.0 ratio=0.865 pctl=67 obj=27.8
+  T 98 [ 1081s] mean=83.5 >=70=91% min=59 | ocean=71% lift=12 grad=8.3 ratio=0.866 pctl=67 obj=28.4 ** BEST **
+  T 99 [ 1092s] mean=84.0 >=70=89% min=61 | ocean=72% lift=12 grad=7.9 ratio=0.870 pctl=67 obj=28.0
+  T100 [ 1103s] mean=83.6 >=70=89% min=60 | ocean=72% lift=12 grad=8.3 ratio=0.867 pctl=67 obj=28.2
+  T101 [ 1114s] mean=83.4 >=70=89% min=62 | ocean=72% lift=11 grad=6.9 ratio=0.872 pctl=67 obj=26.9
+  T102 [ 1124s] mean=83.7 >=70=89% min=60 | ocean=73% lift=11 grad=7.4 ratio=0.870 pctl=66 obj=27.2
+  T103 [ 1135s] mean=83.2 >=70=87% min=57 | ocean=71% lift=12 grad=8.5 ratio=0.863 pctl=67 obj=28.2
+  T104 [ 1147s] mean=83.3 >=70=87% min=59 | ocean=71% lift=12 grad=8.3 ratio=0.864 pctl=67 obj=28.1
+  T105 [ 1157s] mean=83.5 >=70=89% min=61 | ocean=72% lift=12 grad=8.3 ratio=0.866 pctl=67 obj=28.2
+  T106 [ 1168s] mean=83.4 >=70=87% min=60 | ocean=71% lift=12 grad=8.4 ratio=0.864 pctl=67 obj=28.2
+  T107 [ 1179s] mean=83.7 >=70=89% min=61 | ocean=72% lift=12 grad=8.3 ratio=0.866 pctl=67 obj=28.2
+  T108 [ 1189s] mean=84.1 >=70=89% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.870 pctl=68 obj=28.3
+  T109 [ 1200s] mean=84.1 >=70=89% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.870 pctl=68 obj=28.3
+  T110 [ 1211s] mean=84.5 >=70=91% min=64 | ocean=73% lift=11 grad=7.5 ratio=0.872 pctl=66 obj=27.7
+  T111 [ 1222s] mean=84.1 >=70=91% min=62 | ocean=72% lift=12 grad=7.7 ratio=0.871 pctl=67 obj=27.9
+  T112 [ 1233s] mean=84.1 >=70=89% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.870 pctl=68 obj=28.3
+  T113 [ 1244s] mean=84.1 >=70=89% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.870 pctl=68 obj=28.3
+  T114 [ 1254s] mean=84.1 >=70=89% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.870 pctl=68 obj=28.3
+  T115 [ 1265s] mean=85.2 >=70=91% min=63 | ocean=74% lift=11 grad=6.8 ratio=0.880 pctl=68 obj=27.1
+  T116 [ 1276s] mean=84.1 >=70=89% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.870 pctl=68 obj=28.3
+  T117 [ 1287s] mean=84.1 >=70=89% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.870 pctl=68 obj=28.3
+  T118 [ 1298s] mean=84.1 >=70=89% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.870 pctl=68 obj=28.3
+  T119 [ 1309s] mean=84.2 >=70=91% min=61 | ocean=72% lift=12 grad=8.1 ratio=0.871 pctl=68 obj=28.3
+  T120 [ 1319s] mean=84.2 >=70=91% min=62 | ocean=72% lift=12 grad=7.6 ratio=0.872 pctl=67 obj=27.8
+  T121 [ 1330s] mean=83.5 >=70=87% min=61 | ocean=72% lift=12 grad=7.4 ratio=0.872 pctl=67 obj=27.3
+  T122 [ 1341s] mean=84.1 >=70=89% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.870 pctl=68 obj=28.3
+  T123 [ 1352s] mean=84.1 >=70=89% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.870 pctl=68 obj=28.3
+  T124 [ 1363s] mean=84.1 >=70=89% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.870 pctl=68 obj=28.3
+  T125 [ 1374s] mean=84.2 >=70=91% min=61 | ocean=72% lift=12 grad=8.1 ratio=0.870 pctl=68 obj=28.3
+  T126 [ 1385s] mean=84.2 >=70=91% min=61 | ocean=72% lift=12 grad=8.1 ratio=0.871 pctl=68 obj=28.3
+  T127 [ 1396s] mean=84.1 >=70=91% min=61 | ocean=72% lift=12 grad=8.1 ratio=0.870 pctl=67 obj=28.3
+  T128 [ 1407s] mean=80.6 >=70=81% min=58 | ocean=69% lift=12 grad=7.0 ratio=0.881 pctl=71 obj=26.6
+  T129 [ 1417s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T130 [ 1428s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T131 [ 1439s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.1 ratio=0.868 pctl=67 obj=28.2
+  T132 [ 1450s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T133 [ 1461s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T134 [ 1472s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=67 obj=28.3
+  T135 [ 1482s] mean=84.3 >=70=89% min=61 | ocean=72% lift=12 grad=7.3 ratio=0.872 pctl=67 obj=27.5
+  T136 [ 1493s] mean=83.9 >=70=89% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=67 obj=28.2
+  T137 [ 1505s] mean=84.0 >=70=87% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.868 pctl=68 obj=28.1
+  T138 [ 1516s] mean=84.1 >=70=91% min=61 | ocean=72% lift=12 grad=7.5 ratio=0.870 pctl=68 obj=27.7
+  T139 [ 1526s] mean=84.3 >=70=91% min=61 | ocean=72% lift=12 grad=7.8 ratio=0.872 pctl=68 obj=28.1
+  T140 [ 1537s] mean=83.9 >=70=87% min=60 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.2
+  T141 [ 1548s] mean=84.2 >=70=91% min=62 | ocean=72% lift=12 grad=7.8 ratio=0.871 pctl=67 obj=28.0
+  T142 [ 1559s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T143 [ 1570s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T144 [ 1580s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T145 [ 1591s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T146 [ 1602s] mean=84.3 >=70=89% min=61 | ocean=72% lift=12 grad=7.4 ratio=0.872 pctl=67 obj=27.5
+  T147 [ 1613s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T148 [ 1624s] mean=83.9 >=70=87% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=67 obj=28.1
+  T149 [ 1635s] mean=84.1 >=70=91% min=60 | ocean=72% lift=12 grad=7.5 ratio=0.869 pctl=68 obj=27.7
+  T150 [ 1646s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.1 ratio=0.867 pctl=68 obj=28.2
+  T151 [ 1656s] mean=84.3 >=70=91% min=61 | ocean=72% lift=12 grad=7.9 ratio=0.872 pctl=68 obj=28.2
+  T152 [ 1667s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T153 [ 1678s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T154 [ 1688s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T155 [ 1700s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T156 [ 1711s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T157 [ 1721s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T158 [ 1732s] mean=83.9 >=70=87% min=60 | ocean=72% lift=12 grad=8.2 ratio=0.868 pctl=68 obj=28.1
+  T159 [ 1743s] mean=84.7 >=70=91% min=62 | ocean=74% lift=11 grad=7.1 ratio=0.875 pctl=68 obj=27.3
+  T160 [ 1754s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T161 [ 1765s] mean=84.4 >=70=89% min=61 | ocean=72% lift=12 grad=7.4 ratio=0.873 pctl=68 obj=27.7
+  T162 [ 1776s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T163 [ 1787s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T164 [ 1798s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T165 [ 1809s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T166 [ 1819s] mean=83.9 >=70=87% min=60 | ocean=72% lift=12 grad=8.2 ratio=0.868 pctl=68 obj=28.2
+  T167 [ 1830s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T168 [ 1841s] mean=84.4 >=70=91% min=64 | ocean=73% lift=11 grad=7.4 ratio=0.871 pctl=66 obj=27.6
+  T169 [ 1852s] mean=84.0 >=70=87% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.868 pctl=68 obj=28.1
+  T170 [ 1863s] mean=84.1 >=70=91% min=61 | ocean=72% lift=12 grad=8.1 ratio=0.869 pctl=68 obj=28.3
+  T171 [ 1874s] mean=84.0 >=70=89% min=60 | ocean=72% lift=12 grad=8.2 ratio=0.869 pctl=68 obj=28.3
+  T172 [ 1885s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T173 [ 1896s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T174 [ 1907s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T175 [ 1918s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T176 [ 1928s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T177 [ 1939s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T178 [ 1950s] mean=83.9 >=70=89% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=67 obj=28.2
+  T179 [ 1961s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T180 [ 1971s] mean=84.3 >=70=91% min=63 | ocean=73% lift=12 grad=7.7 ratio=0.872 pctl=67 obj=27.8
+  T181 [ 1982s] mean=84.2 >=70=89% min=61 | ocean=72% lift=12 grad=7.8 ratio=0.871 pctl=68 obj=27.9
+  T182 [ 1993s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T183 [ 2004s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T184 [ 2015s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T185 [ 2025s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T186 [ 2036s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T187 [ 2047s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T188 [ 2058s] mean=84.5 >=70=91% min=62 | ocean=73% lift=11 grad=7.5 ratio=0.873 pctl=68 obj=27.7
+  T189 [ 2068s] mean=81.0 >=70=83% min=58 | ocean=69% lift=12 grad=7.7 ratio=0.873 pctl=70 obj=27.3
+  T190 [ 2079s] mean=83.3 >=70=87% min=59 | ocean=71% lift=12 grad=8.4 ratio=0.864 pctl=68 obj=28.2
+  T191 [ 2090s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T192 [ 2101s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T193 [ 2111s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T194 [ 2122s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T195 [ 2133s] mean=84.2 >=70=89% min=61 | ocean=73% lift=11 grad=7.2 ratio=0.872 pctl=67 obj=27.2
+  T196 [ 2144s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T197 [ 2154s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T198 [ 2165s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.2 ratio=0.867 pctl=68 obj=28.3
+  T199 [ 2175s] mean=83.9 >=70=91% min=61 | ocean=72% lift=12 grad=8.1 ratio=0.868 pctl=68 obj=28.3
+  T200 [ 2186s] mean=83.8 >=70=91% min=59 | ocean=72% lift=12 grad=8.2 ratio=0.866 pctl=67 obj=28.3
+
+==========================================================================================
+OPTIMIZATION COMPLETE
+==========================================================================================
+
+Best trial: #97
+  Objective: 28.4
+
+Best parameters:
+  bivariate_rho             = -0.3000
+  depth_shallow_full        = 120
+  edge_boost                = 0.1000
+  one_band_mult             = 0.7500
+  pool_pct                  = 80
+  score_grad_blend          = 0.2000
+  shelf_boost               = 0.1000
+  shelf_prox_blend          = 0.3000
+  shelf_prox_sigma          = 80.0000
+  strat_strong              = 6.0000
+  strat_weak                = 1.0000
+  thermo_cold               = 8.0000
+  thermo_warm               = 16.0000
+  w_bivariate               = 0.0600
+  w_conv                    = 0.0000
+  w_current                 = 0.1137
+  w_mld                     = 0.1137
+  w_rugosity                = 0.0400
+  w_salinity_front          = 0.0200
+  w_shear                   = 0.0284
+  w_shelf                   = 0.0568
+  w_ssh                     = 0.1137
+  w_stratification          = 0.0800
+  w_thermocline_lift        = 0.1000
+  w_upwell                  = 0.1137
+  w_vert_vel                = 0.0600
+  zero_band_mult            = 0.5500
+
+Best metrics:
+  mean               = 83.518
+  median             = 86.570
+  pct_70             = 91.489
+  pct_80             = 72.340
+  min                = 58.969
+  max                = 99.560
+  n                  = 47
+  ocean_mean         = 71.270
+  ocean_pct70        = 58.581
+  catch_lift         = 12.248
+  avg_gradient       = 8.314
+  avg_percentile     = 66.953
+  avg_top10_area     = 10.256
+  avg_peak_ratio     = 0.866
+  objective          = 28.369
+
+--- Improvement over baseline ---
+  mean              : 81.8 -> 83.5  (+1.7)
+  pct_70            : 83.0 -> 91.5  (+8.5)
+  min               : 58.7 -> 59.0  (+0.3)
+  ocean_mean        : 71.0 -> 71.3  (+0.2)
+  catch_lift        : 10.7 -> 12.2  (+1.5)
+  avg_percentile    : 67.2 -> 67.0  (-0.3)
+  avg_gradient      : 6.9 -> 8.3  (+1.5)
+  avg_peak_ratio    : 0.868 -> 0.866  (-0.001)
+  objective         : 26.2 -> 28.4  (+2.2)
+
+Results saved to C:\Github\marine-chart\data\visual_optimization_results.json

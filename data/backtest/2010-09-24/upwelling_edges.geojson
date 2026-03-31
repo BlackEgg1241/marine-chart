@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "LineString", "coordinates": [[115.35969, -32.10163], [115.36039, -32.09997], [115.36098, -32.07997], [115.35969, -32.07591], [115.35804, -32.07997], [115.35918, -32.09997], [115.35969, -32.10163]]}, "properties": {"type": "upwelling_edge", "level": 0.3, "label": "moderate", "color": "#2dd4bf"}}]}

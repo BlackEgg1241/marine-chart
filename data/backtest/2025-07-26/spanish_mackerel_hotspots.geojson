@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[115.425, -31.9987], [115.3931, -31.975], [115.425, -31.9496], [115.4468, -31.975], [115.425, -31.9987]]]}, "properties": {"species": "spanish_mackerel", "type": "hotspot", "intensity": 0.6, "band": "60%-67%"}}]}

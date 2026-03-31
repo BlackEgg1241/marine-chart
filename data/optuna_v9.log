@@ -1,0 +1,14 @@
+Loaded 47 catches
+Using 16 parallel workers on 24 cores
+
+--- Baseline (current settings) ---
+  Baseline: mean=81.8% >=70%=83% min=59% | ocean=71% lift=11 grad=6.9 ratio=0.868 pctl=67 obj=26.2
+
+==========================================================================================
+OPTUNA v6 — Edge-aligned optimization (200 trials, 16 workers)
+Objective: accuracy + edge_quality(gradient + peak_ratio) + discrimination - inflation
+Tunable: 7 weights + 8 geometry params = 15 params
+==========================================================================================
+C:\Github\marine-chart\optimize_visual.py:382: UserWarning: Fixed parameter 'w_ssh' with value 0.17 is out of range for distribution FloatDistribution(high=0.2, log=False, low=0.06, step=0.02).
+  w_ssh = trial.suggest_float('w_ssh', 0.06, 0.20, step=0.02)
+  T  1 [   21s] mean=81.8 >=70=79% min=59 | ocean=70% lift=12 grad=7.9 ratio=0.867 pctl=70 obj=27.3 ** BEST **

@@ -1,0 +1,8321 @@
+[
+  {
+    "date": "2000-04-23",
+    "catch_lat": -31.8167,
+    "catch_lon": 115.2833,
+    "catch_score": 96.4,
+    "peak_score": 96.8,
+    "peak_direction": "S",
+    "peak_dist_nm": 3.5,
+    "peak_lat": -31.875,
+    "peak_lon": 115.275,
+    "quadrant_means": {
+      "N": 70.1,
+      "S": 64.1,
+      "W_offshore": 83.9,
+      "E_shoreward": 50.7
+    },
+    "features_at_catch": {
+      "sst": 0.919,
+      "sst_front": 0.81,
+      "front_corridor": 0.919,
+      "chl": 0.869,
+      "sst_chl_bivariate": 0.604,
+      "chl_curvature": 1.0,
+      "shelf_break": 0.341,
+      "depth": 1.0,
+      "ssh": 0.271,
+      "mld": 0.762,
+      "current": 0.501,
+      "current_shear": 0.06,
+      "upwelling_edge": 0.919,
+      "salinity_front": 0.891
+    },
+    "features_at_peak": {
+      "sst": 0.905,
+      "sst_front": 0.794,
+      "front_corridor": 0.905,
+      "chl": 0.849,
+      "sst_chl_bivariate": 0.551,
+      "chl_curvature": 1.0,
+      "shelf_break": 0.39,
+      "depth": 1.0,
+      "ssh": 0.277,
+      "mld": 0.758,
+      "current": 0.562,
+      "current_shear": 0.053,
+      "upwelling_edge": 0.905,
+      "salinity_front": 0.887
+    },
+    "feature_diffs": {
+      "sst": -0.015,
+      "sst_front": -0.016,
+      "front_corridor": -0.015,
+      "chl": -0.02,
+      "sst_chl_bivariate": -0.053,
+      "chl_curvature": 0.0,
+      "shelf_break": 0.049,
+      "depth": 0.0,
+      "ssh": 0.006,
+      "mld": -0.005,
+      "current": 0.061,
+      "current_shear": -0.007,
+      "upwelling_edge": -0.015,
+      "salinity_front": -0.004
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.929,
+        "S": 0.951,
+        "W_offshore": 0.9,
+        "E_shoreward": 0.975
+      },
+      "sst_front": {
+        "N": 0.797,
+        "S": 0.802,
+        "W_offshore": 0.664,
+        "E_shoreward": 0.898
+      },
+      "front_corridor": {
+        "N": 0.929,
+        "S": 0.951,
+        "W_offshore": 0.9,
+        "E_shoreward": 0.975
+      },
+      "chl": {
+        "N": 0.699,
+        "S": 0.701,
+        "W_offshore": 0.906,
+        "E_shoreward": 0.524
+      },
+      "sst_chl_bivariate": {
+        "N": 0.468,
+        "S": 0.526,
+        "W_offshore": 0.603,
+        "E_shoreward": 0.411
+      },
+      "chl_curvature": {
+        "N": 0.634,
+        "S": 0.748,
+        "W_offshore": 0.852,
+        "E_shoreward": 0.524
+      },
+      "shelf_break": {
+        "N": 0.348,
+        "S": 0.252,
+        "W_offshore": 0.484,
+        "E_shoreward": 0.161
+      },
+      "depth": {
+        "N": 0.648,
+        "S": 0.452,
+        "W_offshore": 0.988,
+        "E_shoreward": 0.167
+      },
+      "ssh": {
+        "N": 0.322,
+        "S": 0.366,
+        "W_offshore": 0.293,
+        "E_shoreward": 0.398
+      },
+      "mld": {
+        "N": 0.722,
+        "S": 0.861,
+        "W_offshore": 0.554,
+        "E_shoreward": 0.948
+      },
+      "current": {
+        "N": 0.662,
+        "S": 0.613,
+        "W_offshore": 0.632,
+        "E_shoreward": 0.651
+      },
+      "current_shear": {
+        "N": 0.049,
+        "S": 0.033,
+        "W_offshore": 0.084,
+        "E_shoreward": 0.005
+      },
+      "upwelling_edge": {
+        "N": 0.841,
+        "S": 0.854,
+        "W_offshore": 0.653,
+        "E_shoreward": 0.975
+      },
+      "salinity_front": {
+        "N": 0.876,
+        "S": 0.859,
+        "W_offshore": 0.766,
+        "E_shoreward": 0.937
+      },
+      "thermocline_lift": {
+        "N": null,
+        "S": null,
+        "W_offshore": null,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": null,
+        "S": null,
+        "W_offshore": null,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": -6.4,
+      "S_2nm": 0.5,
+      "W_2nm": -6.2,
+      "E_2nm": -13.2,
+      "N_5nm": -13.5,
+      "S_5nm": -3.5,
+      "W_5nm": -11.9,
+      "E_5nm": -47.9,
+      "N_10nm": -39.7,
+      "S_10nm": -5.2,
+      "W_10nm": -8.2,
+      "E_10nm": -56.4
+    }
+  },
+  {
+    "date": "2001-03-05",
+    "catch_lat": -32.0667,
+    "catch_lon": 115.2333,
+    "catch_score": 84.0,
+    "peak_score": 97.1,
+    "peak_direction": "NE",
+    "peak_dist_nm": 5.3,
+    "peak_lat": -32.025,
+    "peak_lon": 115.325,
+    "quadrant_means": {
+      "N": 75.6,
+      "S": 72.5,
+      "W_offshore": 76.6,
+      "E_shoreward": 71.6
+    },
+    "features_at_catch": {
+      "sst": 1.0,
+      "sst_front": 0.737,
+      "front_corridor": 1.0,
+      "chl": 0.989,
+      "sst_chl_bivariate": 0.989,
+      "chl_curvature": 0.28,
+      "shelf_break": 0.577,
+      "depth": 1.0,
+      "ssh": 0.329,
+      "mld": 1.0,
+      "current": 0.855,
+      "current_shear": 0.107,
+      "upwelling_edge": 0.159,
+      "salinity_front": 0.903
+    },
+    "features_at_peak": {
+      "sst": 0.999,
+      "sst_front": 0.705,
+      "front_corridor": 0.999,
+      "chl": 1.0,
+      "sst_chl_bivariate": 0.999,
+      "chl_curvature": 0.759,
+      "shelf_break": 0.345,
+      "depth": 0.992,
+      "ssh": 0.358,
+      "mld": 1.0,
+      "current": 0.586,
+      "current_shear": 0.036,
+      "upwelling_edge": 0.17,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": -0.0,
+      "sst_front": -0.032,
+      "front_corridor": -0.0,
+      "chl": 0.01,
+      "sst_chl_bivariate": 0.01,
+      "chl_curvature": 0.479,
+      "shelf_break": -0.232,
+      "depth": -0.008,
+      "ssh": 0.029,
+      "mld": 0.0,
+      "current": -0.269,
+      "current_shear": -0.071,
+      "upwelling_edge": 0.011,
+      "salinity_front": 0.097
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.997,
+        "S": 0.998,
+        "W_offshore": 0.997,
+        "E_shoreward": 0.998
+      },
+      "sst_front": {
+        "N": 0.829,
+        "S": 0.649,
+        "W_offshore": 0.734,
+        "E_shoreward": 0.74
+      },
+      "front_corridor": {
+        "N": 0.997,
+        "S": 0.998,
+        "W_offshore": 0.997,
+        "E_shoreward": 0.998
+      },
+      "chl": {
+        "N": 0.995,
+        "S": 0.98,
+        "W_offshore": 0.985,
+        "E_shoreward": 0.99
+      },
+      "sst_chl_bivariate": {
+        "N": 0.991,
+        "S": 0.979,
+        "W_offshore": 0.982,
+        "E_shoreward": 0.988
+      },
+      "chl_curvature": {
+        "N": 0.437,
+        "S": 0.638,
+        "W_offshore": 0.229,
+        "E_shoreward": 0.814
+      },
+      "shelf_break": {
+        "N": 0.378,
+        "S": 0.396,
+        "W_offshore": 0.523,
+        "E_shoreward": 0.262
+      },
+      "depth": {
+        "N": 0.705,
+        "S": 0.796,
+        "W_offshore": 0.97,
+        "E_shoreward": 0.555
+      },
+      "ssh": {
+        "N": 0.39,
+        "S": 0.349,
+        "W_offshore": 0.327,
+        "E_shoreward": 0.394
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.596,
+        "S": 0.716,
+        "W_offshore": 0.843,
+        "E_shoreward": 0.465
+      },
+      "current_shear": {
+        "N": 0.148,
+        "S": 0.1,
+        "W_offshore": 0.157,
+        "E_shoreward": 0.054
+      },
+      "upwelling_edge": {
+        "N": 0.251,
+        "S": 0.121,
+        "W_offshore": 0.12,
+        "E_shoreward": 0.232
+      },
+      "salinity_front": {
+        "N": 0.891,
+        "S": 0.894,
+        "W_offshore": 0.745,
+        "E_shoreward": 0.997
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": 0.0,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": -1.9,
+      "S_2nm": 0.0,
+      "W_2nm": 1.7,
+      "E_2nm": 7.9,
+      "N_5nm": -5.1,
+      "S_5nm": 3.3,
+      "W_5nm": 2.0,
+      "E_5nm": 10.0,
+      "N_10nm": -1.4,
+      "S_10nm": 4.4,
+      "W_10nm": -29.0,
+      "E_10nm": -35.5
+    }
+  },
+  {
+    "date": "2001-03-03",
+    "catch_lat": -31.8167,
+    "catch_lon": 115.2833,
+    "catch_score": 89.8,
+    "peak_score": 95.5,
+    "peak_direction": "NW",
+    "peak_dist_nm": 10.1,
+    "peak_lat": -31.675,
+    "peak_lon": 115.175,
+    "quadrant_means": {
+      "N": 71.0,
+      "S": 64.2,
+      "W_offshore": 85.2,
+      "E_shoreward": 50.6
+    },
+    "features_at_catch": {
+      "sst": 0.99,
+      "sst_front": 0.848,
+      "front_corridor": 0.99,
+      "chl": 0.952,
+      "sst_chl_bivariate": 0.899,
+      "chl_curvature": 0.012,
+      "shelf_break": 0.341,
+      "depth": 1.0,
+      "ssh": 0.427,
+      "mld": 1.0,
+      "current": 0.501,
+      "current_shear": 0.092,
+      "upwelling_edge": 0.104,
+      "salinity_front": 1.0
+    },
+    "features_at_peak": {
+      "sst": 0.977,
+      "sst_front": 0.785,
+      "front_corridor": 0.977,
+      "chl": 0.989,
+      "sst_chl_bivariate": 0.911,
+      "chl_curvature": 0.044,
+      "shelf_break": 0.395,
+      "depth": 1.0,
+      "ssh": 0.534,
+      "mld": 1.0,
+      "current": 0.838,
+      "current_shear": 0.53,
+      "upwelling_edge": 0.062,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": -0.013,
+      "sst_front": -0.063,
+      "front_corridor": -0.013,
+      "chl": 0.037,
+      "sst_chl_bivariate": 0.012,
+      "chl_curvature": 0.032,
+      "shelf_break": 0.054,
+      "depth": 0.0,
+      "ssh": 0.107,
+      "mld": 0.0,
+      "current": 0.337,
+      "current_shear": 0.438,
+      "upwelling_edge": -0.042,
+      "salinity_front": 0.0
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.989,
+        "S": 0.99,
+        "W_offshore": 0.979,
+        "E_shoreward": 0.996
+      },
+      "sst_front": {
+        "N": 0.855,
+        "S": 0.745,
+        "W_offshore": 0.846,
+        "E_shoreward": 0.756
+      },
+      "front_corridor": {
+        "N": 0.989,
+        "S": 0.99,
+        "W_offshore": 0.979,
+        "E_shoreward": 0.996
+      },
+      "chl": {
+        "N": 0.985,
+        "S": 0.968,
+        "W_offshore": 0.989,
+        "E_shoreward": 0.977
+      },
+      "sst_chl_bivariate": {
+        "N": 0.959,
+        "S": 0.933,
+        "W_offshore": 0.934,
+        "E_shoreward": 0.968
+      },
+      "chl_curvature": {
+        "N": 0.453,
+        "S": 0.294,
+        "W_offshore": 0.171,
+        "E_shoreward": 0.644
+      },
+      "shelf_break": {
+        "N": 0.348,
+        "S": 0.252,
+        "W_offshore": 0.484,
+        "E_shoreward": 0.161
+      },
+      "depth": {
+        "N": 0.648,
+        "S": 0.452,
+        "W_offshore": 0.988,
+        "E_shoreward": 0.167
+      },
+      "ssh": {
+        "N": 0.449,
+        "S": 0.489,
+        "W_offshore": 0.433,
+        "E_shoreward": 0.486
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.587,
+        "S": 0.42,
+        "W_offshore": 0.804,
+        "E_shoreward": 0.283
+      },
+      "current_shear": {
+        "N": 0.156,
+        "S": 0.16,
+        "W_offshore": 0.322,
+        "E_shoreward": 0.017
+      },
+      "upwelling_edge": {
+        "N": 0.126,
+        "S": 0.095,
+        "W_offshore": 0.08,
+        "E_shoreward": 0.133
+      },
+      "salinity_front": {
+        "N": 0.994,
+        "S": 0.983,
+        "W_offshore": 0.992,
+        "E_shoreward": 0.983
+      },
+      "thermocline_lift": {
+        "N": null,
+        "S": null,
+        "W_offshore": null,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": null,
+        "S": null,
+        "W_offshore": null,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": -1.5,
+      "S_2nm": 4.7,
+      "W_2nm": -0.8,
+      "E_2nm": -12.6,
+      "N_5nm": -10.3,
+      "S_5nm": 1.8,
+      "W_5nm": -5.5,
+      "E_5nm": -42.5,
+      "N_10nm": -35.0,
+      "S_10nm": -0.0,
+      "W_10nm": -4.5,
+      "E_10nm": -49.8
+    }
+  },
+  {
+    "date": "2001-03-28",
+    "catch_lat": -32.0667,
+    "catch_lon": 115.2333,
+    "catch_score": 90.9,
+    "peak_score": 97.2,
+    "peak_direction": "S",
+    "peak_dist_nm": 9.5,
+    "peak_lat": -32.225,
+    "peak_lon": 115.225,
+    "quadrant_means": {
+      "N": 76.2,
+      "S": 80.5,
+      "W_offshore": 84.0,
+      "E_shoreward": 71.3
+    },
+    "features_at_catch": {
+      "sst": 0.969,
+      "sst_front": 0.866,
+      "front_corridor": 0.969,
+      "chl": 0.55,
+      "sst_chl_bivariate": 0.548,
+      "chl_curvature": 0.005,
+      "shelf_break": 0.577,
+      "depth": 1.0,
+      "ssh": 0.284,
+      "mld": 1.0,
+      "current": 0.724,
+      "current_shear": 0.251,
+      "upwelling_edge": 0.507,
+      "salinity_front": 1.0
+    },
+    "features_at_peak": {
+      "sst": 0.963,
+      "sst_front": 0.898,
+      "front_corridor": 0.963,
+      "chl": 0.33,
+      "sst_chl_bivariate": 0.324,
+      "chl_curvature": 0.96,
+      "shelf_break": 0.45,
+      "depth": 1.0,
+      "ssh": 0.27,
+      "mld": 1.0,
+      "current": 0.765,
+      "current_shear": 0.239,
+      "upwelling_edge": 0.581,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": -0.006,
+      "sst_front": 0.032,
+      "front_corridor": -0.006,
+      "chl": -0.22,
+      "sst_chl_bivariate": -0.224,
+      "chl_curvature": 0.954,
+      "shelf_break": -0.127,
+      "depth": 0.0,
+      "ssh": -0.015,
+      "mld": 0.0,
+      "current": 0.041,
+      "current_shear": -0.012,
+      "upwelling_edge": 0.074,
+      "salinity_front": 0.0
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.938,
+        "S": 0.948,
+        "W_offshore": 0.969,
+        "E_shoreward": 0.917
+      },
+      "sst_front": {
+        "N": 0.84,
+        "S": 0.838,
+        "W_offshore": 0.73,
+        "E_shoreward": 0.91
+      },
+      "front_corridor": {
+        "N": 0.938,
+        "S": 0.948,
+        "W_offshore": 0.969,
+        "E_shoreward": 0.917
+      },
+      "chl": {
+        "N": 0.401,
+        "S": 0.668,
+        "W_offshore": 0.687,
+        "E_shoreward": 0.411
+      },
+      "sst_chl_bivariate": {
+        "N": 0.398,
+        "S": 0.667,
+        "W_offshore": 0.686,
+        "E_shoreward": 0.41
+      },
+      "chl_curvature": {
+        "N": 0.56,
+        "S": 0.423,
+        "W_offshore": 0.425,
+        "E_shoreward": 0.457
+      },
+      "shelf_break": {
+        "N": 0.378,
+        "S": 0.396,
+        "W_offshore": 0.523,
+        "E_shoreward": 0.262
+      },
+      "depth": {
+        "N": 0.705,
+        "S": 0.796,
+        "W_offshore": 0.97,
+        "E_shoreward": 0.555
+      },
+      "ssh": {
+        "N": 0.339,
+        "S": 0.422,
+        "W_offshore": 0.389,
+        "E_shoreward": 0.383
+      },
+      "mld": {
+        "N": 0.999,
+        "S": 0.995,
+        "W_offshore": 0.989,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.717,
+        "S": 0.716,
+        "W_offshore": 0.854,
+        "E_shoreward": 0.616
+      },
+      "current_shear": {
+        "N": 0.148,
+        "S": 0.313,
+        "W_offshore": 0.41,
+        "E_shoreward": 0.075
+      },
+      "upwelling_edge": {
+        "N": 0.603,
+        "S": 0.522,
+        "W_offshore": 0.254,
+        "E_shoreward": 0.811
+      },
+      "salinity_front": {
+        "N": 0.989,
+        "S": 0.978,
+        "W_offshore": 0.958,
+        "E_shoreward": 0.998
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": 0.0,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 0.426,
+        "S": 0.423,
+        "W_offshore": 0.419,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 1.8,
+      "S_2nm": 0.0,
+      "W_2nm": -1.4,
+      "E_2nm": 4.6,
+      "N_5nm": 1.7,
+      "S_5nm": 0.8,
+      "W_5nm": -6.4,
+      "E_5nm": 0.3,
+      "N_10nm": 1.6,
+      "S_10nm": 6.3,
+      "W_10nm": -36.4,
+      "E_10nm": -44.5
+    }
+  },
+  {
+    "date": "2001-04-15",
+    "catch_lat": -32.0667,
+    "catch_lon": 115.2333,
+    "catch_score": 91.1,
+    "peak_score": 99.4,
+    "peak_direction": "SE",
+    "peak_dist_nm": 4.1,
+    "peak_lat": -32.125,
+    "peak_lon": 115.275,
+    "quadrant_means": {
+      "N": 77.6,
+      "S": 77.5,
+      "W_offshore": 81.8,
+      "E_shoreward": 72.4
+    },
+    "features_at_catch": {
+      "sst": 0.999,
+      "sst_front": 0.83,
+      "front_corridor": 0.999,
+      "chl": 1.0,
+      "sst_chl_bivariate": 0.998,
+      "chl_curvature": 0.349,
+      "shelf_break": 0.577,
+      "depth": 1.0,
+      "ssh": 0.375,
+      "mld": 1.0,
+      "current": 0.972,
+      "current_shear": 0.426,
+      "upwelling_edge": 0.416,
+      "salinity_front": 0.994
+    },
+    "features_at_peak": {
+      "sst": 1.0,
+      "sst_front": 0.869,
+      "front_corridor": 1.0,
+      "chl": 0.99,
+      "sst_chl_bivariate": 0.988,
+      "chl_curvature": 0.501,
+      "shelf_break": 0.394,
+      "depth": 1.0,
+      "ssh": 0.471,
+      "mld": 1.0,
+      "current": 0.998,
+      "current_shear": 0.399,
+      "upwelling_edge": 0.653,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": 0.001,
+      "sst_front": 0.039,
+      "front_corridor": 0.001,
+      "chl": -0.01,
+      "sst_chl_bivariate": -0.01,
+      "chl_curvature": 0.152,
+      "shelf_break": -0.183,
+      "depth": 0.0,
+      "ssh": 0.096,
+      "mld": 0.0,
+      "current": 0.027,
+      "current_shear": -0.027,
+      "upwelling_edge": 0.238,
+      "salinity_front": 0.006
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.996,
+        "S": 0.999,
+        "W_offshore": 0.999,
+        "E_shoreward": 0.996
+      },
+      "sst_front": {
+        "N": 0.866,
+        "S": 0.799,
+        "W_offshore": 0.815,
+        "E_shoreward": 0.848
+      },
+      "front_corridor": {
+        "N": 0.996,
+        "S": 0.999,
+        "W_offshore": 0.999,
+        "E_shoreward": 0.996
+      },
+      "chl": {
+        "N": 0.974,
+        "S": 0.981,
+        "W_offshore": 0.99,
+        "E_shoreward": 0.963
+      },
+      "sst_chl_bivariate": {
+        "N": 0.973,
+        "S": 0.98,
+        "W_offshore": 0.989,
+        "E_shoreward": 0.962
+      },
+      "chl_curvature": {
+        "N": 0.471,
+        "S": 0.557,
+        "W_offshore": 0.268,
+        "E_shoreward": 0.731
+      },
+      "shelf_break": {
+        "N": 0.378,
+        "S": 0.396,
+        "W_offshore": 0.523,
+        "E_shoreward": 0.262
+      },
+      "depth": {
+        "N": 0.705,
+        "S": 0.796,
+        "W_offshore": 0.97,
+        "E_shoreward": 0.555
+      },
+      "ssh": {
+        "N": 0.425,
+        "S": 0.364,
+        "W_offshore": 0.249,
+        "E_shoreward": 0.492
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.876,
+        "S": 0.894,
+        "W_offshore": 0.883,
+        "E_shoreward": 0.871
+      },
+      "current_shear": {
+        "N": 0.33,
+        "S": 0.249,
+        "W_offshore": 0.454,
+        "E_shoreward": 0.109
+      },
+      "upwelling_edge": {
+        "N": 0.618,
+        "S": 0.408,
+        "W_offshore": 0.201,
+        "E_shoreward": 0.778
+      },
+      "salinity_front": {
+        "N": 0.975,
+        "S": 0.965,
+        "W_offshore": 0.922,
+        "E_shoreward": 1.0
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": 0.0,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 0.994,
+        "S": 0.995,
+        "W_offshore": 0.992,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": -3.3,
+      "S_2nm": 0.0,
+      "W_2nm": -5.9,
+      "E_2nm": 7.3,
+      "N_5nm": -7.3,
+      "S_5nm": 6.0,
+      "W_5nm": -5.9,
+      "E_5nm": 5.8,
+      "N_10nm": -9.0,
+      "S_10nm": 6.7,
+      "W_10nm": -32.1,
+      "E_10nm": -44.0
+    }
+  },
+  {
+    "date": "2001-03-10",
+    "catch_lat": -31.9333,
+    "catch_lon": 115.25,
+    "catch_score": 89.2,
+    "peak_score": 97.7,
+    "peak_direction": "SE",
+    "peak_dist_nm": 6.7,
+    "peak_lat": -32.025,
+    "peak_lon": 115.325,
+    "quadrant_means": {
+      "N": 80.4,
+      "S": 75.0,
+      "W_offshore": 83.3,
+      "E_shoreward": 69.9
+    },
+    "features_at_catch": {
+      "sst": 0.99,
+      "sst_front": 0.652,
+      "front_corridor": 0.99,
+      "chl": 0.999,
+      "sst_chl_bivariate": 0.986,
+      "chl_curvature": 1.0,
+      "shelf_break": 0.596,
+      "depth": 1.0,
+      "ssh": 0.729,
+      "mld": 0.681,
+      "current": 0.262,
+      "current_shear": 1.0,
+      "upwelling_edge": 0.082,
+      "salinity_front": 0.826
+    },
+    "features_at_peak": {
+      "sst": 0.998,
+      "sst_front": 0.59,
+      "front_corridor": 0.998,
+      "chl": 0.964,
+      "sst_chl_bivariate": 0.964,
+      "chl_curvature": 1.0,
+      "shelf_break": 0.345,
+      "depth": 0.992,
+      "ssh": 0.628,
+      "mld": 0.771,
+      "current": 0.791,
+      "current_shear": 0.385,
+      "upwelling_edge": 0.08,
+      "salinity_front": 0.986
+    },
+    "feature_diffs": {
+      "sst": 0.008,
+      "sst_front": -0.062,
+      "front_corridor": 0.008,
+      "chl": -0.035,
+      "sst_chl_bivariate": -0.022,
+      "chl_curvature": 0.0,
+      "shelf_break": -0.251,
+      "depth": -0.008,
+      "ssh": -0.101,
+      "mld": 0.09,
+      "current": 0.529,
+      "current_shear": -0.615,
+      "upwelling_edge": -0.002,
+      "salinity_front": 0.16
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.988,
+        "S": 0.99,
+        "W_offshore": 0.977,
+        "E_shoreward": 0.998
+      },
+      "sst_front": {
+        "N": 0.641,
+        "S": 0.648,
+        "W_offshore": 0.732,
+        "E_shoreward": 0.578
+      },
+      "front_corridor": {
+        "N": 0.988,
+        "S": 0.99,
+        "W_offshore": 0.977,
+        "E_shoreward": 0.998
+      },
+      "chl": {
+        "N": 0.864,
+        "S": 0.887,
+        "W_offshore": 0.805,
+        "E_shoreward": 0.915
+      },
+      "sst_chl_bivariate": {
+        "N": 0.861,
+        "S": 0.883,
+        "W_offshore": 0.802,
+        "E_shoreward": 0.912
+      },
+      "chl_curvature": {
+        "N": 0.664,
+        "S": 0.737,
+        "W_offshore": 0.401,
+        "E_shoreward": 0.91
+      },
+      "shelf_break": {
+        "N": 0.411,
+        "S": 0.382,
+        "W_offshore": 0.534,
+        "E_shoreward": 0.26
+      },
+      "depth": {
+        "N": 0.841,
+        "S": 0.7,
+        "W_offshore": 0.97,
+        "E_shoreward": 0.551
+      },
+      "ssh": {
+        "N": 0.59,
+        "S": 0.611,
+        "W_offshore": 0.642,
+        "E_shoreward": 0.536
+      },
+      "mld": {
+        "N": 0.717,
+        "S": 0.702,
+        "W_offshore": 0.616,
+        "E_shoreward": 0.783
+      },
+      "current": {
+        "N": 0.639,
+        "S": 0.688,
+        "W_offshore": 0.717,
+        "E_shoreward": 0.714
+      },
+      "current_shear": {
+        "N": 0.523,
+        "S": 0.484,
+        "W_offshore": 0.767,
+        "E_shoreward": 0.219
+      },
+      "upwelling_edge": {
+        "N": 0.101,
+        "S": 0.05,
+        "W_offshore": 0.099,
+        "E_shoreward": 0.054
+      },
+      "salinity_front": {
+        "N": 0.846,
+        "S": 0.852,
+        "W_offshore": 0.692,
+        "E_shoreward": 0.965
+      },
+      "thermocline_lift": {
+        "N": 0.001,
+        "S": 0.0,
+        "W_offshore": 0.001,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 0.968,
+        "S": 0.933,
+        "W_offshore": 0.953,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.0,
+      "S_2nm": 1.0,
+      "W_2nm": 0.0,
+      "E_2nm": 4.7,
+      "N_5nm": 4.2,
+      "S_5nm": -0.2,
+      "W_5nm": 0.0,
+      "E_5nm": -2.9,
+      "N_10nm": 1.8,
+      "S_10nm": -2.7,
+      "W_10nm": -12.6,
+      "E_10nm": -47.5
+    }
+  },
+  {
+    "date": "2002-02-07",
+    "catch_lat": -32.0333,
+    "catch_lon": 115.1667,
+    "catch_score": 81.1,
+    "peak_score": 96.5,
+    "peak_direction": "E",
+    "peak_dist_nm": 8.1,
+    "peak_lat": -32.025,
+    "peak_lon": 115.325,
+    "quadrant_means": {
+      "N": 83.4,
+      "S": 83.7,
+      "W_offshore": 79.1,
+      "E_shoreward": 87.9
+    },
+    "features_at_catch": {
+      "sst": 0.915,
+      "sst_front": 0.552,
+      "front_corridor": 0.915,
+      "chl": 0.901,
+      "sst_chl_bivariate": 0.759,
+      "chl_curvature": 0.62,
+      "shelf_break": 0.435,
+      "depth": 1.0,
+      "ssh": 0.358,
+      "mld": 0.946,
+      "current": 0.934,
+      "current_shear": 0.376,
+      "upwelling_edge": 0.359,
+      "salinity_front": 0.78
+    },
+    "features_at_peak": {
+      "sst": 0.871,
+      "sst_front": 0.534,
+      "front_corridor": 0.871,
+      "chl": 0.976,
+      "sst_chl_bivariate": 0.869,
+      "chl_curvature": 0.249,
+      "shelf_break": 0.345,
+      "depth": 0.992,
+      "ssh": 0.711,
+      "mld": 0.927,
+      "current": 0.926,
+      "current_shear": 0.408,
+      "upwelling_edge": 0.506,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": -0.044,
+      "sst_front": -0.018,
+      "front_corridor": -0.044,
+      "chl": 0.075,
+      "sst_chl_bivariate": 0.11,
+      "chl_curvature": -0.371,
+      "shelf_break": -0.09,
+      "depth": -0.008,
+      "ssh": 0.353,
+      "mld": -0.02,
+      "current": -0.008,
+      "current_shear": 0.032,
+      "upwelling_edge": 0.147,
+      "salinity_front": 0.22
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.893,
+        "S": 0.901,
+        "W_offshore": 0.893,
+        "E_shoreward": 0.892
+      },
+      "sst_front": {
+        "N": 0.535,
+        "S": 0.582,
+        "W_offshore": 0.572,
+        "E_shoreward": 0.539
+      },
+      "front_corridor": {
+        "N": 0.893,
+        "S": 0.901,
+        "W_offshore": 0.893,
+        "E_shoreward": 0.892
+      },
+      "chl": {
+        "N": 0.878,
+        "S": 0.883,
+        "W_offshore": 0.789,
+        "E_shoreward": 0.985
+      },
+      "sst_chl_bivariate": {
+        "N": 0.729,
+        "S": 0.742,
+        "W_offshore": 0.614,
+        "E_shoreward": 0.87
+      },
+      "chl_curvature": {
+        "N": 0.377,
+        "S": 0.495,
+        "W_offshore": 0.495,
+        "E_shoreward": 0.351
+      },
+      "shelf_break": {
+        "N": 0.508,
+        "S": 0.473,
+        "W_offshore": 0.535,
+        "E_shoreward": 0.424
+      },
+      "depth": {
+        "N": 0.964,
+        "S": 0.964,
+        "W_offshore": 0.931,
+        "E_shoreward": 0.989
+      },
+      "ssh": {
+        "N": 0.395,
+        "S": 0.401,
+        "W_offshore": 0.206,
+        "E_shoreward": 0.645
+      },
+      "mld": {
+        "N": 0.962,
+        "S": 0.947,
+        "W_offshore": 0.996,
+        "E_shoreward": 0.905
+      },
+      "current": {
+        "N": 0.888,
+        "S": 0.887,
+        "W_offshore": 0.848,
+        "E_shoreward": 0.923
+      },
+      "current_shear": {
+        "N": 0.625,
+        "S": 0.553,
+        "W_offshore": 0.659,
+        "E_shoreward": 0.548
+      },
+      "upwelling_edge": {
+        "N": 0.315,
+        "S": 0.315,
+        "W_offshore": 0.201,
+        "E_shoreward": 0.455
+      },
+      "salinity_front": {
+        "N": 0.751,
+        "S": 0.779,
+        "W_offshore": 0.612,
+        "E_shoreward": 0.952
+      },
+      "thermocline_lift": {
+        "N": 0.147,
+        "S": 0.139,
+        "W_offshore": 0.14,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 0.993,
+        "S": 1.0,
+        "W_offshore": 0.995,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": -2.0,
+      "S_2nm": 4.8,
+      "W_2nm": 1.7,
+      "E_2nm": 1.9,
+      "N_5nm": -2.0,
+      "S_5nm": 4.6,
+      "W_5nm": -5.9,
+      "E_5nm": 4.7,
+      "N_10nm": -0.6,
+      "S_10nm": 6.4,
+      "W_10nm": -21.2,
+      "E_10nm": 7.7
+    }
+  },
+  {
+    "date": "2003-03-03",
+    "catch_lat": -32.0667,
+    "catch_lon": 115.2333,
+    "catch_score": 85.5,
+    "peak_score": 96.3,
+    "peak_direction": "W",
+    "peak_dist_nm": 8.8,
+    "peak_lat": -32.125,
+    "peak_lon": 115.075,
+    "quadrant_means": {
+      "N": 75.9,
+      "S": 74.7,
+      "W_offshore": 81.0,
+      "E_shoreward": 70.0
+    },
+    "features_at_catch": {
+      "sst": 0.944,
+      "sst_front": 0.625,
+      "front_corridor": 0.944,
+      "chl": 0.989,
+      "sst_chl_bivariate": 0.943,
+      "chl_curvature": 0.693,
+      "shelf_break": 0.577,
+      "depth": 1.0,
+      "ssh": 0.294,
+      "mld": 0.985,
+      "current": 0.336,
+      "current_shear": 0.427,
+      "upwelling_edge": 0.625,
+      "salinity_front": 1.0
+    },
+    "features_at_peak": {
+      "sst": 0.961,
+      "sst_front": 0.568,
+      "front_corridor": 0.961,
+      "chl": 0.998,
+      "sst_chl_bivariate": 0.96,
+      "chl_curvature": 0.194,
+      "shelf_break": 0.513,
+      "depth": 1.0,
+      "ssh": 0.238,
+      "mld": 0.969,
+      "current": 0.762,
+      "current_shear": 0.281,
+      "upwelling_edge": 0.54,
+      "salinity_front": 0.854
+    },
+    "feature_diffs": {
+      "sst": 0.017,
+      "sst_front": -0.058,
+      "front_corridor": 0.017,
+      "chl": 0.009,
+      "sst_chl_bivariate": 0.018,
+      "chl_curvature": -0.499,
+      "shelf_break": -0.064,
+      "depth": 0.0,
+      "ssh": -0.055,
+      "mld": -0.016,
+      "current": 0.427,
+      "current_shear": -0.146,
+      "upwelling_edge": -0.085,
+      "salinity_front": -0.146
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.945,
+        "S": 0.951,
+        "W_offshore": 0.958,
+        "E_shoreward": 0.943
+      },
+      "sst_front": {
+        "N": 0.667,
+        "S": 0.642,
+        "W_offshore": 0.573,
+        "E_shoreward": 0.723
+      },
+      "front_corridor": {
+        "N": 0.945,
+        "S": 0.951,
+        "W_offshore": 0.958,
+        "E_shoreward": 0.943
+      },
+      "chl": {
+        "N": 0.919,
+        "S": 0.906,
+        "W_offshore": 0.978,
+        "E_shoreward": 0.837
+      },
+      "sst_chl_bivariate": {
+        "N": 0.889,
+        "S": 0.879,
+        "W_offshore": 0.942,
+        "E_shoreward": 0.818
+      },
+      "chl_curvature": {
+        "N": 0.643,
+        "S": 0.517,
+        "W_offshore": 0.375,
+        "E_shoreward": 0.748
+      },
+      "shelf_break": {
+        "N": 0.378,
+        "S": 0.396,
+        "W_offshore": 0.523,
+        "E_shoreward": 0.262
+      },
+      "depth": {
+        "N": 0.705,
+        "S": 0.796,
+        "W_offshore": 0.97,
+        "E_shoreward": 0.555
+      },
+      "ssh": {
+        "N": 0.254,
+        "S": 0.255,
+        "W_offshore": 0.273,
+        "E_shoreward": 0.235
+      },
+      "mld": {
+        "N": 0.986,
+        "S": 0.984,
+        "W_offshore": 0.981,
+        "E_shoreward": 0.985
+      },
+      "current": {
+        "N": 0.465,
+        "S": 0.52,
+        "W_offshore": 0.631,
+        "E_shoreward": 0.415
+      },
+      "current_shear": {
+        "N": 0.183,
+        "S": 0.312,
+        "W_offshore": 0.422,
+        "E_shoreward": 0.095
+      },
+      "upwelling_edge": {
+        "N": 0.651,
+        "S": 0.575,
+        "W_offshore": 0.548,
+        "E_shoreward": 0.658
+      },
+      "salinity_front": {
+        "N": 0.979,
+        "S": 0.973,
+        "W_offshore": 0.934,
+        "E_shoreward": 1.0
+      },
+      "thermocline_lift": {
+        "N": 0.135,
+        "S": 0.119,
+        "W_offshore": 0.13,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": -4.2,
+      "S_2nm": 0.0,
+      "W_2nm": 0.7,
+      "E_2nm": 3.5,
+      "N_5nm": -2.4,
+      "S_5nm": 4.8,
+      "W_5nm": 0.1,
+      "E_5nm": 7.7,
+      "N_10nm": -2.3,
+      "S_10nm": 6.1,
+      "W_10nm": -8.3,
+      "E_10nm": -38.5
+    }
+  },
+  {
+    "date": "2003-03-15",
+    "catch_lat": -31.8833,
+    "catch_lon": 115.1833,
+    "catch_score": 82.3,
+    "peak_score": 98.8,
+    "peak_direction": "SE",
+    "peak_dist_nm": 7.2,
+    "peak_lat": -31.975,
+    "peak_lon": 115.275,
+    "quadrant_means": {
+      "N": 84.3,
+      "S": 80.1,
+      "W_offshore": 81.0,
+      "E_shoreward": 82.1
+    },
+    "features_at_catch": {
+      "sst": 0.922,
+      "sst_front": 0.729,
+      "front_corridor": 0.922,
+      "chl": 0.975,
+      "sst_chl_bivariate": 0.739,
+      "chl_curvature": 0.662,
+      "shelf_break": 0.622,
+      "depth": 1.0,
+      "ssh": 0.694,
+      "mld": 1.0,
+      "current": 0.326,
+      "current_shear": 1.0,
+      "upwelling_edge": 0.202,
+      "salinity_front": 0.74
+    },
+    "features_at_peak": {
+      "sst": 0.944,
+      "sst_front": 0.827,
+      "front_corridor": 0.944,
+      "chl": 0.986,
+      "sst_chl_bivariate": 0.813,
+      "chl_curvature": 1.0,
+      "shelf_break": 0.478,
+      "depth": 1.0,
+      "ssh": 0.606,
+      "mld": 1.0,
+      "current": 0.782,
+      "current_shear": 0.836,
+      "upwelling_edge": 0.424,
+      "salinity_front": 0.903
+    },
+    "feature_diffs": {
+      "sst": 0.022,
+      "sst_front": 0.097,
+      "front_corridor": 0.022,
+      "chl": 0.011,
+      "sst_chl_bivariate": 0.073,
+      "chl_curvature": 0.338,
+      "shelf_break": -0.145,
+      "depth": 0.0,
+      "ssh": -0.087,
+      "mld": 0.0,
+      "current": 0.456,
+      "current_shear": -0.164,
+      "upwelling_edge": 0.221,
+      "salinity_front": 0.163
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.936,
+        "S": 0.957,
+        "W_offshore": 0.93,
+        "E_shoreward": 0.962
+      },
+      "sst_front": {
+        "N": 0.764,
+        "S": 0.726,
+        "W_offshore": 0.675,
+        "E_shoreward": 0.795
+      },
+      "front_corridor": {
+        "N": 0.936,
+        "S": 0.957,
+        "W_offshore": 0.93,
+        "E_shoreward": 0.962
+      },
+      "chl": {
+        "N": 0.961,
+        "S": 0.966,
+        "W_offshore": 0.992,
+        "E_shoreward": 0.938
+      },
+      "sst_chl_bivariate": {
+        "N": 0.767,
+        "S": 0.84,
+        "W_offshore": 0.794,
+        "E_shoreward": 0.811
+      },
+      "chl_curvature": {
+        "N": 0.584,
+        "S": 0.852,
+        "W_offshore": 0.362,
+        "E_shoreward": 0.954
+      },
+      "shelf_break": {
+        "N": 0.443,
+        "S": 0.398,
+        "W_offshore": 0.538,
+        "E_shoreward": 0.325
+      },
+      "depth": {
+        "N": 0.907,
+        "S": 0.782,
+        "W_offshore": 0.957,
+        "E_shoreward": 0.73
+      },
+      "ssh": {
+        "N": 0.594,
+        "S": 0.574,
+        "W_offshore": 0.609,
+        "E_shoreward": 0.542
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.675,
+        "S": 0.706,
+        "W_offshore": 0.838,
+        "E_shoreward": 0.674
+      },
+      "current_shear": {
+        "N": 0.764,
+        "S": 0.548,
+        "W_offshore": 0.907,
+        "E_shoreward": 0.399
+      },
+      "upwelling_edge": {
+        "N": 0.335,
+        "S": 0.172,
+        "W_offshore": 0.146,
+        "E_shoreward": 0.332
+      },
+      "salinity_front": {
+        "N": 0.767,
+        "S": 0.811,
+        "W_offshore": 0.619,
+        "E_shoreward": 0.921
+      },
+      "thermocline_lift": {
+        "N": 0.043,
+        "S": null,
+        "W_offshore": 0.049,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": null,
+        "W_offshore": 1.0,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.0,
+      "S_2nm": 2.4,
+      "W_2nm": 1.1,
+      "E_2nm": 10.8,
+      "N_5nm": 10.4,
+      "S_5nm": 1.7,
+      "W_5nm": 1.8,
+      "E_5nm": 15.9,
+      "N_10nm": 13.9,
+      "S_10nm": 6.8,
+      "W_10nm": 5.9,
+      "E_10nm": -32.2
+    }
+  },
+  {
+    "date": "2002-03-23",
+    "catch_lat": -32.0667,
+    "catch_lon": 115.2333,
+    "catch_score": 98.9,
+    "peak_score": 99.7,
+    "peak_direction": "NE",
+    "peak_dist_nm": 5.9,
+    "peak_lat": -31.975,
+    "peak_lon": 115.275,
+    "quadrant_means": {
+      "N": 75.2,
+      "S": 83.0,
+      "W_offshore": 89.6,
+      "E_shoreward": 66.5
+    },
+    "features_at_catch": {
+      "sst": 0.934,
+      "sst_front": 0.824,
+      "front_corridor": 0.934,
+      "chl": 0.999,
+      "sst_chl_bivariate": 0.923,
+      "chl_curvature": 0.655,
+      "shelf_break": 0.577,
+      "depth": 1.0,
+      "ssh": 0.53,
+      "mld": 0.765,
+      "current": 0.644,
+      "current_shear": 0.516,
+      "upwelling_edge": 0.709,
+      "salinity_front": 0.986
+    },
+    "features_at_peak": {
+      "sst": 0.925,
+      "sst_front": 0.795,
+      "front_corridor": 0.925,
+      "chl": 0.941,
+      "sst_chl_bivariate": 0.899,
+      "chl_curvature": 0.322,
+      "shelf_break": 0.478,
+      "depth": 1.0,
+      "ssh": 0.576,
+      "mld": 0.866,
+      "current": 0.398,
+      "current_shear": 0.503,
+      "upwelling_edge": 0.665,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": -0.009,
+      "sst_front": -0.028,
+      "front_corridor": -0.009,
+      "chl": -0.058,
+      "sst_chl_bivariate": -0.024,
+      "chl_curvature": -0.333,
+      "shelf_break": -0.099,
+      "depth": 0.0,
+      "ssh": 0.046,
+      "mld": 0.101,
+      "current": -0.246,
+      "current_shear": -0.013,
+      "upwelling_edge": -0.043,
+      "salinity_front": 0.014
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.943,
+        "S": 0.944,
+        "W_offshore": 0.985,
+        "E_shoreward": 0.91
+      },
+      "sst_front": {
+        "N": 0.727,
+        "S": 0.811,
+        "W_offshore": 0.945,
+        "E_shoreward": 0.623
+      },
+      "front_corridor": {
+        "N": 0.943,
+        "S": 0.944,
+        "W_offshore": 0.985,
+        "E_shoreward": 0.91
+      },
+      "chl": {
+        "N": 0.925,
+        "S": 0.927,
+        "W_offshore": 0.989,
+        "E_shoreward": 0.868
+      },
+      "sst_chl_bivariate": {
+        "N": 0.893,
+        "S": 0.898,
+        "W_offshore": 0.974,
+        "E_shoreward": 0.829
+      },
+      "chl_curvature": {
+        "N": 0.536,
+        "S": 0.26,
+        "W_offshore": 0.317,
+        "E_shoreward": 0.372
+      },
+      "shelf_break": {
+        "N": 0.378,
+        "S": 0.396,
+        "W_offshore": 0.523,
+        "E_shoreward": 0.262
+      },
+      "depth": {
+        "N": 0.705,
+        "S": 0.796,
+        "W_offshore": 0.97,
+        "E_shoreward": 0.555
+      },
+      "ssh": {
+        "N": 0.522,
+        "S": 0.557,
+        "W_offshore": 0.568,
+        "E_shoreward": 0.499
+      },
+      "mld": {
+        "N": 0.826,
+        "S": 0.823,
+        "W_offshore": 0.729,
+        "E_shoreward": 0.899
+      },
+      "current": {
+        "N": 0.594,
+        "S": 0.577,
+        "W_offshore": 0.981,
+        "E_shoreward": 0.257
+      },
+      "current_shear": {
+        "N": 0.367,
+        "S": 0.49,
+        "W_offshore": 0.756,
+        "E_shoreward": 0.115
+      },
+      "upwelling_edge": {
+        "N": 0.809,
+        "S": 0.605,
+        "W_offshore": 0.559,
+        "E_shoreward": 0.819
+      },
+      "salinity_front": {
+        "N": 0.961,
+        "S": 0.948,
+        "W_offshore": 0.883,
+        "E_shoreward": 0.999
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": 0.0,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 0.93,
+        "S": 0.988,
+        "W_offshore": 0.958,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": -1.7,
+      "S_2nm": 0.0,
+      "W_2nm": -4.5,
+      "E_2nm": 0.4,
+      "N_5nm": -1.9,
+      "S_5nm": 0.5,
+      "W_5nm": -12.6,
+      "E_5nm": -5.8,
+      "N_10nm": 0.0,
+      "S_10nm": 0.8,
+      "W_10nm": -13.9,
+      "E_10nm": -86.6
+    }
+  },
+  {
+    "date": "2002-03-23",
+    "catch_lat": -31.9333,
+    "catch_lon": 115.25,
+    "catch_score": 98.9,
+    "peak_score": 99.7,
+    "peak_direction": "SE",
+    "peak_dist_nm": 2.8,
+    "peak_lat": -31.975,
+    "peak_lon": 115.275,
+    "quadrant_means": {
+      "N": 82.3,
+      "S": 78.2,
+      "W_offshore": 89.8,
+      "E_shoreward": 69.1
+    },
+    "features_at_catch": {
+      "sst": 0.986,
+      "sst_front": 0.919,
+      "front_corridor": 0.986,
+      "chl": 0.941,
+      "sst_chl_bivariate": 0.939,
+      "chl_curvature": 0.656,
+      "shelf_break": 0.596,
+      "depth": 1.0,
+      "ssh": 0.626,
+      "mld": 0.747,
+      "current": 0.758,
+      "current_shear": 0.919,
+      "upwelling_edge": 0.558,
+      "salinity_front": 0.978
+    },
+    "features_at_peak": {
+      "sst": 0.925,
+      "sst_front": 0.795,
+      "front_corridor": 0.925,
+      "chl": 0.941,
+      "sst_chl_bivariate": 0.899,
+      "chl_curvature": 0.322,
+      "shelf_break": 0.478,
+      "depth": 1.0,
+      "ssh": 0.576,
+      "mld": 0.866,
+      "current": 0.398,
+      "current_shear": 0.503,
+      "upwelling_edge": 0.665,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": -0.061,
+      "sst_front": -0.124,
+      "front_corridor": -0.061,
+      "chl": -0.0,
+      "sst_chl_bivariate": -0.041,
+      "chl_curvature": -0.333,
+      "shelf_break": -0.118,
+      "depth": 0.0,
+      "ssh": -0.05,
+      "mld": 0.119,
+      "current": -0.36,
+      "current_shear": -0.416,
+      "upwelling_edge": 0.107,
+      "salinity_front": 0.022
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.939,
+        "S": 0.981,
+        "W_offshore": 0.986,
+        "E_shoreward": 0.936
+      },
+      "sst_front": {
+        "N": 0.791,
+        "S": 0.85,
+        "W_offshore": 0.971,
+        "E_shoreward": 0.694
+      },
+      "front_corridor": {
+        "N": 0.939,
+        "S": 0.981,
+        "W_offshore": 0.986,
+        "E_shoreward": 0.936
+      },
+      "chl": {
+        "N": 0.941,
+        "S": 0.921,
+        "W_offshore": 0.961,
+        "E_shoreward": 0.891
+      },
+      "sst_chl_bivariate": {
+        "N": 0.903,
+        "S": 0.9,
+        "W_offshore": 0.943,
+        "E_shoreward": 0.86
+      },
+      "chl_curvature": {
+        "N": 0.215,
+        "S": 0.59,
+        "W_offshore": 0.353,
+        "E_shoreward": 0.391
+      },
+      "shelf_break": {
+        "N": 0.411,
+        "S": 0.382,
+        "W_offshore": 0.534,
+        "E_shoreward": 0.26
+      },
+      "depth": {
+        "N": 0.841,
+        "S": 0.7,
+        "W_offshore": 0.97,
+        "E_shoreward": 0.551
+      },
+      "ssh": {
+        "N": 0.524,
+        "S": 0.633,
+        "W_offshore": 0.603,
+        "E_shoreward": 0.553
+      },
+      "mld": {
+        "N": 0.811,
+        "S": 0.84,
+        "W_offshore": 0.75,
+        "E_shoreward": 0.895
+      },
+      "current": {
+        "N": 0.566,
+        "S": 0.6,
+        "W_offshore": 0.994,
+        "E_shoreward": 0.242
+      },
+      "current_shear": {
+        "N": 0.439,
+        "S": 0.513,
+        "W_offshore": 0.862,
+        "E_shoreward": 0.13
+      },
+      "upwelling_edge": {
+        "N": 0.659,
+        "S": 0.444,
+        "W_offshore": 0.391,
+        "E_shoreward": 0.674
+      },
+      "salinity_front": {
+        "N": 0.948,
+        "S": 0.963,
+        "W_offshore": 0.889,
+        "E_shoreward": 0.997
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": 0.0,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 0.967,
+        "S": 1.0,
+        "W_offshore": 0.976,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.0,
+      "S_2nm": -1.9,
+      "W_2nm": 0.0,
+      "E_2nm": 0.6,
+      "N_5nm": -0.4,
+      "S_5nm": -1.7,
+      "W_5nm": -4.8,
+      "E_5nm": -7.8,
+      "N_10nm": 0.4,
+      "S_10nm": -0.0,
+      "W_10nm": -10.8,
+      "E_10nm": -57.6
+    }
+  },
+  {
+    "date": "2002-03-02",
+    "catch_lat": -32.0333,
+    "catch_lon": 115.1667,
+    "catch_score": 88.1,
+    "peak_score": 97.6,
+    "peak_direction": "SE",
+    "peak_dist_nm": 10.1,
+    "peak_lat": -32.175,
+    "peak_lon": 115.275,
+    "quadrant_means": {
+      "N": 81.5,
+      "S": 82.7,
+      "W_offshore": 71.7,
+      "E_shoreward": 90.4
+    },
+    "features_at_catch": {
+      "sst": 0.91,
+      "sst_front": 0.767,
+      "front_corridor": 0.91,
+      "chl": 0.729,
+      "sst_chl_bivariate": 0.569,
+      "chl_curvature": 1.0,
+      "shelf_break": 0.435,
+      "depth": 1.0,
+      "ssh": 0.276,
+      "mld": 0.968,
+      "current": 0.915,
+      "current_shear": 0.342,
+      "upwelling_edge": 0.19,
+      "salinity_front": 0.777
+    },
+    "features_at_peak": {
+      "sst": 0.875,
+      "sst_front": 0.791,
+      "front_corridor": 0.875,
+      "chl": 0.856,
+      "sst_chl_bivariate": 0.662,
+      "chl_curvature": 1.0,
+      "shelf_break": 0.362,
+      "depth": 1.0,
+      "ssh": 0.437,
+      "mld": 1.0,
+      "current": 0.912,
+      "current_shear": 0.59,
+      "upwelling_edge": 0.269,
+      "salinity_front": 0.974
+    },
+    "feature_diffs": {
+      "sst": -0.035,
+      "sst_front": 0.024,
+      "front_corridor": -0.035,
+      "chl": 0.127,
+      "sst_chl_bivariate": 0.093,
+      "chl_curvature": 0.0,
+      "shelf_break": -0.072,
+      "depth": 0.0,
+      "ssh": 0.161,
+      "mld": 0.032,
+      "current": -0.003,
+      "current_shear": 0.248,
+      "upwelling_edge": 0.079,
+      "salinity_front": 0.197
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.902,
+        "S": 0.902,
+        "W_offshore": 0.922,
+        "E_shoreward": 0.874
+      },
+      "sst_front": {
+        "N": 0.773,
+        "S": 0.777,
+        "W_offshore": 0.776,
+        "E_shoreward": 0.765
+      },
+      "front_corridor": {
+        "N": 0.902,
+        "S": 0.902,
+        "W_offshore": 0.922,
+        "E_shoreward": 0.874
+      },
+      "chl": {
+        "N": 0.784,
+        "S": 0.837,
+        "W_offshore": 0.738,
+        "E_shoreward": 0.897
+      },
+      "sst_chl_bivariate": {
+        "N": 0.617,
+        "S": 0.675,
+        "W_offshore": 0.591,
+        "E_shoreward": 0.708
+      },
+      "chl_curvature": {
+        "N": 0.935,
+        "S": 0.799,
+        "W_offshore": 0.795,
+        "E_shoreward": 0.991
+      },
+      "shelf_break": {
+        "N": 0.508,
+        "S": 0.473,
+        "W_offshore": 0.535,
+        "E_shoreward": 0.424
+      },
+      "depth": {
+        "N": 0.964,
+        "S": 0.964,
+        "W_offshore": 0.931,
+        "E_shoreward": 0.989
+      },
+      "ssh": {
+        "N": 0.296,
+        "S": 0.262,
+        "W_offshore": 0.207,
+        "E_shoreward": 0.37
+      },
+      "mld": {
+        "N": 0.978,
+        "S": 0.987,
+        "W_offshore": 0.972,
+        "E_shoreward": 0.999
+      },
+      "current": {
+        "N": 0.843,
+        "S": 0.846,
+        "W_offshore": 0.809,
+        "E_shoreward": 0.867
+      },
+      "current_shear": {
+        "N": 0.456,
+        "S": 0.209,
+        "W_offshore": 0.326,
+        "E_shoreward": 0.343
+      },
+      "upwelling_edge": {
+        "N": 0.194,
+        "S": 0.166,
+        "W_offshore": 0.117,
+        "E_shoreward": 0.259
+      },
+      "salinity_front": {
+        "N": 0.751,
+        "S": 0.793,
+        "W_offshore": 0.628,
+        "E_shoreward": 0.95
+      },
+      "thermocline_lift": {
+        "N": 0.164,
+        "S": 0.145,
+        "W_offshore": 0.154,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": -7.4,
+      "S_2nm": -0.3,
+      "W_2nm": -19.4,
+      "E_2nm": -4.7,
+      "N_5nm": -7.4,
+      "S_5nm": -4.8,
+      "W_5nm": -40.5,
+      "E_5nm": 4.7,
+      "N_10nm": 1.4,
+      "S_10nm": 6.1,
+      "W_10nm": -37.2,
+      "E_10nm": -0.1
+    }
+  },
+  {
+    "date": "2003-03-26",
+    "catch_lat": -32.0667,
+    "catch_lon": 115.2333,
+    "catch_score": 90.1,
+    "peak_score": 97.1,
+    "peak_direction": "NE",
+    "peak_dist_nm": 5.3,
+    "peak_lat": -32.025,
+    "peak_lon": 115.325,
+    "quadrant_means": {
+      "N": 76.3,
+      "S": 80.6,
+      "W_offshore": 85.5,
+      "E_shoreward": 71.0
+    },
+    "features_at_catch": {
+      "sst": 0.997,
+      "sst_front": 0.689,
+      "front_corridor": 0.997,
+      "chl": 0.999,
+      "sst_chl_bivariate": 0.988,
+      "chl_curvature": 1.0,
+      "shelf_break": 0.577,
+      "depth": 1.0,
+      "ssh": 0.289,
+      "mld": 0.741,
+      "current": 0.41,
+      "current_shear": 0.137,
+      "upwelling_edge": 0.317,
+      "salinity_front": 0.979
+    },
+    "features_at_peak": {
+      "sst": 0.998,
+      "sst_front": 0.639,
+      "front_corridor": 0.998,
+      "chl": 0.939,
+      "sst_chl_bivariate": 0.916,
+      "chl_curvature": 1.0,
+      "shelf_break": 0.345,
+      "depth": 0.992,
+      "ssh": 0.378,
+      "mld": 0.834,
+      "current": 0.308,
+      "current_shear": 0.086,
+      "upwelling_edge": 0.353,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": 0.001,
+      "sst_front": -0.05,
+      "front_corridor": 0.001,
+      "chl": -0.061,
+      "sst_chl_bivariate": -0.071,
+      "chl_curvature": 0.0,
+      "shelf_break": -0.232,
+      "depth": -0.008,
+      "ssh": 0.089,
+      "mld": 0.093,
+      "current": -0.102,
+      "current_shear": -0.051,
+      "upwelling_edge": 0.037,
+      "salinity_front": 0.021
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.997,
+        "S": 0.996,
+        "W_offshore": 0.996,
+        "E_shoreward": 0.996
+      },
+      "sst_front": {
+        "N": 0.678,
+        "S": 0.633,
+        "W_offshore": 0.683,
+        "E_shoreward": 0.624
+      },
+      "front_corridor": {
+        "N": 0.997,
+        "S": 0.996,
+        "W_offshore": 0.996,
+        "E_shoreward": 0.996
+      },
+      "chl": {
+        "N": 0.804,
+        "S": 0.865,
+        "W_offshore": 0.954,
+        "E_shoreward": 0.718
+      },
+      "sst_chl_bivariate": {
+        "N": 0.796,
+        "S": 0.835,
+        "W_offshore": 0.934,
+        "E_shoreward": 0.7
+      },
+      "chl_curvature": {
+        "N": 0.803,
+        "S": 0.801,
+        "W_offshore": 0.58,
+        "E_shoreward": 0.958
+      },
+      "shelf_break": {
+        "N": 0.378,
+        "S": 0.396,
+        "W_offshore": 0.523,
+        "E_shoreward": 0.262
+      },
+      "depth": {
+        "N": 0.705,
+        "S": 0.796,
+        "W_offshore": 0.97,
+        "E_shoreward": 0.555
+      },
+      "ssh": {
+        "N": 0.3,
+        "S": 0.403,
+        "W_offshore": 0.327,
+        "E_shoreward": 0.372
+      },
+      "mld": {
+        "N": 0.633,
+        "S": 0.85,
+        "W_offshore": 0.67,
+        "E_shoreward": 0.81
+      },
+      "current": {
+        "N": 0.324,
+        "S": 0.496,
+        "W_offshore": 0.614,
+        "E_shoreward": 0.239
+      },
+      "current_shear": {
+        "N": 0.079,
+        "S": 0.173,
+        "W_offshore": 0.192,
+        "E_shoreward": 0.051
+      },
+      "upwelling_edge": {
+        "N": 0.462,
+        "S": 0.23,
+        "W_offshore": 0.223,
+        "E_shoreward": 0.437
+      },
+      "salinity_front": {
+        "N": 0.962,
+        "S": 0.89,
+        "W_offshore": 0.82,
+        "E_shoreward": 0.998
+      },
+      "thermocline_lift": {
+        "N": 0.084,
+        "S": 0.089,
+        "W_offshore": 0.086,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.7,
+      "S_2nm": 0.0,
+      "W_2nm": -1.7,
+      "E_2nm": 3.9,
+      "N_5nm": -1.1,
+      "S_5nm": 5.6,
+      "W_5nm": -7.5,
+      "E_5nm": 6.1,
+      "N_10nm": -2.0,
+      "S_10nm": 6.0,
+      "W_10nm": -10.3,
+      "E_10nm": -42.6
+    }
+  },
+  {
+    "date": "2011-02-09",
+    "catch_lat": -32.2667,
+    "catch_lon": 115.1333,
+    "catch_score": 93.4,
+    "peak_score": 97.6,
+    "peak_direction": "S",
+    "peak_dist_nm": 9.5,
+    "peak_lat": -32.425,
+    "peak_lon": 115.125,
+    "quadrant_means": {
+      "N": 76.3,
+      "S": 75.7,
+      "W_offshore": 72.1,
+      "E_shoreward": 75.7
+    },
+    "features_at_catch": {
+      "sst": 0.89,
+      "sst_front": 0.536,
+      "front_corridor": 0.89,
+      "chl": 0.81,
+      "sst_chl_bivariate": 0.676,
+      "chl_curvature": 0.897,
+      "shelf_break": 0.589,
+      "depth": 1.0,
+      "ssh": 0.2,
+      "mld": 1.0,
+      "current": 0.794,
+      "current_shear": 0.247,
+      "upwelling_edge": 0.366,
+      "salinity_front": 0.856
+    },
+    "features_at_peak": {
+      "sst": 0.917,
+      "sst_front": 0.648,
+      "front_corridor": 0.917,
+      "chl": 1.0,
+      "sst_chl_bivariate": 0.783,
+      "chl_curvature": 0.179,
+      "shelf_break": 0.359,
+      "depth": 1.0,
+      "ssh": 0.451,
+      "mld": 1.0,
+      "current": 0.928,
+      "current_shear": 0.392,
+      "upwelling_edge": 0.653,
+      "salinity_front": 0.713
+    },
+    "feature_diffs": {
+      "sst": 0.026,
+      "sst_front": 0.112,
+      "front_corridor": 0.026,
+      "chl": 0.19,
+      "sst_chl_bivariate": 0.107,
+      "chl_curvature": -0.718,
+      "shelf_break": -0.23,
+      "depth": 0.0,
+      "ssh": 0.251,
+      "mld": 0.0,
+      "current": 0.134,
+      "current_shear": 0.145,
+      "upwelling_edge": 0.288,
+      "salinity_front": -0.143
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.916,
+        "S": 0.881,
+        "W_offshore": 0.902,
+        "E_shoreward": 0.897
+      },
+      "sst_front": {
+        "N": 0.616,
+        "S": 0.492,
+        "W_offshore": 0.503,
+        "E_shoreward": 0.594
+      },
+      "front_corridor": {
+        "N": 0.916,
+        "S": 0.881,
+        "W_offshore": 0.902,
+        "E_shoreward": 0.897
+      },
+      "chl": {
+        "N": 0.941,
+        "S": 0.883,
+        "W_offshore": 0.864,
+        "E_shoreward": 0.953
+      },
+      "sst_chl_bivariate": {
+        "N": 0.756,
+        "S": 0.672,
+        "W_offshore": 0.722,
+        "E_shoreward": 0.711
+      },
+      "chl_curvature": {
+        "N": 0.413,
+        "S": 0.64,
+        "W_offshore": 0.345,
+        "E_shoreward": 0.676
+      },
+      "shelf_break": {
+        "N": 0.333,
+        "S": 0.483,
+        "W_offshore": 0.496,
+        "E_shoreward": 0.313
+      },
+      "depth": {
+        "N": 0.703,
+        "S": 0.937,
+        "W_offshore": 0.977,
+        "E_shoreward": 0.669
+      },
+      "ssh": {
+        "N": 0.4,
+        "S": 0.279,
+        "W_offshore": 0.219,
+        "E_shoreward": 0.441
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.879,
+        "S": 0.832,
+        "W_offshore": 0.793,
+        "E_shoreward": 0.91
+      },
+      "current_shear": {
+        "N": 0.199,
+        "S": 0.451,
+        "W_offshore": 0.487,
+        "E_shoreward": 0.176
+      },
+      "upwelling_edge": {
+        "N": 0.58,
+        "S": 0.309,
+        "W_offshore": 0.259,
+        "E_shoreward": 0.585
+      },
+      "salinity_front": {
+        "N": 0.766,
+        "S": 0.956,
+        "W_offshore": 0.865,
+        "E_shoreward": 0.859
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": 0.0,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.9,
+      "S_2nm": 0.0,
+      "W_2nm": -7.3,
+      "E_2nm": -1.2,
+      "N_5nm": -5.9,
+      "S_5nm": 0.4,
+      "W_5nm": -22.0,
+      "E_5nm": -3.1,
+      "N_10nm": -15.3,
+      "S_10nm": 4.1,
+      "W_10nm": -31.2,
+      "E_10nm": -45.5
+    }
+  },
+  {
+    "date": "2011-02-26",
+    "catch_lat": -32.05,
+    "catch_lon": 115.3167,
+    "catch_score": 76.1,
+    "peak_score": 89.6,
+    "peak_direction": "S",
+    "peak_dist_nm": 7.8,
+    "peak_lat": -32.175,
+    "peak_lon": 115.275,
+    "quadrant_means": {
+      "N": 64.3,
+      "S": 57.1,
+      "W_offshore": 68.3,
+      "E_shoreward": 46.9
+    },
+    "features_at_catch": {
+      "sst": 0.365,
+      "sst_front": 0.356,
+      "front_corridor": 0.365,
+      "chl": 0.772,
+      "sst_chl_bivariate": 0.077,
+      "chl_curvature": 1.0,
+      "shelf_break": 0.345,
+      "depth": 0.992,
+      "ssh": 0.39,
+      "mld": 1.0,
+      "current": 0.48,
+      "current_shear": 0.069,
+      "upwelling_edge": 0.335,
+      "salinity_front": 1.0
+    },
+    "features_at_peak": {
+      "sst": 0.377,
+      "sst_front": 0.347,
+      "front_corridor": 0.377,
+      "chl": 0.761,
+      "sst_chl_bivariate": 0.083,
+      "chl_curvature": 1.0,
+      "shelf_break": 0.362,
+      "depth": 1.0,
+      "ssh": 0.466,
+      "mld": 1.0,
+      "current": 0.579,
+      "current_shear": 0.326,
+      "upwelling_edge": 0.279,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": 0.012,
+      "sst_front": -0.009,
+      "front_corridor": 0.012,
+      "chl": -0.011,
+      "sst_chl_bivariate": 0.007,
+      "chl_curvature": 0.0,
+      "shelf_break": 0.018,
+      "depth": 0.008,
+      "ssh": 0.076,
+      "mld": 0.0,
+      "current": 0.099,
+      "current_shear": 0.257,
+      "upwelling_edge": -0.056,
+      "salinity_front": 0.0
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.389,
+        "S": 0.359,
+        "W_offshore": 0.348,
+        "E_shoreward": 0.417
+      },
+      "sst_front": {
+        "N": 0.36,
+        "S": 0.349,
+        "W_offshore": 0.334,
+        "E_shoreward": 0.385
+      },
+      "front_corridor": {
+        "N": 0.389,
+        "S": 0.359,
+        "W_offshore": 0.348,
+        "E_shoreward": 0.417
+      },
+      "chl": {
+        "N": 0.796,
+        "S": 0.8,
+        "W_offshore": 0.747,
+        "E_shoreward": 0.8
+      },
+      "sst_chl_bivariate": {
+        "N": 0.072,
+        "S": 0.055,
+        "W_offshore": 0.068,
+        "E_shoreward": 0.053
+      },
+      "chl_curvature": {
+        "N": 0.813,
+        "S": 0.76,
+        "W_offshore": 0.761,
+        "E_shoreward": 0.748
+      },
+      "shelf_break": {
+        "N": 0.353,
+        "S": 0.34,
+        "W_offshore": 0.502,
+        "E_shoreward": 0.161
+      },
+      "depth": {
+        "N": 0.659,
+        "S": 0.664,
+        "W_offshore": 0.99,
+        "E_shoreward": 0.151
+      },
+      "ssh": {
+        "N": 0.449,
+        "S": 0.412,
+        "W_offshore": 0.39,
+        "E_shoreward": 0.501
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.493,
+        "S": 0.491,
+        "W_offshore": 0.536,
+        "E_shoreward": 0.438
+      },
+      "current_shear": {
+        "N": 0.249,
+        "S": 0.147,
+        "W_offshore": 0.387,
+        "E_shoreward": 0.002
+      },
+      "upwelling_edge": {
+        "N": 0.295,
+        "S": 0.287,
+        "W_offshore": 0.185,
+        "E_shoreward": 0.417
+      },
+      "salinity_front": {
+        "N": 0.94,
+        "S": 0.918,
+        "W_offshore": 0.86,
+        "E_shoreward": 1.0
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": null,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": null,
+        "W_offshore": 1.0,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.0,
+      "S_2nm": -0.3,
+      "W_2nm": -4.8,
+      "E_2nm": -7.5,
+      "N_5nm": -4.2,
+      "S_5nm": 5.3,
+      "W_5nm": -8.1,
+      "E_5nm": -30.5,
+      "N_10nm": -4.6,
+      "S_10nm": -19.8,
+      "W_10nm": -24.7,
+      "E_10nm": -36.1
+    }
+  },
+  {
+    "date": "2007-03-13",
+    "catch_lat": -32.1,
+    "catch_lon": 115.1667,
+    "catch_score": 85.5,
+    "peak_score": 96.9,
+    "peak_direction": "E",
+    "peak_dist_nm": 5.7,
+    "peak_lat": -32.125,
+    "peak_lon": 115.275,
+    "quadrant_means": {
+      "N": 84.7,
+      "S": 74.2,
+      "W_offshore": 75.0,
+      "E_shoreward": 88.8
+    },
+    "features_at_catch": {
+      "sst": 0.981,
+      "sst_front": 0.545,
+      "front_corridor": 0.981,
+      "chl": 0.999,
+      "sst_chl_bivariate": 0.943,
+      "chl_curvature": 0.334,
+      "shelf_break": 0.643,
+      "depth": 1.0,
+      "ssh": 0.371,
+      "mld": 1.0,
+      "current": 0.983,
+      "current_shear": 0.577,
+      "upwelling_edge": 0.062,
+      "salinity_front": 0.93
+    },
+    "features_at_peak": {
+      "sst": 0.988,
+      "sst_front": 0.521,
+      "front_corridor": 0.988,
+      "chl": 0.966,
+      "sst_chl_bivariate": 0.91,
+      "chl_curvature": 0.935,
+      "shelf_break": 0.394,
+      "depth": 1.0,
+      "ssh": 0.449,
+      "mld": 1.0,
+      "current": 0.696,
+      "current_shear": 0.448,
+      "upwelling_edge": 0.09,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": 0.007,
+      "sst_front": -0.024,
+      "front_corridor": 0.007,
+      "chl": -0.033,
+      "sst_chl_bivariate": -0.033,
+      "chl_curvature": 0.601,
+      "shelf_break": -0.249,
+      "depth": 0.0,
+      "ssh": 0.079,
+      "mld": 0.0,
+      "current": -0.287,
+      "current_shear": -0.129,
+      "upwelling_edge": 0.028,
+      "salinity_front": 0.07
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.993,
+        "S": 0.984,
+        "W_offshore": 0.991,
+        "E_shoreward": 0.988
+      },
+      "sst_front": {
+        "N": 0.577,
+        "S": 0.538,
+        "W_offshore": 0.594,
+        "E_shoreward": 0.519
+      },
+      "front_corridor": {
+        "N": 0.993,
+        "S": 0.984,
+        "W_offshore": 0.991,
+        "E_shoreward": 0.988
+      },
+      "chl": {
+        "N": 0.935,
+        "S": 0.986,
+        "W_offshore": 0.959,
+        "E_shoreward": 0.967
+      },
+      "sst_chl_bivariate": {
+        "N": 0.897,
+        "S": 0.938,
+        "W_offshore": 0.93,
+        "E_shoreward": 0.915
+      },
+      "chl_curvature": {
+        "N": 0.467,
+        "S": 0.555,
+        "W_offshore": 0.249,
+        "E_shoreward": 0.832
+      },
+      "shelf_break": {
+        "N": 0.483,
+        "S": 0.493,
+        "W_offshore": 0.548,
+        "E_shoreward": 0.405
+      },
+      "depth": {
+        "N": 0.937,
+        "S": 0.937,
+        "W_offshore": 0.925,
+        "E_shoreward": 0.938
+      },
+      "ssh": {
+        "N": 0.326,
+        "S": 0.329,
+        "W_offshore": 0.222,
+        "E_shoreward": 0.44
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.848,
+        "S": 0.792,
+        "W_offshore": 0.918,
+        "E_shoreward": 0.66
+      },
+      "current_shear": {
+        "N": 0.628,
+        "S": 0.554,
+        "W_offshore": 0.688,
+        "E_shoreward": 0.464
+      },
+      "upwelling_edge": {
+        "N": 0.073,
+        "S": 0.065,
+        "W_offshore": 0.043,
+        "E_shoreward": 0.099
+      },
+      "salinity_front": {
+        "N": 0.881,
+        "S": 0.862,
+        "W_offshore": 0.759,
+        "E_shoreward": 0.999
+      },
+      "thermocline_lift": {
+        "N": 0.017,
+        "S": 0.005,
+        "W_offshore": 0.012,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.0,
+      "S_2nm": -0.7,
+      "W_2nm": 3.4,
+      "E_2nm": 5.1,
+      "N_5nm": -4.7,
+      "S_5nm": -3.7,
+      "W_5nm": -4.0,
+      "E_5nm": 8.6,
+      "N_10nm": 0.7,
+      "S_10nm": 3.6,
+      "W_10nm": -21.0,
+      "E_10nm": -11.0
+    }
+  },
+  {
+    "date": "2011-03-04",
+    "catch_lat": -32.0833,
+    "catch_lon": 115.1833,
+    "catch_score": 73.2,
+    "peak_score": 97.4,
+    "peak_direction": "E",
+    "peak_dist_nm": 7.2,
+    "peak_lat": -32.075,
+    "peak_lon": 115.325,
+    "quadrant_means": {
+      "N": 69.6,
+      "S": 72.3,
+      "W_offshore": 54.7,
+      "E_shoreward": 83.5
+    },
+    "features_at_catch": {
+      "sst": 0.485,
+      "sst_front": 0.39,
+      "front_corridor": 0.485,
+      "chl": 0.935,
+      "sst_chl_bivariate": 0.154,
+      "chl_curvature": 0.466,
+      "shelf_break": 0.643,
+      "depth": 1.0,
+      "ssh": 0.269,
+      "mld": 1.0,
+      "current": 0.44,
+      "current_shear": 0.345,
+      "upwelling_edge": 0.309,
+      "salinity_front": 0.591
+    },
+    "features_at_peak": {
+      "sst": 0.516,
+      "sst_front": 0.409,
+      "front_corridor": 0.516,
+      "chl": 0.999,
+      "sst_chl_bivariate": 0.162,
+      "chl_curvature": 1.0,
+      "shelf_break": 0.319,
+      "depth": 0.988,
+      "ssh": 0.445,
+      "mld": 1.0,
+      "current": 0.185,
+      "current_shear": 0.247,
+      "upwelling_edge": 0.51,
+      "salinity_front": 0.908
+    },
+    "feature_diffs": {
+      "sst": 0.032,
+      "sst_front": 0.02,
+      "front_corridor": 0.032,
+      "chl": 0.064,
+      "sst_chl_bivariate": 0.008,
+      "chl_curvature": 0.534,
+      "shelf_break": -0.324,
+      "depth": -0.012,
+      "ssh": 0.176,
+      "mld": 0.0,
+      "current": -0.255,
+      "current_shear": -0.098,
+      "upwelling_edge": 0.202,
+      "salinity_front": 0.317
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.499,
+        "S": 0.507,
+        "W_offshore": 0.485,
+        "E_shoreward": 0.522
+      },
+      "sst_front": {
+        "N": 0.416,
+        "S": 0.387,
+        "W_offshore": 0.384,
+        "E_shoreward": 0.415
+      },
+      "front_corridor": {
+        "N": 0.499,
+        "S": 0.507,
+        "W_offshore": 0.485,
+        "E_shoreward": 0.522
+      },
+      "chl": {
+        "N": 0.925,
+        "S": 0.922,
+        "W_offshore": 0.902,
+        "E_shoreward": 0.936
+      },
+      "sst_chl_bivariate": {
+        "N": 0.16,
+        "S": 0.15,
+        "W_offshore": 0.156,
+        "E_shoreward": 0.156
+      },
+      "chl_curvature": {
+        "N": 0.484,
+        "S": 0.578,
+        "W_offshore": 0.092,
+        "E_shoreward": 0.863
+      },
+      "shelf_break": {
+        "N": 0.429,
+        "S": 0.443,
+        "W_offshore": 0.529,
+        "E_shoreward": 0.358
+      },
+      "depth": {
+        "N": 0.825,
+        "S": 0.907,
+        "W_offshore": 0.946,
+        "E_shoreward": 0.805
+      },
+      "ssh": {
+        "N": 0.341,
+        "S": 0.309,
+        "W_offshore": 0.207,
+        "E_shoreward": 0.419
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.363,
+        "S": 0.357,
+        "W_offshore": 0.395,
+        "E_shoreward": 0.305
+      },
+      "current_shear": {
+        "N": 0.373,
+        "S": 0.389,
+        "W_offshore": 0.499,
+        "E_shoreward": 0.299
+      },
+      "upwelling_edge": {
+        "N": 0.336,
+        "S": 0.377,
+        "W_offshore": 0.201,
+        "E_shoreward": 0.481
+      },
+      "salinity_front": {
+        "N": 0.688,
+        "S": 0.631,
+        "W_offshore": 0.412,
+        "E_shoreward": 0.857
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": 0.0,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": -3.3,
+      "S_2nm": 0.9,
+      "W_2nm": -10.2,
+      "E_2nm": 11.8,
+      "N_5nm": -5.4,
+      "S_5nm": -0.1,
+      "W_5nm": -18.8,
+      "E_5nm": 23.1,
+      "N_10nm": 9.4,
+      "S_10nm": 8.0,
+      "W_10nm": -32.9,
+      "E_10nm": 9.6
+    }
+  },
+  {
+    "date": "2006-03-10",
+    "catch_lat": -32.0667,
+    "catch_lon": 115.2333,
+    "catch_score": 96.1,
+    "peak_score": 97.8,
+    "peak_direction": "SW",
+    "peak_dist_nm": 4.6,
+    "peak_lat": -32.125,
+    "peak_lon": 115.175,
+    "quadrant_means": {
+      "N": 77.6,
+      "S": 79.1,
+      "W_offshore": 87.2,
+      "E_shoreward": 69.5
+    },
+    "features_at_catch": {
+      "sst": 0.984,
+      "sst_front": 0.589,
+      "front_corridor": 0.984,
+      "chl": 0.982,
+      "sst_chl_bivariate": 0.921,
+      "chl_curvature": 0.508,
+      "shelf_break": 0.577,
+      "depth": 1.0,
+      "ssh": 0.2,
+      "mld": 1.0,
+      "current": 0.212,
+      "current_shear": 0.275,
+      "upwelling_edge": 0.852,
+      "salinity_front": 0.847
+    },
+    "features_at_peak": {
+      "sst": 0.977,
+      "sst_front": 0.566,
+      "front_corridor": 0.977,
+      "chl": 0.989,
+      "sst_chl_bivariate": 0.91,
+      "chl_curvature": 0.403,
+      "shelf_break": 0.639,
+      "depth": 1.0,
+      "ssh": 0.2,
+      "mld": 0.987,
+      "current": 0.316,
+      "current_shear": 0.184,
+      "upwelling_edge": 0.755,
+      "salinity_front": 0.777
+    },
+    "feature_diffs": {
+      "sst": -0.007,
+      "sst_front": -0.023,
+      "front_corridor": -0.007,
+      "chl": 0.006,
+      "sst_chl_bivariate": -0.011,
+      "chl_curvature": -0.104,
+      "shelf_break": 0.062,
+      "depth": 0.0,
+      "ssh": 0.0,
+      "mld": -0.013,
+      "current": 0.104,
+      "current_shear": -0.09,
+      "upwelling_edge": -0.097,
+      "salinity_front": -0.069
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.98,
+        "S": 0.978,
+        "W_offshore": 0.963,
+        "E_shoreward": 0.993
+      },
+      "sst_front": {
+        "N": 0.634,
+        "S": 0.535,
+        "W_offshore": 0.485,
+        "E_shoreward": 0.659
+      },
+      "front_corridor": {
+        "N": 0.98,
+        "S": 0.978,
+        "W_offshore": 0.963,
+        "E_shoreward": 0.993
+      },
+      "chl": {
+        "N": 0.871,
+        "S": 0.925,
+        "W_offshore": 0.994,
+        "E_shoreward": 0.801
+      },
+      "sst_chl_bivariate": {
+        "N": 0.796,
+        "S": 0.848,
+        "W_offshore": 0.897,
+        "E_shoreward": 0.751
+      },
+      "chl_curvature": {
+        "N": 0.292,
+        "S": 0.616,
+        "W_offshore": 0.612,
+        "E_shoreward": 0.353
+      },
+      "shelf_break": {
+        "N": 0.378,
+        "S": 0.396,
+        "W_offshore": 0.523,
+        "E_shoreward": 0.262
+      },
+      "depth": {
+        "N": 0.705,
+        "S": 0.796,
+        "W_offshore": 0.97,
+        "E_shoreward": 0.555
+      },
+      "ssh": {
+        "N": 0.242,
+        "S": 0.262,
+        "W_offshore": 0.287,
+        "E_shoreward": 0.237
+      },
+      "mld": {
+        "N": 0.992,
+        "S": 0.999,
+        "W_offshore": 0.989,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.215,
+        "S": 0.261,
+        "W_offshore": 0.34,
+        "E_shoreward": 0.189
+      },
+      "current_shear": {
+        "N": 0.14,
+        "S": 0.183,
+        "W_offshore": 0.216,
+        "E_shoreward": 0.1
+      },
+      "upwelling_edge": {
+        "N": 0.857,
+        "S": 0.739,
+        "W_offshore": 0.558,
+        "E_shoreward": 0.973
+      },
+      "salinity_front": {
+        "N": 0.832,
+        "S": 0.879,
+        "W_offshore": 0.744,
+        "E_shoreward": 0.939
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": 0.0,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 0.57,
+        "S": 0.649,
+        "W_offshore": 0.607,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": -5.3,
+      "S_2nm": 0.0,
+      "W_2nm": -1.0,
+      "E_2nm": -2.2,
+      "N_5nm": -7.9,
+      "S_5nm": -0.8,
+      "W_5nm": -6.7,
+      "E_5nm": -4.1,
+      "N_10nm": -8.4,
+      "S_10nm": 0.6,
+      "W_10nm": -33.7,
+      "E_10nm": -50.1
+    }
+  },
+  {
+    "date": "2004-02-28",
+    "catch_lat": -31.9333,
+    "catch_lon": 115.35,
+    "catch_score": 86.9,
+    "peak_score": 96.9,
+    "peak_direction": "SW",
+    "peak_dist_nm": 4.6,
+    "peak_lat": -31.975,
+    "peak_lon": 115.275,
+    "quadrant_means": {
+      "N": 73.4,
+      "S": 63.8,
+      "W_offshore": 91.9,
+      "E_shoreward": 46.9
+    },
+    "features_at_catch": {
+      "sst": 1.0,
+      "sst_front": 0.977,
+      "front_corridor": 1.0,
+      "chl": 0.996,
+      "sst_chl_bivariate": 0.993,
+      "chl_curvature": 1.0,
+      "shelf_break": 0.32,
+      "depth": 0.959,
+      "ssh": 0.657,
+      "mld": 0.934,
+      "current": 0.417,
+      "current_shear": 0.312,
+      "upwelling_edge": 0.316,
+      "salinity_front": 1.0
+    },
+    "features_at_peak": {
+      "sst": 1.0,
+      "sst_front": 0.967,
+      "front_corridor": 1.0,
+      "chl": 0.997,
+      "sst_chl_bivariate": 0.995,
+      "chl_curvature": 1.0,
+      "shelf_break": 0.478,
+      "depth": 1.0,
+      "ssh": 0.623,
+      "mld": 0.821,
+      "current": 0.373,
+      "current_shear": 0.836,
+      "upwelling_edge": 0.293,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": -0.0,
+      "sst_front": -0.01,
+      "front_corridor": -0.0,
+      "chl": 0.002,
+      "sst_chl_bivariate": 0.002,
+      "chl_curvature": 0.0,
+      "shelf_break": 0.157,
+      "depth": 0.041,
+      "ssh": -0.035,
+      "mld": -0.113,
+      "current": -0.044,
+      "current_shear": 0.524,
+      "upwelling_edge": -0.022,
+      "salinity_front": 0.0
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.976,
+        "S": 0.978,
+        "W_offshore": 0.994,
+        "E_shoreward": 0.961
+      },
+      "sst_front": {
+        "N": 0.919,
+        "S": 0.883,
+        "W_offshore": 0.927,
+        "E_shoreward": 0.868
+      },
+      "front_corridor": {
+        "N": 0.976,
+        "S": 0.978,
+        "W_offshore": 0.994,
+        "E_shoreward": 0.961
+      },
+      "chl": {
+        "N": 0.631,
+        "S": 0.746,
+        "W_offshore": 0.987,
+        "E_shoreward": 0.407
+      },
+      "sst_chl_bivariate": {
+        "N": 0.628,
+        "S": 0.741,
+        "W_offshore": 0.98,
+        "E_shoreward": 0.403
+      },
+      "chl_curvature": {
+        "N": 0.547,
+        "S": 0.758,
+        "W_offshore": 0.782,
+        "E_shoreward": 0.514
+      },
+      "shelf_break": {
+        "N": 0.313,
+        "S": 0.26,
+        "W_offshore": 0.479,
+        "E_shoreward": 0.145
+      },
+      "depth": {
+        "N": 0.609,
+        "S": 0.45,
+        "W_offshore": 0.996,
+        "E_shoreward": 0.097
+      },
+      "ssh": {
+        "N": 0.473,
+        "S": 0.563,
+        "W_offshore": 0.603,
+        "E_shoreward": 0.411
+      },
+      "mld": {
+        "N": 0.858,
+        "S": 0.866,
+        "W_offshore": 0.821,
+        "E_shoreward": 0.875
+      },
+      "current": {
+        "N": 0.703,
+        "S": 0.695,
+        "W_offshore": 0.656,
+        "E_shoreward": 0.796
+      },
+      "current_shear": {
+        "N": 0.362,
+        "S": 0.297,
+        "W_offshore": 0.793,
+        "E_shoreward": 0.007
+      },
+      "upwelling_edge": {
+        "N": 0.297,
+        "S": 0.297,
+        "W_offshore": 0.268,
+        "E_shoreward": 0.312
+      },
+      "salinity_front": {
+        "N": 0.987,
+        "S": 0.97,
+        "W_offshore": 0.991,
+        "E_shoreward": 0.966
+      },
+      "thermocline_lift": {
+        "N": null,
+        "S": null,
+        "W_offshore": null,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": null,
+        "S": null,
+        "W_offshore": null,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.0,
+      "S_2nm": 5.2,
+      "W_2nm": 0.0,
+      "E_2nm": -31.5,
+      "N_5nm": -2.4,
+      "S_5nm": 7.8,
+      "W_5nm": 9.0,
+      "E_5nm": -45.2,
+      "N_10nm": -31.5,
+      "S_10nm": 7.8,
+      "W_10nm": 0.5,
+      "E_10nm": -46.9
+    }
+  },
+  {
+    "date": "2012-01-19",
+    "catch_lat": -31.9667,
+    "catch_lon": 115.15,
+    "catch_score": 72.1,
+    "peak_score": 99.7,
+    "peak_direction": "E",
+    "peak_dist_nm": 9.6,
+    "peak_lat": -32.025,
+    "peak_lon": 115.325,
+    "quadrant_means": {
+      "N": 79.9,
+      "S": 86.6,
+      "W_offshore": 71.1,
+      "E_shoreward": 90.1
+    },
+    "features_at_catch": {
+      "sst": 0.96,
+      "sst_front": 0.58,
+      "front_corridor": 0.96,
+      "chl": 0.383,
+      "sst_chl_bivariate": 0.383,
+      "chl_curvature": 0.981,
+      "shelf_break": 0.488,
+      "depth": 0.903,
+      "ssh": 0.259,
+      "mld": 1.0,
+      "current": 0.862,
+      "current_shear": 0.231,
+      "upwelling_edge": 0.048,
+      "salinity_front": 0.96
+    },
+    "features_at_peak": {
+      "sst": 0.975,
+      "sst_front": 0.811,
+      "front_corridor": 0.975,
+      "chl": 0.941,
+      "sst_chl_bivariate": 0.908,
+      "chl_curvature": 0.626,
+      "shelf_break": 0.345,
+      "depth": 0.992,
+      "ssh": 0.573,
+      "mld": 1.0,
+      "current": 0.597,
+      "current_shear": 0.199,
+      "upwelling_edge": 0.067,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": 0.015,
+      "sst_front": 0.231,
+      "front_corridor": 0.015,
+      "chl": 0.558,
+      "sst_chl_bivariate": 0.525,
+      "chl_curvature": -0.356,
+      "shelf_break": -0.144,
+      "depth": 0.089,
+      "ssh": 0.314,
+      "mld": 0.0,
+      "current": -0.264,
+      "current_shear": -0.032,
+      "upwelling_edge": 0.019,
+      "salinity_front": 0.04
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.958,
+        "S": 0.962,
+        "W_offshore": 0.942,
+        "E_shoreward": 0.975
+      },
+      "sst_front": {
+        "N": 0.637,
+        "S": 0.619,
+        "W_offshore": 0.519,
+        "E_shoreward": 0.723
+      },
+      "front_corridor": {
+        "N": 0.958,
+        "S": 0.962,
+        "W_offshore": 0.942,
+        "E_shoreward": 0.975
+      },
+      "chl": {
+        "N": 0.469,
+        "S": 0.614,
+        "W_offshore": 0.307,
+        "E_shoreward": 0.727
+      },
+      "sst_chl_bivariate": {
+        "N": 0.462,
+        "S": 0.605,
+        "W_offshore": 0.305,
+        "E_shoreward": 0.714
+      },
+      "chl_curvature": {
+        "N": 0.908,
+        "S": 0.727,
+        "W_offshore": 0.862,
+        "E_shoreward": 0.794
+      },
+      "shelf_break": {
+        "N": 0.517,
+        "S": 0.472,
+        "W_offshore": 0.535,
+        "E_shoreward": 0.448
+      },
+      "depth": {
+        "N": 0.952,
+        "S": 0.982,
+        "W_offshore": 0.923,
+        "E_shoreward": 0.989
+      },
+      "ssh": {
+        "N": 0.397,
+        "S": 0.368,
+        "W_offshore": 0.203,
+        "E_shoreward": 0.529
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.836,
+        "S": 0.796,
+        "W_offshore": 0.796,
+        "E_shoreward": 0.816
+      },
+      "current_shear": {
+        "N": 0.448,
+        "S": 0.32,
+        "W_offshore": 0.506,
+        "E_shoreward": 0.332
+      },
+      "upwelling_edge": {
+        "N": 0.06,
+        "S": 0.046,
+        "W_offshore": 0.036,
+        "E_shoreward": 0.065
+      },
+      "salinity_front": {
+        "N": 0.97,
+        "S": 0.935,
+        "W_offshore": 0.883,
+        "E_shoreward": 1.0
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": 0.0,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 0.887,
+        "S": 0.859,
+        "W_offshore": 0.895,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 10.3,
+      "S_2nm": 0.0,
+      "W_2nm": 0.0,
+      "E_2nm": 5.2,
+      "N_5nm": 21.1,
+      "S_5nm": 5.3,
+      "W_5nm": -9.9,
+      "E_5nm": 10.9,
+      "N_10nm": 23.4,
+      "S_10nm": 20.1,
+      "W_10nm": -5.5,
+      "E_10nm": 25.2
+    }
+  },
+  {
+    "date": "2012-01-28",
+    "catch_lat": -32.0,
+    "catch_lon": 115.0,
+    "catch_score": 69.0,
+    "peak_score": 88.8,
+    "peak_direction": "SE",
+    "peak_dist_nm": 9.8,
+    "peak_lat": -32.125,
+    "peak_lon": 115.125,
+    "quadrant_means": {
+      "N": 55.8,
+      "S": 67.4,
+      "W_offshore": 42.7,
+      "E_shoreward": 72.5
+    },
+    "features_at_catch": {
+      "sst": 0.924,
+      "sst_front": 0.402,
+      "front_corridor": 0.924,
+      "chl": 0.866,
+      "sst_chl_bivariate": 0.766,
+      "chl_curvature": 0.003,
+      "shelf_break": 0.543,
+      "depth": 0.946,
+      "ssh": 0.2,
+      "mld": 1.0,
+      "current": 0.831,
+      "current_shear": 0.68,
+      "upwelling_edge": 0.428,
+      "salinity_front": 0.386
+    },
+    "features_at_peak": {
+      "sst": 0.907,
+      "sst_front": 0.442,
+      "front_corridor": 0.907,
+      "chl": 0.872,
+      "sst_chl_bivariate": 0.738,
+      "chl_curvature": 0.004,
+      "shelf_break": 0.556,
+      "depth": 1.0,
+      "ssh": 0.2,
+      "mld": 1.0,
+      "current": 0.698,
+      "current_shear": 1.0,
+      "upwelling_edge": 0.633,
+      "salinity_front": 0.629
+    },
+    "feature_diffs": {
+      "sst": -0.017,
+      "sst_front": 0.04,
+      "front_corridor": -0.017,
+      "chl": 0.006,
+      "sst_chl_bivariate": -0.027,
+      "chl_curvature": 0.002,
+      "shelf_break": 0.013,
+      "depth": 0.054,
+      "ssh": 0.0,
+      "mld": 0.0,
+      "current": -0.133,
+      "current_shear": 0.32,
+      "upwelling_edge": 0.204,
+      "salinity_front": 0.243
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.92,
+        "S": 0.903,
+        "W_offshore": 0.931,
+        "E_shoreward": 0.896
+      },
+      "sst_front": {
+        "N": 0.42,
+        "S": 0.425,
+        "W_offshore": 0.382,
+        "E_shoreward": 0.457
+      },
+      "front_corridor": {
+        "N": 0.92,
+        "S": 0.903,
+        "W_offshore": 0.931,
+        "E_shoreward": 0.896
+      },
+      "chl": {
+        "N": 0.874,
+        "S": 0.846,
+        "W_offshore": 0.839,
+        "E_shoreward": 0.875
+      },
+      "sst_chl_bivariate": {
+        "N": 0.762,
+        "S": 0.715,
+        "W_offshore": 0.759,
+        "E_shoreward": 0.72
+      },
+      "chl_curvature": {
+        "N": 0.178,
+        "S": 0.22,
+        "W_offshore": 0.149,
+        "E_shoreward": 0.199
+      },
+      "shelf_break": {
+        "N": 0.593,
+        "S": 0.52,
+        "W_offshore": 0.607,
+        "E_shoreward": 0.524
+      },
+      "depth": {
+        "N": 0.872,
+        "S": 0.948,
+        "W_offshore": 0.841,
+        "E_shoreward": 0.953
+      },
+      "ssh": {
+        "N": 0.201,
+        "S": 0.256,
+        "W_offshore": 0.261,
+        "E_shoreward": 0.2
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.731,
+        "S": 0.78,
+        "W_offshore": 0.848,
+        "E_shoreward": 0.665
+      },
+      "current_shear": {
+        "N": 0.785,
+        "S": 0.62,
+        "W_offshore": 0.425,
+        "E_shoreward": 0.92
+      },
+      "upwelling_edge": {
+        "N": 0.433,
+        "S": 0.596,
+        "W_offshore": 0.24,
+        "E_shoreward": 0.725
+      },
+      "salinity_front": {
+        "N": 0.474,
+        "S": 0.478,
+        "W_offshore": 0.313,
+        "E_shoreward": 0.612
+      },
+      "thermocline_lift": {
+        "N": 0.001,
+        "S": 0.0,
+        "W_offshore": 0.001,
+        "E_shoreward": 0.0
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 0.993,
+        "W_offshore": 1.0,
+        "E_shoreward": 0.995
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.0,
+      "S_2nm": -15.2,
+      "W_2nm": 0.0,
+      "E_2nm": -10.9,
+      "N_5nm": 6.9,
+      "S_5nm": -23.5,
+      "W_5nm": -3.3,
+      "E_5nm": -18.2,
+      "N_10nm": 4.6,
+      "S_10nm": -25.7,
+      "W_10nm": -34.3,
+      "E_10nm": 1.4
+    }
+  },
+  {
+    "date": "2013-02-23",
+    "catch_lat": -31.9667,
+    "catch_lon": 115.2167,
+    "catch_score": 89.7,
+    "peak_score": 99.5,
+    "peak_direction": "SE",
+    "peak_dist_nm": 6.5,
+    "peak_lat": -32.025,
+    "peak_lon": 115.325,
+    "quadrant_means": {
+      "N": 80.9,
+      "S": 80.8,
+      "W_offshore": 74.6,
+      "E_shoreward": 84.9
+    },
+    "features_at_catch": {
+      "sst": 0.957,
+      "sst_front": 0.678,
+      "front_corridor": 0.957,
+      "chl": 0.818,
+      "sst_chl_bivariate": 0.784,
+      "chl_curvature": 0.747,
+      "shelf_break": 0.467,
+      "depth": 1.0,
+      "ssh": 0.2,
+      "mld": 0.984,
+      "current": 0.91,
+      "current_shear": 0.548,
+      "upwelling_edge": 0.31,
+      "salinity_front": 0.96
+    },
+    "features_at_peak": {
+      "sst": 0.973,
+      "sst_front": 0.692,
+      "front_corridor": 0.973,
+      "chl": 1.0,
+      "sst_chl_bivariate": 0.927,
+      "chl_curvature": 0.775,
+      "shelf_break": 0.345,
+      "depth": 0.992,
+      "ssh": 0.597,
+      "mld": 1.0,
+      "current": 0.991,
+      "current_shear": 0.317,
+      "upwelling_edge": 0.434,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": 0.016,
+      "sst_front": 0.014,
+      "front_corridor": 0.016,
+      "chl": 0.182,
+      "sst_chl_bivariate": 0.143,
+      "chl_curvature": 0.028,
+      "shelf_break": -0.122,
+      "depth": -0.008,
+      "ssh": 0.397,
+      "mld": 0.016,
+      "current": 0.081,
+      "current_shear": -0.231,
+      "upwelling_edge": 0.124,
+      "salinity_front": 0.04
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.96,
+        "S": 0.961,
+        "W_offshore": 0.948,
+        "E_shoreward": 0.977
+      },
+      "sst_front": {
+        "N": 0.602,
+        "S": 0.653,
+        "W_offshore": 0.563,
+        "E_shoreward": 0.698
+      },
+      "front_corridor": {
+        "N": 0.96,
+        "S": 0.961,
+        "W_offshore": 0.948,
+        "E_shoreward": 0.977
+      },
+      "chl": {
+        "N": 0.906,
+        "S": 0.941,
+        "W_offshore": 0.871,
+        "E_shoreward": 0.983
+      },
+      "sst_chl_bivariate": {
+        "N": 0.848,
+        "S": 0.874,
+        "W_offshore": 0.807,
+        "E_shoreward": 0.925
+      },
+      "chl_curvature": {
+        "N": 0.539,
+        "S": 0.523,
+        "W_offshore": 0.272,
+        "E_shoreward": 0.857
+      },
+      "shelf_break": {
+        "N": 0.469,
+        "S": 0.434,
+        "W_offshore": 0.532,
+        "E_shoreward": 0.311
+      },
+      "depth": {
+        "N": 0.93,
+        "S": 0.859,
+        "W_offshore": 0.96,
+        "E_shoreward": 0.784
+      },
+      "ssh": {
+        "N": 0.341,
+        "S": 0.38,
+        "W_offshore": 0.204,
+        "E_shoreward": 0.586
+      },
+      "mld": {
+        "N": 0.954,
+        "S": 0.957,
+        "W_offshore": 0.925,
+        "E_shoreward": 0.992
+      },
+      "current": {
+        "N": 0.913,
+        "S": 0.82,
+        "W_offshore": 0.851,
+        "E_shoreward": 0.875
+      },
+      "current_shear": {
+        "N": 0.673,
+        "S": 0.535,
+        "W_offshore": 0.903,
+        "E_shoreward": 0.235
+      },
+      "upwelling_edge": {
+        "N": 0.257,
+        "S": 0.301,
+        "W_offshore": 0.155,
+        "E_shoreward": 0.44
+      },
+      "salinity_front": {
+        "N": 0.868,
+        "S": 0.922,
+        "W_offshore": 0.794,
+        "E_shoreward": 1.0
+      },
+      "thermocline_lift": {
+        "N": 0.018,
+        "S": 0.0,
+        "W_offshore": 0.011,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 1.0,
+      "S_2nm": 0.0,
+      "W_2nm": -1.7,
+      "E_2nm": 7.9,
+      "N_5nm": 1.8,
+      "S_5nm": -3.2,
+      "W_5nm": -16.9,
+      "E_5nm": 8.4,
+      "N_10nm": 4.9,
+      "S_10nm": -0.2,
+      "W_10nm": -48.6,
+      "E_10nm": -41.3
+    }
+  },
+  {
+    "date": "2012-02-12",
+    "catch_lat": -32.0667,
+    "catch_lon": 115.05,
+    "catch_score": 76.7,
+    "peak_score": 93.9,
+    "peak_direction": "NE",
+    "peak_dist_nm": 12.3,
+    "peak_lat": -31.925,
+    "peak_lon": 115.225,
+    "quadrant_means": {
+      "N": 81.7,
+      "S": 73.1,
+      "W_offshore": 68.8,
+      "E_shoreward": 88.0
+    },
+    "features_at_catch": {
+      "sst": 0.962,
+      "sst_front": 0.794,
+      "front_corridor": 0.962,
+      "chl": 0.953,
+      "sst_chl_bivariate": 0.89,
+      "chl_curvature": 0.321,
+      "shelf_break": 0.539,
+      "depth": 0.978,
+      "ssh": 0.2,
+      "mld": 1.0,
+      "current": 0.767,
+      "current_shear": 0.565,
+      "upwelling_edge": 0.332,
+      "salinity_front": 0.905
+    },
+    "features_at_peak": {
+      "sst": 0.935,
+      "sst_front": 0.731,
+      "front_corridor": 0.935,
+      "chl": 0.991,
+      "sst_chl_bivariate": 0.842,
+      "chl_curvature": 0.921,
+      "shelf_break": 0.596,
+      "depth": 1.0,
+      "ssh": 0.374,
+      "mld": 1.0,
+      "current": 0.839,
+      "current_shear": 0.362,
+      "upwelling_edge": 0.39,
+      "salinity_front": 0.979
+    },
+    "feature_diffs": {
+      "sst": -0.027,
+      "sst_front": -0.063,
+      "front_corridor": -0.027,
+      "chl": 0.037,
+      "sst_chl_bivariate": -0.048,
+      "chl_curvature": 0.6,
+      "shelf_break": 0.056,
+      "depth": 0.022,
+      "ssh": 0.174,
+      "mld": 0.0,
+      "current": 0.072,
+      "current_shear": -0.203,
+      "upwelling_edge": 0.058,
+      "salinity_front": 0.074
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.959,
+        "S": 0.945,
+        "W_offshore": 0.955,
+        "E_shoreward": 0.948
+      },
+      "sst_front": {
+        "N": 0.792,
+        "S": 0.833,
+        "W_offshore": 0.888,
+        "E_shoreward": 0.714
+      },
+      "front_corridor": {
+        "N": 0.959,
+        "S": 0.945,
+        "W_offshore": 0.955,
+        "E_shoreward": 0.948
+      },
+      "chl": {
+        "N": 0.93,
+        "S": 0.973,
+        "W_offshore": 0.932,
+        "E_shoreward": 0.978
+      },
+      "sst_chl_bivariate": {
+        "N": 0.864,
+        "S": 0.861,
+        "W_offshore": 0.857,
+        "E_shoreward": 0.871
+      },
+      "chl_curvature": {
+        "N": 0.286,
+        "S": 0.457,
+        "W_offshore": 0.172,
+        "E_shoreward": 0.647
+      },
+      "shelf_break": {
+        "N": 0.563,
+        "S": 0.526,
+        "W_offshore": 0.579,
+        "E_shoreward": 0.527
+      },
+      "depth": {
+        "N": 0.937,
+        "S": 0.931,
+        "W_offshore": 0.885,
+        "E_shoreward": 0.988
+      },
+      "ssh": {
+        "N": 0.246,
+        "S": 0.226,
+        "W_offshore": 0.2,
+        "E_shoreward": 0.29
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 0.997,
+        "W_offshore": 1.0,
+        "E_shoreward": 0.996
+      },
+      "current": {
+        "N": 0.806,
+        "S": 0.783,
+        "W_offshore": 0.74,
+        "E_shoreward": 0.856
+      },
+      "current_shear": {
+        "N": 0.633,
+        "S": 0.679,
+        "W_offshore": 0.935,
+        "E_shoreward": 0.339
+      },
+      "upwelling_edge": {
+        "N": 0.341,
+        "S": 0.31,
+        "W_offshore": 0.274,
+        "E_shoreward": 0.399
+      },
+      "salinity_front": {
+        "N": 0.963,
+        "S": 0.872,
+        "W_offshore": 0.887,
+        "E_shoreward": 0.966
+      },
+      "thermocline_lift": {
+        "N": 0.208,
+        "S": 0.197,
+        "W_offshore": 0.226,
+        "E_shoreward": 0.091
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      }
+    },
+    "gradients": {
+      "N_2nm": -13.3,
+      "S_2nm": 0.0,
+      "W_2nm": -19.9,
+      "E_2nm": 0.0,
+      "N_5nm": -18.3,
+      "S_5nm": 7.7,
+      "W_5nm": -25.4,
+      "E_5nm": 15.9,
+      "N_10nm": -7.3,
+      "S_10nm": 13.0,
+      "W_10nm": -8.3,
+      "E_10nm": 11.1
+    }
+  },
+  {
+    "date": "2012-12-30",
+    "catch_lat": -32.1333,
+    "catch_lon": 115.1,
+    "catch_score": 79.3,
+    "peak_score": 96.3,
+    "peak_direction": "E",
+    "peak_dist_nm": 9.2,
+    "peak_lat": -32.175,
+    "peak_lon": 115.275,
+    "quadrant_means": {
+      "N": 79.1,
+      "S": 70.4,
+      "W_offshore": 59.7,
+      "E_shoreward": 85.4
+    },
+    "features_at_catch": {
+      "sst": 0.999,
+      "sst_front": 0.772,
+      "front_corridor": 0.999,
+      "chl": 0.779,
+      "sst_chl_bivariate": 0.751,
+      "chl_curvature": 0.374,
+      "shelf_break": 0.513,
+      "depth": 1.0,
+      "ssh": 0.2,
+      "mld": 1.0,
+      "current": 0.955,
+      "current_shear": 1.0,
+      "upwelling_edge": 0.014,
+      "salinity_front": 1.0
+    },
+    "features_at_peak": {
+      "sst": 0.999,
+      "sst_front": 0.933,
+      "front_corridor": 0.999,
+      "chl": 0.915,
+      "sst_chl_bivariate": 0.913,
+      "chl_curvature": 0.783,
+      "shelf_break": 0.362,
+      "depth": 1.0,
+      "ssh": 0.587,
+      "mld": 1.0,
+      "current": 0.999,
+      "current_shear": 0.424,
+      "upwelling_edge": 0.017,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": 0.0,
+      "sst_front": 0.161,
+      "front_corridor": 0.0,
+      "chl": 0.136,
+      "sst_chl_bivariate": 0.162,
+      "chl_curvature": 0.409,
+      "shelf_break": -0.151,
+      "depth": 0.0,
+      "ssh": 0.387,
+      "mld": 0.0,
+      "current": 0.043,
+      "current_shear": -0.576,
+      "upwelling_edge": 0.003,
+      "salinity_front": 0.0
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.994,
+        "S": 0.995,
+        "W_offshore": 0.987,
+        "E_shoreward": 0.999
+      },
+      "sst_front": {
+        "N": 0.817,
+        "S": 0.779,
+        "W_offshore": 0.72,
+        "E_shoreward": 0.863
+      },
+      "front_corridor": {
+        "N": 0.994,
+        "S": 0.995,
+        "W_offshore": 0.987,
+        "E_shoreward": 0.999
+      },
+      "chl": {
+        "N": 0.819,
+        "S": 0.844,
+        "W_offshore": 0.807,
+        "E_shoreward": 0.863
+      },
+      "sst_chl_bivariate": {
+        "N": 0.792,
+        "S": 0.822,
+        "W_offshore": 0.753,
+        "E_shoreward": 0.858
+      },
+      "chl_curvature": {
+        "N": 0.406,
+        "S": 0.398,
+        "W_offshore": 0.149,
+        "E_shoreward": 0.589
+      },
+      "shelf_break": {
+        "N": 0.494,
+        "S": 0.537,
+        "W_offshore": 0.559,
+        "E_shoreward": 0.492
+      },
+      "depth": {
+        "N": 0.976,
+        "S": 0.93,
+        "W_offshore": 0.893,
+        "E_shoreward": 0.991
+      },
+      "ssh": {
+        "N": 0.3,
+        "S": 0.258,
+        "W_offshore": 0.2,
+        "E_shoreward": 0.355
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.987,
+        "S": 0.97,
+        "W_offshore": 0.974,
+        "E_shoreward": 0.992
+      },
+      "current_shear": {
+        "N": 0.729,
+        "S": 0.686,
+        "W_offshore": 1.0,
+        "E_shoreward": 0.448
+      },
+      "upwelling_edge": {
+        "N": 0.028,
+        "S": 0.009,
+        "W_offshore": 0.017,
+        "E_shoreward": 0.017
+      },
+      "salinity_front": {
+        "N": 0.998,
+        "S": 1.0,
+        "W_offshore": 0.998,
+        "E_shoreward": 1.0
+      },
+      "thermocline_lift": {
+        "N": 0.139,
+        "S": 0.095,
+        "W_offshore": 0.165,
+        "E_shoreward": 0.0
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 0.991,
+        "W_offshore": 1.0,
+        "E_shoreward": 0.934
+      }
+    },
+    "gradients": {
+      "N_2nm": -5.9,
+      "S_2nm": 1.7,
+      "W_2nm": 0.0,
+      "E_2nm": 3.1,
+      "N_5nm": -18.3,
+      "S_5nm": 2.3,
+      "W_5nm": -8.7,
+      "E_5nm": 2.9,
+      "N_10nm": -15.5,
+      "S_10nm": 11.1,
+      "W_10nm": -35.3,
+      "E_10nm": 14.2
+    }
+  },
+  {
+    "date": "2015-02-08",
+    "catch_lat": -31.9167,
+    "catch_lon": 114.9833,
+    "catch_score": 86.5,
+    "peak_score": 97.5,
+    "peak_direction": "NE",
+    "peak_dist_nm": 12.9,
+    "peak_lat": -31.775,
+    "peak_lon": 115.175,
+    "quadrant_means": {
+      "N": 71.2,
+      "S": 79.0,
+      "W_offshore": 60.2,
+      "E_shoreward": 85.0
+    },
+    "features_at_catch": {
+      "sst": 0.985,
+      "sst_front": 0.985,
+      "front_corridor": 0.985,
+      "chl": 0.935,
+      "sst_chl_bivariate": 0.921,
+      "chl_curvature": 0.174,
+      "shelf_break": 0.503,
+      "depth": 0.973,
+      "ssh": 0.337,
+      "mld": 1.0,
+      "current": 0.91,
+      "current_shear": 0.241,
+      "upwelling_edge": 0.361,
+      "salinity_front": 0.805
+    },
+    "features_at_peak": {
+      "sst": 0.976,
+      "sst_front": 0.976,
+      "front_corridor": 0.976,
+      "chl": 0.985,
+      "sst_chl_bivariate": 0.97,
+      "chl_curvature": 0.056,
+      "shelf_break": 0.518,
+      "depth": 1.0,
+      "ssh": 0.585,
+      "mld": 1.0,
+      "current": 0.305,
+      "current_shear": 1.0,
+      "upwelling_edge": 0.976,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": -0.009,
+      "sst_front": -0.009,
+      "front_corridor": -0.009,
+      "chl": 0.05,
+      "sst_chl_bivariate": 0.049,
+      "chl_curvature": -0.118,
+      "shelf_break": 0.015,
+      "depth": 0.027,
+      "ssh": 0.249,
+      "mld": 0.0,
+      "current": -0.605,
+      "current_shear": 0.759,
+      "upwelling_edge": 0.615,
+      "salinity_front": 0.195
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.993,
+        "S": 0.989,
+        "W_offshore": 0.99,
+        "E_shoreward": 0.994
+      },
+      "sst_front": {
+        "N": 0.985,
+        "S": 0.989,
+        "W_offshore": 0.981,
+        "E_shoreward": 0.993
+      },
+      "front_corridor": {
+        "N": 0.993,
+        "S": 0.989,
+        "W_offshore": 0.99,
+        "E_shoreward": 0.994
+      },
+      "chl": {
+        "N": 0.911,
+        "S": 0.898,
+        "W_offshore": 0.801,
+        "E_shoreward": 0.981
+      },
+      "sst_chl_bivariate": {
+        "N": 0.908,
+        "S": 0.891,
+        "W_offshore": 0.798,
+        "E_shoreward": 0.976
+      },
+      "chl_curvature": {
+        "N": 0.241,
+        "S": 0.332,
+        "W_offshore": 0.455,
+        "E_shoreward": 0.16
+      },
+      "shelf_break": {
+        "N": 0.569,
+        "S": 0.539,
+        "W_offshore": 0.578,
+        "E_shoreward": 0.53
+      },
+      "depth": {
+        "N": 0.895,
+        "S": 0.958,
+        "W_offshore": 0.887,
+        "E_shoreward": 0.962
+      },
+      "ssh": {
+        "N": 0.336,
+        "S": 0.416,
+        "W_offshore": 0.236,
+        "E_shoreward": 0.489
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.839,
+        "S": 0.806,
+        "W_offshore": 0.825,
+        "E_shoreward": 0.798
+      },
+      "current_shear": {
+        "N": 0.403,
+        "S": 0.566,
+        "W_offshore": 0.242,
+        "E_shoreward": 0.708
+      },
+      "upwelling_edge": {
+        "N": 0.371,
+        "S": 0.544,
+        "W_offshore": 0.198,
+        "E_shoreward": 0.673
+      },
+      "salinity_front": {
+        "N": 0.803,
+        "S": 0.902,
+        "W_offshore": 0.77,
+        "E_shoreward": 0.921
+      },
+      "thermocline_lift": {
+        "N": 0.081,
+        "S": 0.017,
+        "W_offshore": 0.07,
+        "E_shoreward": 0.034
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      }
+    },
+    "gradients": {
+      "N_2nm": -2.3,
+      "S_2nm": 1.7,
+      "W_2nm": -2.7,
+      "E_2nm": 2.8,
+      "N_5nm": -0.1,
+      "S_5nm": 1.7,
+      "W_5nm": -30.3,
+      "E_5nm": -2.3,
+      "N_10nm": 6.4,
+      "S_10nm": -18.6,
+      "W_10nm": -43.1,
+      "E_10nm": 0.2
+    }
+  },
+  {
+    "date": "2015-02-24",
+    "catch_lat": -31.9667,
+    "catch_lon": 115.1667,
+    "catch_score": 86.6,
+    "peak_score": 98.2,
+    "peak_direction": "S",
+    "peak_dist_nm": 10.0,
+    "peak_lat": -32.125,
+    "peak_lon": 115.225,
+    "quadrant_means": {
+      "N": 82.8,
+      "S": 88.1,
+      "W_offshore": 76.7,
+      "E_shoreward": 92.3
+    },
+    "features_at_catch": {
+      "sst": 0.999,
+      "sst_front": 0.941,
+      "front_corridor": 0.999,
+      "chl": 0.99,
+      "sst_chl_bivariate": 0.989,
+      "chl_curvature": 0.743,
+      "shelf_break": 0.422,
+      "depth": 0.946,
+      "ssh": 0.642,
+      "mld": 1.0,
+      "current": 0.982,
+      "current_shear": 1.0,
+      "upwelling_edge": 0.194,
+      "salinity_front": 1.0
+    },
+    "features_at_peak": {
+      "sst": 0.979,
+      "sst_front": 0.979,
+      "front_corridor": 0.979,
+      "chl": 1.0,
+      "sst_chl_bivariate": 0.976,
+      "chl_curvature": 0.798,
+      "shelf_break": 0.52,
+      "depth": 1.0,
+      "ssh": 0.722,
+      "mld": 1.0,
+      "current": 0.717,
+      "current_shear": 1.0,
+      "upwelling_edge": 0.261,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": -0.02,
+      "sst_front": 0.038,
+      "front_corridor": -0.02,
+      "chl": 0.01,
+      "sst_chl_bivariate": -0.013,
+      "chl_curvature": 0.055,
+      "shelf_break": 0.099,
+      "depth": 0.054,
+      "ssh": 0.08,
+      "mld": 0.0,
+      "current": -0.266,
+      "current_shear": 0.0,
+      "upwelling_edge": 0.067,
+      "salinity_front": 0.0
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.985,
+        "S": 0.991,
+        "W_offshore": 0.997,
+        "E_shoreward": 0.973
+      },
+      "sst_front": {
+        "N": 0.899,
+        "S": 0.89,
+        "W_offshore": 0.827,
+        "E_shoreward": 0.966
+      },
+      "front_corridor": {
+        "N": 0.985,
+        "S": 0.991,
+        "W_offshore": 0.997,
+        "E_shoreward": 0.973
+      },
+      "chl": {
+        "N": 0.971,
+        "S": 0.961,
+        "W_offshore": 0.987,
+        "E_shoreward": 0.935
+      },
+      "sst_chl_bivariate": {
+        "N": 0.963,
+        "S": 0.953,
+        "W_offshore": 0.982,
+        "E_shoreward": 0.924
+      },
+      "chl_curvature": {
+        "N": 0.599,
+        "S": 0.431,
+        "W_offshore": 0.263,
+        "E_shoreward": 0.807
+      },
+      "shelf_break": {
+        "N": 0.517,
+        "S": 0.472,
+        "W_offshore": 0.536,
+        "E_shoreward": 0.422
+      },
+      "depth": {
+        "N": 0.952,
+        "S": 0.982,
+        "W_offshore": 0.935,
+        "E_shoreward": 0.988
+      },
+      "ssh": {
+        "N": 0.487,
+        "S": 0.532,
+        "W_offshore": 0.321,
+        "E_shoreward": 0.705
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.82,
+        "S": 0.802,
+        "W_offshore": 0.944,
+        "E_shoreward": 0.575
+      },
+      "current_shear": {
+        "N": 0.733,
+        "S": 0.663,
+        "W_offshore": 0.646,
+        "E_shoreward": 0.677
+      },
+      "upwelling_edge": {
+        "N": 0.192,
+        "S": 0.17,
+        "W_offshore": 0.122,
+        "E_shoreward": 0.249
+      },
+      "salinity_front": {
+        "N": 0.996,
+        "S": 0.981,
+        "W_offshore": 0.978,
+        "E_shoreward": 1.0
+      },
+      "thermocline_lift": {
+        "N": 0.043,
+        "S": 0.032,
+        "W_offshore": 0.04,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 7.7,
+      "S_2nm": 0.0,
+      "W_2nm": -9.5,
+      "E_2nm": 5.8,
+      "N_5nm": 8.6,
+      "S_5nm": 4.8,
+      "W_5nm": -25.3,
+      "E_5nm": 5.9,
+      "N_10nm": 10.1,
+      "S_10nm": 8.7,
+      "W_10nm": -13.9,
+      "E_10nm": -8.5
+    }
+  },
+  {
+    "date": "2015-02-28",
+    "catch_lat": -31.9167,
+    "catch_lon": 115.2167,
+    "catch_score": 92.7,
+    "peak_score": 97.7,
+    "peak_direction": "E",
+    "peak_dist_nm": 3.0,
+    "peak_lat": -31.925,
+    "peak_lon": 115.275,
+    "quadrant_means": {
+      "N": 80.4,
+      "S": 82.0,
+      "W_offshore": 78.8,
+      "E_shoreward": 80.8
+    },
+    "features_at_catch": {
+      "sst": 0.995,
+      "sst_front": 0.597,
+      "front_corridor": 0.995,
+      "chl": 0.992,
+      "sst_chl_bivariate": 0.983,
+      "chl_curvature": 0.826,
+      "shelf_break": 0.596,
+      "depth": 1.0,
+      "ssh": 0.627,
+      "mld": 0.817,
+      "current": 0.774,
+      "current_shear": 1.0,
+      "upwelling_edge": 0.007,
+      "salinity_front": 0.935
+    },
+    "features_at_peak": {
+      "sst": 0.998,
+      "sst_front": 0.621,
+      "front_corridor": 0.998,
+      "chl": 0.999,
+      "sst_chl_bivariate": 0.994,
+      "chl_curvature": 0.6,
+      "shelf_break": 0.448,
+      "depth": 1.0,
+      "ssh": 0.627,
+      "mld": 0.851,
+      "current": 0.365,
+      "current_shear": 0.698,
+      "upwelling_edge": 0.007,
+      "salinity_front": 0.994
+    },
+    "feature_diffs": {
+      "sst": 0.004,
+      "sst_front": 0.024,
+      "front_corridor": 0.004,
+      "chl": 0.008,
+      "sst_chl_bivariate": 0.011,
+      "chl_curvature": -0.226,
+      "shelf_break": -0.148,
+      "depth": 0.0,
+      "ssh": -0.0,
+      "mld": 0.034,
+      "current": -0.408,
+      "current_shear": -0.302,
+      "upwelling_edge": 0.0,
+      "salinity_front": 0.059
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.994,
+        "S": 0.994,
+        "W_offshore": 0.99,
+        "E_shoreward": 0.998
+      },
+      "sst_front": {
+        "N": 0.589,
+        "S": 0.555,
+        "W_offshore": 0.52,
+        "E_shoreward": 0.627
+      },
+      "front_corridor": {
+        "N": 0.994,
+        "S": 0.994,
+        "W_offshore": 0.99,
+        "E_shoreward": 0.998
+      },
+      "chl": {
+        "N": 0.955,
+        "S": 0.935,
+        "W_offshore": 0.965,
+        "E_shoreward": 0.903
+      },
+      "sst_chl_bivariate": {
+        "N": 0.947,
+        "S": 0.923,
+        "W_offshore": 0.953,
+        "E_shoreward": 0.897
+      },
+      "chl_curvature": {
+        "N": 0.552,
+        "S": 0.306,
+        "W_offshore": 0.378,
+        "E_shoreward": 0.421
+      },
+      "shelf_break": {
+        "N": 0.462,
+        "S": 0.426,
+        "W_offshore": 0.53,
+        "E_shoreward": 0.297
+      },
+      "depth": {
+        "N": 0.949,
+        "S": 0.825,
+        "W_offshore": 0.962,
+        "E_shoreward": 0.735
+      },
+      "ssh": {
+        "N": 0.495,
+        "S": 0.558,
+        "W_offshore": 0.445,
+        "E_shoreward": 0.595
+      },
+      "mld": {
+        "N": 0.815,
+        "S": 0.863,
+        "W_offshore": 0.84,
+        "E_shoreward": 0.846
+      },
+      "current": {
+        "N": 0.705,
+        "S": 0.686,
+        "W_offshore": 0.96,
+        "E_shoreward": 0.322
+      },
+      "current_shear": {
+        "N": 0.534,
+        "S": 0.554,
+        "W_offshore": 0.658,
+        "E_shoreward": 0.278
+      },
+      "upwelling_edge": {
+        "N": 0.019,
+        "S": 0.002,
+        "W_offshore": 0.009,
+        "E_shoreward": 0.011
+      },
+      "salinity_front": {
+        "N": 0.892,
+        "S": 0.893,
+        "W_offshore": 0.797,
+        "E_shoreward": 0.998
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": 0.0,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 3.6,
+      "S_2nm": -4.3,
+      "W_2nm": -5.0,
+      "E_2nm": 5.0,
+      "N_5nm": 4.4,
+      "S_5nm": -4.3,
+      "W_5nm": -11.9,
+      "E_5nm": -2.4,
+      "N_10nm": 4.7,
+      "S_10nm": -5.6,
+      "W_10nm": -22.0,
+      "E_10nm": -50.9
+    }
+  },
+  {
+    "date": "2016-01-16",
+    "catch_lat": -31.8833,
+    "catch_lon": 115.0833,
+    "catch_score": 65.3,
+    "peak_score": 98.4,
+    "peak_direction": "NE",
+    "peak_dist_nm": 9.7,
+    "peak_lat": -31.775,
+    "peak_lon": 115.225,
+    "quadrant_means": {
+      "N": 67.5,
+      "S": 75.7,
+      "W_offshore": 53.7,
+      "E_shoreward": 87.3
+    },
+    "features_at_catch": {
+      "sst": 0.887,
+      "sst_front": 0.588,
+      "front_corridor": 0.887,
+      "chl": 0.756,
+      "sst_chl_bivariate": 0.571,
+      "chl_curvature": 0.24,
+      "shelf_break": 0.449,
+      "depth": 1.0,
+      "ssh": 0.2,
+      "mld": 1.0,
+      "current": 0.796,
+      "current_shear": 0.213,
+      "upwelling_edge": 0.03,
+      "salinity_front": 0.927
+    },
+    "features_at_peak": {
+      "sst": 0.86,
+      "sst_front": 0.638,
+      "front_corridor": 0.86,
+      "chl": 0.935,
+      "sst_chl_bivariate": 0.737,
+      "chl_curvature": 0.425,
+      "shelf_break": 0.383,
+      "depth": 1.0,
+      "ssh": 0.379,
+      "mld": 1.0,
+      "current": 0.91,
+      "current_shear": 0.28,
+      "upwelling_edge": 0.011,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": -0.027,
+      "sst_front": 0.05,
+      "front_corridor": -0.027,
+      "chl": 0.179,
+      "sst_chl_bivariate": 0.165,
+      "chl_curvature": 0.185,
+      "shelf_break": -0.067,
+      "depth": 0.0,
+      "ssh": 0.179,
+      "mld": 0.0,
+      "current": 0.114,
+      "current_shear": 0.067,
+      "upwelling_edge": -0.019,
+      "salinity_front": 0.073
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.892,
+        "S": 0.872,
+        "W_offshore": 0.878,
+        "E_shoreward": 0.888
+      },
+      "sst_front": {
+        "N": 0.699,
+        "S": 0.591,
+        "W_offshore": 0.592,
+        "E_shoreward": 0.693
+      },
+      "front_corridor": {
+        "N": 0.892,
+        "S": 0.872,
+        "W_offshore": 0.878,
+        "E_shoreward": 0.888
+      },
+      "chl": {
+        "N": 0.745,
+        "S": 0.82,
+        "W_offshore": 0.698,
+        "E_shoreward": 0.844
+      },
+      "sst_chl_bivariate": {
+        "N": 0.568,
+        "S": 0.627,
+        "W_offshore": 0.507,
+        "E_shoreward": 0.668
+      },
+      "chl_curvature": {
+        "N": 0.548,
+        "S": 0.285,
+        "W_offshore": 0.164,
+        "E_shoreward": 0.66
+      },
+      "shelf_break": {
+        "N": 0.51,
+        "S": 0.476,
+        "W_offshore": 0.507,
+        "E_shoreward": 0.47
+      },
+      "depth": {
+        "N": 0.943,
+        "S": 0.986,
+        "W_offshore": 0.95,
+        "E_shoreward": 0.986
+      },
+      "ssh": {
+        "N": 0.226,
+        "S": 0.287,
+        "W_offshore": 0.2,
+        "E_shoreward": 0.303
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.793,
+        "S": 0.87,
+        "W_offshore": 0.815,
+        "E_shoreward": 0.85
+      },
+      "current_shear": {
+        "N": 0.319,
+        "S": 0.372,
+        "W_offshore": 0.528,
+        "E_shoreward": 0.22
+      },
+      "upwelling_edge": {
+        "N": 0.076,
+        "S": 0.011,
+        "W_offshore": 0.032,
+        "E_shoreward": 0.049
+      },
+      "salinity_front": {
+        "N": 0.868,
+        "S": 0.969,
+        "W_offshore": 0.829,
+        "E_shoreward": 0.986
+      },
+      "thermocline_lift": {
+        "N": 0.132,
+        "S": 0.166,
+        "W_offshore": 0.161,
+        "E_shoreward": 0.053
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.0,
+      "S_2nm": -18.5,
+      "W_2nm": -13.9,
+      "E_2nm": 12.1,
+      "N_5nm": 10.8,
+      "S_5nm": -20.3,
+      "W_5nm": -13.9,
+      "E_5nm": 19.3,
+      "N_10nm": 16.1,
+      "S_10nm": -11.8,
+      "W_10nm": -16.6,
+      "E_10nm": 29.9
+    }
+  },
+  {
+    "date": "2015-03-02",
+    "catch_lat": -31.9667,
+    "catch_lon": 115.2333,
+    "catch_score": 83.8,
+    "peak_score": 98.8,
+    "peak_direction": "N",
+    "peak_dist_nm": 8.5,
+    "peak_lat": -31.825,
+    "peak_lon": 115.225,
+    "quadrant_means": {
+      "N": 82.7,
+      "S": 78.2,
+      "W_offshore": 85.5,
+      "E_shoreward": 73.3
+    },
+    "features_at_catch": {
+      "sst": 0.994,
+      "sst_front": 0.743,
+      "front_corridor": 0.994,
+      "chl": 1.0,
+      "sst_chl_bivariate": 0.984,
+      "chl_curvature": 0.699,
+      "shelf_break": 0.467,
+      "depth": 1.0,
+      "ssh": 0.754,
+      "mld": 0.665,
+      "current": 0.53,
+      "current_shear": 1.0,
+      "upwelling_edge": 0.082,
+      "salinity_front": 0.877
+    },
+    "features_at_peak": {
+      "sst": 0.998,
+      "sst_front": 0.731,
+      "front_corridor": 0.998,
+      "chl": 1.0,
+      "sst_chl_bivariate": 0.993,
+      "chl_curvature": 0.83,
+      "shelf_break": 0.447,
+      "depth": 1.0,
+      "ssh": 0.785,
+      "mld": 0.698,
+      "current": 0.346,
+      "current_shear": 0.881,
+      "upwelling_edge": 0.084,
+      "salinity_front": 0.868
+    },
+    "feature_diffs": {
+      "sst": 0.003,
+      "sst_front": -0.012,
+      "front_corridor": 0.003,
+      "chl": -0.0,
+      "sst_chl_bivariate": 0.009,
+      "chl_curvature": 0.131,
+      "shelf_break": -0.02,
+      "depth": 0.0,
+      "ssh": 0.031,
+      "mld": 0.033,
+      "current": -0.184,
+      "current_shear": -0.119,
+      "upwelling_edge": 0.003,
+      "salinity_front": -0.009
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.99,
+        "S": 0.994,
+        "W_offshore": 0.991,
+        "E_shoreward": 0.992
+      },
+      "sst_front": {
+        "N": 0.75,
+        "S": 0.715,
+        "W_offshore": 0.65,
+        "E_shoreward": 0.789
+      },
+      "front_corridor": {
+        "N": 0.99,
+        "S": 0.994,
+        "W_offshore": 0.991,
+        "E_shoreward": 0.992
+      },
+      "chl": {
+        "N": 0.949,
+        "S": 0.991,
+        "W_offshore": 0.989,
+        "E_shoreward": 0.951
+      },
+      "sst_chl_bivariate": {
+        "N": 0.939,
+        "S": 0.981,
+        "W_offshore": 0.968,
+        "E_shoreward": 0.949
+      },
+      "chl_curvature": {
+        "N": 0.501,
+        "S": 0.739,
+        "W_offshore": 0.392,
+        "E_shoreward": 0.818
+      },
+      "shelf_break": {
+        "N": 0.415,
+        "S": 0.393,
+        "W_offshore": 0.533,
+        "E_shoreward": 0.27
+      },
+      "depth": {
+        "N": 0.819,
+        "S": 0.736,
+        "W_offshore": 0.97,
+        "E_shoreward": 0.588
+      },
+      "ssh": {
+        "N": 0.624,
+        "S": 0.646,
+        "W_offshore": 0.591,
+        "E_shoreward": 0.628
+      },
+      "mld": {
+        "N": 0.692,
+        "S": 0.715,
+        "W_offshore": 0.631,
+        "E_shoreward": 0.767
+      },
+      "current": {
+        "N": 0.724,
+        "S": 0.697,
+        "W_offshore": 0.909,
+        "E_shoreward": 0.617
+      },
+      "current_shear": {
+        "N": 0.564,
+        "S": 0.522,
+        "W_offshore": 0.765,
+        "E_shoreward": 0.268
+      },
+      "upwelling_edge": {
+        "N": 0.112,
+        "S": 0.078,
+        "W_offshore": 0.069,
+        "E_shoreward": 0.112
+      },
+      "salinity_front": {
+        "N": 0.901,
+        "S": 0.867,
+        "W_offshore": 0.74,
+        "E_shoreward": 0.989
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": 0.0,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 8.2,
+      "S_2nm": 0.0,
+      "W_2nm": -12.5,
+      "E_2nm": 9.7,
+      "N_5nm": 11.6,
+      "S_5nm": 2.4,
+      "W_5nm": -2.3,
+      "E_5nm": 11.9,
+      "N_10nm": 14.9,
+      "S_10nm": 12.9,
+      "W_10nm": -24.9,
+      "E_10nm": -35.4
+    }
+  },
+  {
+    "date": "2015-04-03",
+    "catch_lat": -32.1,
+    "catch_lon": 115.1667,
+    "catch_score": 86.9,
+    "peak_score": 94.1,
+    "peak_direction": "S",
+    "peak_dist_nm": 7.5,
+    "peak_lat": -32.225,
+    "peak_lon": 115.175,
+    "quadrant_means": {
+      "N": 73.2,
+      "S": 65.8,
+      "W_offshore": 58.3,
+      "E_shoreward": 82.5
+    },
+    "features_at_catch": {
+      "sst": 0.995,
+      "sst_front": 0.787,
+      "front_corridor": 0.995,
+      "chl": 0.717,
+      "sst_chl_bivariate": 0.657,
+      "chl_curvature": 0.094,
+      "shelf_break": 0.643,
+      "depth": 1.0,
+      "ssh": 0.2,
+      "mld": 0.688,
+      "current": 0.548,
+      "current_shear": 0.523,
+      "upwelling_edge": 0.375,
+      "salinity_front": 0.752
+    },
+    "features_at_peak": {
+      "sst": 0.997,
+      "sst_front": 0.763,
+      "front_corridor": 0.997,
+      "chl": 0.644,
+      "sst_chl_bivariate": 0.587,
+      "chl_curvature": 0.039,
+      "shelf_break": 0.539,
+      "depth": 1.0,
+      "ssh": 0.2,
+      "mld": 0.731,
+      "current": 0.725,
+      "current_shear": 0.425,
+      "upwelling_edge": 0.413,
+      "salinity_front": 0.803
+    },
+    "feature_diffs": {
+      "sst": 0.001,
+      "sst_front": -0.024,
+      "front_corridor": 0.001,
+      "chl": -0.073,
+      "sst_chl_bivariate": -0.07,
+      "chl_curvature": -0.055,
+      "shelf_break": -0.104,
+      "depth": 0.0,
+      "ssh": 0.0,
+      "mld": 0.043,
+      "current": 0.177,
+      "current_shear": -0.097,
+      "upwelling_edge": 0.038,
+      "salinity_front": 0.051
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.998,
+        "S": 0.997,
+        "W_offshore": 0.998,
+        "E_shoreward": 0.997
+      },
+      "sst_front": {
+        "N": 0.752,
+        "S": 0.801,
+        "W_offshore": 0.678,
+        "E_shoreward": 0.893
+      },
+      "front_corridor": {
+        "N": 0.998,
+        "S": 0.997,
+        "W_offshore": 0.998,
+        "E_shoreward": 0.997
+      },
+      "chl": {
+        "N": 0.718,
+        "S": 0.686,
+        "W_offshore": 0.682,
+        "E_shoreward": 0.747
+      },
+      "sst_chl_bivariate": {
+        "N": 0.675,
+        "S": 0.637,
+        "W_offshore": 0.64,
+        "E_shoreward": 0.701
+      },
+      "chl_curvature": {
+        "N": 0.218,
+        "S": 0.087,
+        "W_offshore": 0.095,
+        "E_shoreward": 0.264
+      },
+      "shelf_break": {
+        "N": 0.483,
+        "S": 0.493,
+        "W_offshore": 0.548,
+        "E_shoreward": 0.405
+      },
+      "depth": {
+        "N": 0.937,
+        "S": 0.937,
+        "W_offshore": 0.925,
+        "E_shoreward": 0.938
+      },
+      "ssh": {
+        "N": 0.226,
+        "S": 0.212,
+        "W_offshore": 0.209,
+        "E_shoreward": 0.243
+      },
+      "mld": {
+        "N": 0.786,
+        "S": 0.672,
+        "W_offshore": 0.653,
+        "E_shoreward": 0.83
+      },
+      "current": {
+        "N": 0.489,
+        "S": 0.461,
+        "W_offshore": 0.269,
+        "E_shoreward": 0.698
+      },
+      "current_shear": {
+        "N": 0.287,
+        "S": 0.324,
+        "W_offshore": 0.341,
+        "E_shoreward": 0.193
+      },
+      "upwelling_edge": {
+        "N": 0.412,
+        "S": 0.374,
+        "W_offshore": 0.16,
+        "E_shoreward": 0.712
+      },
+      "salinity_front": {
+        "N": 0.733,
+        "S": 0.716,
+        "W_offshore": 0.556,
+        "E_shoreward": 0.93
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": 0.0,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 0.935,
+        "S": 0.974,
+        "W_offshore": 0.949,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.0,
+      "S_2nm": -3.6,
+      "W_2nm": -13.0,
+      "E_2nm": 4.1,
+      "N_5nm": -10.3,
+      "S_5nm": 3.7,
+      "W_5nm": -27.3,
+      "E_5nm": -1.0,
+      "N_10nm": -6.4,
+      "S_10nm": 8.5,
+      "W_10nm": -46.2,
+      "E_10nm": -6.5
+    }
+  },
+  {
+    "date": "2015-03-29",
+    "catch_lat": -32.0,
+    "catch_lon": 115.2,
+    "catch_score": 86.7,
+    "peak_score": 95.8,
+    "peak_direction": "SE",
+    "peak_dist_nm": 8.4,
+    "peak_lat": -32.125,
+    "peak_lon": 115.275,
+    "quadrant_means": {
+      "N": 84.6,
+      "S": 76.5,
+      "W_offshore": 74.8,
+      "E_shoreward": 82.3
+    },
+    "features_at_catch": {
+      "sst": 0.986,
+      "sst_front": 0.868,
+      "front_corridor": 0.986,
+      "chl": 0.996,
+      "sst_chl_bivariate": 0.95,
+      "chl_curvature": 0.49,
+      "shelf_break": 0.422,
+      "depth": 0.946,
+      "ssh": 0.2,
+      "mld": 0.839,
+      "current": 0.823,
+      "current_shear": 0.242,
+      "upwelling_edge": 0.326,
+      "salinity_front": 0.854
+    },
+    "features_at_peak": {
+      "sst": 0.994,
+      "sst_front": 0.98,
+      "front_corridor": 0.994,
+      "chl": 0.937,
+      "sst_chl_bivariate": 0.895,
+      "chl_curvature": 0.371,
+      "shelf_break": 0.394,
+      "depth": 1.0,
+      "ssh": 0.213,
+      "mld": 0.942,
+      "current": 0.233,
+      "current_shear": 0.129,
+      "upwelling_edge": 0.638,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": 0.008,
+      "sst_front": 0.112,
+      "front_corridor": 0.008,
+      "chl": -0.059,
+      "sst_chl_bivariate": -0.055,
+      "chl_curvature": -0.118,
+      "shelf_break": -0.028,
+      "depth": 0.054,
+      "ssh": 0.013,
+      "mld": 0.103,
+      "current": -0.59,
+      "current_shear": -0.114,
+      "upwelling_edge": 0.313,
+      "salinity_front": 0.146
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.993,
+        "S": 0.992,
+        "W_offshore": 0.988,
+        "E_shoreward": 0.996
+      },
+      "sst_front": {
+        "N": 0.892,
+        "S": 0.889,
+        "W_offshore": 0.771,
+        "E_shoreward": 0.979
+      },
+      "front_corridor": {
+        "N": 0.993,
+        "S": 0.992,
+        "W_offshore": 0.988,
+        "E_shoreward": 0.996
+      },
+      "chl": {
+        "N": 0.915,
+        "S": 0.885,
+        "W_offshore": 0.896,
+        "E_shoreward": 0.885
+      },
+      "sst_chl_bivariate": {
+        "N": 0.873,
+        "S": 0.831,
+        "W_offshore": 0.829,
+        "E_shoreward": 0.849
+      },
+      "chl_curvature": {
+        "N": 0.38,
+        "S": 0.324,
+        "W_offshore": 0.207,
+        "E_shoreward": 0.442
+      },
+      "shelf_break": {
+        "N": 0.469,
+        "S": 0.434,
+        "W_offshore": 0.524,
+        "E_shoreward": 0.38
+      },
+      "depth": {
+        "N": 0.93,
+        "S": 0.857,
+        "W_offshore": 0.941,
+        "E_shoreward": 0.856
+      },
+      "ssh": {
+        "N": 0.3,
+        "S": 0.23,
+        "W_offshore": 0.376,
+        "E_shoreward": 0.206
+      },
+      "mld": {
+        "N": 0.867,
+        "S": 0.901,
+        "W_offshore": 0.762,
+        "E_shoreward": 0.976
+      },
+      "current": {
+        "N": 0.579,
+        "S": 0.601,
+        "W_offshore": 0.868,
+        "E_shoreward": 0.335
+      },
+      "current_shear": {
+        "N": 0.212,
+        "S": 0.198,
+        "W_offshore": 0.269,
+        "E_shoreward": 0.161
+      },
+      "upwelling_edge": {
+        "N": 0.455,
+        "S": 0.444,
+        "W_offshore": 0.156,
+        "E_shoreward": 0.698
+      },
+      "salinity_front": {
+        "N": 0.852,
+        "S": 0.868,
+        "W_offshore": 0.684,
+        "E_shoreward": 0.986
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": 0.0,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.0,
+      "S_2nm": 0.9,
+      "W_2nm": 0.0,
+      "E_2nm": 1.3,
+      "N_5nm": 2.4,
+      "S_5nm": 2.7,
+      "W_5nm": -11.7,
+      "E_5nm": 4.0,
+      "N_10nm": 9.7,
+      "S_10nm": -0.0,
+      "W_10nm": -44.9,
+      "E_10nm": -13.4
+    }
+  },
+  {
+    "date": "2016-03-07",
+    "catch_lat": -32.1,
+    "catch_lon": 115.2,
+    "catch_score": 88.0,
+    "peak_score": 96.8,
+    "peak_direction": "E",
+    "peak_dist_nm": 4.1,
+    "peak_lat": -32.125,
+    "peak_lon": 115.275,
+    "quadrant_means": {
+      "N": 82.3,
+      "S": 74.6,
+      "W_offshore": 75.5,
+      "E_shoreward": 82.9
+    },
+    "features_at_catch": {
+      "sst": 0.951,
+      "sst_front": 0.482,
+      "front_corridor": 0.951,
+      "chl": 0.976,
+      "sst_chl_bivariate": 0.943,
+      "chl_curvature": 0.197,
+      "shelf_break": 0.643,
+      "depth": 1.0,
+      "ssh": 0.2,
+      "mld": 1.0,
+      "current": 0.852,
+      "current_shear": 0.453,
+      "upwelling_edge": 0.294,
+      "salinity_front": 0.864
+    },
+    "features_at_peak": {
+      "sst": 0.931,
+      "sst_front": 0.612,
+      "front_corridor": 0.931,
+      "chl": 1.0,
+      "sst_chl_bivariate": 0.921,
+      "chl_curvature": 0.943,
+      "shelf_break": 0.394,
+      "depth": 1.0,
+      "ssh": 0.419,
+      "mld": 1.0,
+      "current": 0.96,
+      "current_shear": 0.469,
+      "upwelling_edge": 0.381,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": -0.02,
+      "sst_front": 0.131,
+      "front_corridor": -0.02,
+      "chl": 0.024,
+      "sst_chl_bivariate": -0.022,
+      "chl_curvature": 0.746,
+      "shelf_break": -0.249,
+      "depth": 0.0,
+      "ssh": 0.219,
+      "mld": 0.0,
+      "current": 0.108,
+      "current_shear": 0.016,
+      "upwelling_edge": 0.088,
+      "salinity_front": 0.136
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.924,
+        "S": 0.95,
+        "W_offshore": 0.945,
+        "E_shoreward": 0.927
+      },
+      "sst_front": {
+        "N": 0.559,
+        "S": 0.488,
+        "W_offshore": 0.406,
+        "E_shoreward": 0.623
+      },
+      "front_corridor": {
+        "N": 0.924,
+        "S": 0.95,
+        "W_offshore": 0.945,
+        "E_shoreward": 0.927
+      },
+      "chl": {
+        "N": 0.96,
+        "S": 0.99,
+        "W_offshore": 0.965,
+        "E_shoreward": 0.977
+      },
+      "sst_chl_bivariate": {
+        "N": 0.873,
+        "S": 0.942,
+        "W_offshore": 0.889,
+        "E_shoreward": 0.91
+      },
+      "chl_curvature": {
+        "N": 0.533,
+        "S": 0.475,
+        "W_offshore": 0.266,
+        "E_shoreward": 0.786
+      },
+      "shelf_break": {
+        "N": 0.429,
+        "S": 0.453,
+        "W_offshore": 0.538,
+        "E_shoreward": 0.352
+      },
+      "depth": {
+        "N": 0.825,
+        "S": 0.936,
+        "W_offshore": 0.947,
+        "E_shoreward": 0.816
+      },
+      "ssh": {
+        "N": 0.308,
+        "S": 0.313,
+        "W_offshore": 0.2,
+        "E_shoreward": 0.407
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.765,
+        "S": 0.769,
+        "W_offshore": 0.794,
+        "E_shoreward": 0.723
+      },
+      "current_shear": {
+        "N": 0.477,
+        "S": 0.598,
+        "W_offshore": 0.823,
+        "E_shoreward": 0.327
+      },
+      "upwelling_edge": {
+        "N": 0.321,
+        "S": 0.313,
+        "W_offshore": 0.21,
+        "E_shoreward": 0.397
+      },
+      "salinity_front": {
+        "N": 0.883,
+        "S": 0.839,
+        "W_offshore": 0.676,
+        "E_shoreward": 0.996
+      },
+      "thermocline_lift": {
+        "N": 0.184,
+        "S": 0.204,
+        "W_offshore": 0.193,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.0,
+      "S_2nm": 0.7,
+      "W_2nm": 0.0,
+      "E_2nm": 2.7,
+      "N_5nm": -6.5,
+      "S_5nm": 0.4,
+      "W_5nm": 5.2,
+      "E_5nm": 7.7,
+      "N_10nm": -3.4,
+      "S_10nm": 1.2,
+      "W_10nm": -26.4,
+      "E_10nm": -10.7
+    }
+  },
+  {
+    "date": "2017-02-13",
+    "catch_lat": -31.9667,
+    "catch_lon": 115.1333,
+    "catch_score": 74.9,
+    "peak_score": 92.2,
+    "peak_direction": "SE",
+    "peak_dist_nm": 11.9,
+    "peak_lat": -32.125,
+    "peak_lon": 115.275,
+    "quadrant_means": {
+      "N": 75.5,
+      "S": 80.6,
+      "W_offshore": 64.2,
+      "E_shoreward": 86.0
+    },
+    "features_at_catch": {
+      "sst": 0.776,
+      "sst_front": 0.681,
+      "front_corridor": 0.776,
+      "chl": 0.987,
+      "sst_chl_bivariate": 0.718,
+      "chl_curvature": 0.861,
+      "shelf_break": 0.488,
+      "depth": 0.903,
+      "ssh": 0.244,
+      "mld": 1.0,
+      "current": 0.342,
+      "current_shear": 0.368,
+      "upwelling_edge": 0.358,
+      "salinity_front": 0.923
+    },
+    "features_at_peak": {
+      "sst": 0.712,
+      "sst_front": 0.567,
+      "front_corridor": 0.712,
+      "chl": 0.988,
+      "sst_chl_bivariate": 0.709,
+      "chl_curvature": 0.849,
+      "shelf_break": 0.394,
+      "depth": 1.0,
+      "ssh": 0.2,
+      "mld": 1.0,
+      "current": 0.368,
+      "current_shear": 0.529,
+      "upwelling_edge": 0.651,
+      "salinity_front": 0.859
+    },
+    "feature_diffs": {
+      "sst": -0.064,
+      "sst_front": -0.115,
+      "front_corridor": -0.064,
+      "chl": 0.0,
+      "sst_chl_bivariate": -0.01,
+      "chl_curvature": -0.012,
+      "shelf_break": -0.095,
+      "depth": 0.097,
+      "ssh": -0.044,
+      "mld": 0.0,
+      "current": 0.025,
+      "current_shear": 0.161,
+      "upwelling_edge": 0.294,
+      "salinity_front": -0.065
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.81,
+        "S": 0.714,
+        "W_offshore": 0.842,
+        "E_shoreward": 0.702
+      },
+      "sst_front": {
+        "N": 0.678,
+        "S": 0.648,
+        "W_offshore": 0.757,
+        "E_shoreward": 0.589
+      },
+      "front_corridor": {
+        "N": 0.81,
+        "S": 0.714,
+        "W_offshore": 0.842,
+        "E_shoreward": 0.702
+      },
+      "chl": {
+        "N": 0.979,
+        "S": 0.983,
+        "W_offshore": 0.974,
+        "E_shoreward": 0.984
+      },
+      "sst_chl_bivariate": {
+        "N": 0.77,
+        "S": 0.668,
+        "W_offshore": 0.77,
+        "E_shoreward": 0.682
+      },
+      "chl_curvature": {
+        "N": 0.804,
+        "S": 0.745,
+        "W_offshore": 0.717,
+        "E_shoreward": 0.791
+      },
+      "shelf_break": {
+        "N": 0.517,
+        "S": 0.472,
+        "W_offshore": 0.535,
+        "E_shoreward": 0.448
+      },
+      "depth": {
+        "N": 0.952,
+        "S": 0.982,
+        "W_offshore": 0.923,
+        "E_shoreward": 0.989
+      },
+      "ssh": {
+        "N": 0.32,
+        "S": 0.216,
+        "W_offshore": 0.354,
+        "E_shoreward": 0.205
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.55,
+        "S": 0.5,
+        "W_offshore": 0.627,
+        "E_shoreward": 0.474
+      },
+      "current_shear": {
+        "N": 0.528,
+        "S": 0.39,
+        "W_offshore": 0.473,
+        "E_shoreward": 0.472
+      },
+      "upwelling_edge": {
+        "N": 0.464,
+        "S": 0.313,
+        "W_offshore": 0.256,
+        "E_shoreward": 0.492
+      },
+      "salinity_front": {
+        "N": 0.917,
+        "S": 0.891,
+        "W_offshore": 0.991,
+        "E_shoreward": 0.826
+      },
+      "thermocline_lift": {
+        "N": 0.007,
+        "S": 0.0,
+        "W_offshore": 0.004,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 0.801,
+        "S": 0.679,
+        "W_offshore": 0.759,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 5.9,
+      "S_2nm": 0.0,
+      "W_2nm": -22.4,
+      "E_2nm": 1.6,
+      "N_5nm": 9.7,
+      "S_5nm": 3.7,
+      "W_5nm": -23.1,
+      "E_5nm": 5.5,
+      "N_10nm": 14.8,
+      "S_10nm": 6.9,
+      "W_10nm": -7.0,
+      "E_10nm": 14.0
+    }
+  },
+  {
+    "date": "2017-02-04",
+    "catch_lat": -31.8833,
+    "catch_lon": 115.0667,
+    "catch_score": 86.4,
+    "peak_score": 94.5,
+    "peak_direction": "E",
+    "peak_dist_nm": 8.4,
+    "peak_lat": -31.925,
+    "peak_lon": 115.225,
+    "quadrant_means": {
+      "N": 76.0,
+      "S": 80.5,
+      "W_offshore": 71.3,
+      "E_shoreward": 88.3
+    },
+    "features_at_catch": {
+      "sst": 0.941,
+      "sst_front": 0.737,
+      "front_corridor": 0.941,
+      "chl": 0.941,
+      "sst_chl_bivariate": 0.91,
+      "chl_curvature": 0.305,
+      "shelf_break": 0.449,
+      "depth": 1.0,
+      "ssh": 0.334,
+      "mld": 0.975,
+      "current": 0.5,
+      "current_shear": 0.127,
+      "upwelling_edge": 0.156,
+      "salinity_front": 0.655
+    },
+    "features_at_peak": {
+      "sst": 0.886,
+      "sst_front": 0.79,
+      "front_corridor": 0.886,
+      "chl": 0.978,
+      "sst_chl_bivariate": 0.884,
+      "chl_curvature": 0.514,
+      "shelf_break": 0.596,
+      "depth": 1.0,
+      "ssh": 0.311,
+      "mld": 0.949,
+      "current": 0.26,
+      "current_shear": 0.09,
+      "upwelling_edge": 0.325,
+      "salinity_front": 0.84
+    },
+    "feature_diffs": {
+      "sst": -0.055,
+      "sst_front": 0.053,
+      "front_corridor": -0.055,
+      "chl": 0.037,
+      "sst_chl_bivariate": -0.026,
+      "chl_curvature": 0.208,
+      "shelf_break": 0.147,
+      "depth": 0.0,
+      "ssh": -0.023,
+      "mld": -0.026,
+      "current": -0.241,
+      "current_shear": -0.037,
+      "upwelling_edge": 0.169,
+      "salinity_front": 0.185
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.886,
+        "S": 0.95,
+        "W_offshore": 0.933,
+        "E_shoreward": 0.904
+      },
+      "sst_front": {
+        "N": 0.638,
+        "S": 0.716,
+        "W_offshore": 0.602,
+        "E_shoreward": 0.771
+      },
+      "front_corridor": {
+        "N": 0.886,
+        "S": 0.95,
+        "W_offshore": 0.933,
+        "E_shoreward": 0.904
+      },
+      "chl": {
+        "N": 0.973,
+        "S": 0.984,
+        "W_offshore": 0.973,
+        "E_shoreward": 0.978
+      },
+      "sst_chl_bivariate": {
+        "N": 0.872,
+        "S": 0.941,
+        "W_offshore": 0.919,
+        "E_shoreward": 0.893
+      },
+      "chl_curvature": {
+        "N": 0.405,
+        "S": 0.199,
+        "W_offshore": 0.332,
+        "E_shoreward": 0.302
+      },
+      "shelf_break": {
+        "N": 0.526,
+        "S": 0.507,
+        "W_offshore": 0.519,
+        "E_shoreward": 0.502
+      },
+      "depth": {
+        "N": 0.931,
+        "S": 0.977,
+        "W_offshore": 0.936,
+        "E_shoreward": 0.988
+      },
+      "ssh": {
+        "N": 0.302,
+        "S": 0.445,
+        "W_offshore": 0.352,
+        "E_shoreward": 0.395
+      },
+      "mld": {
+        "N": 0.97,
+        "S": 0.985,
+        "W_offshore": 0.976,
+        "E_shoreward": 0.976
+      },
+      "current": {
+        "N": 0.52,
+        "S": 0.492,
+        "W_offshore": 0.618,
+        "E_shoreward": 0.336
+      },
+      "current_shear": {
+        "N": 0.105,
+        "S": 0.268,
+        "W_offshore": 0.12,
+        "E_shoreward": 0.234
+      },
+      "upwelling_edge": {
+        "N": 0.152,
+        "S": 0.145,
+        "W_offshore": 0.072,
+        "E_shoreward": 0.251
+      },
+      "salinity_front": {
+        "N": 0.588,
+        "S": 0.71,
+        "W_offshore": 0.523,
+        "E_shoreward": 0.802
+      },
+      "thermocline_lift": {
+        "N": 0.002,
+        "S": 0.0,
+        "W_offshore": 0.001,
+        "E_shoreward": 0.0
+      },
+      "stratification": {
+        "N": 0.725,
+        "S": 0.678,
+        "W_offshore": 0.742,
+        "E_shoreward": 0.429
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.0,
+      "S_2nm": -15.4,
+      "W_2nm": -3.3,
+      "E_2nm": 3.5,
+      "N_5nm": -2.0,
+      "S_5nm": -22.5,
+      "W_5nm": -5.4,
+      "E_5nm": 1.9,
+      "N_10nm": -4.8,
+      "S_10nm": -15.0,
+      "W_10nm": -36.6,
+      "E_10nm": 4.6
+    }
+  },
+  {
+    "date": "2016-02-20",
+    "catch_lat": -31.9333,
+    "catch_lon": 115.0667,
+    "catch_score": 70.9,
+    "peak_score": 99.1,
+    "peak_direction": "NE",
+    "peak_dist_nm": 12.5,
+    "peak_lat": -31.775,
+    "peak_lon": 115.225,
+    "quadrant_means": {
+      "N": 74.4,
+      "S": 83.8,
+      "W_offshore": 73.0,
+      "E_shoreward": 88.8
+    },
+    "features_at_catch": {
+      "sst": 0.972,
+      "sst_front": 0.828,
+      "front_corridor": 0.972,
+      "chl": 0.789,
+      "sst_chl_bivariate": 0.708,
+      "chl_curvature": 0.664,
+      "shelf_break": 0.485,
+      "depth": 0.906,
+      "ssh": 0.208,
+      "mld": 1.0,
+      "current": 0.971,
+      "current_shear": 0.259,
+      "upwelling_edge": 0.364,
+      "salinity_front": 0.855
+    },
+    "features_at_peak": {
+      "sst": 0.868,
+      "sst_front": 0.868,
+      "front_corridor": 0.868,
+      "chl": 0.975,
+      "sst_chl_bivariate": 0.8,
+      "chl_curvature": 0.636,
+      "shelf_break": 0.383,
+      "depth": 1.0,
+      "ssh": 0.467,
+      "mld": 1.0,
+      "current": 0.662,
+      "current_shear": 0.52,
+      "upwelling_edge": 0.701,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": -0.104,
+      "sst_front": 0.04,
+      "front_corridor": -0.104,
+      "chl": 0.186,
+      "sst_chl_bivariate": 0.092,
+      "chl_curvature": -0.028,
+      "shelf_break": -0.102,
+      "depth": 0.094,
+      "ssh": 0.259,
+      "mld": 0.0,
+      "current": -0.309,
+      "current_shear": 0.26,
+      "upwelling_edge": 0.337,
+      "salinity_front": 0.145
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.964,
+        "S": 0.953,
+        "W_offshore": 0.982,
+        "E_shoreward": 0.926
+      },
+      "sst_front": {
+        "N": 0.76,
+        "S": 0.828,
+        "W_offshore": 0.713,
+        "E_shoreward": 0.882
+      },
+      "front_corridor": {
+        "N": 0.964,
+        "S": 0.953,
+        "W_offshore": 0.982,
+        "E_shoreward": 0.926
+      },
+      "chl": {
+        "N": 0.786,
+        "S": 0.847,
+        "W_offshore": 0.828,
+        "E_shoreward": 0.807
+      },
+      "sst_chl_bivariate": {
+        "N": 0.698,
+        "S": 0.749,
+        "W_offshore": 0.767,
+        "E_shoreward": 0.671
+      },
+      "chl_curvature": {
+        "N": 0.531,
+        "S": 0.523,
+        "W_offshore": 0.183,
+        "E_shoreward": 0.946
+      },
+      "shelf_break": {
+        "N": 0.557,
+        "S": 0.523,
+        "W_offshore": 0.539,
+        "E_shoreward": 0.522
+      },
+      "depth": {
+        "N": 0.916,
+        "S": 0.978,
+        "W_offshore": 0.919,
+        "E_shoreward": 0.988
+      },
+      "ssh": {
+        "N": 0.271,
+        "S": 0.3,
+        "W_offshore": 0.202,
+        "E_shoreward": 0.407
+      },
+      "mld": {
+        "N": 0.994,
+        "S": 0.993,
+        "W_offshore": 0.994,
+        "E_shoreward": 0.992
+      },
+      "current": {
+        "N": 0.903,
+        "S": 0.922,
+        "W_offshore": 0.896,
+        "E_shoreward": 0.918
+      },
+      "current_shear": {
+        "N": 0.726,
+        "S": 0.522,
+        "W_offshore": 0.725,
+        "E_shoreward": 0.618
+      },
+      "upwelling_edge": {
+        "N": 0.27,
+        "S": 0.422,
+        "W_offshore": 0.203,
+        "E_shoreward": 0.526
+      },
+      "salinity_front": {
+        "N": 0.857,
+        "S": 0.874,
+        "W_offshore": 0.781,
+        "E_shoreward": 0.971
+      },
+      "thermocline_lift": {
+        "N": 0.371,
+        "S": 0.375,
+        "W_offshore": 0.415,
+        "E_shoreward": 0.17
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.0,
+      "S_2nm": -9.2,
+      "W_2nm": 15.0,
+      "E_2nm": 16.2,
+      "N_5nm": 10.2,
+      "S_5nm": -0.7,
+      "W_5nm": 22.8,
+      "E_5nm": 16.0,
+      "N_10nm": 10.5,
+      "S_10nm": 15.2,
+      "W_10nm": -20.9,
+      "E_10nm": 26.5
+    }
+  },
+  {
+    "date": "2017-02-19",
+    "catch_lat": -31.7333,
+    "catch_lon": 114.95,
+    "catch_score": 63.7,
+    "peak_score": 94.6,
+    "peak_direction": "NE",
+    "peak_dist_nm": 13.0,
+    "peak_lat": -31.575,
+    "peak_lon": 115.125,
+    "quadrant_means": {
+      "N": 73.0,
+      "S": 74.4,
+      "W_offshore": 58.7,
+      "E_shoreward": 84.0
+    },
+    "features_at_catch": {
+      "sst": 1.0,
+      "sst_front": 0.818,
+      "front_corridor": 1.0,
+      "chl": 0.999,
+      "sst_chl_bivariate": 0.999,
+      "chl_curvature": 0.399,
+      "shelf_break": 0.479,
+      "depth": 0.939,
+      "ssh": 0.492,
+      "mld": 1.0,
+      "current": 0.847,
+      "current_shear": 0.703,
+      "upwelling_edge": 0.001,
+      "salinity_front": 0.508
+    },
+    "features_at_peak": {
+      "sst": 0.973,
+      "sst_front": 0.696,
+      "front_corridor": 0.973,
+      "chl": 0.994,
+      "sst_chl_bivariate": 0.956,
+      "chl_curvature": 0.291,
+      "shelf_break": 0.377,
+      "depth": 1.0,
+      "ssh": 0.2,
+      "mld": 1.0,
+      "current": 0.32,
+      "current_shear": 0.456,
+      "upwelling_edge": 0.0,
+      "salinity_front": 0.915
+    },
+    "feature_diffs": {
+      "sst": -0.027,
+      "sst_front": -0.123,
+      "front_corridor": -0.027,
+      "chl": -0.005,
+      "sst_chl_bivariate": -0.043,
+      "chl_curvature": -0.108,
+      "shelf_break": -0.102,
+      "depth": 0.061,
+      "ssh": -0.292,
+      "mld": 0.0,
+      "current": -0.527,
+      "current_shear": -0.247,
+      "upwelling_edge": -0.0,
+      "salinity_front": 0.406
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.994,
+        "S": 0.994,
+        "W_offshore": 0.998,
+        "E_shoreward": 0.99
+      },
+      "sst_front": {
+        "N": 0.831,
+        "S": 0.791,
+        "W_offshore": 0.898,
+        "E_shoreward": 0.742
+      },
+      "front_corridor": {
+        "N": 0.994,
+        "S": 0.994,
+        "W_offshore": 0.998,
+        "E_shoreward": 0.99
+      },
+      "chl": {
+        "N": 0.976,
+        "S": 0.989,
+        "W_offshore": 0.969,
+        "E_shoreward": 0.992
+      },
+      "sst_chl_bivariate": {
+        "N": 0.963,
+        "S": 0.981,
+        "W_offshore": 0.963,
+        "E_shoreward": 0.977
+      },
+      "chl_curvature": {
+        "N": 0.233,
+        "S": 0.154,
+        "W_offshore": 0.134,
+        "E_shoreward": 0.24
+      },
+      "shelf_break": {
+        "N": 0.547,
+        "S": 0.502,
+        "W_offshore": 0.543,
+        "E_shoreward": 0.525
+      },
+      "depth": {
+        "N": 0.932,
+        "S": 0.96,
+        "W_offshore": 0.871,
+        "E_shoreward": 0.998
+      },
+      "ssh": {
+        "N": 0.381,
+        "S": 0.441,
+        "W_offshore": 0.421,
+        "E_shoreward": 0.409
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.778,
+        "S": 0.487,
+        "W_offshore": 0.778,
+        "E_shoreward": 0.518
+      },
+      "current_shear": {
+        "N": 0.384,
+        "S": 0.79,
+        "W_offshore": 0.565,
+        "E_shoreward": 0.611
+      },
+      "upwelling_edge": {
+        "N": 0.004,
+        "S": 0.0,
+        "W_offshore": 0.001,
+        "E_shoreward": 0.003
+      },
+      "salinity_front": {
+        "N": 0.472,
+        "S": 0.657,
+        "W_offshore": 0.419,
+        "E_shoreward": 0.686
+      },
+      "thermocline_lift": {
+        "N": 0.033,
+        "S": 0.0,
+        "W_offshore": 0.027,
+        "E_shoreward": 0.0
+      },
+      "stratification": {
+        "N": 0.993,
+        "S": 0.975,
+        "W_offshore": 0.997,
+        "E_shoreward": 0.954
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.0,
+      "S_2nm": -0.8,
+      "W_2nm": 0.0,
+      "E_2nm": 15.4,
+      "N_5nm": 10.9,
+      "S_5nm": 8.3,
+      "W_5nm": -8.2,
+      "E_5nm": 19.5,
+      "N_10nm": 15.3,
+      "S_10nm": 16.5,
+      "W_10nm": -14.9,
+      "E_10nm": 21.6
+    }
+  },
+  {
+    "date": "2017-03-06",
+    "catch_lat": -32.0667,
+    "catch_lon": 115.1667,
+    "catch_score": 81.7,
+    "peak_score": 96.3,
+    "peak_direction": "SW",
+    "peak_dist_nm": 8.0,
+    "peak_lat": -32.175,
+    "peak_lon": 115.075,
+    "quadrant_means": {
+      "N": 84.6,
+      "S": 85.0,
+      "W_offshore": 84.0,
+      "E_shoreward": 86.2
+    },
+    "features_at_catch": {
+      "sst": 0.985,
+      "sst_front": 0.547,
+      "front_corridor": 0.985,
+      "chl": 0.934,
+      "sst_chl_bivariate": 0.859,
+      "chl_curvature": 0.048,
+      "shelf_break": 0.643,
+      "depth": 1.0,
+      "ssh": 0.483,
+      "mld": 1.0,
+      "current": 0.443,
+      "current_shear": 0.56,
+      "upwelling_edge": 0.391,
+      "salinity_front": 0.901
+    },
+    "features_at_peak": {
+      "sst": 0.981,
+      "sst_front": 0.581,
+      "front_corridor": 0.981,
+      "chl": 0.989,
+      "sst_chl_bivariate": 0.923,
+      "chl_curvature": 0.038,
+      "shelf_break": 0.481,
+      "depth": 1.0,
+      "ssh": 0.512,
+      "mld": 1.0,
+      "current": 0.782,
+      "current_shear": 0.637,
+      "upwelling_edge": 0.207,
+      "salinity_front": 0.8
+    },
+    "feature_diffs": {
+      "sst": -0.003,
+      "sst_front": 0.034,
+      "front_corridor": -0.003,
+      "chl": 0.054,
+      "sst_chl_bivariate": 0.063,
+      "chl_curvature": -0.01,
+      "shelf_break": -0.162,
+      "depth": 0.0,
+      "ssh": 0.029,
+      "mld": 0.0,
+      "current": 0.339,
+      "current_shear": 0.077,
+      "upwelling_edge": -0.184,
+      "salinity_front": -0.101
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.978,
+        "S": 0.983,
+        "W_offshore": 0.977,
+        "E_shoreward": 0.984
+      },
+      "sst_front": {
+        "N": 0.594,
+        "S": 0.543,
+        "W_offshore": 0.56,
+        "E_shoreward": 0.58
+      },
+      "front_corridor": {
+        "N": 0.978,
+        "S": 0.983,
+        "W_offshore": 0.977,
+        "E_shoreward": 0.984
+      },
+      "chl": {
+        "N": 0.964,
+        "S": 0.94,
+        "W_offshore": 0.979,
+        "E_shoreward": 0.923
+      },
+      "sst_chl_bivariate": {
+        "N": 0.879,
+        "S": 0.868,
+        "W_offshore": 0.899,
+        "E_shoreward": 0.844
+      },
+      "chl_curvature": {
+        "N": 0.248,
+        "S": 0.424,
+        "W_offshore": 0.177,
+        "E_shoreward": 0.578
+      },
+      "shelf_break": {
+        "N": 0.483,
+        "S": 0.482,
+        "W_offshore": 0.539,
+        "E_shoreward": 0.412
+      },
+      "depth": {
+        "N": 0.937,
+        "S": 0.948,
+        "W_offshore": 0.929,
+        "E_shoreward": 0.945
+      },
+      "ssh": {
+        "N": 0.454,
+        "S": 0.43,
+        "W_offshore": 0.454,
+        "E_shoreward": 0.411
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.542,
+        "S": 0.642,
+        "W_offshore": 0.886,
+        "E_shoreward": 0.235
+      },
+      "current_shear": {
+        "N": 0.443,
+        "S": 0.483,
+        "W_offshore": 0.589,
+        "E_shoreward": 0.253
+      },
+      "upwelling_edge": {
+        "N": 0.368,
+        "S": 0.363,
+        "W_offshore": 0.185,
+        "E_shoreward": 0.6
+      },
+      "salinity_front": {
+        "N": 0.875,
+        "S": 0.825,
+        "W_offshore": 0.734,
+        "E_shoreward": 0.981
+      },
+      "thermocline_lift": {
+        "N": 0.083,
+        "S": 0.055,
+        "W_offshore": 0.073,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 6.2,
+      "S_2nm": 0.0,
+      "W_2nm": 5.5,
+      "E_2nm": 1.1,
+      "N_5nm": -5.3,
+      "S_5nm": 2.3,
+      "W_5nm": 10.2,
+      "E_5nm": 7.6,
+      "N_10nm": 2.2,
+      "S_10nm": 5.9,
+      "W_10nm": -15.7,
+      "E_10nm": -3.0
+    }
+  },
+  {
+    "date": "2021-02-14",
+    "catch_lat": -31.8833,
+    "catch_lon": 115.1833,
+    "catch_score": 76.4,
+    "peak_score": 96.3,
+    "peak_direction": "NE",
+    "peak_dist_nm": 4.1,
+    "peak_lat": -31.825,
+    "peak_lon": 115.225,
+    "quadrant_means": {
+      "N": 67.6,
+      "S": 73.9,
+      "W_offshore": 66.8,
+      "E_shoreward": 72.3
+    },
+    "features_at_catch": {
+      "sst": 0.999,
+      "sst_front": 0.53,
+      "front_corridor": 0.999,
+      "chl": 0.919,
+      "sst_chl_bivariate": 0.916,
+      "chl_curvature": 0.449,
+      "shelf_break": 0.622,
+      "depth": 1.0,
+      "ssh": 0.445,
+      "mld": 1.0,
+      "current": 0.746,
+      "current_shear": 0.804,
+      "upwelling_edge": 0.03,
+      "salinity_front": 1.0
+    },
+    "features_at_peak": {
+      "sst": 1.0,
+      "sst_front": 0.54,
+      "front_corridor": 1.0,
+      "chl": 0.899,
+      "sst_chl_bivariate": 0.889,
+      "chl_curvature": 0.517,
+      "shelf_break": 0.447,
+      "depth": 1.0,
+      "ssh": 0.374,
+      "mld": 1.0,
+      "current": 0.565,
+      "current_shear": 0.379,
+      "upwelling_edge": 0.033,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": 0.001,
+      "sst_front": 0.01,
+      "front_corridor": 0.001,
+      "chl": -0.02,
+      "sst_chl_bivariate": -0.026,
+      "chl_curvature": 0.069,
+      "shelf_break": -0.175,
+      "depth": 0.0,
+      "ssh": -0.071,
+      "mld": 0.0,
+      "current": -0.181,
+      "current_shear": -0.425,
+      "upwelling_edge": 0.002,
+      "salinity_front": 0.0
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 1.0,
+        "S": 0.997,
+        "W_offshore": 0.997,
+        "E_shoreward": 0.999
+      },
+      "sst_front": {
+        "N": 0.516,
+        "S": 0.553,
+        "W_offshore": 0.549,
+        "E_shoreward": 0.517
+      },
+      "front_corridor": {
+        "N": 1.0,
+        "S": 0.997,
+        "W_offshore": 0.997,
+        "E_shoreward": 0.999
+      },
+      "chl": {
+        "N": 0.897,
+        "S": 0.852,
+        "W_offshore": 0.936,
+        "E_shoreward": 0.82
+      },
+      "sst_chl_bivariate": {
+        "N": 0.889,
+        "S": 0.846,
+        "W_offshore": 0.935,
+        "E_shoreward": 0.808
+      },
+      "chl_curvature": {
+        "N": 0.589,
+        "S": 0.364,
+        "W_offshore": 0.292,
+        "E_shoreward": 0.599
+      },
+      "shelf_break": {
+        "N": 0.443,
+        "S": 0.398,
+        "W_offshore": 0.538,
+        "E_shoreward": 0.325
+      },
+      "depth": {
+        "N": 0.907,
+        "S": 0.782,
+        "W_offshore": 0.957,
+        "E_shoreward": 0.73
+      },
+      "ssh": {
+        "N": 0.416,
+        "S": 0.339,
+        "W_offshore": 0.424,
+        "E_shoreward": 0.334
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.491,
+        "S": 0.702,
+        "W_offshore": 0.946,
+        "E_shoreward": 0.316
+      },
+      "current_shear": {
+        "N": 0.603,
+        "S": 0.177,
+        "W_offshore": 0.65,
+        "E_shoreward": 0.17
+      },
+      "upwelling_edge": {
+        "N": 0.051,
+        "S": 0.031,
+        "W_offshore": 0.028,
+        "E_shoreward": 0.05
+      },
+      "salinity_front": {
+        "N": 0.977,
+        "S": 0.988,
+        "W_offshore": 0.95,
+        "E_shoreward": 1.0
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": null,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 0.974,
+        "S": null,
+        "W_offshore": 0.975,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.0,
+      "S_2nm": -0.0,
+      "W_2nm": -5.5,
+      "E_2nm": 15.4,
+      "N_5nm": 10.3,
+      "S_5nm": -15.3,
+      "W_5nm": -6.6,
+      "E_5nm": 13.3,
+      "N_10nm": 9.8,
+      "S_10nm": 0.8,
+      "W_10nm": 2.0,
+      "E_10nm": -30.2
+    }
+  },
+  {
+    "date": "2021-02-14",
+    "catch_lat": -31.8833,
+    "catch_lon": 115.1667,
+    "catch_score": 76.4,
+    "peak_score": 96.3,
+    "peak_direction": "NE",
+    "peak_dist_nm": 4.6,
+    "peak_lat": -31.825,
+    "peak_lon": 115.225,
+    "quadrant_means": {
+      "N": 69.6,
+      "S": 78.2,
+      "W_offshore": 68.5,
+      "E_shoreward": 80.5
+    },
+    "features_at_catch": {
+      "sst": 0.999,
+      "sst_front": 0.53,
+      "front_corridor": 0.999,
+      "chl": 0.919,
+      "sst_chl_bivariate": 0.916,
+      "chl_curvature": 0.449,
+      "shelf_break": 0.622,
+      "depth": 1.0,
+      "ssh": 0.445,
+      "mld": 1.0,
+      "current": 0.746,
+      "current_shear": 0.804,
+      "upwelling_edge": 0.03,
+      "salinity_front": 1.0
+    },
+    "features_at_peak": {
+      "sst": 1.0,
+      "sst_front": 0.54,
+      "front_corridor": 1.0,
+      "chl": 0.899,
+      "sst_chl_bivariate": 0.889,
+      "chl_curvature": 0.517,
+      "shelf_break": 0.447,
+      "depth": 1.0,
+      "ssh": 0.374,
+      "mld": 1.0,
+      "current": 0.565,
+      "current_shear": 0.379,
+      "upwelling_edge": 0.033,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": 0.001,
+      "sst_front": 0.01,
+      "front_corridor": 0.001,
+      "chl": -0.02,
+      "sst_chl_bivariate": -0.026,
+      "chl_curvature": 0.069,
+      "shelf_break": -0.175,
+      "depth": 0.0,
+      "ssh": -0.071,
+      "mld": 0.0,
+      "current": -0.181,
+      "current_shear": -0.425,
+      "upwelling_edge": 0.002,
+      "salinity_front": 0.0
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 1.0,
+        "S": 0.997,
+        "W_offshore": 0.997,
+        "E_shoreward": 0.999
+      },
+      "sst_front": {
+        "N": 0.521,
+        "S": 0.566,
+        "W_offshore": 0.551,
+        "E_shoreward": 0.527
+      },
+      "front_corridor": {
+        "N": 1.0,
+        "S": 0.997,
+        "W_offshore": 0.997,
+        "E_shoreward": 0.999
+      },
+      "chl": {
+        "N": 0.931,
+        "S": 0.872,
+        "W_offshore": 0.936,
+        "E_shoreward": 0.853
+      },
+      "sst_chl_bivariate": {
+        "N": 0.925,
+        "S": 0.866,
+        "W_offshore": 0.935,
+        "E_shoreward": 0.841
+      },
+      "chl_curvature": {
+        "N": 0.57,
+        "S": 0.339,
+        "W_offshore": 0.308,
+        "E_shoreward": 0.602
+      },
+      "shelf_break": {
+        "N": 0.482,
+        "S": 0.437,
+        "W_offshore": 0.527,
+        "E_shoreward": 0.372
+      },
+      "depth": {
+        "N": 0.948,
+        "S": 0.906,
+        "W_offshore": 0.958,
+        "E_shoreward": 0.888
+      },
+      "ssh": {
+        "N": 0.444,
+        "S": 0.321,
+        "W_offshore": 0.406,
+        "E_shoreward": 0.342
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.596,
+        "S": 0.78,
+        "W_offshore": 0.957,
+        "E_shoreward": 0.339
+      },
+      "current_shear": {
+        "N": 0.717,
+        "S": 0.202,
+        "W_offshore": 0.625,
+        "E_shoreward": 0.225
+      },
+      "upwelling_edge": {
+        "N": 0.044,
+        "S": 0.029,
+        "W_offshore": 0.025,
+        "E_shoreward": 0.048
+      },
+      "salinity_front": {
+        "N": 0.951,
+        "S": 0.968,
+        "W_offshore": 0.916,
+        "E_shoreward": 1.0
+      },
+      "thermocline_lift": {
+        "N": 0.003,
+        "S": 0.018,
+        "W_offshore": 0.007,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 0.982,
+        "S": 1.0,
+        "W_offshore": 0.986,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.0,
+      "S_2nm": -0.0,
+      "W_2nm": -5.5,
+      "E_2nm": 15.4,
+      "N_5nm": 10.3,
+      "S_5nm": -15.3,
+      "W_5nm": -6.6,
+      "E_5nm": 13.3,
+      "N_10nm": 9.8,
+      "S_10nm": 0.8,
+      "W_10nm": 2.0,
+      "E_10nm": -30.2
+    }
+  },
+  {
+    "date": "2021-04-06",
+    "catch_lat": -31.7167,
+    "catch_lon": 114.95,
+    "catch_score": 63.1,
+    "peak_score": 95.1,
+    "peak_direction": "NE",
+    "peak_dist_nm": 12.3,
+    "peak_lat": -31.575,
+    "peak_lon": 115.125,
+    "quadrant_means": {
+      "N": 68.7,
+      "S": 76.9,
+      "W_offshore": 62.6,
+      "E_shoreward": 80.5
+    },
+    "features_at_catch": {
+      "sst": 0.875,
+      "sst_front": 0.453,
+      "front_corridor": 0.875,
+      "chl": 0.309,
+      "sst_chl_bivariate": 0.125,
+      "chl_curvature": 0.23,
+      "shelf_break": 0.479,
+      "depth": 0.939,
+      "ssh": 0.2,
+      "mld": 1.0,
+      "current": 0.834,
+      "current_shear": 0.359,
+      "upwelling_edge": 0.015,
+      "salinity_front": 0.929
+    },
+    "features_at_peak": {
+      "sst": 0.904,
+      "sst_front": 0.541,
+      "front_corridor": 0.904,
+      "chl": 0.113,
+      "sst_chl_bivariate": 0.042,
+      "chl_curvature": 0.331,
+      "shelf_break": 0.377,
+      "depth": 1.0,
+      "ssh": 0.864,
+      "mld": 1.0,
+      "current": 0.966,
+      "current_shear": 0.613,
+      "upwelling_edge": 0.089,
+      "salinity_front": 0.761
+    },
+    "feature_diffs": {
+      "sst": 0.029,
+      "sst_front": 0.088,
+      "front_corridor": 0.029,
+      "chl": -0.195,
+      "sst_chl_bivariate": -0.083,
+      "chl_curvature": 0.101,
+      "shelf_break": -0.102,
+      "depth": 0.061,
+      "ssh": 0.664,
+      "mld": 0.0,
+      "current": 0.132,
+      "current_shear": 0.255,
+      "upwelling_edge": 0.074,
+      "salinity_front": -0.168
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.888,
+        "S": 0.875,
+        "W_offshore": 0.863,
+        "E_shoreward": 0.89
+      },
+      "sst_front": {
+        "N": 0.461,
+        "S": 0.505,
+        "W_offshore": 0.475,
+        "E_shoreward": 0.486
+      },
+      "front_corridor": {
+        "N": 0.888,
+        "S": 0.875,
+        "W_offshore": 0.863,
+        "E_shoreward": 0.89
+      },
+      "chl": {
+        "N": 0.411,
+        "S": 0.268,
+        "W_offshore": 0.504,
+        "E_shoreward": 0.246
+      },
+      "sst_chl_bivariate": {
+        "N": 0.195,
+        "S": 0.105,
+        "W_offshore": 0.232,
+        "E_shoreward": 0.103
+      },
+      "chl_curvature": {
+        "N": 0.188,
+        "S": 0.357,
+        "W_offshore": 0.296,
+        "E_shoreward": 0.221
+      },
+      "shelf_break": {
+        "N": 0.547,
+        "S": 0.502,
+        "W_offshore": 0.543,
+        "E_shoreward": 0.525
+      },
+      "depth": {
+        "N": 0.932,
+        "S": 0.96,
+        "W_offshore": 0.871,
+        "E_shoreward": 0.998
+      },
+      "ssh": {
+        "N": 0.334,
+        "S": 0.4,
+        "W_offshore": 0.2,
+        "E_shoreward": 0.529
+      },
+      "mld": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.866,
+        "S": 0.882,
+        "W_offshore": 0.828,
+        "E_shoreward": 0.926
+      },
+      "current_shear": {
+        "N": 0.567,
+        "S": 0.755,
+        "W_offshore": 0.835,
+        "E_shoreward": 0.591
+      },
+      "upwelling_edge": {
+        "N": 0.038,
+        "S": 0.031,
+        "W_offshore": 0.005,
+        "E_shoreward": 0.061
+      },
+      "salinity_front": {
+        "N": 0.872,
+        "S": 0.89,
+        "W_offshore": 0.949,
+        "E_shoreward": 0.818
+      },
+      "thermocline_lift": {
+        "N": 0.045,
+        "S": 0.087,
+        "W_offshore": 0.107,
+        "E_shoreward": 0.0
+      },
+      "stratification": {
+        "N": 0.989,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 0.976
+      }
+    },
+    "gradients": {
+      "N_2nm": 5.8,
+      "S_2nm": 0.5,
+      "W_2nm": 0.0,
+      "E_2nm": 6.2,
+      "N_5nm": 10.8,
+      "S_5nm": 0.5,
+      "W_5nm": -3.2,
+      "E_5nm": 11.7,
+      "N_10nm": 14.7,
+      "S_10nm": 7.8,
+      "W_10nm": -1.4,
+      "E_10nm": 22.8
+    }
+  },
+  {
+    "date": "2022-02-19",
+    "catch_lat": -32.0667,
+    "catch_lon": 115.2333,
+    "catch_score": 91.2,
+    "peak_score": 98.0,
+    "peak_direction": "S",
+    "peak_dist_nm": 9.5,
+    "peak_lat": -32.225,
+    "peak_lon": 115.225,
+    "quadrant_means": {
+      "N": 77.5,
+      "S": 79.2,
+      "W_offshore": 84.4,
+      "E_shoreward": 71.9
+    },
+    "features_at_catch": {
+      "sst": 0.883,
+      "sst_front": 0.514,
+      "front_corridor": 0.883,
+      "chl": 0.972,
+      "sst_chl_bivariate": 0.728,
+      "chl_curvature": 1.0,
+      "shelf_break": 0.577,
+      "depth": 1.0,
+      "ssh": 0.487,
+      "mld": 1.0,
+      "current": 0.947,
+      "current_shear": 0.433,
+      "upwelling_edge": 0.316,
+      "salinity_front": 1.0
+    },
+    "features_at_peak": {
+      "sst": 0.898,
+      "sst_front": 0.593,
+      "front_corridor": 0.898,
+      "chl": 0.96,
+      "sst_chl_bivariate": 0.759,
+      "chl_curvature": 0.952,
+      "shelf_break": 0.45,
+      "depth": 1.0,
+      "ssh": 0.607,
+      "mld": 1.0,
+      "current": 0.935,
+      "current_shear": 0.874,
+      "upwelling_edge": 0.473,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": 0.016,
+      "sst_front": 0.079,
+      "front_corridor": 0.016,
+      "chl": -0.012,
+      "sst_chl_bivariate": 0.031,
+      "chl_curvature": -0.048,
+      "shelf_break": -0.127,
+      "depth": 0.0,
+      "ssh": 0.12,
+      "mld": 0.0,
+      "current": -0.012,
+      "current_shear": 0.441,
+      "upwelling_edge": 0.157,
+      "salinity_front": 0.0
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.891,
+        "S": 0.892,
+        "W_offshore": 0.869,
+        "E_shoreward": 0.907
+      },
+      "sst_front": {
+        "N": 0.568,
+        "S": 0.499,
+        "W_offshore": 0.477,
+        "E_shoreward": 0.574
+      },
+      "front_corridor": {
+        "N": 0.891,
+        "S": 0.892,
+        "W_offshore": 0.869,
+        "E_shoreward": 0.907
+      },
+      "chl": {
+        "N": 0.933,
+        "S": 0.908,
+        "W_offshore": 0.956,
+        "E_shoreward": 0.881
+      },
+      "sst_chl_bivariate": {
+        "N": 0.675,
+        "S": 0.638,
+        "W_offshore": 0.692,
+        "E_shoreward": 0.614
+      },
+      "chl_curvature": {
+        "N": 0.832,
+        "S": 0.395,
+        "W_offshore": 0.54,
+        "E_shoreward": 0.679
+      },
+      "shelf_break": {
+        "N": 0.378,
+        "S": 0.396,
+        "W_offshore": 0.523,
+        "E_shoreward": 0.262
+      },
+      "depth": {
+        "N": 0.705,
+        "S": 0.796,
+        "W_offshore": 0.97,
+        "E_shoreward": 0.555
+      },
+      "ssh": {
+        "N": 0.546,
+        "S": 0.499,
+        "W_offshore": 0.272,
+        "E_shoreward": 0.702
+      },
+      "mld": {
+        "N": 0.999,
+        "S": 1.0,
+        "W_offshore": 0.999,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.849,
+        "S": 0.877,
+        "W_offshore": 0.828,
+        "E_shoreward": 0.875
+      },
+      "current_shear": {
+        "N": 0.328,
+        "S": 0.27,
+        "W_offshore": 0.409,
+        "E_shoreward": 0.152
+      },
+      "upwelling_edge": {
+        "N": 0.411,
+        "S": 0.271,
+        "W_offshore": 0.238,
+        "E_shoreward": 0.412
+      },
+      "salinity_front": {
+        "N": 0.992,
+        "S": 0.99,
+        "W_offshore": 0.974,
+        "E_shoreward": 1.0
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": 0.0,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": -2.9,
+      "S_2nm": 0.0,
+      "W_2nm": -4.2,
+      "E_2nm": 5.7,
+      "N_5nm": -1.6,
+      "S_5nm": 4.0,
+      "W_5nm": 0.5,
+      "E_5nm": 5.3,
+      "N_10nm": -0.2,
+      "S_10nm": 6.8,
+      "W_10nm": -38.5,
+      "E_10nm": -43.8
+    }
+  },
+  {
+    "date": "2022-12-29",
+    "catch_lat": -32.0833,
+    "catch_lon": 115.1833,
+    "catch_score": 88.8,
+    "peak_score": 96.7,
+    "peak_direction": "E",
+    "peak_dist_nm": 4.7,
+    "peak_lat": -32.075,
+    "peak_lon": 115.275,
+    "quadrant_means": {
+      "N": 77.8,
+      "S": 75.1,
+      "W_offshore": 70.4,
+      "E_shoreward": 80.7
+    },
+    "features_at_catch": {
+      "sst": 0.917,
+      "sst_front": 0.649,
+      "front_corridor": 0.917,
+      "chl": 0.929,
+      "sst_chl_bivariate": 0.884,
+      "chl_curvature": 0.282,
+      "shelf_break": 0.643,
+      "depth": 1.0,
+      "ssh": 0.661,
+      "mld": 0.926,
+      "current": 0.603,
+      "current_shear": 0.901,
+      "upwelling_edge": 0.475,
+      "salinity_front": 1.0
+    },
+    "features_at_peak": {
+      "sst": 0.852,
+      "sst_front": 0.678,
+      "front_corridor": 0.852,
+      "chl": 0.93,
+      "sst_chl_bivariate": 0.832,
+      "chl_curvature": 0.399,
+      "shelf_break": 0.45,
+      "depth": 1.0,
+      "ssh": 0.446,
+      "mld": 0.962,
+      "current": 0.586,
+      "current_shear": 0.37,
+      "upwelling_edge": 0.564,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": -0.065,
+      "sst_front": 0.028,
+      "front_corridor": -0.065,
+      "chl": 0.001,
+      "sst_chl_bivariate": -0.052,
+      "chl_curvature": 0.117,
+      "shelf_break": -0.193,
+      "depth": 0.0,
+      "ssh": -0.215,
+      "mld": 0.037,
+      "current": -0.017,
+      "current_shear": -0.531,
+      "upwelling_edge": 0.089,
+      "salinity_front": 0.0
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.851,
+        "S": 0.897,
+        "W_offshore": 0.925,
+        "E_shoreward": 0.827
+      },
+      "sst_front": {
+        "N": 0.626,
+        "S": 0.621,
+        "W_offshore": 0.57,
+        "E_shoreward": 0.659
+      },
+      "front_corridor": {
+        "N": 0.851,
+        "S": 0.897,
+        "W_offshore": 0.925,
+        "E_shoreward": 0.827
+      },
+      "chl": {
+        "N": 0.912,
+        "S": 0.913,
+        "W_offshore": 0.926,
+        "E_shoreward": 0.898
+      },
+      "sst_chl_bivariate": {
+        "N": 0.82,
+        "S": 0.857,
+        "W_offshore": 0.887,
+        "E_shoreward": 0.792
+      },
+      "chl_curvature": {
+        "N": 0.43,
+        "S": 0.365,
+        "W_offshore": 0.219,
+        "E_shoreward": 0.534
+      },
+      "shelf_break": {
+        "N": 0.429,
+        "S": 0.443,
+        "W_offshore": 0.529,
+        "E_shoreward": 0.358
+      },
+      "depth": {
+        "N": 0.825,
+        "S": 0.907,
+        "W_offshore": 0.946,
+        "E_shoreward": 0.805
+      },
+      "ssh": {
+        "N": 0.509,
+        "S": 0.601,
+        "W_offshore": 0.757,
+        "E_shoreward": 0.39
+      },
+      "mld": {
+        "N": 0.931,
+        "S": 0.937,
+        "W_offshore": 0.923,
+        "E_shoreward": 0.942
+      },
+      "current": {
+        "N": 0.491,
+        "S": 0.514,
+        "W_offshore": 0.346,
+        "E_shoreward": 0.597
+      },
+      "current_shear": {
+        "N": 0.486,
+        "S": 0.644,
+        "W_offshore": 0.903,
+        "E_shoreward": 0.255
+      },
+      "upwelling_edge": {
+        "N": 0.542,
+        "S": 0.396,
+        "W_offshore": 0.338,
+        "E_shoreward": 0.561
+      },
+      "salinity_front": {
+        "N": 0.994,
+        "S": 0.984,
+        "W_offshore": 0.97,
+        "E_shoreward": 1.0
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": 0.0,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 0.767,
+        "S": 0.712,
+        "W_offshore": 0.738,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": -3.9,
+      "S_2nm": -1.0,
+      "W_2nm": -5.5,
+      "E_2nm": 6.5,
+      "N_5nm": -12.3,
+      "S_5nm": -3.7,
+      "W_5nm": -15.9,
+      "E_5nm": 7.9,
+      "N_10nm": -2.5,
+      "S_10nm": -2.6,
+      "W_10nm": -51.2,
+      "E_10nm": -9.4
+    }
+  },
+  {
+    "date": "2025-03-04",
+    "catch_lat": -31.9904,
+    "catch_lon": 115.1901,
+    "catch_score": 71.8,
+    "peak_score": 97.9,
+    "peak_direction": "SE",
+    "peak_dist_nm": 9.2,
+    "peak_lat": -32.125,
+    "peak_lon": 115.275,
+    "quadrant_means": {
+      "N": 78.2,
+      "S": 76.7,
+      "W_offshore": 62.7,
+      "E_shoreward": 84.4
+    },
+    "features_at_catch": {
+      "sst": 0.881,
+      "sst_front": 0.638,
+      "front_corridor": 0.881,
+      "chl": 0.999,
+      "sst_chl_bivariate": 0.693,
+      "chl_curvature": 0.291,
+      "shelf_break": 0.422,
+      "depth": 0.946,
+      "ssh": 0.27,
+      "mld": 0.481,
+      "current": 0.416,
+      "current_shear": 0.349,
+      "upwelling_edge": 0.195,
+      "salinity_front": 0.785
+    },
+    "features_at_peak": {
+      "sst": 0.907,
+      "sst_front": 0.767,
+      "front_corridor": 0.907,
+      "chl": 1.0,
+      "sst_chl_bivariate": 0.765,
+      "chl_curvature": 0.815,
+      "shelf_break": 0.394,
+      "depth": 1.0,
+      "ssh": 0.345,
+      "mld": 0.699,
+      "current": 0.219,
+      "current_shear": 0.648,
+      "upwelling_edge": 0.408,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": 0.026,
+      "sst_front": 0.129,
+      "front_corridor": 0.026,
+      "chl": 0.0,
+      "sst_chl_bivariate": 0.072,
+      "chl_curvature": 0.525,
+      "shelf_break": -0.028,
+      "depth": 0.054,
+      "ssh": 0.074,
+      "mld": 0.217,
+      "current": -0.197,
+      "current_shear": 0.299,
+      "upwelling_edge": 0.214,
+      "salinity_front": 0.215
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.891,
+        "S": 0.896,
+        "W_offshore": 0.879,
+        "E_shoreward": 0.905
+      },
+      "sst_front": {
+        "N": 0.669,
+        "S": 0.646,
+        "W_offshore": 0.573,
+        "E_shoreward": 0.718
+      },
+      "front_corridor": {
+        "N": 0.891,
+        "S": 0.896,
+        "W_offshore": 0.879,
+        "E_shoreward": 0.905
+      },
+      "chl": {
+        "N": 0.997,
+        "S": 0.989,
+        "W_offshore": 0.997,
+        "E_shoreward": 0.985
+      },
+      "sst_chl_bivariate": {
+        "N": 0.725,
+        "S": 0.703,
+        "W_offshore": 0.697,
+        "E_shoreward": 0.723
+      },
+      "chl_curvature": {
+        "N": 0.485,
+        "S": 0.477,
+        "W_offshore": 0.138,
+        "E_shoreward": 0.759
+      },
+      "shelf_break": {
+        "N": 0.469,
+        "S": 0.434,
+        "W_offshore": 0.533,
+        "E_shoreward": 0.367
+      },
+      "depth": {
+        "N": 0.93,
+        "S": 0.859,
+        "W_offshore": 0.949,
+        "E_shoreward": 0.838
+      },
+      "ssh": {
+        "N": 0.297,
+        "S": 0.242,
+        "W_offshore": 0.214,
+        "E_shoreward": 0.317
+      },
+      "mld": {
+        "N": 0.58,
+        "S": 0.592,
+        "W_offshore": 0.436,
+        "E_shoreward": 0.717
+      },
+      "current": {
+        "N": 0.433,
+        "S": 0.338,
+        "W_offshore": 0.376,
+        "E_shoreward": 0.384
+      },
+      "current_shear": {
+        "N": 0.489,
+        "S": 0.307,
+        "W_offshore": 0.389,
+        "E_shoreward": 0.41
+      },
+      "upwelling_edge": {
+        "N": 0.278,
+        "S": 0.236,
+        "W_offshore": 0.117,
+        "E_shoreward": 0.37
+      },
+      "salinity_front": {
+        "N": 0.816,
+        "S": 0.814,
+        "W_offshore": 0.585,
+        "E_shoreward": 0.983
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": 0.0,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.0,
+      "S_2nm": 14.5,
+      "W_2nm": 0.0,
+      "E_2nm": 18.7,
+      "N_5nm": 13.0,
+      "S_5nm": 15.8,
+      "W_5nm": -30.7,
+      "E_5nm": 19.2,
+      "N_10nm": 19.8,
+      "S_10nm": 21.5,
+      "W_10nm": -18.6,
+      "E_10nm": 7.7
+    }
+  },
+  {
+    "date": "2025-03-03",
+    "catch_lat": -31.9926,
+    "catch_lon": 115.2129,
+    "catch_score": 90.1,
+    "peak_score": 98.7,
+    "peak_direction": "SE",
+    "peak_dist_nm": 8.5,
+    "peak_lat": -32.125,
+    "peak_lon": 115.275,
+    "quadrant_means": {
+      "N": 84.5,
+      "S": 79.5,
+      "W_offshore": 75.4,
+      "E_shoreward": 85.7
+    },
+    "features_at_catch": {
+      "sst": 0.887,
+      "sst_front": 0.775,
+      "front_corridor": 0.887,
+      "chl": 0.998,
+      "sst_chl_bivariate": 0.726,
+      "chl_curvature": 0.609,
+      "shelf_break": 0.467,
+      "depth": 1.0,
+      "ssh": 0.303,
+      "mld": 0.773,
+      "current": 0.585,
+      "current_shear": 0.613,
+      "upwelling_edge": 0.318,
+      "salinity_front": 0.878
+    },
+    "features_at_peak": {
+      "sst": 0.903,
+      "sst_front": 0.87,
+      "front_corridor": 0.903,
+      "chl": 0.998,
+      "sst_chl_bivariate": 0.739,
+      "chl_curvature": 0.625,
+      "shelf_break": 0.394,
+      "depth": 1.0,
+      "ssh": 0.357,
+      "mld": 0.911,
+      "current": 0.445,
+      "current_shear": 0.638,
+      "upwelling_edge": 0.548,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": 0.016,
+      "sst_front": 0.095,
+      "front_corridor": 0.016,
+      "chl": 0.0,
+      "sst_chl_bivariate": 0.013,
+      "chl_curvature": 0.015,
+      "shelf_break": -0.073,
+      "depth": 0.0,
+      "ssh": 0.053,
+      "mld": 0.138,
+      "current": -0.14,
+      "current_shear": 0.025,
+      "upwelling_edge": 0.23,
+      "salinity_front": 0.122
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.894,
+        "S": 0.886,
+        "W_offshore": 0.879,
+        "E_shoreward": 0.907
+      },
+      "sst_front": {
+        "N": 0.787,
+        "S": 0.732,
+        "W_offshore": 0.712,
+        "E_shoreward": 0.814
+      },
+      "front_corridor": {
+        "N": 0.894,
+        "S": 0.886,
+        "W_offshore": 0.879,
+        "E_shoreward": 0.907
+      },
+      "chl": {
+        "N": 0.913,
+        "S": 0.935,
+        "W_offshore": 0.902,
+        "E_shoreward": 0.923
+      },
+      "sst_chl_bivariate": {
+        "N": 0.689,
+        "S": 0.674,
+        "W_offshore": 0.698,
+        "E_shoreward": 0.644
+      },
+      "chl_curvature": {
+        "N": 0.572,
+        "S": 0.554,
+        "W_offshore": 0.629,
+        "E_shoreward": 0.448
+      },
+      "shelf_break": {
+        "N": 0.469,
+        "S": 0.434,
+        "W_offshore": 0.524,
+        "E_shoreward": 0.323
+      },
+      "depth": {
+        "N": 0.93,
+        "S": 0.857,
+        "W_offshore": 0.953,
+        "E_shoreward": 0.808
+      },
+      "ssh": {
+        "N": 0.304,
+        "S": 0.257,
+        "W_offshore": 0.229,
+        "E_shoreward": 0.355
+      },
+      "mld": {
+        "N": 0.812,
+        "S": 0.81,
+        "W_offshore": 0.709,
+        "E_shoreward": 0.954
+      },
+      "current": {
+        "N": 0.571,
+        "S": 0.51,
+        "W_offshore": 0.651,
+        "E_shoreward": 0.391
+      },
+      "current_shear": {
+        "N": 0.571,
+        "S": 0.422,
+        "W_offshore": 0.589,
+        "E_shoreward": 0.375
+      },
+      "upwelling_edge": {
+        "N": 0.369,
+        "S": 0.278,
+        "W_offshore": 0.194,
+        "E_shoreward": 0.495
+      },
+      "salinity_front": {
+        "N": 0.81,
+        "S": 0.782,
+        "W_offshore": 0.617,
+        "E_shoreward": 0.998
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": 0.0,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 0.997,
+        "S": 1.0,
+        "W_offshore": 0.998,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.0,
+      "S_2nm": 1.3,
+      "W_2nm": -7.1,
+      "E_2nm": 6.4,
+      "N_5nm": 1.4,
+      "S_5nm": 2.5,
+      "W_5nm": -29.3,
+      "E_5nm": 5.4,
+      "N_10nm": 4.4,
+      "S_10nm": 4.2,
+      "W_10nm": -40.0,
+      "E_10nm": -42.7
+    }
+  },
+  {
+    "date": "2023-03-06",
+    "catch_lat": -31.9333,
+    "catch_lon": 115.35,
+    "catch_score": 88.3,
+    "peak_score": 98.5,
+    "peak_direction": "SW",
+    "peak_dist_nm": 9.3,
+    "peak_lat": -32.075,
+    "peak_lon": 115.275,
+    "quadrant_means": {
+      "N": 72.5,
+      "S": 55.1,
+      "W_offshore": 91.1,
+      "E_shoreward": 39.1
+    },
+    "features_at_catch": {
+      "sst": 0.995,
+      "sst_front": 0.528,
+      "front_corridor": 0.995,
+      "chl": 0.755,
+      "sst_chl_bivariate": 0.697,
+      "chl_curvature": 0.507,
+      "shelf_break": 0.32,
+      "depth": 0.959,
+      "ssh": 0.66,
+      "mld": 0.959,
+      "current": 0.732,
+      "current_shear": 0.264,
+      "upwelling_edge": 0.235,
+      "salinity_front": 1.0
+    },
+    "features_at_peak": {
+      "sst": 0.99,
+      "sst_front": 0.64,
+      "front_corridor": 0.99,
+      "chl": 0.888,
+      "sst_chl_bivariate": 0.825,
+      "chl_curvature": 0.654,
+      "shelf_break": 0.45,
+      "depth": 1.0,
+      "ssh": 0.761,
+      "mld": 0.815,
+      "current": 0.629,
+      "current_shear": 0.888,
+      "upwelling_edge": 0.362,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": -0.005,
+      "sst_front": 0.112,
+      "front_corridor": -0.005,
+      "chl": 0.133,
+      "sst_chl_bivariate": 0.128,
+      "chl_curvature": 0.147,
+      "shelf_break": 0.13,
+      "depth": 0.041,
+      "ssh": 0.101,
+      "mld": -0.144,
+      "current": -0.103,
+      "current_shear": 0.624,
+      "upwelling_edge": 0.127,
+      "salinity_front": 0.0
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.994,
+        "S": 0.998,
+        "W_offshore": 0.99,
+        "E_shoreward": 1.0
+      },
+      "sst_front": {
+        "N": 0.559,
+        "S": 0.454,
+        "W_offshore": 0.587,
+        "E_shoreward": 0.438
+      },
+      "front_corridor": {
+        "N": 0.994,
+        "S": 0.998,
+        "W_offshore": 0.99,
+        "E_shoreward": 1.0
+      },
+      "chl": {
+        "N": 0.576,
+        "S": 0.695,
+        "W_offshore": 0.903,
+        "E_shoreward": 0.404
+      },
+      "sst_chl_bivariate": {
+        "N": 0.534,
+        "S": 0.652,
+        "W_offshore": 0.85,
+        "E_shoreward": 0.371
+      },
+      "chl_curvature": {
+        "N": 0.747,
+        "S": 0.467,
+        "W_offshore": 0.649,
+        "E_shoreward": 0.622
+      },
+      "shelf_break": {
+        "N": 0.313,
+        "S": 0.26,
+        "W_offshore": 0.479,
+        "E_shoreward": 0.145
+      },
+      "depth": {
+        "N": 0.609,
+        "S": 0.45,
+        "W_offshore": 0.996,
+        "E_shoreward": 0.097
+      },
+      "ssh": {
+        "N": 0.544,
+        "S": 0.549,
+        "W_offshore": 0.772,
+        "E_shoreward": 0.34
+      },
+      "mld": {
+        "N": 0.829,
+        "S": 0.814,
+        "W_offshore": 0.796,
+        "E_shoreward": 0.821
+      },
+      "current": {
+        "N": 0.702,
+        "S": 0.696,
+        "W_offshore": 0.634,
+        "E_shoreward": 0.743
+      },
+      "current_shear": {
+        "N": 0.401,
+        "S": 0.296,
+        "W_offshore": 0.869,
+        "E_shoreward": 0.003
+      },
+      "upwelling_edge": {
+        "N": 0.329,
+        "S": 0.153,
+        "W_offshore": 0.184,
+        "E_shoreward": 0.277
+      },
+      "salinity_front": {
+        "N": 0.998,
+        "S": 0.987,
+        "W_offshore": 1.0,
+        "E_shoreward": 0.986
+      },
+      "thermocline_lift": {
+        "N": null,
+        "S": null,
+        "W_offshore": null,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": null,
+        "S": null,
+        "W_offshore": null,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 0.0,
+      "S_2nm": 5.4,
+      "W_2nm": 0.0,
+      "E_2nm": -33.9,
+      "N_5nm": -2.2,
+      "S_5nm": 6.7,
+      "W_5nm": 5.0,
+      "E_5nm": -47.1,
+      "N_10nm": -38.8,
+      "S_10nm": 8.3,
+      "W_10nm": -1.6,
+      "E_10nm": -48.3
+    }
+  },
+  {
+    "date": "2026-03-18",
+    "catch_lat": -31.9702,
+    "catch_lon": 115.2114,
+    "catch_score": 81.1,
+    "peak_score": 92.7,
+    "peak_direction": "SE",
+    "peak_dist_nm": 6.7,
+    "peak_lat": -32.025,
+    "peak_lon": 115.325,
+    "quadrant_means": {
+      "N": 82.6,
+      "S": 82.1,
+      "W_offshore": 82.5,
+      "E_shoreward": 80.7
+    },
+    "features_at_catch": {
+      "sst": 0.998,
+      "sst_front": 0.847,
+      "front_corridor": 0.998,
+      "chl": 0.923,
+      "sst_chl_bivariate": 0.899,
+      "chl_curvature": 0.585,
+      "shelf_break": 0.467,
+      "depth": 1.0,
+      "ssh": 0.264,
+      "mld": 1.0,
+      "current": 0.422,
+      "current_shear": 0.192,
+      "upwelling_edge": 0.534,
+      "salinity_front": 0.913
+    },
+    "features_at_peak": {
+      "sst": 0.996,
+      "sst_front": 0.893,
+      "front_corridor": 0.996,
+      "chl": 0.902,
+      "sst_chl_bivariate": 0.901,
+      "chl_curvature": 0.586,
+      "shelf_break": 0.345,
+      "depth": 0.992,
+      "ssh": 0.17,
+      "mld": 1.0,
+      "current": 0.458,
+      "current_shear": 0.054,
+      "upwelling_edge": 0.699,
+      "salinity_front": 1.0
+    },
+    "feature_diffs": {
+      "sst": -0.002,
+      "sst_front": 0.046,
+      "front_corridor": -0.002,
+      "chl": -0.021,
+      "sst_chl_bivariate": 0.003,
+      "chl_curvature": 0.0,
+      "shelf_break": -0.122,
+      "depth": -0.008,
+      "ssh": -0.094,
+      "mld": 0.0,
+      "current": 0.036,
+      "current_shear": -0.138,
+      "upwelling_edge": 0.164,
+      "salinity_front": 0.087
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.996,
+        "S": 0.993,
+        "W_offshore": 0.996,
+        "E_shoreward": 0.993
+      },
+      "sst_front": {
+        "N": 0.795,
+        "S": 0.807,
+        "W_offshore": 0.717,
+        "E_shoreward": 0.89
+      },
+      "front_corridor": {
+        "N": 0.996,
+        "S": 0.993,
+        "W_offshore": 0.996,
+        "E_shoreward": 0.993
+      },
+      "chl": {
+        "N": 0.933,
+        "S": 0.936,
+        "W_offshore": 0.982,
+        "E_shoreward": 0.863
+      },
+      "sst_chl_bivariate": {
+        "N": 0.922,
+        "S": 0.92,
+        "W_offshore": 0.961,
+        "E_shoreward": 0.86
+      },
+      "chl_curvature": {
+        "N": 0.544,
+        "S": 0.646,
+        "W_offshore": 0.595,
+        "E_shoreward": 0.517
+      },
+      "shelf_break": {
+        "N": 0.469,
+        "S": 0.434,
+        "W_offshore": 0.532,
+        "E_shoreward": 0.311
+      },
+      "depth": {
+        "N": 0.93,
+        "S": 0.859,
+        "W_offshore": 0.96,
+        "E_shoreward": 0.784
+      },
+      "ssh": {
+        "N": 0.265,
+        "S": 0.274,
+        "W_offshore": 0.353,
+        "E_shoreward": 0.17
+      },
+      "mld": {
+        "N": 0.999,
+        "S": 1.0,
+        "W_offshore": 0.999,
+        "E_shoreward": 1.0
+      },
+      "current": {
+        "N": 0.405,
+        "S": 0.474,
+        "W_offshore": 0.458,
+        "E_shoreward": 0.426
+      },
+      "current_shear": {
+        "N": 0.285,
+        "S": 0.09,
+        "W_offshore": 0.259,
+        "E_shoreward": 0.06
+      },
+      "upwelling_edge": {
+        "N": 0.486,
+        "S": 0.495,
+        "W_offshore": 0.325,
+        "E_shoreward": 0.692
+      },
+      "salinity_front": {
+        "N": 0.858,
+        "S": 0.904,
+        "W_offshore": 0.787,
+        "E_shoreward": 0.988
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": 0.0,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 0.987,
+        "W_offshore": 0.998,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": 2.5,
+      "S_2nm": -0.5,
+      "W_2nm": -4.5,
+      "E_2nm": 4.9,
+      "N_5nm": 5.3,
+      "S_5nm": 2.5,
+      "W_5nm": -11.0,
+      "E_5nm": 9.7,
+      "N_10nm": 11.4,
+      "S_10nm": 6.1,
+      "W_10nm": -1.5,
+      "E_10nm": -32.7
+    }
+  },
+  {
+    "date": "2026-03-18",
+    "catch_lat": -32.0613,
+    "catch_lon": 115.1458,
+    "catch_score": 89.1,
+    "peak_score": 96.9,
+    "peak_direction": "SE",
+    "peak_dist_nm": 10.6,
+    "peak_lat": -32.225,
+    "peak_lon": 115.225,
+    "quadrant_means": {
+      "N": 86.3,
+      "S": 81.1,
+      "W_offshore": 79.9,
+      "E_shoreward": 85.8
+    },
+    "features_at_catch": {
+      "sst": 0.997,
+      "sst_front": 0.744,
+      "front_corridor": 0.997,
+      "chl": 0.989,
+      "sst_chl_bivariate": 0.975,
+      "chl_curvature": 0.561,
+      "shelf_break": 0.498,
+      "depth": 1.0,
+      "ssh": 0.336,
+      "mld": 1.0,
+      "current": 0.258,
+      "current_shear": 0.499,
+      "upwelling_edge": 0.354,
+      "salinity_front": 0.78
+    },
+    "features_at_peak": {
+      "sst": 0.999,
+      "sst_front": 0.906,
+      "front_corridor": 0.999,
+      "chl": 0.855,
+      "sst_chl_bivariate": 0.847,
+      "chl_curvature": 0.033,
+      "shelf_break": 0.45,
+      "depth": 1.0,
+      "ssh": 0.188,
+      "mld": 1.0,
+      "current": 0.52,
+      "current_shear": 0.525,
+      "upwelling_edge": 0.601,
+      "salinity_front": 0.913
+    },
+    "feature_diffs": {
+      "sst": 0.002,
+      "sst_front": 0.163,
+      "front_corridor": 0.002,
+      "chl": -0.134,
+      "sst_chl_bivariate": -0.128,
+      "chl_curvature": -0.529,
+      "shelf_break": -0.049,
+      "depth": 0.0,
+      "ssh": -0.147,
+      "mld": 0.0,
+      "current": 0.262,
+      "current_shear": 0.026,
+      "upwelling_edge": 0.246,
+      "salinity_front": 0.134
+    },
+    "feat_by_quadrant": {
+      "sst": {
+        "N": 0.996,
+        "S": 0.997,
+        "W_offshore": 0.996,
+        "E_shoreward": 0.997
+      },
+      "sst_front": {
+        "N": 0.795,
+        "S": 0.748,
+        "W_offshore": 0.638,
+        "E_shoreward": 0.867
+      },
+      "front_corridor": {
+        "N": 0.996,
+        "S": 0.997,
+        "W_offshore": 0.996,
+        "E_shoreward": 0.997
+      },
+      "chl": {
+        "N": 0.935,
+        "S": 0.955,
+        "W_offshore": 0.985,
+        "E_shoreward": 0.91
+      },
+      "sst_chl_bivariate": {
+        "N": 0.923,
+        "S": 0.937,
+        "W_offshore": 0.965,
+        "E_shoreward": 0.9
+      },
+      "chl_curvature": {
+        "N": 0.554,
+        "S": 0.451,
+        "W_offshore": 0.457,
+        "E_shoreward": 0.514
+      },
+      "shelf_break": {
+        "N": 0.483,
+        "S": 0.482,
+        "W_offshore": 0.542,
+        "E_shoreward": 0.439
+      },
+      "depth": {
+        "N": 0.937,
+        "S": 0.948,
+        "W_offshore": 0.914,
+        "E_shoreward": 0.957
+      },
+      "ssh": {
+        "N": 0.263,
+        "S": 0.32,
+        "W_offshore": 0.387,
+        "E_shoreward": 0.218
+      },
+      "mld": {
+        "N": 0.997,
+        "S": 1.0,
+        "W_offshore": 1.0,
+        "E_shoreward": 0.997
+      },
+      "current": {
+        "N": 0.483,
+        "S": 0.471,
+        "W_offshore": 0.551,
+        "E_shoreward": 0.446
+      },
+      "current_shear": {
+        "N": 0.426,
+        "S": 0.172,
+        "W_offshore": 0.305,
+        "E_shoreward": 0.259
+      },
+      "upwelling_edge": {
+        "N": 0.447,
+        "S": 0.407,
+        "W_offshore": 0.225,
+        "E_shoreward": 0.586
+      },
+      "salinity_front": {
+        "N": 0.805,
+        "S": 0.828,
+        "W_offshore": 0.669,
+        "E_shoreward": 0.93
+      },
+      "thermocline_lift": {
+        "N": 0.0,
+        "S": 0.0,
+        "W_offshore": 0.0,
+        "E_shoreward": null
+      },
+      "stratification": {
+        "N": 1.0,
+        "S": 0.997,
+        "W_offshore": 0.999,
+        "E_shoreward": null
+      }
+    },
+    "gradients": {
+      "N_2nm": -11.4,
+      "S_2nm": 0.0,
+      "W_2nm": 0.0,
+      "E_2nm": -5.9,
+      "N_5nm": -19.0,
+      "S_5nm": -2.7,
+      "W_5nm": -11.6,
+      "E_5nm": -5.5,
+      "N_10nm": -2.4,
+      "S_10nm": 2.1,
+      "W_10nm": -35.3,
+      "E_10nm": 0.0
+    }
+  }
+]
