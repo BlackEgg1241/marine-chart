@@ -273,15 +273,17 @@
   <div class="ml-feat"><div class="ml-feat-dot" style="background:#22d3ee"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Boat ramps / fuel — cyan</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#000000;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Depth contours (100–1000m)</div></div>
   <div class="ml-divider"></div>
-  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#38bdf8;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Clean water (Kd490 &lt;0.06)</div></div>
-  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#fb923c;border-style:dashed"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Turbid / bloom edge (0.10)</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#fb923c;border-style:dashed"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Warm eddy — orange dashed</div></div>
   <div class="ml-feat"><div class="ml-feat-line" style="border-color:#60a5fa;border-style:dashed"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Cold eddy — blue dashed</div></div>
+  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#c084fc;border-style:dashed"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Salinity front — purple dashed</div></div>
+  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#ef4444;border-style:solid"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">FTLE ridge — red solid</div></div>
+  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#3b82f6;border-style:dashed"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Vertical velocity — blue dashed</div></div>
+  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#f59e0b;border-style:dotted"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Okubo-Weiss — amber dotted</div></div>
   <div class="ml-divider"></div>
-  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#a78bfa;border-style:dashed"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">Mixed layer depth — purple dashed (labelled M##m)</div></div>
-  <div class="ml-divider"></div>
-  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#dc2626;border-style:dashed"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">SSTA positive — red dashed (labelled °)</div></div>
-  <div class="ml-feat"><div class="ml-feat-line" style="border-color:#1d4ed8;border-style:dashed"></div><div class="ml-text" style="font-size:8px;color:#94a3b8">SSTA negative — blue dashed (labelled °)</div></div>
+  <div class="ml-text" style="font-size:8px;color:#06b6d4;font-weight:600;margin-bottom:2px">Feature Score Overlay</div>
+  <div class="ml-row"><div style="height:10px;width:100%;background:linear-gradient(to right,#0000ff,#00ffff,#00ff00,#ffff00,#ff0000);border-radius:3px"></div></div>
+  <div class="ml-row" style="justify-content:space-between;gap:0"><div class="ml-text" style="font-size:7px;color:#94a3b8">0% Low</div><div class="ml-text" style="font-size:7px;color:#94a3b8">50%</div><div class="ml-text" style="font-size:7px;color:#94a3b8">100% High</div></div>
+  <div class="ml-row" style="gap:6px;align-items:center;margin-top:2px"><div class="ml-text" style="font-size:8px;color:#94a3b8;white-space:nowrap">Opacity</div><input type="range" id="hmOpacitySlider" min="10" max="100" value="70" step="5" style="flex:1;height:6px;accent-color:#06b6d4;cursor:pointer" oninput="setHmOpacity(this.value)"><div class="ml-text" style="font-size:11px;color:#06b6d4;font-weight:700;min-width:30px;text-align:right" id="hmOpacityVal">70%</div></div>
   <div class="ml-note">Money zone: SST front + Chl edge at the 200m shelf = bait stacks, marlin follows</div>
 </div>
 
@@ -340,15 +342,33 @@
         <button class="layer-btn on-red" id="btnSSTFronts" onclick="toggleLayer('sst_fronts')"><span class="icon">🔥</span> SST Fronts</button>
         <button class="layer-btn on-green" id="btnChlEdges" onclick="toggleLayer('chl_edges')"><span class="icon">🌿</span> Chl Edges</button>
         <button class="layer-btn on" id="btnCurrents" onclick="toggleLayer('currents')"><span class="icon">💧</span> Currents</button>
-        <button class="layer-btn on" id="btnClarity" onclick="toggleLayer('clarity')"><span class="icon">🔵</span> Clarity</button>
         <button class="layer-btn on-orange" id="btnSSH" onclick="toggleLayer('ssh')"><span class="icon">🌀</span> Eddies</button>
-        <button class="layer-btn on" id="btnMLD" onclick="toggleLayer('mld')"><span class="icon">🫧</span> MLD</button>
-        <button class="layer-btn on-red" id="btnSSTA" onclick="toggleLayer('ssta')"><span class="icon">📊</span> SSTA</button>
         <button class="layer-btn" id="btnCorridors" onclick="toggleLayer('corridors')"><span class="icon">🔀</span> Corridors</button>
-        <button class="layer-btn" id="btnConvergence" onclick="toggleLayer('convergence')"><span class="icon">🌀</span> Conv</button>
         <button class="layer-btn" id="btnShear" onclick="toggleLayer('shear')"><span class="icon">⚡</span> Shear</button>
         <button class="layer-btn" id="btnUpwelling" onclick="toggleLayer('upwelling')"><span class="icon">⬆</span> Upwell</button>
         <button class="layer-btn" id="btnChlCurv" onclick="toggleLayer('chl_curv')"><span class="icon">🧬</span> Chl Curv</button>
+        <button class="layer-btn" id="btnSalFront" onclick="toggleLayer('sal_front')"><span class="icon">🧂</span> Salinity</button>
+        <button class="layer-btn" id="btnFTLE" onclick="toggleLayer('ftle')"><span class="icon">🌊</span> FTLE</button>
+        <button class="layer-btn" id="btnVertVel" onclick="toggleLayer('vert_vel')"><span class="icon">⬇</span> Vert Vel</button>
+        <button class="layer-btn" id="btnOkubo" onclick="toggleLayer('okubo')"><span class="icon">💫</span> Okubo-W</button>
+        <button class="layer-btn" id="btnBivar" onclick="toggleLayer('bivariate')"><span class="icon">🔗</span> Bivariate</button>
+      </div>
+      <!-- Row 3: Feature score heatmaps -->
+      <div class="layer-row">
+        <button class="layer-btn" id="btnHmSST" onclick="toggleHeatmap('sst')"><span class="icon">🌡️</span> SST</button>
+        <button class="layer-btn" id="btnHmChl" onclick="toggleHeatmap('chl')"><span class="icon">🌿</span> CHL</button>
+        <button class="layer-btn" id="btnHmSSH" onclick="toggleHeatmap('ssh')"><span class="icon">🌀</span> SSH</button>
+        <button class="layer-btn" id="btnHmSal" onclick="toggleHeatmap('salinity_front')"><span class="icon">🧂</span> Salinity</button>
+        <button class="layer-btn" id="btnHmShear" onclick="toggleHeatmap('current_shear')"><span class="icon">⚡</span> Shear</button>
+        <button class="layer-btn" id="btnHmChlCurv" onclick="toggleHeatmap('chl_curvature')"><span class="icon">🧬</span> Chl Curv</button>
+        <button class="layer-btn" id="btnHmFTLE" onclick="toggleHeatmap('ftle')"><span class="icon">🌊</span> FTLE</button>
+        <button class="layer-btn" id="btnHmVertVel" onclick="toggleHeatmap('vertical_velocity')"><span class="icon">⬇</span> Vert Vel</button>
+        <button class="layer-btn" id="btnHmOkubo" onclick="toggleHeatmap('okubo_weiss')"><span class="icon">💫</span> Okubo-W</button>
+        <button class="layer-btn" id="btnHmUpwell" onclick="toggleHeatmap('upwelling_edge')"><span class="icon">⬆</span> Upwell</button>
+        <button class="layer-btn" id="btnHmFront" onclick="toggleHeatmap('front_corridor')"><span class="icon">🔀</span> Corridors</button>
+        <button class="layer-btn" id="btnHmBivar" onclick="toggleHeatmap('sst_chl_bivariate')"><span class="icon">🔗</span> Bivariate</button>
+        <button class="layer-btn" id="btnHmSSTFront" onclick="toggleHeatmap('sst_front')"><span class="icon">🔥</span> SST Front</button>
+        <button class="layer-btn" id="btnHmShelf" onclick="toggleHeatmap('shelf_break')"><span class="icon">📐</span> Shelf</button>
       </div>
     </div>
   </div>
@@ -460,7 +480,7 @@ var OL_URL='https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Oce
 var SM_URL='https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png';
 var BLK='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 var GW='https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/';
-var GM={'GHRSST_L4_AVHRR-OI_Sea_Surface_Temperature':{t:'GoogleMapsCompatible_Level7',f:'png',z:7},'MODIS_Aqua_L2_Chlorophyll_A':{t:'GoogleMapsCompatible_Level7',f:'png',z:7}};
+var GM={'GHRSST_L4_MUR_Sea_Surface_Temperature':{t:'GoogleMapsCompatible_Level7',f:'png',z:7},'MODIS_Aqua_L2_Chlorophyll_A':{t:'GoogleMapsCompatible_Level7',f:'png',z:7}};
 // Use gibs:// protocol to fix palette PNG transparency (MapLibre doesn't decode tRNS in P-mode PNGs)
 maplibregl.addProtocol('gibs',function(params){
   var url=params.url.replace('gibs://','https://');
@@ -482,7 +502,7 @@ maplibregl.addProtocol('gibs',function(params){
   });
 });
 function gu(l,d){var m=GM[l];return 'gibs://gibs.earthdata.nasa.gov/wmts/epsg3857/best/'+l+'/default/'+d+'/'+m.t+'/{z}/{y}/{x}.'+m.f}
-var GL={chl:'MODIS_Aqua_L2_Chlorophyll_A',sst:'GHRSST_L4_AVHRR-OI_Sea_Surface_Temperature'};
+var GL={chl:'MODIS_Aqua_L2_Chlorophyll_A',sst:'GHRSST_L4_MUR_Sea_Surface_Temperature'};
 // CMEMS Sea Level Anomaly WMTS — NRT daily, no auth required
 var CMEMS_SLA='https://wmts.marine.copernicus.eu/teroWmts/?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=SEALEVEL_GLO_PHY_L4_NRT_008_046/cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.125deg_P1D_202506/sla&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&TIME=DATE&STYLE=cmap:balance,range:-0.5/0.5';
 function guSLA(d){return CMEMS_SLA.replace('TIME=DATE','TIME='+d);}
@@ -524,10 +544,11 @@ var SPOTS=[
 ];
 
 var map,cBM='ocean',gpsWId=null,gM='off',cPos=null,fGPS=false,trk=[];
-var LS={seamark:true,nav_aids:false,blue_marlin:true,spanish_mackerel:false,sbt:false,chlorophyll:false,sst:false,ssh_visual:false,sst_fronts:true,chl_edges:true,currents:true,bathymetry:true,clarity:true,ssh:true,mld:true,ssta:true,corridors:false,convergence:false,shear:false,upwelling:false,chl_curv:false};
+var LS={seamark:true,nav_aids:false,blue_marlin:true,spanish_mackerel:false,sbt:false,chlorophyll:false,sst:false,ssh_visual:false,sst_fronts:true,chl_edges:true,currents:true,bathymetry:true,ssh:true,corridors:false,shear:false,upwelling:false,chl_curv:false,sal_front:false,ftle:false,vert_vel:false,okubo:false,bivariate:false};
+var hmActive={};
 var _displayFloor=0.70; // hotspot display floor — adjustable via legend slider
 // Opacity-based toggling for GeoJSON layers — tiles stay loaded, no cache purge on toggle
-var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-peak':['line-opacity',.9],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.9],'isotherm-label':['text-opacity',1],'mld-very-shallow':['line-opacity',.8],'mld-shallow':['line-opacity',.8],'mld-moderate':['line-opacity',.8],'mld-deep':['line-opacity',.8],'ssta-cold':['line-opacity',.8],'ssta-warm':['line-opacity',.9],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.9],'clarity-clean':['line-opacity',.9],'clarity-turbid':['line-opacity',.85],'clarity-bloom':['line-opacity',.9],'sst-front-label':['text-opacity',1],'chl-edge-label':['text-opacity',1],'ssh-label':['text-opacity',1],'mld-label':['text-opacity',1],'ssta-label':['text-opacity',1],'bathy-shade':['raster-opacity',.5],'bathy-glow':['line-opacity',.12],'bathy-20':['line-opacity',.6],'bathy-50':['line-opacity',.7],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-150':['line-opacity',.7],'bathy-250':['line-opacity',.8],'bathy-label':['text-opacity',1],'hs-blue':null,'sm-hs':null,'sbt-hs':null,'nav-base':['circle-opacity',1],'nav-port':['circle-opacity',1],'nav-stbd':['circle-opacity',1],'nav-cardinal-x':['circle-opacity',1],'nav-light-dot':['circle-opacity',1],'nav-label':['text-opacity',1],'corridor-mod':['line-opacity',.7],'corridor-strong':['line-opacity',.85],'corridor-intense':['line-opacity',.9],'conv-mod':['line-opacity',.7],'conv-strong':['line-opacity',.85],'conv-intense':['line-opacity',.9],'shear-mod':['line-opacity',.7],'shear-strong':['line-opacity',.85],'shear-intense':['line-opacity',.9],'upwell-mod':['line-opacity',.75],'upwell-strong':['line-opacity',.9],'chlcurv-mod':['line-opacity',.7],'chlcurv-strong':['line-opacity',.85]};
+var gLO={'all-catches-glow':['circle-opacity',.15],'all-catches-dot':['circle-opacity',.9],'sst-front-glow':['line-opacity',.18],'sst-front-line':['line-opacity',.9],'isotherm-blue-peak':['line-opacity',.9],'isotherm-blue-prime':['line-opacity',.9],'isotherm-blue-good':['line-opacity',.9],'isotherm-label':['text-opacity',1],'chl-edge-line':['line-opacity',.8],'current-line':['line-opacity',.75],'ssh-cold':['line-opacity',.8],'ssh-neutral':['line-opacity',.5],'ssh-warm':['line-opacity',.9],'ssh-warm-core':['line-opacity',.9],'sst-front-label':['text-opacity',1],'chl-edge-label':['text-opacity',1],'ssh-label':['text-opacity',1],'bathy-shade':['raster-opacity',.5],'bathy-glow':['line-opacity',.12],'bathy-20':['line-opacity',.6],'bathy-50':['line-opacity',.7],'bathy-200':['line-opacity',.9],'bathy-500':['line-opacity',.75],'bathy-1000':['line-opacity',.65],'bathy-100':['line-opacity',.85],'bathy-150':['line-opacity',.7],'bathy-250':['line-opacity',.8],'bathy-label':['text-opacity',1],'hs-blue':null,'sm-hs':null,'sbt-hs':null,'nav-base':['circle-opacity',1],'nav-port':['circle-opacity',1],'nav-stbd':['circle-opacity',1],'nav-cardinal-x':['circle-opacity',1],'nav-light-dot':['circle-opacity',1],'nav-label':['text-opacity',1],'corridor-mod':['line-opacity',.7],'corridor-strong':['line-opacity',.85],'corridor-intense':['line-opacity',.9],'shear-mod':['line-opacity',.7],'shear-strong':['line-opacity',.85],'shear-intense':['line-opacity',.9],'upwell-mod':['line-opacity',.75],'upwell-strong':['line-opacity',.9],'chlcurv-mod':['line-opacity',.7],'chlcurv-strong':['line-opacity',.85],'sal-mod':['line-opacity',.7],'sal-strong':['line-opacity',.85],'sal-intense':['line-opacity',.9],'ftle-mod':['line-opacity',.7],'ftle-strong':['line-opacity',.9],'vvel-mod':['line-opacity',.7],'vvel-strong':['line-opacity',.85],'okubo-mod':['line-opacity',.7],'okubo-strong':['line-opacity',.85],'bivar-mod':['line-opacity',.7],'bivar-strong':['line-opacity',.85]};
 function sGL(id,on){if(!map.getLayer(id))return;var e=gLO[id];e?map.setPaintProperty(id,e[0],on?e[1]:0):map.setLayoutProperty(id,'visibility',on?'visible':'none')}
 var iD=new Date();var cDate=iD.toISOString().split('T')[0];
 var iG=new Date();iG.setDate(iG.getDate()-3);var gDate=iG.toISOString().split('T')[0];
@@ -556,15 +577,16 @@ function initMap(){
     'bathymetry':{type:'geojson',data:'data/bathymetry_contours.geojson'},
     'bathy-hillshade':{type:'raster',tiles:['data/bathy_tiles/{z}/{x}/{y}.png'],tileSize:256,minzoom:8,maxzoom:12,bounds:[114.499,-32.65,116.001,-31.299]},
     'deep-water':{type:'geojson',data:'data/deep_water.geojson'},
-    'mld':{type:'geojson',data:'data/mld_contours.geojson'},
-    'water-clarity':{type:'geojson',data:'data/water_clarity.geojson'},
     'ssh-eddies':{type:'geojson',data:'data/ssh_eddies.geojson'},
-    'ssta':{type:'geojson',data:'data/ssta_contours.geojson'},
     'front-corridors':{type:'geojson',data:'data/front_corridors.geojson'},
-    'convergence-zones':{type:'geojson',data:'data/convergence_zones.geojson'},
     'shear-zones':{type:'geojson',data:'data/shear_zones.geojson'},
     'upwelling-edges':{type:'geojson',data:'data/upwelling_edges.geojson'},
     'chl-curvature':{type:'geojson',data:'data/chl_curvature.geojson'},
+    'salinity-fronts':{type:'geojson',data:'data/salinity_fronts.geojson'},
+    'ftle-ridges':{type:'geojson',data:'data/ftle_ridges.geojson'},
+    'vert-velocity':{type:'geojson',data:'data/vertical_velocity.geojson'},
+    'okubo-weiss':{type:'geojson',data:'data/okubo_weiss.geojson'},
+    'bivariate':{type:'geojson',data:'data/bivariate.geojson'},
     'blue-hotspots':{type:'geojson',data:'data/blue_marlin_hotspots.geojson'},
     'sm-hotspots':{type:'geojson',data:'data/spanish_mackerel_hotspots.geojson'},
     'sbt-hotspots':{type:'geojson',data:'data/sbt_hotspots.geojson'},
@@ -615,23 +637,9 @@ function initMap(){
     {id:'ssh-warm',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'warm_eddy'],paint:{'line-color':'#fb923c','line-width':2,'line-opacity':.9,'line-dasharray':[5,3]}},
     {id:'ssh-warm-core',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'warm_core'],paint:{'line-color':'#fb923c','line-width':2,'line-opacity':.9,'line-dasharray':[5,3]}},
     {id:'ssh-label',type:'symbol',source:'ssh-eddies',filter:['any',['==',['get','label'],'warm_eddy'],['==',['get','label'],'warm_core'],['==',['get','label'],'cold_eddy']],layout:{'symbol-placement':'line','symbol-spacing':300,'text-field':'EDDY','text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#fb923c','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':1}},
-    {id:'clarity-clean',type:'line',source:'water-clarity',filter:['==',['get','label'],'clean'],paint:{'line-color':'#38bdf8','line-width':2,'line-opacity':.9}},
-    {id:'clarity-turbid',type:'line',source:'water-clarity',filter:['==',['get','label'],'turbid'],paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':.85,'line-dasharray':[4,2]}},
-    {id:'clarity-bloom',type:'line',source:'water-clarity',filter:['==',['get','label'],'bloom'],paint:{'line-color':'#dc2626','line-width':2,'line-opacity':.9,'line-dasharray':[4,2]}},
-    {id:'mld-very-shallow',type:'line',source:'mld',filter:['==',['get','label'],'very_shallow'],paint:{'line-color':'#a78bfa','line-width':1.5,'line-opacity':.8,'line-dasharray':[4,2]}},
-    {id:'mld-shallow',type:'line',source:'mld',filter:['==',['get','label'],'shallow'],paint:{'line-color':'#a78bfa','line-width':1.5,'line-opacity':.8,'line-dasharray':[4,2]}},
-    {id:'mld-moderate',type:'line',source:'mld',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#a78bfa','line-width':1.5,'line-opacity':.8,'line-dasharray':[4,2]}},
-    {id:'mld-deep',type:'line',source:'mld',filter:['==',['get','label'],'deep'],paint:{'line-color':'#a78bfa','line-width':1.5,'line-opacity':.8,'line-dasharray':[4,2]}},
-    {id:'mld-label',type:'symbol',source:'mld',layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat','M',['to-string',['get','mld']],'m'],'text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#a78bfa','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':1}},
-    {id:'ssta-cold',type:'line',source:'ssta',filter:['<',['get','anomaly'],0],paint:{'line-color':'#1d4ed8','line-width':1.5,'line-opacity':.8,'line-dasharray':[4,2]}},
-    {id:'ssta-warm',type:'line',source:'ssta',filter:['>=',['get','anomaly'],0],paint:{'line-color':'#dc2626','line-width':1.5,'line-opacity':.8,'line-dasharray':[4,2]}},
-    {id:'ssta-label',type:'symbol',source:'ssta',layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat','SSTA ',['to-string',['get','anomaly']],'\u00B0'],'text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#94a3b8','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':1}},
     {id:'corridor-mod',type:'line',source:'front-corridors',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':0,'line-dasharray':[6,3]}},
     {id:'corridor-strong',type:'line',source:'front-corridors',filter:['==',['get','label'],'strong'],paint:{'line-color':'#f97316','line-width':2,'line-opacity':0,'line-dasharray':[6,3]}},
     {id:'corridor-intense',type:'line',source:'front-corridors',filter:['==',['get','label'],'intense'],paint:{'line-color':'#ea580c','line-width':2.5,'line-opacity':0,'line-dasharray':[6,3]}},
-    {id:'conv-mod',type:'line',source:'convergence-zones',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#a78bfa','line-width':1.5,'line-opacity':0,'line-dasharray':[4,3]}},
-    {id:'conv-strong',type:'line',source:'convergence-zones',filter:['==',['get','label'],'strong'],paint:{'line-color':'#8b5cf6','line-width':2,'line-opacity':0,'line-dasharray':[4,3]}},
-    {id:'conv-intense',type:'line',source:'convergence-zones',filter:['==',['get','label'],'intense'],paint:{'line-color':'#7c3aed','line-width':2.5,'line-opacity':0,'line-dasharray':[4,3]}},
     {id:'shear-mod',type:'line',source:'shear-zones',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#38bdf8','line-width':1.5,'line-opacity':0,'line-dasharray':[2,3]}},
     {id:'shear-strong',type:'line',source:'shear-zones',filter:['==',['get','label'],'strong'],paint:{'line-color':'#0ea5e9','line-width':2,'line-opacity':0,'line-dasharray':[2,3]}},
     {id:'shear-intense',type:'line',source:'shear-zones',filter:['==',['get','label'],'intense'],paint:{'line-color':'#0284c7','line-width':2.5,'line-opacity':0,'line-dasharray':[2,3]}},
@@ -639,6 +647,17 @@ function initMap(){
     {id:'upwell-strong',type:'line',source:'upwelling-edges',filter:['==',['get','label'],'strong'],paint:{'line-color':'#0d9488','line-width':2.5,'line-opacity':0}},
     {id:'chlcurv-mod',type:'line',source:'chl-curvature',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#86efac','line-width':1.5,'line-opacity':0,'line-dasharray':[3,3]}},
     {id:'chlcurv-strong',type:'line',source:'chl-curvature',filter:['==',['get','label'],'strong'],paint:{'line-color':'#22c55e','line-width':2,'line-opacity':0,'line-dasharray':[3,3]}},
+    {id:'sal-mod',type:'line',source:'salinity-fronts',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#c084fc','line-width':1.5,'line-opacity':0,'line-dasharray':[4,3]}},
+    {id:'sal-strong',type:'line',source:'salinity-fronts',filter:['==',['get','label'],'strong'],paint:{'line-color':'#a855f7','line-width':2,'line-opacity':0,'line-dasharray':[4,3]}},
+    {id:'sal-intense',type:'line',source:'salinity-fronts',filter:['==',['get','label'],'intense'],paint:{'line-color':'#7c3aed','line-width':2.5,'line-opacity':0,'line-dasharray':[4,3]}},
+    {id:'ftle-mod',type:'line',source:'ftle-ridges',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#fca5a5','line-width':1.5,'line-opacity':0}},
+    {id:'ftle-strong',type:'line',source:'ftle-ridges',filter:['==',['get','label'],'strong'],paint:{'line-color':'#ef4444','line-width':2.5,'line-opacity':0}},
+    {id:'vvel-mod',type:'line',source:'vert-velocity',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#93c5fd','line-width':1.5,'line-opacity':0,'line-dasharray':[3,2]}},
+    {id:'vvel-strong',type:'line',source:'vert-velocity',filter:['==',['get','label'],'strong'],paint:{'line-color':'#3b82f6','line-width':2,'line-opacity':0,'line-dasharray':[3,2]}},
+    {id:'okubo-mod',type:'line',source:'okubo-weiss',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#fde68a','line-width':1.5,'line-opacity':0,'line-dasharray':[2,2]}},
+    {id:'okubo-strong',type:'line',source:'okubo-weiss',filter:['==',['get','label'],'strong'],paint:{'line-color':'#f59e0b','line-width':2,'line-opacity':0,'line-dasharray':[2,2]}},
+    {id:'bivar-mod',type:'line',source:'bivariate',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#67e8f9','line-width':1.5,'line-opacity':0,'line-dasharray':[5,2]}},
+    {id:'bivar-strong',type:'line',source:'bivariate',filter:['==',['get','label'],'strong'],paint:{'line-color':'#06b6d4','line-width':2,'line-opacity':0,'line-dasharray':[5,2]}},
     {id:'spot-glow',type:'circle',source:'spots',layout:{visibility:'visible'},paint:{'circle-radius':['match',['get','type'],'ramp',10,16],'circle-color':['match',['get','type'],'fad','#f43f5e','ramp','#22d3ee','#94a3b8'],'circle-opacity':.15,'circle-blur':.8}},
     {id:'spot-dot',type:'circle',source:'spots',layout:{visibility:'visible'},paint:{'circle-radius':['match',['get','type'],'ramp',4,6],'circle-color':['match',['get','type'],'fad','#f43f5e','ramp','#22d3ee','#94a3b8'],'circle-stroke-width':['match',['get','type'],'ramp',1.5,2],'circle-stroke-color':'#fff','circle-opacity':.9}},
     {id:'spot-label',type:'symbol',source:'spots',layout:{visibility:'visible','text-field':['get','name'],'text-size':['match',['get','type'],'ramp',8,10],'text-offset':[0,1.5],'text-anchor':'top','text-font':['Open Sans Regular']},paint:{'text-color':['match',['get','type'],'fad','#fbbf24','ramp','#94a3b8','#cbd5e1'],'text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5}},
@@ -699,21 +718,9 @@ function initMap(){
     'ssh-neutral':function(p){return '<div class="hp-title">Neutral Zone</div><div class="hp-sub">Low sea level anomaly</div>'},
     'ssh-warm':function(p){return '<div class="hp-title">Warm Eddy</div><div class="hp-sub">Leeuwin Current eddy — marlin habitat</div>'},
     'ssh-warm-core':function(p){return '<div class="hp-title">Warm Core Eddy</div><div class="hp-sub">Strong anticyclonic — prime marlin zone</div>'},
-    'clarity-clean':function(p){return '<div class="hp-title">Clean Water</div><div class="hp-sub">Low turbidity — good fishing visibility</div>'},
-    'clarity-turbid':function(p){return '<div class="hp-title">Turbid Water</div><div class="hp-sub">High turbidity — reduced visibility</div>'},
-    'clarity-bloom':function(p){return '<div class="hp-title">Trichodesmium Bloom</div><div class="hp-sub">Very poor water clarity — avoid</div>'},
-    'mld-very-shallow':function(p){return '<div class="hp-title">Very Shallow MLD ('+p.mld+'m)</div><div class="hp-sub">Extreme stratification — marlin pinned to surface layer</div>'},
-    'mld-shallow':function(p){return '<div class="hp-title">Shallow Mixed Layer ('+p.mld+'m)</div><div class="hp-sub">Strong stratification — marlin concentrated near surface</div>'},
-    'mld-moderate':function(p){return '<div class="hp-title">Moderate MLD ('+p.mld+'m)</div><div class="hp-sub">Transitional mixing — marlin accessible but deeper</div>'},
-    'mld-deep':function(p){return '<div class="hp-title">Deep Mixed Layer ('+p.mld+'m)</div><div class="hp-sub">Weak stratification — marlin dispersed through water column</div>'},
-    'ssta-cold':function(p){return '<div class="hp-title">SST Anomaly '+p.anomaly.toFixed(1)+'°C</div><div class="hp-sub">Cooler than seasonal average</div>'},
-    'ssta-warm':function(p){return '<div class="hp-title">SST Anomaly +'+p.anomaly.toFixed(1)+'°C</div><div class="hp-sub">Warmer than seasonal average — Leeuwin Current active</div>'},
     'corridor-mod':function(p){return '<div class="hp-title">Front Corridor</div><div class="hp-sub">SST fronts from 2+ directions — prey funnel zone ('+Math.round(p.level*100)+'%)</div>'},
     'corridor-strong':function(p){return '<div class="hp-title">Strong Front Corridor</div><div class="hp-sub">Multi-direction frontal convergence — active prey trap ('+Math.round(p.level*100)+'%)</div>'},
     'corridor-intense':function(p){return '<div class="hp-title">Intense Front Corridor</div><div class="hp-sub">Tight frontal pinch point — highest prey concentration ('+Math.round(p.level*100)+'%)</div>'},
-    'conv-mod':function(p){return '<div class="hp-title">Convergence Zone</div><div class="hp-sub">Current convergence — bait aggregation area ('+Math.round(p.level*100)+'%)</div>'},
-    'conv-strong':function(p){return '<div class="hp-title">Strong Convergence</div><div class="hp-sub">Strong current convergence — active bait trap ('+Math.round(p.level*100)+'%)</div>'},
-    'conv-intense':function(p){return '<div class="hp-title">Intense Convergence</div><div class="hp-sub">Very strong convergence — peak bait concentration ('+Math.round(p.level*100)+'%)</div>'},
     'shear-mod':function(p){return '<div class="hp-title">Current Shear Zone</div><div class="hp-sub">Vorticity boundary — Leeuwin/Undercurrent interaction ('+Math.round(p.level*100)+'%)</div>'},
     'shear-strong':function(p){return '<div class="hp-title">Strong Shear Zone</div><div class="hp-sub">High vorticity — LC/LUC shear boundary, bait stacking zone ('+Math.round(p.level*100)+'%)</div>'},
     'shear-intense':function(p){return '<div class="hp-title">Intense Shear Zone</div><div class="hp-sub">Peak vorticity — active current boundary, prey concentrated ('+Math.round(p.level*100)+'%)</div>'},
@@ -721,11 +728,22 @@ function initMap(){
     'upwell-strong':function(p){return '<div class="hp-title">Strong Upwelling Edge</div><div class="hp-sub">Active upwelling boundary — nutrient-warm water interface ('+Math.round(p.level*100)+'%)</div>'},
     'chlcurv-mod':function(p){return '<div class="hp-title">CHL Curvature</div><div class="hp-sub">Chlorophyll pocket/peninsula — dynamic mixing zone ('+Math.round(p.level*100)+'%)</div>'},
     'chlcurv-strong':function(p){return '<div class="hp-title">Strong CHL Curvature</div><div class="hp-sub">Intense chlorophyll feature — active nutrient pooling ('+Math.round(p.level*100)+'%)</div>'},
+    'sal-mod':function(p){return '<div class="hp-title">Salinity Front</div><div class="hp-sub">Halocline boundary — water mass interface ('+Math.round(p.level*100)+'%)</div>'},
+    'sal-strong':function(p){return '<div class="hp-title">Strong Salinity Front</div><div class="hp-sub">Strong halocline — active water mass boundary ('+Math.round(p.level*100)+'%)</div>'},
+    'sal-intense':function(p){return '<div class="hp-title">Intense Salinity Front</div><div class="hp-sub">Major water mass collision — peak nutrient mixing ('+Math.round(p.level*100)+'%)</div>'},
+    'ftle-mod':function(p){return '<div class="hp-title">FTLE Ridge</div><div class="hp-sub">Transport barrier — material accumulation zone ('+Math.round(p.level*100)+'%)</div>'},
+    'ftle-strong':function(p){return '<div class="hp-title">Strong FTLE Ridge</div><div class="hp-sub">Major transport barrier — prey trapped along ridge ('+Math.round(p.level*100)+'%)</div>'},
+    'vvel-mod':function(p){return '<div class="hp-title">Vertical Velocity</div><div class="hp-sub">Upwelling/downwelling cell — nutrient vertical transport ('+Math.round(p.level*100)+'%)</div>'},
+    'vvel-strong':function(p){return '<div class="hp-title">Strong Vertical Velocity</div><div class="hp-sub">Active vertical mixing — deep nutrients reaching surface ('+Math.round(p.level*100)+'%)</div>'},
+    'okubo-mod':function(p){return '<div class="hp-title">Okubo-Weiss Zone</div><div class="hp-sub">Strain/filament — material stretching zone ('+Math.round(p.level*100)+'%)</div>'},
+    'okubo-strong':function(p){return '<div class="hp-title">Strong Okubo-Weiss</div><div class="hp-sub">Active strain filament — prey concentrated along feature ('+Math.round(p.level*100)+'%)</div>'},
+    'bivar-mod':function(p){return '<div class="hp-title">SST-CHL Bivariate</div><div class="hp-sub">Warm + productive overlap — dual condition zone ('+Math.round(p.level*100)+'%)</div>'},
+    'bivar-strong':function(p){return '<div class="hp-title">Strong SST-CHL Bivariate</div><div class="hp-sub">Strong warm + productive overlap — prime habitat ('+Math.round(p.level*100)+'%)</div>'},
     'sm-hs':function(p){var h='<div class="hp-title" style="color:#a78bfa">Spanish Mackerel — '+Math.round(p.intensity*100)+'%</div>';var items=[];var keys=[['s_sst','w_sst','SST'],['s_sst_front','w_sst_front','Fronts'],['s_reef_structure','w_reef_structure','Reef'],['s_ssh','w_ssh','SSH'],['s_clarity','w_clarity','Clarity'],['s_chl','w_chl','Chl'],['s_current','w_current','Curr']];for(var i=0;i<keys.length;i++){var k=keys[i];if(p[k[0]]!=null&&p[k[1]]>0){items.push(k[2]+' '+Math.round(p[k[0]]*p[k[1]]*100)+'%')}}var mults=[];if(p.s_depth!=null)mults.push('Depth \u00d7'+Math.round(p.s_depth*100)+'%');var sub=items.join(' \u00b7 ');if(mults.length)sub+=' | '+mults.join(' \u00b7 ');return h+'<div class="hp-sub">'+sub+'</div>'},
     'sbt-hs':function(p){var h='<div class="hp-title" style="color:#2dd4bf">SB Tuna — '+Math.round(p.intensity*100)+'%</div>';var items=[];var keys=[['s_sst','w_sst','SST'],['s_sst_front','w_sst_front','Fronts'],['s_front_corridor','w_front_corridor','Corr'],['s_chl','w_chl','Chl'],['s_chl_curvature','w_chl_curvature','ChlC'],['s_ssh','w_ssh','SSH'],['s_current','w_current','Curr'],['s_convergence','w_convergence','Conv'],['s_mld','w_mld','MLD'],['s_clarity','w_clarity','Clarity'],['s_ssta','w_ssta','SSTA'],['s_o2','w_o2','O2']];for(var i=0;i<keys.length;i++){var k=keys[i];if(p[k[0]]!=null&&p[k[1]]>0){items.push(k[2]+' '+Math.round(p[k[0]]*p[k[1]]*100)+'%')}}var mults=[];if(p.s_depth!=null)mults.push('Depth \u00d7'+Math.round(p.s_depth*100)+'%');if(p.s_shelf_break!=null)mults.push('Canyon \u00d7'+p.s_shelf_break);var sub=items.join(' \u00b7 ');if(mults.length)sub+=' | '+mults.join(' \u00b7 ');return h+'<div class="hp-sub">'+sub+'</div>'},
   };
   // Map layer IDs to their LS toggle key so hovers respect visibility
-  var hVis={'hs-blue':'blue_marlin','sm-hs':'spanish_mackerel','sbt-hs':'sbt','isotherm-blue-peak':'blue_marlin','isotherm-blue-prime':'blue_marlin','isotherm-blue-good':'blue_marlin','sst-front-glow':'sst_fronts','sst-front-line':'sst_fronts','sst-front-label':'sst_fronts','chl-edge-line':'chl_edges','chl-edge-label':'chl_edges','current-line':'currents','bathy-20':'bathymetry','bathy-50':'bathymetry','bathy-100':'bathymetry','bathy-150':'bathymetry','bathy-200':'bathymetry','bathy-250':'bathymetry','bathy-500':'bathymetry','bathy-1000':'bathymetry','clarity-clean':'clarity','clarity-turbid':'clarity','clarity-bloom':'clarity','ssh-cold':'ssh','ssh-neutral':'ssh','ssh-warm':'ssh','ssh-warm-core':'ssh','ssh-label':'ssh','mld-very-shallow':'mld','mld-shallow':'mld','mld-moderate':'mld','mld-deep':'mld','mld-label':'mld','ssta-cold':'ssta','ssta-warm':'ssta','ssta-label':'ssta','corridor-mod':'corridors','corridor-strong':'corridors','corridor-intense':'corridors','conv-mod':'convergence','conv-strong':'convergence','conv-intense':'convergence','shear-mod':'shear','shear-strong':'shear','shear-intense':'shear','upwell-mod':'upwelling','upwell-strong':'upwelling','chlcurv-mod':'chl_curv','chlcurv-strong':'chl_curv',};
+  var hVis={'hs-blue':'blue_marlin','sm-hs':'spanish_mackerel','sbt-hs':'sbt','isotherm-blue-peak':'blue_marlin','isotherm-blue-prime':'blue_marlin','isotherm-blue-good':'blue_marlin','sst-front-glow':'sst_fronts','sst-front-line':'sst_fronts','sst-front-label':'sst_fronts','chl-edge-line':'chl_edges','chl-edge-label':'chl_edges','current-line':'currents','bathy-20':'bathymetry','bathy-50':'bathymetry','bathy-100':'bathymetry','bathy-150':'bathymetry','bathy-200':'bathymetry','bathy-250':'bathymetry','bathy-500':'bathymetry','bathy-1000':'bathymetry','ssh-cold':'ssh','ssh-neutral':'ssh','ssh-warm':'ssh','ssh-warm-core':'ssh','ssh-label':'ssh','corridor-mod':'corridors','corridor-strong':'corridors','corridor-intense':'corridors','shear-mod':'shear','shear-strong':'shear','shear-intense':'shear','upwell-mod':'upwelling','upwell-strong':'upwelling','chlcurv-mod':'chl_curv','chlcurv-strong':'chl_curv','sal-mod':'sal_front','sal-strong':'sal_front','sal-intense':'sal_front','ftle-mod':'ftle','ftle-strong':'ftle','vvel-mod':'vert_vel','vvel-strong':'vert_vel','okubo-mod':'okubo','okubo-strong':'okubo','bivar-mod':'bivariate','bivar-strong':'bivariate'};
   // Hide hover panel when mouse leaves the map canvas (over UI panels/buttons)
   document.addEventListener('mousemove',function(e){
     var cv=map.getCanvas();
@@ -777,7 +795,7 @@ function initMap(){
 }
 
 function loadDatedGeoJSON(){
-  var gj={'sst-fronts':'sst_fronts.geojson','chl-edges':'chl_edges.geojson','currents':'currents.geojson','water-clarity':'water_clarity.geojson','ssh-eddies':'ssh_eddies.geojson','mld':'mld_contours.geojson','ssta':'ssta_contours.geojson','blue-hotspots':'blue_marlin_hotspots.geojson','sm-hotspots':'spanish_mackerel_hotspots.geojson','sbt-hotspots':'sbt_hotspots.geojson','depth-grid':'depth_grid.geojson','front-corridors':'front_corridors.geojson','convergence-zones':'convergence_zones.geojson','shear-zones':'shear_zones.geojson','upwelling-edges':'upwelling_edges.geojson','chl-curvature':'chl_curvature.geojson'};
+  var gj={'sst-fronts':'sst_fronts.geojson','chl-edges':'chl_edges.geojson','currents':'currents.geojson','ssh-eddies':'ssh_eddies.geojson','blue-hotspots':'blue_marlin_hotspots.geojson','sm-hotspots':'spanish_mackerel_hotspots.geojson','sbt-hotspots':'sbt_hotspots.geojson','depth-grid':'depth_grid.geojson','front-corridors':'front_corridors.geojson','shear-zones':'shear_zones.geojson','upwelling-edges':'upwelling_edges.geojson','chl-curvature':'chl_curvature.geojson','salinity-fronts':'salinity_fronts.geojson','ftle-ridges':'ftle_ridges.geojson','vert-velocity':'vertical_velocity.geojson','okubo-weiss':'okubo_weiss.geojson','bivariate':'bivariate.geojson'};
   var empty={type:'FeatureCollection',features:[]};
   var cb='?t='+Date.now();
   // Clear old data immediately so stale overlays don't show with new markers
@@ -802,6 +820,10 @@ function loadDatedGeoJSON(){
         map.getSource(src).setData(data);
       }).catch(function(){tryFetch(i+1)});
     })(0);
+  });
+  // Reload active heatmap overlays for new date
+  Object.keys(hmActive).forEach(function(feat){
+    if(hmActive[feat]){hmActive[feat]=false;toggleHeatmap(feat)}
   });
 }
 
@@ -833,17 +855,18 @@ function toggleLayer(n){
     sst_fronts:['sst-front-glow','sst-front-line','sst-front-label','isotherm-blue-peak','isotherm-blue-prime','isotherm-blue-good','isotherm-label'],
     chl_edges:['chl-edge-line','chl-edge-label'],currents:'current-line',
     bathymetry:['bathy-shade','bathy-20','bathy-50','bathy-100','bathy-150','bathy-glow','bathy-200','bathy-250','bathy-500','bathy-1000','bathy-label'],
-    clarity:['clarity-clean','clarity-turbid','clarity-bloom'],
     ssh:['ssh-cold','ssh-neutral','ssh-warm','ssh-warm-core','ssh-label'],
-    mld:['mld-very-shallow','mld-shallow','mld-moderate','mld-deep','mld-label'],
-    ssta:['ssta-cold','ssta-warm','ssta-label'],
     corridors:['corridor-mod','corridor-strong','corridor-intense'],
-    convergence:['conv-mod','conv-strong','conv-intense'],
     shear:['shear-mod','shear-strong','shear-intense'],
     upwelling:['upwell-mod','upwell-strong'],
     chl_curv:['chlcurv-mod','chlcurv-strong'],
+    sal_front:['sal-mod','sal-strong','sal-intense'],
+    ftle:['ftle-mod','ftle-strong'],
+    vert_vel:['vvel-mod','vvel-strong'],
+    okubo:['okubo-mod','okubo-strong'],
+    bivariate:['bivar-mod','bivar-strong'],
     nav_aids:['nav-base','nav-port','nav-stbd','nav-cardinal-x','nav-light-dot','nav-label']};
-  var bm={seamark:{id:'btnSeamarks',c:'on'},chlorophyll:{id:'btnChloro',c:'on-green'},sst:{id:'btnSST',c:'on-red'},ssh_visual:{id:'btnSSHMap',c:'on'},blue_marlin:{id:'btnBlueMarlin',c:'on-cyan'},spanish_mackerel:{id:'btnSpanishMack',c:'on-purple'},sbt:{id:'btnSBT',c:'on-teal'},nav_aids:{id:'btnNavAids',c:'on'},sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},currents:{id:'btnCurrents',c:'on'},bathymetry:{id:'btnBathy',c:'on-orange'},clarity:{id:'btnClarity',c:'on'},ssh:{id:'btnSSH',c:'on-orange'},mld:{id:'btnMLD',c:'on'},ssta:{id:'btnSSTA',c:'on-red'},corridors:{id:'btnCorridors',c:'on-orange'},convergence:{id:'btnConvergence',c:'on-purple'},shear:{id:'btnShear',c:'on'},upwelling:{id:'btnUpwelling',c:'on-teal'},chl_curv:{id:'btnChlCurv',c:'on-green'}};
+  var bm={seamark:{id:'btnSeamarks',c:'on'},chlorophyll:{id:'btnChloro',c:'on-green'},sst:{id:'btnSST',c:'on-red'},ssh_visual:{id:'btnSSHMap',c:'on'},blue_marlin:{id:'btnBlueMarlin',c:'on-cyan'},spanish_mackerel:{id:'btnSpanishMack',c:'on-purple'},sbt:{id:'btnSBT',c:'on-teal'},nav_aids:{id:'btnNavAids',c:'on'},sst_fronts:{id:'btnSSTFronts',c:'on-red'},chl_edges:{id:'btnChlEdges',c:'on-green'},currents:{id:'btnCurrents',c:'on'},bathymetry:{id:'btnBathy',c:'on-orange'},ssh:{id:'btnSSH',c:'on-orange'},corridors:{id:'btnCorridors',c:'on-orange'},shear:{id:'btnShear',c:'on'},upwelling:{id:'btnUpwelling',c:'on-teal'},chl_curv:{id:'btnChlCurv',c:'on-green'},sal_front:{id:'btnSalFront',c:'on-purple'},ftle:{id:'btnFTLE',c:'on-red'},vert_vel:{id:'btnVertVel',c:'on'},okubo:{id:'btnOkubo',c:'on-orange'},bivariate:{id:'btnBivar',c:'on-cyan'}};
   if(n==='blue_marlin'){
     var ml=document.getElementById('marlinLegend');if(a){ml.classList.add('active');document.getElementById('legendTab').textContent='▶'}else{ml.classList.remove('active');document.getElementById('legendTab').textContent='◀'}
     sGL('hs-blue',a);
@@ -864,6 +887,76 @@ function toggleLayer(n){
   document.getElementById('dateBar').classList.toggle('active',any);
 }
 
+// Feature score heatmap overlay system
+var _hmBtnMap={sst:'btnHmSST',chl:'btnHmChl',ssh:'btnHmSSH',salinity_front:'btnHmSal',current_shear:'btnHmShear',chl_curvature:'btnHmChlCurv',ftle:'btnHmFTLE',vertical_velocity:'btnHmVertVel',okubo_weiss:'btnHmOkubo',upwelling_edge:'btnHmUpwell',front_corridor:'btnHmFront',sst_chl_bivariate:'btnHmBivar',sst_front:'btnHmSSTFront',shelf_break:'btnHmShelf'};
+function toggleHeatmap(feat){
+  var lid='hm-'+feat;
+  var on=!hmActive[feat];
+  hmActive[feat]=on;
+  // Update button
+  var btn=document.getElementById(_hmBtnMap[feat]);
+  if(btn){on?btn.classList.add('on'):btn.classList.remove('on')}
+  if(on){
+    // Load heatmap image
+    var today=new Date();today.setHours(0,0,0,0);
+    var selDate=new Date(cDate+'T00:00:00');
+    var isFuture=selDate>today;
+    var paths=isFuture?
+      ['data/prediction/'+cDate+'/'+feat+'_heatmap.png','data/'+cDate+'/'+feat+'_heatmap.png']:
+      ['data/'+cDate+'/'+feat+'_heatmap.png','data/prediction/'+cDate+'/'+feat+'_heatmap.png'];
+    var metaPaths=isFuture?
+      ['data/prediction/'+cDate+'/heatmap_meta.json','data/'+cDate+'/heatmap_meta.json']:
+      ['data/'+cDate+'/heatmap_meta.json','data/prediction/'+cDate+'/heatmap_meta.json'];
+    // Try to load meta for bounds
+    (function tryMeta(mi){
+      if(mi>=metaPaths.length){console.log('No heatmap meta for '+feat);hmActive[feat]=false;if(btn)btn.classList.remove('on');return}
+      fetch(metaPaths[mi]+'?t='+Date.now()).then(function(r){
+        if(!r.ok)throw new Error('not found');return r.json();
+      }).then(function(meta){
+        var b=meta.bounds; // [west, south, east, north]
+        var coords=[[b[0],b[3]],[b[2],b[3]],[b[2],b[1]],[b[0],b[1]]];
+        // Try image paths
+        (function tryImg(ii){
+          if(ii>=paths.length){hmActive[feat]=false;if(btn)btn.classList.remove('on');return}
+          var img=new Image();
+          img.onload=function(){
+            if(!map.isStyleLoaded()){map.once('idle',function(){addHmLayer()});return}
+            addHmLayer();
+            function addHmLayer(){
+              var sid='hm-src-'+feat;
+              if(map.getLayer(lid))map.removeLayer(lid);
+              if(map.getSource(sid))map.removeSource(sid);
+              map.addSource(sid,{type:'image',url:paths[ii]+'?t='+Date.now(),coordinates:coords});
+              var before='hs-blue';
+              if(!map.getLayer(before))before=undefined;
+              var hmOp=(parseInt(document.getElementById('hmOpacitySlider').value)||70)/100;
+              map.addLayer({id:lid,type:'raster',source:sid,paint:{'raster-opacity':hmOp}},before);
+            }
+          };
+          img.onerror=function(){tryImg(ii+1)};
+          img.src=paths[ii]+'?t='+Date.now();
+        })(0);
+      }).catch(function(){tryMeta(mi+1)});
+    })(0);
+  } else {
+    // Remove heatmap
+    if(map.getLayer(lid))map.removeLayer(lid);
+    var sid='hm-src-'+feat;
+    if(map.getSource(sid))map.removeSource(sid);
+  }
+  // Activate date bar
+  document.getElementById('dateBar').classList.add('active');
+}
+
+function setHmOpacity(v){
+  var op=v/100;
+  document.getElementById('hmOpacityVal').textContent=v+'%';
+  Object.keys(hmActive).forEach(function(f){
+    var lid='hm-'+f;
+    if(hmActive[f]&&map.getLayer(lid))map.setPaintProperty(lid,'raster-opacity',op);
+  });
+}
+
 function setDisplayFloor(v){
   var f=v/100;_displayFloor=f;
   document.getElementById('floorVal').textContent=v+'%';
@@ -878,8 +971,10 @@ function setBasemap(n){
   if(n===cBM)return;cBM=n;var bm=BM[n];
   var gL=['gps-track-line','gps-acc-fill','gps-acc-line','gps-glow','gps-outer','gps-inner','gps-heading-line'];
   var fg=null;for(var i=0;i<gL.length;i++){if(map.getLayer(gL[i])){fg=gL[i];break}}
-  var rm=['all-catches-dot','all-catches-glow','catch-label','catch-dot','catch-ring','catch-glow','sm-layer','clarity-bloom','clarity-turbid','clarity-clean','ssta-label','ssh-label','ssh-warm-core','ssh-warm','ssh-neutral','ssh-cold','current-line','chl-edge-label','chl-edge-line','isotherm-label','isotherm-blue-peak','isotherm-blue-prime','isotherm-blue-good','sst-front-label','sst-front-line','sst-front-glow','mld-label','mld-very-shallow','mld-shallow','mld-moderate','mld-deep','ssta-cold','ssta-warm','corridor-mod','corridor-strong','corridor-intense','conv-mod','conv-strong','conv-intense','shear-mod','shear-strong','shear-intense','upwell-mod','upwell-strong','chlcurv-mod','chlcurv-strong','nav-label','nav-light-dot','nav-cardinal-x','nav-stbd','nav-port','nav-base','sbt-hs','sm-hs','hs-blue','bathy-shade','bathy-1000','bathy-500','bathy-250','bathy-200','bathy-150','bathy-glow','bathy-100','bathy-50','bathy-20','bathy-label','depth-grid-pt','spot-label','spot-dot','spot-glow','g-chl-layer','g-sst-layer','g-ssh-layer','ol-layer','basemap-layer'];
+  var rm=['all-catches-dot','all-catches-glow','catch-label','catch-dot','catch-ring','catch-glow','sm-layer','ssh-label','ssh-warm-core','ssh-warm','ssh-neutral','ssh-cold','current-line','chl-edge-label','chl-edge-line','isotherm-label','isotherm-blue-peak','isotherm-blue-prime','isotherm-blue-good','sst-front-label','sst-front-line','sst-front-glow','corridor-mod','corridor-strong','corridor-intense','shear-mod','shear-strong','shear-intense','upwell-mod','upwell-strong','chlcurv-mod','chlcurv-strong','sal-mod','sal-strong','sal-intense','ftle-mod','ftle-strong','vvel-mod','vvel-strong','okubo-mod','okubo-strong','bivar-mod','bivar-strong','nav-label','nav-light-dot','nav-cardinal-x','nav-stbd','nav-port','nav-base','sbt-hs','sm-hs','hs-blue','bathy-shade','bathy-1000','bathy-500','bathy-250','bathy-200','bathy-150','bathy-glow','bathy-100','bathy-50','bathy-20','bathy-label','depth-grid-pt','spot-label','spot-dot','spot-glow','g-chl-layer','g-sst-layer','g-ssh-layer','ol-layer','basemap-layer'];
   for(var i=0;i<rm.length;i++){if(map.getLayer(rm[i]))map.removeLayer(rm[i])}
+  // Remove any active heatmap layers
+  Object.keys(hmActive).forEach(function(f){var lid='hm-'+f,sid='hm-src-'+f;if(map.getLayer(lid))map.removeLayer(lid);if(map.getSource(sid))map.removeSource(sid)});
   var rs=['basemap','ol','g-chl','g-sst','g-ssh'];
   for(var i=0;i<rs.length;i++){if(map.getSource(rs[i]))map.removeSource(rs[i])}
   map.addSource('basemap',{type:'raster',tiles:bm.tiles,tileSize:256,attribution:bm.attr,maxzoom:bm.mz});
@@ -931,27 +1026,11 @@ function setBasemap(n){
   map.addLayer({id:'ssh-warm',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'warm_eddy'],paint:{'line-color':'#fb923c','line-width':2,'line-opacity':so?.9:0,'line-dasharray':[5,3]}},bf);
   map.addLayer({id:'ssh-warm-core',type:'line',source:'ssh-eddies',filter:['==',['get','label'],'warm_core'],paint:{'line-color':'#fb923c','line-width':2,'line-opacity':so?.9:0,'line-dasharray':[5,3]}},bf);
   map.addLayer({id:'ssh-label',type:'symbol',source:'ssh-eddies',filter:['any',['==',['get','label'],'warm_eddy'],['==',['get','label'],'warm_core'],['==',['get','label'],'cold_eddy']],layout:{'symbol-placement':'line','symbol-spacing':300,'text-field':'EDDY','text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#fb923c','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':so?1:0}},bf);
-  var co=LS.clarity;
-  var mo=LS.mld;
-  map.addLayer({id:'mld-very-shallow',type:'line',source:'mld',filter:['==',['get','label'],'very_shallow'],paint:{'line-color':'#a78bfa','line-width':1.5,'line-opacity':mo?.8:0,'line-dasharray':[4,2]}},bf);
-  map.addLayer({id:'mld-shallow',type:'line',source:'mld',filter:['==',['get','label'],'shallow'],paint:{'line-color':'#a78bfa','line-width':1.5,'line-opacity':mo?.8:0,'line-dasharray':[4,2]}},bf);
-  map.addLayer({id:'mld-moderate',type:'line',source:'mld',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#a78bfa','line-width':1.5,'line-opacity':mo?.8:0,'line-dasharray':[4,2]}},bf);
-  map.addLayer({id:'mld-deep',type:'line',source:'mld',filter:['==',['get','label'],'deep'],paint:{'line-color':'#a78bfa','line-width':1.5,'line-opacity':mo?.8:0,'line-dasharray':[4,2]}},bf);
-  map.addLayer({id:'mld-label',type:'symbol',source:'mld',layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat','M',['to-string',['get','mld']],'m'],'text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#a78bfa','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':mo?1:0}},bf);
-  var sa=LS.ssta;
-  map.addLayer({id:'ssta-cold',type:'line',source:'ssta',filter:['<',['get','anomaly'],0],paint:{'line-color':'#1d4ed8','line-width':1.5,'line-opacity':sa?.8:0,'line-dasharray':[4,2]}},bf);
-  map.addLayer({id:'ssta-warm',type:'line',source:'ssta',filter:['>=',['get','anomaly'],0],paint:{'line-color':'#dc2626','line-width':1.5,'line-opacity':sa?.8:0,'line-dasharray':[4,2]}},bf);
-  map.addLayer({id:'ssta-label',type:'symbol',source:'ssta',layout:{'symbol-placement':'line','symbol-spacing':250,'text-field':['concat','SSTA ',['to-string',['get','anomaly']],'\u00B0'],'text-size':9,'text-font':['Open Sans Bold']},paint:{'text-color':'#94a3b8','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,'text-opacity':sa?1:0}},bf);
   // Front corridors (orange, dashed — prey funnels from multi-direction fronts)
   var cro=LS.corridors;
   map.addLayer({id:'corridor-mod',type:'line',source:'front-corridors',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':cro?.7:0,'line-dasharray':[6,3]}},bf);
   map.addLayer({id:'corridor-strong',type:'line',source:'front-corridors',filter:['==',['get','label'],'strong'],paint:{'line-color':'#f97316','line-width':2,'line-opacity':cro?.85:0,'line-dasharray':[6,3]}},bf);
   map.addLayer({id:'corridor-intense',type:'line',source:'front-corridors',filter:['==',['get','label'],'intense'],paint:{'line-color':'#ea580c','line-width':2.5,'line-opacity':cro?.9:0,'line-dasharray':[6,3]}},bf);
-  // Convergence zones (violet, dashed — bait aggregation)
-  var cvo=LS.convergence;
-  map.addLayer({id:'conv-mod',type:'line',source:'convergence-zones',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#a78bfa','line-width':1.5,'line-opacity':cvo?.7:0,'line-dasharray':[4,3]}},bf);
-  map.addLayer({id:'conv-strong',type:'line',source:'convergence-zones',filter:['==',['get','label'],'strong'],paint:{'line-color':'#8b5cf6','line-width':2,'line-opacity':cvo?.85:0,'line-dasharray':[4,3]}},bf);
-  map.addLayer({id:'conv-intense',type:'line',source:'convergence-zones',filter:['==',['get','label'],'intense'],paint:{'line-color':'#7c3aed','line-width':2.5,'line-opacity':cvo?.9:0,'line-dasharray':[4,3]}},bf);
   // Current shear zones (sky blue, dotted — LC/LUC boundary)
   var sho=LS.shear;
   map.addLayer({id:'shear-mod',type:'line',source:'shear-zones',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#38bdf8','line-width':1.5,'line-opacity':sho?.7:0,'line-dasharray':[2,3]}},bf);
@@ -965,9 +1044,27 @@ function setBasemap(n){
   var cco=LS.chl_curv;
   map.addLayer({id:'chlcurv-mod',type:'line',source:'chl-curvature',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#86efac','line-width':1.5,'line-opacity':cco?.7:0,'line-dasharray':[3,3]}},bf);
   map.addLayer({id:'chlcurv-strong',type:'line',source:'chl-curvature',filter:['==',['get','label'],'strong'],paint:{'line-color':'#22c55e','line-width':2,'line-opacity':cco?.85:0,'line-dasharray':[3,3]}},bf);
-  map.addLayer({id:'clarity-clean',type:'line',source:'water-clarity',filter:['==',['get','label'],'clean'],paint:{'line-color':'#38bdf8','line-width':2,'line-opacity':co?.9:0}},bf);
-  map.addLayer({id:'clarity-turbid',type:'line',source:'water-clarity',filter:['==',['get','label'],'turbid'],paint:{'line-color':'#fb923c','line-width':1.5,'line-opacity':co?.85:0,'line-dasharray':[4,2]}},bf);
-  map.addLayer({id:'clarity-bloom',type:'line',source:'water-clarity',filter:['==',['get','label'],'bloom'],paint:{'line-color':'#dc2626','line-width':2,'line-opacity':co?.9:0,'line-dasharray':[4,2]}},bf);
+  // Salinity fronts (purple, dashed — halocline boundaries)
+  var sfo=LS.sal_front;
+  map.addLayer({id:'sal-mod',type:'line',source:'salinity-fronts',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#c084fc','line-width':1.5,'line-opacity':sfo?.7:0,'line-dasharray':[4,3]}},bf);
+  map.addLayer({id:'sal-strong',type:'line',source:'salinity-fronts',filter:['==',['get','label'],'strong'],paint:{'line-color':'#a855f7','line-width':2,'line-opacity':sfo?.85:0,'line-dasharray':[4,3]}},bf);
+  map.addLayer({id:'sal-intense',type:'line',source:'salinity-fronts',filter:['==',['get','label'],'intense'],paint:{'line-color':'#7c3aed','line-width':2.5,'line-opacity':sfo?.9:0,'line-dasharray':[4,3]}},bf);
+  // FTLE ridges (red, solid — transport barriers)
+  var fto=LS.ftle;
+  map.addLayer({id:'ftle-mod',type:'line',source:'ftle-ridges',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#fca5a5','line-width':1.5,'line-opacity':fto?.7:0}},bf);
+  map.addLayer({id:'ftle-strong',type:'line',source:'ftle-ridges',filter:['==',['get','label'],'strong'],paint:{'line-color':'#ef4444','line-width':2.5,'line-opacity':fto?.9:0}},bf);
+  // Vertical velocity (blue, dashed — upwelling/downwelling cells)
+  var vvo=LS.vert_vel;
+  map.addLayer({id:'vvel-mod',type:'line',source:'vert-velocity',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#93c5fd','line-width':1.5,'line-opacity':vvo?.7:0,'line-dasharray':[3,2]}},bf);
+  map.addLayer({id:'vvel-strong',type:'line',source:'vert-velocity',filter:['==',['get','label'],'strong'],paint:{'line-color':'#3b82f6','line-width':2,'line-opacity':vvo?.85:0,'line-dasharray':[3,2]}},bf);
+  // Okubo-Weiss (amber, dotted — strain/filament zones)
+  var oko=LS.okubo;
+  map.addLayer({id:'okubo-mod',type:'line',source:'okubo-weiss',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#fde68a','line-width':1.5,'line-opacity':oko?.7:0,'line-dasharray':[2,2]}},bf);
+  map.addLayer({id:'okubo-strong',type:'line',source:'okubo-weiss',filter:['==',['get','label'],'strong'],paint:{'line-color':'#f59e0b','line-width':2,'line-opacity':oko?.85:0,'line-dasharray':[2,2]}},bf);
+  // SST-CHL bivariate (cyan, dashed — warm+productive overlap)
+  var bvo=LS.bivariate;
+  map.addLayer({id:'bivar-mod',type:'line',source:'bivariate',filter:['==',['get','label'],'moderate'],paint:{'line-color':'#67e8f9','line-width':1.5,'line-opacity':bvo?.7:0,'line-dasharray':[5,2]}},bf);
+  map.addLayer({id:'bivar-strong',type:'line',source:'bivariate',filter:['==',['get','label'],'strong'],paint:{'line-color':'#06b6d4','line-width':2,'line-opacity':bvo?.85:0,'line-dasharray':[5,2]}},bf);
   map.addLayer({id:'sm-layer',type:'raster',source:'sm',paint:{'raster-opacity':.85},layout:{visibility:LS.seamark?'visible':'none'}},bf);
   var nao=LS.nav_aids;
   map.addLayer({id:'nav-base',type:'circle',source:'nav-aids',filter:['all',['!=',['get','category'],'port'],['!=',['get','category'],'starboard']],paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,3,14,6],'circle-color':['match',['get','category'],'cardinal','#eab308','light','#ffffff','lead','#f97316','buoy','#3b82f6','beacon','#a855f7','ais','#06b6d4','#94a3b8'],'circle-stroke-width':1.5,'circle-stroke-color':'#000','circle-opacity':nao?1:.5}},bf);

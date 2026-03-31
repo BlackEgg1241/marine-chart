@@ -1,5 +1,5 @@
 {
-  "generated": "2026-03-26 04:00",
+  "generated": "2026-03-31 04:00",
   "zone_bounds": [
     114.98,
     -32.1667,
@@ -8,264 +8,9 @@
   ],
   "days": [
     {
-      "date": "2026-03-26",
-      "model_score": 51.6,
-      "label": "TODAY",
-      "top_params": {
-        "sst_gradient": 95.5,
-        "sst_front_frac": 91.9,
-        "sst_skew": 91.6,
-        "sst_std": 90.2,
-        "sst_iqr": 89.9
-      },
-      "bottom_params": {
-        "blue_water_frac": 0.0,
-        "mld_mean": 4.1,
-        "vorticity": 24.8
-      },
-      "zone_max": 97.0,
-      "zone_mean": 85.0,
-      "zone_cells": 49,
-      "subzones": {
-        "canyon": {
-          "max": 74.8,
-          "mean": 47.6,
-          "cells": 90
-        },
-        "pgfc": {
-          "max": 83.3,
-          "mean": 58.8,
-          "cells": 100
-        },
-        "north": {
-          "max": 88.9,
-          "mean": 54.8,
-          "cells": 117
-        },
-        "south": {
-          "max": 73.2,
-          "mean": 62.2,
-          "cells": 60
-        }
-      },
-      "eddy": {
-        "zone_max_sla_m": 0.304,
-        "warm_in_zone": true,
-        "strong_in_zone": false,
-        "status": "WARM EDDY IN ZONE",
-        "distance_nm": 0,
-        "bearing": null,
-        "n_warm_features": 2
-      }
-    },
-    {
-      "date": "2026-03-27",
-      "model_score": 45.9,
-      "label": "FORECAST",
-      "top_params": {
-        "sst_gradient": 96.0,
-        "sst_front_frac": 89.3,
-        "sst_std": 88.0,
-        "sst_iqr": 84.7,
-        "sst_range": 51.3
-      },
-      "bottom_params": {
-        "blue_water_frac": 0.0,
-        "mld_mean": 0.0,
-        "vorticity": 27.6
-      },
-      "zone_max": 97.0,
-      "zone_mean": 86.5,
-      "zone_cells": 51,
-      "subzones": {
-        "canyon": {
-          "max": 94.0,
-          "mean": 67.3,
-          "cells": 90
-        },
-        "pgfc": {
-          "max": 94.8,
-          "mean": 59.5,
-          "cells": 100
-        },
-        "north": {
-          "max": 94.5,
-          "mean": 80.1,
-          "cells": 117
-        },
-        "south": {
-          "max": 88.8,
-          "mean": 72.9,
-          "cells": 60
-        }
-      },
-      "eddy": {
-        "zone_max_sla_m": 0.359,
-        "warm_in_zone": true,
-        "strong_in_zone": true,
-        "status": "WARM EDDY IN ZONE",
-        "distance_nm": 0,
-        "bearing": null,
-        "n_warm_features": 2
-      }
-    },
-    {
-      "date": "2026-03-28",
-      "model_score": 55.7,
-      "label": "FORECAST",
-      "top_params": {
-        "sst_gradient": 97.7,
-        "sst_front_frac": 93.9,
-        "leeuwin": 92.2,
-        "sst_std": 91.3,
-        "anticyc_frac": 84.5
-      },
-      "bottom_params": {
-        "mld_mean": 19.0,
-        "sst_skew": 30.2,
-        "sst_warm_frac": 31.9
-      },
-      "zone_max": 97.0,
-      "zone_mean": 85.6,
-      "zone_cells": 48,
-      "subzones": {
-        "canyon": {
-          "max": 95.4,
-          "mean": 65.1,
-          "cells": 90
-        },
-        "pgfc": {
-          "max": 93.9,
-          "mean": 66.7,
-          "cells": 100
-        },
-        "north": {
-          "max": 95.3,
-          "mean": 72.8,
-          "cells": 117
-        },
-        "south": {
-          "max": 88.5,
-          "mean": 75.1,
-          "cells": 60
-        }
-      },
-      "eddy": {
-        "zone_max_sla_m": 0.402,
-        "warm_in_zone": true,
-        "strong_in_zone": true,
-        "status": "WARM EDDY IN ZONE",
-        "distance_nm": 0,
-        "bearing": null,
-        "n_warm_features": 1
-      }
-    },
-    {
-      "date": "2026-03-29",
-      "model_score": 77.2,
-      "label": "FORECAST",
-      "top_params": {
-        "leeuwin": 92.1,
-        "sst_min": 91.9,
-        "sst_iqr": 91.2,
-        "sst_max": 91.1,
-        "sst_p25": 90.4
-      },
-      "bottom_params": {
-        "sst_skew": 25.4,
-        "sst_front_frac": 49.2,
-        "blue_water_frac": 65.0
-      },
-      "zone_max": 96.0,
-      "zone_mean": 86.1,
-      "zone_cells": 58,
-      "subzones": {
-        "canyon": {
-          "max": 98.7,
-          "mean": 68.0,
-          "cells": 90
-        },
-        "pgfc": {
-          "max": 91.1,
-          "mean": 62.9,
-          "cells": 100
-        },
-        "north": {
-          "max": 95.3,
-          "mean": 77.4,
-          "cells": 117
-        },
-        "south": {
-          "max": 91.1,
-          "mean": 72.4,
-          "cells": 60
-        }
-      },
-      "eddy": {
-        "zone_max_sla_m": 0.493,
-        "warm_in_zone": true,
-        "strong_in_zone": true,
-        "status": "WARM EDDY IN ZONE",
-        "distance_nm": 0,
-        "bearing": null,
-        "n_warm_features": 1
-      }
-    },
-    {
-      "date": "2026-03-30",
-      "model_score": 78.2,
-      "label": "FORECAST",
-      "top_params": {
-        "sst_gradient": 96.4,
-        "sst_range": 94.7,
-        "sst_min": 94.5,
-        "sst_max": 93.6,
-        "sst_p25": 93.1
-      },
-      "bottom_params": {
-        "sst_skew": 31.3,
-        "sst_front_frac": 46.4,
-        "sst_iqr": 48.8
-      },
-      "zone_max": 97.0,
-      "zone_mean": 83.3,
-      "zone_cells": 51,
-      "subzones": {
-        "canyon": {
-          "max": 73.9,
-          "mean": 47.7,
-          "cells": 90
-        },
-        "pgfc": {
-          "max": 90.0,
-          "mean": 66.2,
-          "cells": 100
-        },
-        "north": {
-          "max": 77.7,
-          "mean": 58.5,
-          "cells": 117
-        },
-        "south": {
-          "max": 88.2,
-          "mean": 76.0,
-          "cells": 60
-        }
-      },
-      "eddy": {
-        "zone_max_sla_m": 0.57,
-        "warm_in_zone": true,
-        "strong_in_zone": true,
-        "status": "WARM EDDY IN ZONE",
-        "distance_nm": 0,
-        "bearing": null,
-        "n_warm_features": 1
-      }
-    },
-    {
       "date": "2026-03-31",
       "model_score": 78.5,
-      "label": "FORECAST",
+      "label": "TODAY",
       "top_params": {
         "sst_front_frac": 96.8,
         "anticyc_frac": 96.0,
@@ -283,23 +28,23 @@
       "zone_cells": 55,
       "subzones": {
         "canyon": {
-          "max": 95.9,
-          "mean": 53.2,
+          "max": 93.0,
+          "mean": 78.3,
           "cells": 90
         },
         "pgfc": {
-          "max": 74.8,
-          "mean": 55.5,
+          "max": 87.7,
+          "mean": 64.7,
           "cells": 100
         },
         "north": {
-          "max": 86.6,
-          "mean": 57.8,
+          "max": 93.8,
+          "mean": 78.6,
           "cells": 117
         },
         "south": {
-          "max": 76.7,
-          "mean": 63.2,
+          "max": 87.7,
+          "mean": 79.1,
           "cells": 60
         }
       },
@@ -334,23 +79,23 @@
       "zone_cells": 56,
       "subzones": {
         "canyon": {
-          "max": 85.9,
-          "mean": 53.1,
+          "max": 91.3,
+          "mean": 77.2,
           "cells": 90
         },
         "pgfc": {
-          "max": 70.5,
-          "mean": 52.0,
+          "max": 94.5,
+          "mean": 67.6,
           "cells": 100
         },
         "north": {
-          "max": 84.9,
-          "mean": 62.7,
+          "max": 95.2,
+          "mean": 77.8,
           "cells": 117
         },
         "south": {
-          "max": 77.2,
-          "mean": 61.8,
+          "max": 96.3,
+          "mean": 86.2,
           "cells": 60
         }
       },
@@ -381,32 +126,287 @@
         "sst_warm_frac": 34.1
       },
       "zone_max": 97.0,
-      "zone_mean": 85.0,
-      "zone_cells": 37,
+      "zone_mean": 86.0,
+      "zone_cells": 50,
       "subzones": {
         "canyon": {
-          "max": 88.2,
-          "mean": 49.9,
+          "max": 97.9,
+          "mean": 82.9,
           "cells": 90
         },
         "pgfc": {
-          "max": 92.9,
-          "mean": 57.6,
+          "max": 95.2,
+          "mean": 68.6,
           "cells": 100
         },
         "north": {
-          "max": 97.0,
-          "mean": 76.9,
+          "max": 98.9,
+          "mean": 89.7,
           "cells": 117
         },
         "south": {
-          "max": 79.2,
-          "mean": 62.0,
+          "max": 96.9,
+          "mean": 82.8,
           "cells": 60
         }
       },
       "eddy": {
         "zone_max_sla_m": 0.417,
+        "warm_in_zone": true,
+        "strong_in_zone": true,
+        "status": "WARM EDDY IN ZONE",
+        "distance_nm": 0,
+        "bearing": null,
+        "n_warm_features": 1
+      }
+    },
+    {
+      "date": "2026-04-03",
+      "model_score": 45.4,
+      "label": "FORECAST",
+      "top_params": {
+        "sst_skew": 87.7,
+        "sst_front_frac": 75.5,
+        "sst_gradient": 73.0,
+        "leeuwin": 56.1,
+        "anticyc_frac": 49.0
+      },
+      "bottom_params": {
+        "mld_mean": 12.7,
+        "blue_water_frac": 25.4,
+        "vorticity": 27.6
+      },
+      "zone_max": 96.0,
+      "zone_mean": 86.2,
+      "zone_cells": 59,
+      "subzones": {
+        "canyon": {
+          "max": 95.7,
+          "mean": 78.0,
+          "cells": 90
+        },
+        "pgfc": {
+          "max": 97.0,
+          "mean": 68.2,
+          "cells": 100
+        },
+        "north": {
+          "max": 93.8,
+          "mean": 80.6,
+          "cells": 117
+        },
+        "south": {
+          "max": 97.0,
+          "mean": 88.7,
+          "cells": 60
+        }
+      },
+      "eddy": {
+        "zone_max_sla_m": 0.379,
+        "warm_in_zone": true,
+        "strong_in_zone": true,
+        "status": "WARM EDDY IN ZONE",
+        "distance_nm": 0,
+        "bearing": null,
+        "n_warm_features": 1
+      }
+    },
+    {
+      "date": "2026-04-04",
+      "model_score": 42.2,
+      "label": "FORECAST",
+      "top_params": {
+        "sst_skew": 88.1,
+        "sst_gradient": 73.0,
+        "sst_front_frac": 52.6,
+        "anticyc_frac": 46.1,
+        "sst_max": 45.1
+      },
+      "bottom_params": {
+        "blue_water_frac": 1.3,
+        "mld_mean": 15.4,
+        "vorticity": 25.5
+      },
+      "zone_max": 97.0,
+      "zone_mean": 84.8,
+      "zone_cells": 59,
+      "subzones": {
+        "canyon": {
+          "max": 86.1,
+          "mean": 74.7,
+          "cells": 90
+        },
+        "pgfc": {
+          "max": 96.1,
+          "mean": 65.5,
+          "cells": 100
+        },
+        "north": {
+          "max": 96.3,
+          "mean": 78.9,
+          "cells": 117
+        },
+        "south": {
+          "max": 98.5,
+          "mean": 86.7,
+          "cells": 60
+        }
+      },
+      "eddy": {
+        "zone_max_sla_m": 0.374,
+        "warm_in_zone": true,
+        "strong_in_zone": true,
+        "status": "WARM EDDY IN ZONE",
+        "distance_nm": 0,
+        "bearing": null,
+        "n_warm_features": 1
+      }
+    },
+    {
+      "date": "2026-04-05",
+      "model_score": 54.5,
+      "label": "FORECAST",
+      "top_params": {
+        "sst_p75": 94.0,
+        "sst_max": 92.3,
+        "sst_min": 89.7,
+        "sst_warm_frac": 86.4,
+        "sst_mean": 85.8
+      },
+      "bottom_params": {
+        "blue_water_frac": 0.0,
+        "vorticity": 29.5,
+        "sst_iqr": 31.0
+      },
+      "zone_max": 96.0,
+      "zone_mean": 85.7,
+      "zone_cells": 59,
+      "subzones": {
+        "canyon": {
+          "max": 92.0,
+          "mean": 80.0,
+          "cells": 90
+        },
+        "pgfc": {
+          "max": 96.3,
+          "mean": 68.4,
+          "cells": 100
+        },
+        "north": {
+          "max": 93.3,
+          "mean": 82.8,
+          "cells": 117
+        },
+        "south": {
+          "max": 96.3,
+          "mean": 86.2,
+          "cells": 60
+        }
+      },
+      "eddy": {
+        "zone_max_sla_m": 0.414,
+        "warm_in_zone": true,
+        "strong_in_zone": true,
+        "status": "WARM EDDY IN ZONE",
+        "distance_nm": 0,
+        "bearing": null,
+        "n_warm_features": 1
+      }
+    },
+    {
+      "date": "2026-04-06",
+      "model_score": 58.9,
+      "label": "FORECAST",
+      "top_params": {
+        "sst_p75": 93.4,
+        "sst_mean": 92.6,
+        "sst_min": 92.4,
+        "sst_max": 92.2,
+        "sst_p25": 90.7
+      },
+      "bottom_params": {
+        "blue_water_frac": 0.0,
+        "sst_iqr": 30.0,
+        "vorticity": 32.6
+      },
+      "zone_max": 95.0,
+      "zone_mean": 85.3,
+      "zone_cells": 56,
+      "subzones": {
+        "canyon": {
+          "max": 89.3,
+          "mean": 75.7,
+          "cells": 90
+        },
+        "pgfc": {
+          "max": 94.9,
+          "mean": 70.3,
+          "cells": 100
+        },
+        "north": {
+          "max": 91.3,
+          "mean": 80.1,
+          "cells": 117
+        },
+        "south": {
+          "max": 94.6,
+          "mean": 89.2,
+          "cells": 60
+        }
+      },
+      "eddy": {
+        "zone_max_sla_m": 0.442,
+        "warm_in_zone": true,
+        "strong_in_zone": true,
+        "status": "WARM EDDY IN ZONE",
+        "distance_nm": 0,
+        "bearing": null,
+        "n_warm_features": 1
+      }
+    },
+    {
+      "date": "2026-04-07",
+      "model_score": 64.6,
+      "label": "FORECAST",
+      "top_params": {
+        "sst_p75": 93.4,
+        "sst_max": 92.9,
+        "sst_mean": 92.4,
+        "sst_p25": 91.9,
+        "sst_min": 91.5
+      },
+      "bottom_params": {
+        "blue_water_frac": 0.0,
+        "sst_iqr": 26.5,
+        "sst_std": 33.1
+      },
+      "zone_max": 96.0,
+      "zone_mean": 86.6,
+      "zone_cells": 64,
+      "subzones": {
+        "canyon": {
+          "max": 96.2,
+          "mean": 81.5,
+          "cells": 90
+        },
+        "pgfc": {
+          "max": 94.4,
+          "mean": 69.9,
+          "cells": 100
+        },
+        "north": {
+          "max": 97.0,
+          "mean": 84.2,
+          "cells": 117
+        },
+        "south": {
+          "max": 93.5,
+          "mean": 85.9,
+          "cells": 60
+        }
+      },
+      "eddy": {
+        "zone_max_sla_m": 0.409,
         "warm_in_zone": true,
         "strong_in_zone": true,
         "status": "WARM EDDY IN ZONE",

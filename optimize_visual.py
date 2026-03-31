@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """
-Automated optimizer for marlin hotspot scoring parameters.
+Automated optimizer for marlin hotspot scoring parameters (v23).
 
 Parallelized: each date scored in a separate process (16 workers).
 
 Objective components:
   A) Accuracy — catches score high (mean, >=70%, min)
-  B) Edge quality — gradient at catch + catch-to-peak ratio near 85-90%
+  B) Peak alignment — reward low peak-to-catch distance + % within 5nm
   C) Discrimination — catch lift above ocean + percentile rank
   D) Selectivity — anti-inflation guards
+  E) Floor guard — penalty if mean catch score drops below 75%
 
-14 weights + 8 edge + 28 geometry = 50 tunable params, 2000 trials.
+15 weights + 18 edge (9 features x center/width) + 27 geometry = 60 tunable params.
 
 Usage:
     python optimize_visual.py
@@ -203,8 +204,10 @@ def _score_one_date(args):
         marlin_data._opt_corridor_pct = params.get('corridor_pct', 75)
         marlin_data._edge_front_sigma = params.get('front_sigma', 2.0)
 
-        # Per-feature edge scoring params (value-space Gaussian, 4 active features)
-        for feat in ['okubo_weiss', 'upwelling_edge', 'current_shear', 'chl_curvature']:
+        # Per-feature edge scoring params (value-space Gaussian)
+        for feat in ['okubo_weiss', 'upwelling_edge', 'current_shear', 'chl_curvature',
+                     'ftle', 'ssh', 'salinity_front', 'vertical_velocity',
+                     'front_corridor']:
             ec_key = f'{feat}_edge_center'
             ew_key = f'{feat}_edge_width'
             if ec_key in params:
@@ -261,7 +264,7 @@ def _score_one_date(args):
             grad_mag = float(np.sqrt(gx[li, lo]**2 + gy[li, lo]**2)) * 100
             catch_data['gradient'] = grad_mag
 
-            # Peak ratio (10nm radius)
+            # Peak ratio + peak distance (10nm radius)
             dlat_10nm = 10.0 / 60.0
             dlon_10nm = 10.0 / (60.0 * np.cos(np.radians(c['lat'])))
             pk_lat_mask = (lats >= c['lat'] - dlat_10nm) & (lats <= c['lat'] + dlat_10nm)
@@ -273,6 +276,13 @@ def _score_one_date(args):
                 local_peak = float(np.nanmax(local_box)) * 100
                 if local_peak > 0:
                     catch_data['peak_ratio'] = catch_score / local_peak
+                # Peak distance in nm
+                peak_pos = np.unravel_index(np.nanargmax(local_box), local_box.shape)
+                peak_lat = lats[pk_lat_idx[peak_pos[0]]]
+                peak_lon = lons[pk_lon_idx[peak_pos[1]]]
+                dlat = (peak_lat - c['lat']) * 60.0
+                dlon = (peak_lon - c['lon']) * 60.0 * np.cos(np.radians(c['lat']))
+                catch_data['peak_dist_nm'] = float(np.sqrt(dlat**2 + dlon**2))
 
             date_result['catches'].append(catch_data)
 
@@ -334,6 +344,7 @@ def run_trial(catches, params):
     loc_percentiles = defaultdict(list)
     loc_gradients = defaultdict(list)
     loc_peak_ratios = defaultdict(list)
+    loc_peak_dists = defaultdict(list)
 
     for dr in results:
         if dr['ocean_mean'] is not None:
@@ -351,8 +362,11 @@ def run_trial(catches, params):
                 loc_gradients[loc_key].append(cd['gradient'])
             if 'peak_ratio' in cd:
                 loc_peak_ratios[loc_key].append(cd['peak_ratio'])
+            if 'peak_dist_nm' in cd:
+                loc_peak_dists[loc_key].append(cd['peak_dist_nm'])
 
     # Average each location's scores across dates, then aggregate
+    catch_peak_dists = []
     for loc_key, scores in loc_scores.items():
         catch_scores.append(np.mean(scores))
         if loc_key in loc_percentiles:
@@ -361,6 +375,8 @@ def run_trial(catches, params):
             catch_gradients.append(np.mean(loc_gradients[loc_key]))
         if loc_key in loc_peak_ratios:
             catch_peak_ratios.append(np.mean(loc_peak_ratios[loc_key]))
+        if loc_key in loc_peak_dists:
+            catch_peak_dists.append(np.mean(loc_peak_dists[loc_key]))
 
     if not catch_scores:
         return None
@@ -379,23 +395,24 @@ def run_trial(catches, params):
     avg_percentile = np.mean(catch_percentiles) if catch_percentiles else 50
     avg_top10_area = np.mean(ocean_top10_areas) if ocean_top10_areas else 10
     avg_peak_ratio = np.mean(catch_peak_ratios) if catch_peak_ratios else 0.85
+    avg_peak_dist = np.mean(catch_peak_dists) if catch_peak_dists else 10.0
+    pct_within_5nm = (sum(1 for d in catch_peak_dists if d <= 5) / len(catch_peak_dists) * 100) if catch_peak_dists else 0
 
     # ===================================================================
-    # COMPOSITE OBJECTIVE — edge-aligned scoring
+    # COMPOSITE OBJECTIVE — peak-aligned scoring (v23)
     # ===================================================================
+    # Balance: catch scores must stay high AND peaks must be close to catches.
+    # Catch score floor: mean >= 75% (below this, alignment gains are worthless).
 
-    # A) ACCURACY
+    # A) ACCURACY — catch scores (same as v22 but with floor guard)
     accuracy = 0.10 * mean_score + 0.05 * pct_70 + 0.03 * min_score
 
-    # B) EDGE QUALITY
-    gradient_component = 0.80 * min(avg_gradient, 10)
-    if avg_peak_ratio < 0.82:
-        ratio_penalty = 15.0 * (0.82 - avg_peak_ratio)
-    elif avg_peak_ratio > 0.92:
-        ratio_penalty = 10.0 * (avg_peak_ratio - 0.92)
-    else:
-        ratio_penalty = 0
-    edge_quality = gradient_component - ratio_penalty
+    # B) PEAK ALIGNMENT — the new component
+    # Reward low peak distance: 10nm baseline, each nm reduction = +1.5 points
+    # Cap improvement at 0nm (max +15 points from baseline 10nm)
+    alignment_reward = 1.5 * max(0, 10.0 - avg_peak_dist)
+    # Bonus for catches within 5nm (up to +5 points at 100%)
+    alignment_reward += 0.05 * pct_within_5nm
 
     # C) DISCRIMINATION
     lift_component = 0.30 * min(catch_lift, 30)
@@ -411,7 +428,12 @@ def run_trial(catches, params):
     if avg_top10_area > 12:
         selectivity_penalty += 1.0 * (avg_top10_area - 12)
 
-    objective = accuracy + edge_quality + discrimination - selectivity_penalty
+    # E) CATCH SCORE FLOOR — hard penalty if mean drops below 75%
+    floor_penalty = 0
+    if mean_score < 75:
+        floor_penalty = 3.0 * (75 - mean_score)
+
+    objective = accuracy + alignment_reward + discrimination - selectivity_penalty - floor_penalty
 
     return {
         'mean': mean_score, 'median': median_score, 'pct_70': pct_70,
@@ -422,6 +444,7 @@ def run_trial(catches, params):
         'avg_gradient': avg_gradient,
         'avg_percentile': avg_percentile, 'avg_top10_area': avg_top10_area,
         'avg_peak_ratio': avg_peak_ratio,
+        'avg_peak_dist': avg_peak_dist, 'pct_within_5nm': pct_within_5nm,
     }
 
 
@@ -470,14 +493,14 @@ def main():
         w_salinity_front *= scale; w_okubo_weiss *= scale; w_bivariate *= scale
 
         # Geometry params
-        shelf_prox_blend = trial.suggest_float('shelf_prox_blend', 0.0, 0.8, step=0.1)
+        shelf_prox_blend = trial.suggest_float('shelf_prox_blend', 0.0, 1.0, step=0.1)
         shelf_prox_sigma = trial.suggest_float('shelf_prox_sigma', 30, 150, step=10)
         depth_shallow_full = trial.suggest_int('depth_shallow_full', 80, 200, step=20)
         pool_pct = trial.suggest_int('pool_pct', 65, 100, step=5)
 
         # Depth gate params
         depth_zero_cut = trial.suggest_int('depth_zero_cut', 30, 80, step=10)
-        depth_shallow_floor = trial.suggest_float('depth_shallow_floor', 0.50, 0.95, step=0.05)
+        depth_shallow_floor = trial.suggest_float('depth_shallow_floor', 0.30, 0.95, step=0.05)
         depth_taper_start = trial.suggest_int('depth_taper_start', 500, 3000, step=250)
         depth_taper_mid = trial.suggest_int('depth_taper_mid', 1500, 5000, step=500)
         depth_floor = trial.suggest_float('depth_floor', 0.60, 0.95, step=0.05)
@@ -490,17 +513,17 @@ def main():
         sst_optimal = trial.suggest_float('sst_optimal', 21.0, 25.0, step=0.25)
         sst_sigma = trial.suggest_float('sst_sigma', 1.0, 4.0, step=0.25)
         sst_sigma_above = trial.suggest_float('sst_sigma_above', 1.5, 5.0, step=0.5)
-        chl_threshold = trial.suggest_float('chl_threshold', 0.06, 0.30, step=0.02)
-        chl_sigma = trial.suggest_float('chl_sigma', 0.05, 0.50, step=0.05)
+        chl_threshold = trial.suggest_float('chl_threshold', 0.06, 0.50, step=0.02)
+        chl_sigma = trial.suggest_float('chl_sigma', 0.02, 0.50, step=0.02)
 
-        # Band system
+        # Band system — CAPPED to prevent ocean-wide inflation
         band_width_nm = trial.suggest_float('band_width_nm', 1.0, 6.0, step=0.5)
-        band_boost = trial.suggest_float('band_boost', 0.05, 0.60, step=0.05)
+        band_boost = trial.suggest_float('band_boost', 0.00, 0.60, step=0.05)
         band_decay = trial.suggest_float('band_decay', 0.20, 0.90, step=0.05)
 
-        # Bathy band tolerances
+        # Bathy band tolerances — deep ratio capped to prevent deep-water creep
         band_shore_ratio = trial.suggest_float('band_shore_ratio', 0.05, 0.40, step=0.05)
-        band_deep_ratio = trial.suggest_float('band_deep_ratio', 0.05, 0.40, step=0.05)
+        band_deep_ratio = trial.suggest_float('band_deep_ratio', 0.05, 0.30, step=0.05)
         shallow_cut = trial.suggest_float('shallow_cut', 0.25, 0.70, step=0.05)
 
         # Shear depth ramp (thresh must be < full for correct ramp direction)
@@ -509,22 +532,29 @@ def main():
         if shear_depth_thresh >= shear_depth_full:
             shear_depth_full = shear_depth_thresh + 50
 
-        # Lunar & bathy weights
-        lunar_boost = trial.suggest_float('lunar_boost', 0.0, 0.15, step=0.02)
+        # Lunar & bathy weights — bathy_w_500 capped to limit deep contour inflation
+        lunar_boost = trial.suggest_float('lunar_boost', 0.0, 0.14, step=0.02)
         bathy_w_200 = trial.suggest_float('bathy_w_200', 0.2, 1.0, step=0.1)
-        bathy_w_500 = trial.suggest_float('bathy_w_500', 0.0, 0.8, step=0.1)
+        bathy_w_500 = trial.suggest_float('bathy_w_500', 0.0, 0.5, step=0.1)
 
         # Front corridor percentile threshold + SST front sigma
         corridor_pct = trial.suggest_int('corridor_pct', 50, 95, step=5)
         front_sigma = trial.suggest_float('front_sigma', 0.5, 4.0, step=0.5)
 
-        # Per-feature edge scoring (catch raw medians: shear=0.55, chl_curv=0.88, OW=1.00, upwell=0.76)
+        # Per-feature edge scoring — 9 features (4 original + 5 new alignment candidates)
+        # CHL excluded: already has Gaussian in log-space (double-Gaussian = anti-pattern)
+        # New features default to passthrough (center=1, width=9) — Optuna can narrow
         edge_params = {}
         for feat, (c_lo, c_hi, w_lo, w_hi) in {
-            'okubo_weiss':   (0.30, 1.00, 0.15, 0.80),
-            'upwelling_edge':(0.15, 0.90, 0.10, 0.60),
-            'current_shear': (0.15, 0.80, 0.10, 0.60),
-            'chl_curvature': (0.30, 1.00, 0.15, 0.80),
+            'okubo_weiss':       (0.30, 1.00, 0.15, 0.65),
+            'upwelling_edge':    (0.05, 0.90, 0.10, 0.60),
+            'current_shear':     (0.15, 0.80, 0.05, 0.60),
+            'chl_curvature':     (0.30, 1.00, 0.15, 0.80),
+            'ftle':              (0.20, 1.00, 0.15, 9.00),
+            'ssh':               (0.20, 1.00, 0.15, 9.00),
+            'salinity_front':    (0.40, 1.00, 0.15, 9.00),
+            'vertical_velocity': (0.20, 1.00, 0.15, 9.00),
+            'front_corridor':    (0.10, 1.00, 0.15, 9.00),
         }.items():
             ec = trial.suggest_float(f'{feat}_edge_center', c_lo, c_hi, step=0.05)
             ew = trial.suggest_float(f'{feat}_edge_width', w_lo, w_hi, step=0.05)
@@ -605,67 +635,72 @@ def main():
 
         print(f"  T{trial_count[0]:3d} [{elapsed:5.0f}s] "
               f"mean={r['mean']:.1f} >=70={r['pct_70']:.0f}% min={r['min']:.0f} "
-              f"| ocean={r['ocean_mean']:.0f}% lift={r['catch_lift']:.0f} "
-              f"grad={r['avg_gradient']:.1f} ratio={r['avg_peak_ratio']:.3f} "
-              f"pctl={r['avg_percentile']:.0f} obj={r['objective']:.1f}{marker}")
+              f"| peak={r['avg_peak_dist']:.1f}nm <5nm={r['pct_within_5nm']:.0f}% "
+              f"ratio={r['avg_peak_ratio']:.3f} "
+              f"ocean={r['ocean_mean']:.0f}% obj={r['objective']:.1f}{marker}")
 
         return r['objective']
 
     # --- Baseline ---
     print("\n--- Baseline (current settings) ---")
     baseline_params = {
-        # Baseline: v18 best params
-        'w_sst': 0.225, 'w_sst_front': 0.00, 'w_front_corridor': 0.023,
-        'w_chl': 0.116, 'w_chl_curvature': 0.109,
-        'w_ssh': 0.163, 'w_shelf': 0.00, 'w_current': 0.00,
-        'w_shear': 0.124, 'w_upwell': 0.116,
-        'w_ftle': 0.03, 'w_vert_vel': 0.00,
-        'w_salinity_front': 0.047, 'w_okubo_weiss': 0.078, 'w_bivariate': 0.00,
+        # Baseline: v22 best params
+        'w_sst': 0.150, 'w_sst_front': 0.007, 'w_front_corridor': 0.064,
+        'w_chl': 0.107, 'w_chl_curvature': 0.100,
+        'w_ssh': 0.100, 'w_shelf': 0.007, 'w_current': 0.00,
+        'w_shear': 0.129, 'w_upwell': 0.043,
+        'w_ftle': 0.093, 'w_vert_vel': 0.057,
+        'w_salinity_front': 0.100, 'w_okubo_weiss': 0.021, 'w_bivariate': 0.021,
         # Geometry
-        'shelf_prox_blend': 0.70, 'shelf_prox_sigma': 90,
-        'depth_shallow_full': 100, 'pool_pct': 65,
+        'shelf_prox_blend': 0.80, 'shelf_prox_sigma': 50,
+        'depth_shallow_full': 180, 'pool_pct': 75,
         # Depth gate
-        'depth_zero_cut': 50, 'depth_shallow_floor': 0.50, 'depth_taper_start': 2000,
-        'depth_taper_mid': 4000, 'depth_floor': 0.85,
+        'depth_zero_cut': 50, 'depth_shallow_floor': 0.85, 'depth_taper_start': 500,
+        'depth_taper_mid': 1500, 'depth_floor': 0.95,
         # Shelf proximity
-        'shelf_prox_depth': 140, 'edge_shelf_sigma': 3.5,
+        'shelf_prox_depth': 270, 'edge_shelf_sigma': 3.5,
         # SST / CHL
-        'sst_optimal': 22.0, 'sst_sigma': 1.0,
+        'sst_optimal': 23.75, 'sst_sigma': 2.50,
         'sst_sigma_above': 4.0,
-        'chl_threshold': 0.18, 'chl_sigma': 0.50,
+        'chl_threshold': 0.20, 'chl_sigma': 0.45,
         # Band system
-        'band_width_nm': 3.0, 'band_boost': 0.30,
+        'band_width_nm': 4.5, 'band_boost': 0.40,
         'band_decay': 0.60,
         # Bathy bands
-        'band_shore_ratio': 0.10, 'band_deep_ratio': 0.05,
-        'shallow_cut': 0.70,
+        'band_shore_ratio': 0.30, 'band_deep_ratio': 0.30,
+        'shallow_cut': 0.65,
         # Shear
-        'shear_depth_thresh': 40, 'shear_depth_full': 280,
+        'shear_depth_thresh': 60, 'shear_depth_full': 150,
         # Lunar & bathy
         'lunar_boost': 0.08,
-        'bathy_w_200': 0.2, 'bathy_w_500': 0.4,
+        'bathy_w_200': 0.6, 'bathy_w_500': 0.1,
         # Front corridor + sigma
-        'corridor_pct': 95, 'front_sigma': 4.0,
-        # Edge scoring
-        'okubo_weiss_edge_center': 0.95, 'okubo_weiss_edge_width': 0.60,
-        'upwelling_edge_edge_center': 0.45, 'upwelling_edge_edge_width': 0.55,
-        'current_shear_edge_center': 0.65, 'current_shear_edge_width': 0.50,
+        'corridor_pct': 75, 'front_sigma': 3.5,
+        # Edge scoring (4 original)
+        'okubo_weiss_edge_center': 0.30, 'okubo_weiss_edge_width': 0.65,
+        'upwelling_edge_edge_center': 0.75, 'upwelling_edge_edge_width': 0.10,
+        'current_shear_edge_center': 0.80, 'current_shear_edge_width': 0.60,
         'chl_curvature_edge_center': 0.50, 'chl_curvature_edge_width': 0.80,
+        # Edge scoring (5 new — passthrough defaults)
+        'ftle_edge_center': 1.00, 'ftle_edge_width': 9.00,
+        'ssh_edge_center': 1.00, 'ssh_edge_width': 9.00,
+        'salinity_front_edge_center': 1.00, 'salinity_front_edge_width': 9.00,
+        'vertical_velocity_edge_center': 1.00, 'vertical_velocity_edge_width': 9.00,
+        'front_corridor_edge_center': 1.00, 'front_corridor_edge_width': 9.00,
     }
     baseline = run_trial(catches, baseline_params)
 
     if baseline:
         print(f"  Baseline: mean={baseline['mean']:.1f}% >=70%={baseline['pct_70']:.0f}% "
-              f"min={baseline['min']:.0f}% | ocean={baseline['ocean_mean']:.0f}% "
-              f"lift={baseline['catch_lift']:.0f} grad={baseline['avg_gradient']:.1f} "
-              f"ratio={baseline['avg_peak_ratio']:.3f} "
-              f"pctl={baseline['avg_percentile']:.0f} obj={baseline['objective']:.1f}")
+              f"min={baseline['min']:.0f}% | peak={baseline['avg_peak_dist']:.1f}nm "
+              f"<5nm={baseline['pct_within_5nm']:.0f}% "
+              f"ocean={baseline['ocean_mean']:.0f}% obj={baseline['objective']:.1f}")
         best_result.update(baseline)
         best_result['params'] = dict(baseline_params)
 
-    n_trials = 400
+    n_trials = 5000
     print(f"\n{'='*90}")
-    print(f"OPTUNA -- {n_trials} trials ({N_WORKERS} workers), 50 params, location-deduplicated")
+    print(f"OPTUNA v23 -- {n_trials} trials ({N_WORKERS} workers), 62 params, peak-aligned objective")
     print(f"{'='*90}")
 
     study = optuna.create_study(direction='maximize',
@@ -694,7 +729,8 @@ def main():
     metric_keys = ['mean', 'median', 'pct_70', 'pct_80', 'min', 'max', 'n',
                    'ocean_mean', 'ocean_pct70', 'catch_lift',
                    'avg_gradient', 'avg_percentile',
-                   'avg_top10_area', 'avg_peak_ratio', 'objective']
+                   'avg_top10_area', 'avg_peak_ratio',
+                   'avg_peak_dist', 'pct_within_5nm', 'objective']
     for k in metric_keys:
         if k in best_result:
             v = best_result[k]
@@ -709,7 +745,8 @@ def main():
             return f"  {key:<18s}: {bv:{fmt}} -> {nv:{fmt}}  ({delta:+{fmt}})"
         for k in ['mean', 'pct_70', 'min', 'ocean_mean', 'catch_lift',
                    'avg_percentile', 'avg_gradient',
-                   'avg_peak_ratio', 'objective']:
+                   'avg_peak_ratio', 'avg_peak_dist', 'pct_within_5nm',
+                   'objective']:
             print(_cmp(k, '.3f' if k == 'avg_peak_ratio' else '.1f'))
 
     # Save
@@ -721,9 +758,10 @@ def main():
         'n_workers': N_WORKERS,
         'objective_components': [
             'A) accuracy: mean(10%) + pct_70(5%) + min(3%)',
-            'B) edge_quality: gradient(0.8x, cap 10) + peak_ratio_penalty([0.82-0.92] sweet spot)',
+            'B) peak_alignment: 1.5*(10-avg_dist) + 0.05*pct_within_5nm',
             'C) discrimination: catch_lift(0.3x, cap 30) + percentile(0.05x)',
             'D) selectivity: -penalty(ocean_mean>55@2x, ocean_pct70>40@1.5x, top10>12@1x)',
+            'E) floor_guard: -3.0*(75-mean) if mean<75',
         ],
     }
     out_path = os.path.join(SCRIPT_DIR, 'data', 'visual_optimization_results.json')
