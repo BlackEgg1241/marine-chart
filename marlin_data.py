@@ -28,6 +28,9 @@ from datetime import datetime, timedelta
 
 import numpy as np
 
+import scoring_config          # single source of truth for tunable defaults
+import scoring_features as sf  # pure, unit-tested per-cell scoring transforms
+
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
@@ -1012,6 +1015,15 @@ def compute_ftle(date_str, bbox, window_days=3):
 
     # Compute deformation gradient tensor and FTLE
     # dx_f/dx_0, dx_f/dy_0, dy_f/dx_0, dy_f/dy_0
+    # HONESTY NOTE (see review): two known weaknesses of this 0.093-weight feature.
+    # (1) PHYSICAL: FTLE from only 2-3 daily-mean ~9km snapshots over a 1-2 day window
+    #     is well below the integration time/resolution needed for meaningful Lagrangian
+    #     Coherent Structures; treat the ridges as low-confidence.
+    # (2) UNITS: the finite differences below use np.gradient with default index spacing
+    #     (=1) rather than the ~0.083deg grid spacing, so the off-diagonal Jacobian terms
+    #     are mis-scaled relative to the +1 identity. Fixing this changes the field's
+    #     balance (not a pure uniform rescale) and therefore needs a re-tune of the FTLE
+    #     weight against held-out catches — do it with the full pipeline, not blind here.
     dx = x - x0
     dy = y - y0
     # Finite differences for the deformation gradient
@@ -1056,6 +1068,10 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     import matplotlib.pyplot as plt
 
     print("[Hotspots] Building blue marlin habitat suitability...")
+
+    # Warn if the optimizer (or anything) has set an override-prefixed attribute
+    # that is not a known parameter -- a typo would otherwise silently use a default.
+    scoring_config.validate_overrides(sys.modules[__name__])
 
     # --- Load SST as master grid ---
     sst_file = os.path.join(OUTPUT_DIR, "sst_raw.nc")
@@ -1193,8 +1209,7 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             c_default, w_default = EDGE_DEFAULTS[name]
             center = getattr(sys.modules[__name__], f'_opt_{name}_edge_center', c_default)
             width = getattr(sys.modules[__name__], f'_opt_{name}_edge_width', w_default)
-            v = np.exp(-0.5 * ((v - center) / max(width, 0.01)) ** 2)
-            v = np.clip(v, 0, 1)
+            v = sf.edge_transform(v, center, width)  # value-space Gaussian (edge-hunting)
         valid_cells = ~np.isnan(v) & ~land
         if mask is not None:
             valid_cells &= ~mask
@@ -1211,12 +1226,10 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
     optimal_temp = getattr(sys.modules[__name__], '_opt_sst_optimal', 23.75)
     sst_sigma = getattr(sys.modules[__name__], '_opt_sst_sigma', 2.50)
     sst_sigma_above = getattr(sys.modules[__name__], '_opt_sst_sigma_above', 4.0)
-    if sst_sigma_above is not None:
-        # Asymmetric Gaussian: tighter below optimal (cooling penalty), wider above
-        sigma_map = np.where(sst_smooth < optimal_temp, sst_sigma, sst_sigma_above)
-        sst_score = np.exp(-0.5 * ((sst_smooth - optimal_temp) / sigma_map) ** 2)
-    else:
-        sst_score = np.exp(-0.5 * ((sst_smooth - optimal_temp) / sst_sigma) ** 2)
+    # Asymmetric Gaussian (tighter below optimal, wider above). This is a cool-edge
+    # blue-marlin optimum for the Perth Canyon population, NOT the global tropical
+    # 25-30C 'prime' band -- see scoring_features.sst_gaussian and the species note.
+    sst_score = sf.sst_gaussian(sst_smooth, optimal_temp, sst_sigma, sst_sigma_above)
     _add_score("sst", sst_score)
 
     # 1b. SST Anomaly — REMOVED from scoring.
@@ -1560,13 +1573,10 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             # Taper: full at _dt_start, 0.80 at _dt_mid, _dt_floor beyond 2x _dt_mid
             _dt_knee = 0.80  # score at _dt_mid
             _dt_zero = getattr(sys.modules[__name__], '_depth_zero_cut', 80)
-            depth_score_hr = np.where(abs_depth_hr < _dt_zero, 0,
-                             np.where(abs_depth_hr < _dt_shallow_full,
-                                      _dt_shallow_floor + (1.0 - _dt_shallow_floor) * (abs_depth_hr - _dt_zero) / max(_dt_shallow_full - _dt_zero, 1),
-                             np.where(abs_depth_hr < _dt_start, 1.0,
-                             np.where(abs_depth_hr < _dt_mid, 1.0 - (1.0 - _dt_knee) * (abs_depth_hr - _dt_start) / max(_dt_mid - _dt_start, 1),
-                             np.where(abs_depth_hr < _dt_mid * 2, _dt_knee - (_dt_knee - _dt_floor) * (abs_depth_hr - _dt_mid) / max(_dt_mid, 1),
-                             _dt_floor)))))
+            depth_score_hr = sf.depth_gate(
+                abs_depth_hr, zero_cut=_dt_zero, shallow_floor=_dt_shallow_floor,
+                shallow_full=_dt_shallow_full, taper_start=_dt_start,
+                taper_mid=_dt_mid, floor=_dt_floor, knee=_dt_knee)
             depth_score_hr[np.isnan(bathy)] = 0
             depth_score = _maxpool_to_grid(depth_score_hr, b_lons, b_lats)
             depth_score[land] = np.nan
@@ -1827,17 +1837,30 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             #      Continuity: ∇·u + ∂w/∂z = 0 → positive surface divergence = upwelling
             #      Complements convergence (which uses negative divergence).
             #      No new data needed — reuses divergence computed above.
+            #      HONESTY NOTE (see review): `divergence` is an INDEX-SPACE gradient
+            #      (np.gradient with no dx), so the 0.005 threshold is not a physical
+            #      s^-1 value and does not port across grids; and unlike upwelling_edge
+            #      this rewards raw divergence with NO warm-side/SST gate, so it can
+            #      score the cold upwelling cores the model elsewhere excludes. A proper
+            #      version needs physical-unit divergence + a warm-side gate + a re-tune.
             if BLUE_MARLIN_WEIGHTS.get("vertical_velocity", 0) > 0:
                 w_proxy = np.clip(divergence / 0.005, 0, 1)
                 w_proxy[land] = np.nan
                 _add_score("vertical_velocity", w_proxy)
 
-            # 10b. Current shear (vorticity) — Leeuwin/Undercurrent boundary
-            #      Vorticity = dv/dx - du/dy. High |vorticity| at canyon edges
-            #      marks the shear boundary where baitfish get "stacked".
-            #      The Leeuwin Current flows south along the shelf while the
-            #      Capes Undercurrent flows north at depth — their interface
-            #      creates strong lateral shear that concentrates prey.
+            # 10b. Current shear (SURFACE relative vorticity) — highest-weight
+            #      derived feature (0.129).
+            #      HONESTY NOTE (see review): this is SURFACE lateral vorticity
+            #      (dv/dx - du/dy) from 0.083deg (~9km) daily-mean velocity. It is
+            #      NOT the Leeuwin-surface-vs-Undercurrent-at-depth VERTICAL shear
+            #      the mechanism story implies — only depth index 0 is ever read, so
+            #      the undercurrent layer never enters this calculation. It is a real
+            #      but weaker mesoscale signal. Two known issues to fix with the full
+            #      pipeline + a re-tune: (a) gradients are taken on NaN->0-filled
+            #      velocity, injecting spurious shear one cell in from land; (b) the
+            #      v90 normalization below does not exclude coast_buf, so coastal
+            #      spikes inflate the reference. For true vertical shear, fetch a
+            #      subsurface (100-200m) velocity layer and compute |dV/dz|.
             # Compute vorticity at NATIVE current resolution
             dvdx_n = np.gradient(np.where(np.isnan(vo_native), 0, vo_native), axis=1)
             dudy_n = np.gradient(np.where(np.isnan(uo_native), 0, uo_native), axis=0)
@@ -2444,10 +2467,13 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             _feature_band_count = band_count
             _feature_band_mean = mean_band
 
-            # Floor boost for key feature lines — cells on these lines get
-            # lifted to at least 0.62 so they always create visible zones.
-            # SST front: broader mask (abs OR rel gradient) for floor only.
-            # CHL 0.15: the catch-clustering boundary (4-10% coverage).
+            # Floor boost for key feature lines — cells on these lines get lifted
+            # to at least _key_feature_floor (default 0.40) so they create visible
+            # zones. NOTE: the mask uses a RELATIVE gradient threshold
+            # (grad_mag/g90 > _band_front_thresh, default 0.25), which selects the
+            # majority of ocean cells and can flatten discrimination over large
+            # areas at higher floor values — see review; prefer an absolute front
+            # criterion (SST_GRADIENT_THRESHOLD) if raising the floor.
             _key_feature_floor = getattr(sys.modules[__name__], '_opt_key_feature_floor', 0.40)
             key_floor = np.zeros((ny, nx))
             # SST front floor (broad mask)
@@ -2476,10 +2502,25 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         print(f"[Hotspots] Feature banding failed: {e}")
 
     # --- Normalize by actual weights used (handles missing data gracefully) ---
+    # Graceful degradation is good, but a SILENTLY degraded map is not comparable to
+    # a complete one (a "90%" with chlorophyll missing != a "90%" with everything).
+    # Track and surface how much of the intended weight actually contributed so a
+    # degraded day can be flagged rather than silently mis-scored (see review).
     valid = weight_sum > 0
     final = np.full((ny, nx), np.nan)
     final[valid] = score[valid] / weight_sum[valid]
     final[land] = np.nan
+
+    _intended_weight = sum(w for w in BLUE_MARLIN_WEIGHTS.values() if w > 0)
+    _median_weight = float(np.nanmedian(weight_sum[valid & ~land])) if np.any(valid & ~land) else 0.0
+    _completeness = _median_weight / _intended_weight if _intended_weight else 0.0
+    globals()['_last_completeness'] = _completeness  # exposed for the report / caller
+    if _completeness < 0.85:
+        missing = [n for n, w in BLUE_MARLIN_WEIGHTS.items()
+                   if w > 0 and (n not in sub_scores or not isinstance(sub_scores.get(n), np.ndarray))]
+        print(f"[Hotspots] WARNING: only {_completeness:.0%} of intended feature weight "
+              f"contributed — map is DEGRADED and not comparable to complete days. "
+              f"Likely missing/failed: {missing}")
 
     # --- Profile / Hybrid scoring modes ---
     _scoring_mode = getattr(sys.modules[__name__], '_scoring_mode', 'weighted_sum')
@@ -2630,14 +2671,21 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
             lunar_cycle = (days_since % 29.53) / 29.53  # 0=new, 0.5=full
             # Moon illumination: 0 at new, 1 at full
             moon_illum = 0.5 * (1 - np.cos(2 * pi * lunar_cycle))
-            # Habitat compression bonus: strongest at new moon (illum=0)
-            # Range: 1.0 (full moon) to 1.05 (new moon)
-            _lunar_mod = getattr(sys.modules[__name__], '_opt_lunar_boost', 0.10)
-            lunar_boost = 1.0 + _lunar_mod * (1.0 - moon_illum)
-            final[valid] *= lunar_boost
-            final = np.clip(final, 0, 1)
-            phase_name = "New" if moon_illum < 0.25 else "Full" if moon_illum > 0.75 else "Quarter"
-            print(f"[Hotspots] Lunar phase: {phase_name} ({moon_illum:.0%} illum) -> x{lunar_boost:.3f} habitat compression boost")
+            # Habitat compression bonus: strongest at new moon (illum=0).
+            # DISABLED by default (_opt_lunar_boost=0.0). This is a spatially UNIFORM
+            # daily multiplier, so it cannot change which spot ranks highest on a given
+            # day (no effect on discrimination / AUC), it only inflates cross-day scores
+            # near new moon; and the project's own analysis found no moon-phase catch
+            # signal (ALGORITHM_REPORT rejected-metrics). Kept behind a config flag for
+            # experimentation rather than applied. See review + scoring_config.
+            _lunar_mod = getattr(sys.modules[__name__], '_opt_lunar_boost', 0.0)
+            if _lunar_mod:
+                lunar_boost = 1.0 + _lunar_mod * (1.0 - moon_illum)
+                final[valid] *= lunar_boost
+                final = np.clip(final, 0, 1)
+                phase_name = "New" if moon_illum < 0.25 else "Full" if moon_illum > 0.75 else "Quarter"
+                print(f"[Hotspots] Lunar phase: {phase_name} ({moon_illum:.0%} illum) "
+                      f"-> x{lunar_boost:.3f} (experimental, uniform multiplier)")
         except Exception:
             pass
 
@@ -2674,18 +2722,25 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         ov3 = np.sum(_feature_band_count[valid & ~land] >= 3) / max(np.sum(valid & ~land), 1) * 100
         print(f"[Hotspots] Band boost: {ov1:.0f}% 1+ bands, {ov2:.0f}% 2+ bands, {ov3:.0f}% 3+ bands")
 
-    # Rescale: band boost can push scores above 1.0. Compress cells
-    # above 1.0 back into [0.75, 1.0] range — wide enough to preserve
-    # discrimination between 2-band and 3+-band cells.
-    # Cells at or below 1.0 keep their original scores.
+    # Rescale: band boost can push scores above 1.0. Compress the top end back
+    # into [0,1] with a CONTINUOUS, MONOTONIC soft-knee so ranking is preserved.
+    #
+    # The previous version rescaled only cells >1.0 into [0.75,1.0] while leaving
+    # cells <=1.0 unchanged. That is discontinuous at 1.0: a cell at 1.001 (slightly
+    # MORE band-boosted) mapped to ~0.75, ranking BELOW an un-boosted cell at 1.0 —
+    # inverting exactly the elite spots the map exists to rank (see review). Here we
+    # instead map the whole segment [knee, raw_max] -> [knee, 1.0], continuous at the
+    # knee, strictly increasing, so a more-boosted cell always ranks higher.
+    _rescale_knee = 0.75
     raw_max = float(np.nanmax(final[valid & ~land])) if np.any(valid & ~land) else 1.0
     if raw_max > 1.0 and not _skip_post_processing:
-        above = final > 1.0
-        if np.any(above):
-            # Linear map [1.0, raw_max] -> [0.75, 1.0]
-            final[above] = 0.75 + 0.25 * (final[above] - 1.0) / (raw_max - 1.0)
+        hi = final > _rescale_knee
+        if np.any(hi):
+            final[hi] = _rescale_knee + (1.0 - _rescale_knee) * \
+                (final[hi] - _rescale_knee) / (raw_max - _rescale_knee)
         final = np.clip(final, 0, 1)
-        print(f"[Hotspots] Band boost pushed max to {raw_max:.2f}, top-only rescale [1.0-{raw_max:.2f}] -> [0.75-1.0]")
+        print(f"[Hotspots] Band boost pushed max to {raw_max:.2f}, monotonic soft-knee "
+              f"[{_rescale_knee}-{raw_max:.2f}] -> [{_rescale_knee}-1.0]")
 
     # Score-gradient reward — catches happen at transition zones (~87% of
     # local peak, steep E-W gradient at shelf edge).  Boost cells where the
@@ -2716,16 +2771,18 @@ def generate_blue_marlin_hotspots(bbox, tif_path=None, date_str=None):
         except Exception as e:
             print(f"[Hotspots] Score-gradient reward failed: {e}")
 
-    # Floor boost for SST front lines — cells on the front are lifted
-    # to at least _key_feature_floor (0.55).  Uses np.maximum so cells
-    # already above the floor are untouched — no clipping, no inflation.
+    # Floor boost for SST front lines — cells on the front are lifted to at least
+    # _key_feature_floor.  Uses np.maximum so cells already above the floor are
+    # untouched — no clipping, no inflation.
     if np.any(_feature_key_floor > 0) and not _skip_post_processing:
+        _floor_val = float(np.nanmax(_feature_key_floor))  # actual applied floor
         before = final.copy()
         final[valid] = np.maximum(final[valid], _feature_key_floor[valid])
         n_lifted = np.sum((final[valid & ~land] > before[valid & ~land]))
         n_front = np.sum(_feature_key_floor[valid & ~land] > 0)
         n_ocean = max(np.sum(valid & ~land), 1)
-        print(f"[Hotspots] Feature line floor: {n_lifted}/{n_front} cells lifted to >=0.62 ({n_front}/{n_ocean} = {n_front/n_ocean*100:.0f}% on feature lines)")
+        print(f"[Hotspots] Feature line floor: {n_lifted}/{n_front} cells lifted to "
+              f">={_floor_val:.2f} ({n_front}/{n_ocean} = {n_front/n_ocean*100:.0f}% on feature lines)")
 
     # Spatial smoothing — sigma scales with grid resolution
     # Target ~1nm physical smoothing: just enough to connect pixels into contours
