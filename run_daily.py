@@ -5,6 +5,7 @@ Runs in sequence:
   2. fetch_prediction.py       - 7-day marlin hotspot maps
   3. generate_forecast_summary.py - Zone scores for UI
   4. archive_forecast.py       - Archive today's forecast for verification
+  5. verify_forecast.py        - Score past forecasts vs observations (skill tracking)
 
 Usage:
     python run_daily.py              # run all steps
@@ -33,6 +34,9 @@ STEPS = [
     ("Marlin prediction", "fetch_prediction.py"),
     ("Forecast summary", "generate_forecast_summary.py"),
     ("Archive forecast", "archive_forecast.py"),
+    # Verify past forecasts against observations so forecast skill actually gets
+    # measured over time (writes data/forecast_verification/). Runs after archiving.
+    ("Verify forecast", "verify_forecast.py"),
 ]
 
 TASK_NAME = "MarLEEn Daily Update"

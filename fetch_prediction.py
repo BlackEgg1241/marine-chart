@@ -850,6 +850,17 @@ def main():
         result["offset"] = d["offset"]
         result["label"] = d["label"]
         result["metrics"] = d["metrics"]
+
+        # Lead-time confidence decay (see review): ANFC ocean-forecast skill degrades
+        # past ~day 3, but every forecast day was previously shown with identical
+        # confidence. Fold a lead-time factor in so days +4..+7 are visibly less
+        # certain: full to +3, ramping down to ~40% by +7. `data_confidence` keeps the
+        # original parameter-completeness value; `confidence` now reflects both.
+        lead = max(0, result.get("offset", 0))
+        lead_factor = 1.0 if lead <= 3 else max(0.40, 1.0 - 0.15 * (lead - 3))
+        result["data_confidence"] = result.get("confidence", 0)
+        result["lead_time_confidence"] = round(lead_factor * 100, 1)
+        result["confidence"] = round(result.get("confidence", 0) * lead_factor, 1)
         predictions.append(result)
 
         # Display

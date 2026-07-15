@@ -169,6 +169,29 @@ def rate_comfort(h):
         0.10 * clamp(s_rain) +
         0.05 * clamp(s_vis)
     )
+
+    # SAFETY CAP (see review): comfort is a compensatory weighted mean, so a single
+    # dangerous factor (e.g. 2.5m swell) could be averaged away by otherwise benign
+    # conditions and still read "GOOD". For a 5.2m trailer boat that is unsafe. Clamp
+    # the displayed comfort to a per-factor ceiling that mirrors the Go/No-Go hard
+    # limits, so the number can never exceed what safety allows. This only ever
+    # LOWERS the score in hazardous conditions.
+    ceiling = 100
+    if sw >= 2.0:
+        ceiling = min(ceiling, 30)      # dangerous swell for a small boat
+    elif sw >= 1.5:
+        ceiling = min(ceiling, 45)
+    if ws >= 20:
+        ceiling = min(ceiling, 30)      # strong wind
+    elif ws >= 15:
+        ceiling = min(ceiling, 45)
+    if wg >= 30:
+        ceiling = min(ceiling, 30)      # strong gusts
+    if wh >= 2.0:
+        ceiling = min(ceiling, 30)      # heavy total sea state
+    if wmo >= 95:
+        ceiling = min(ceiling, 20)      # thunderstorms
+    score = min(score, ceiling)
     return round(score)
 
 
