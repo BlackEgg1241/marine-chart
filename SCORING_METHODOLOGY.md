@@ -180,6 +180,8 @@ The asymmetric sigma reflects the biological reality that blue marlin are constr
 
 **Optimisation history:** Early iterations used $T_{opt} = 22.0$C with $\sigma = 1.0$ (very tight), which penalised 24% of catches that occurred in water slightly outside this narrow band. The v22 optimisation widened tolerance significantly, recognising that at this latitude, any water warmed by the Leeuwin Current is potentially suitable.
 
+> **Species and thermal identity.** The $T_{opt} = 23.75$C optimum — and the ~22.9C median SST at catch locations — sits *at or below* the code's own striped-marlin band (21-24C) and *below* the blue-marlin "prime" band (24-27C). This is well short of the global tropical blue-marlin signature (25-30C) and reflects a **cool, poleward-edge blue-marlin population** at the southern limit of the Leeuwin Current, not a canonical tropical thermal niche. Consistent with this, the same "blue marlin" scoring grid does **not** distinguish blue from striped habitat — `evaluate_model.py` finds it scores striped catches as well as blue (AUC 0.93 vs 0.93). The SST feature, and the model as a whole, is therefore best understood as a **Perth-Canyon billfish index** rather than a blue-specific thermal model. See Section 12.4.
+
 ![SST scoring showing Gaussian temperature preference](Screenshots/sst/2015-02-28.png)
 *Figure 3: SST suitability score for 28 February 2015. The Leeuwin Current appears as the warm (high-scoring) band along the shelf edge. The asymmetric Gaussian produces a gradual transition on the warm side but sharper cutoff in cooler offshore water. Catch locations sit within the warm LC plume.*
 
@@ -568,6 +570,8 @@ This biological distinction -- some features are edge-associated, others are pea
 
 ## 8. Lunar Phase Modifier
 
+> **Status: disabled by default (v22).** This modifier is retained in the code but its boost coefficient is set to zero (`_opt_lunar_boost = 0.0`, formerly 0.10), so it has **no effect on the deployed score**. It applied a *spatially uniform* daily multiplier — every cell on a given day was scaled identically, giving it no power to discriminate one location from another within a day — and the project's own analysis (see also the rejected-metrics table in the earlier report) found no significant moon-phase signal in the catch record. The mechanism is documented below as implemented; the numbers describe the effect only if the coefficient is manually re-enabled.
+
 ### 8.1 Theory: Diel Vertical Migration (DVM)
 
 The deep scattering layer (DSL) -- a dense aggregation of mesopelagic organisms -- undergoes diel vertical migration, ascending toward the surface at dusk and descending at dawn. Lunar illumination modulates this behaviour:
@@ -590,11 +594,11 @@ The habitat modifier:
 
 $$M_{lunar} = 1 + \lambda \cdot (1 - I_{moon})$$
 
-where $\lambda = 0.10$ (10% maximum boost range). This yields:
+where $\lambda = 0.10$ (10% maximum boost range) *when enabled*. This yields:
 - New moon: $\times 1.10$ (maximum boost -- prey compressed at surface)
 - Full moon: $\times 1.00$ (no boost -- prey dispersed)
 
-The effect is subtle (5-10%) but consistent with empirical observations of increased catch rates during darker phases.
+**In v22, $\lambda = 0.0$ by default, so $M_{lunar} = 1$ everywhere and this term is inert** (see the status note at the top of Section 8). The effect described here — a subtle 5-10% modulation — is what would apply if the coefficient were restored, but it was disabled because it adds no within-day spatial discrimination and no moon-phase signal was found in the catch data.
 
 ---
 
@@ -643,6 +647,8 @@ Components:
 - $R_{ratio}$: Catch score / ocean mean ratio
 - $P_{percentile}$: Median catch percentile vs all ocean cells
 
+> **In-sample caveat.** This objective explicitly maximises $\bar{S}_{catch}$ and $B_{coverage}$ on the training catches, and there is no held-out fold. Consequently the "validation mean 84% / 80% ≥ 70%" figures reported in Section 11 are the optimiser's own training target measured on the same catches — an **in-sample fit, not out-of-sample skill**. Treat them as an optimistic upper bound. See Section 11.4 and `EVALUATION.md` for discrimination-based (AUC) metrics and the plan for a real weight-refit cross-validation.
+
 ### 10.2 Training Set
 
 v22 uses **unique-only training**: 25 catches with unique GPS coordinates. The 21 catches sharing locations with other records are excluded from the objective function to prevent spatial bias (repeatedly rewarding the model for scoring well at the same physical location).
@@ -688,6 +694,8 @@ This prevents the validation from penalising the model for imprecise GPS coordin
 | Unique GPS mean | 83% |
 | Duplicate location mean | 86% |
 
+> **Read before citing these numbers — they are in-sample.** The Optuna objective (Section 10.1) maximises the very quantities in this table (mean catch score and percent ≥ 70%), and there is no held-out test set. These figures therefore describe **training fit, not predictive skill**, and should not be reported as "84% accuracy." See Section 11.4 for an honest, discrimination-based evaluation.
+
 ### 11.3 Seasonal Backtest
 
 Independent validation via 950 weekly habitat scores (2010-2026) confirms the model correctly identifies marlin season without using catch data:
@@ -699,6 +707,22 @@ Independent validation via 950 weekly habitat scores (2010-2026) confirms the mo
 
 ![Season tracker](data/backtest/season_tracker.png)
 *Figure 17: Seasonal tracker showing the annual cycle of habitat suitability. The model correctly reproduces the warm-season peak without any explicit seasonal weighting.*
+
+### 11.4 Honest Evaluation: Presence/Background Discrimination
+
+Because the Section 11.2 metrics are in-sample (the optimiser trained on the same catches), the repository includes `evaluate_model.py` (documented in `EVALUATION.md`) to replace the misleading "mean score at catch locations" headline with **presence/background discrimination** — whether the map actually ranks catch cells above ordinary ocean:
+
+| Metric | Value | Reading |
+|--------|-------|---------|
+| AUC vs random ocean (in-sample) | **0.93** | Strongly separates catch cells from random domain points |
+| AUC leave-one-year-out | **0.91 ± 0.10** | Discrimination is stable across years, not driven by a few dates |
+| AUC vs random *in-zone* point | **0.78** | Within rendered zones, ranking one spot over another is only moderate |
+
+The interpretation is that the map answers "which part of the canyon?" well but "which exact drop?" only moderately — consistent with the day-relative normalisation and the floor/boost stack flattening contrast inside hot zones. Note that even the 0.93 / 0.91 figures evaluate the *deployed* grid whose weights were tuned on these catches; they are an **optimistic in-sample bound**, and AUC should be treated as an upper limit.
+
+The same evaluation also shows the grid is **not blue-specific**: it scores striped marlin catches as well as blue (AUC 0.93 vs 0.93), confirming it is a shared shelf-edge / Leeuwin-front billfish index (Section 12.4).
+
+**A true out-of-sample number is not yet available.** Producing one requires wrapping the discrimination metrics in a weight-refit cross-validation — leave-one-year-out, re-optimise the weights (`optimize_visual.py`) on the training years only, regenerate the held-out year's maps, and score those. That AUC will be lower than 0.93 and is the honest figure to report as "validation."
 
 ---
 
@@ -724,7 +748,13 @@ This is consistent with the oceanographic understanding of the Perth Canyon: the
 
 The inclusion of FTLE (Section 5.8) at 9.3% weight represents a philosophically different approach from the other features. While SST, CHL, and vorticity are *Eulerian* diagnostics (what does the ocean look like at this instant?), FTLE captures the *Lagrangian* transport history (where has the water been, and where are organisms being concentrated?). The bait stacking mechanism -- passive accumulation at Lagrangian transport barriers -- operates over multi-day timescales and may not be visible in any single snapshot of ocean state.
 
-### 12.4 Limitations
+### 12.4 Species and Thermal Identity
+
+A candid reading of the thermal parameters and the evaluation results reframes what this model actually represents. The optimised SST optimum (23.75C) and the median catch SST (~22.9C) sit *at or below* the code's own striped-marlin band (21-24C) and *below* the blue "prime" band (24-27C) — and well below the global tropical blue-marlin signature (25-30C). This is the thermal fingerprint of a **cool, poleward-edge blue-marlin population** at the southern limit of the Leeuwin Current, not the classic tropical niche implied by the literature values.
+
+Critically, the model **does not distinguish blue from striped marlin habitat**: `evaluate_model.py` shows the "blue marlin" grid scores striped catches as well as blue (AUC 0.93 vs 0.93). This is expected — both species exploit the same shelf-edge Leeuwin front — but it means the output should be honestly understood as a **Perth-Canyon billfish index** rather than a species-specific blue-marlin distribution. Genuinely separating the two would require per-species thermal profiles (or an explicit relabelling of the product).
+
+### 12.5 Limitations
 
 1. **Spatial resolution:** The 0.083 (9 km) native resolution of current and SSH data is coarser than the mesoscale features (1-10 km) that likely drive catch-scale habitat selection. IMOS nearshore products (0.02) improve SST resolution but are not available for all variables.
 
@@ -734,7 +764,7 @@ The inclusion of FTLE (Section 5.8) at 9.3% weight represents a philosophically 
 
 4. **Depth integration:** The model uses surface or near-surface fields exclusively. Subsurface structure (thermocline depth, undercurrent position) is inferred from surface signatures rather than measured directly.
 
-5. **Species specificity:** The model is calibrated exclusively for blue marlin. Other pelagic species (striped marlin, wahoo, yellowfin tuna) likely have different habitat preferences and would require separate calibration.
+5. **Species specificity:** The model is *trained* on blue marlin catches, but it does not resolve a blue-specific niche — it scores striped marlin catches equally well (AUC 0.93 vs 0.93; Section 12.4) and is best treated as a shared shelf-edge billfish index. Truly separating blue from striped (or from wahoo, yellowfin tuna) would require per-species thermal profiles and separate calibration.
 
 ---
 

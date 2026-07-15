@@ -9,6 +9,22 @@
 <title>MarLEEn Tracker — Perth WA</title>
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.css">
 <script src="https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.js"></script>
+<!-- Defensive CDN guard: if the MapLibre CDN fails to load (offline / CDN blip), every later
+     maplibregl.* call throws and the user is left staring at a blank screen. Detect that here and
+     surface a clear, actionable message instead. Runs whether or not <body> exists yet. -->
+<script>
+if(typeof maplibregl==='undefined'){
+  var _mlFail=function(){
+    if(document.getElementById('cdnFail'))return;
+    var d=document.createElement('div');
+    d.id='cdnFail';
+    d.setAttribute('style','position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;background:#020617;color:#e2e8f0;font-family:monospace;font-size:15px;line-height:1.6');
+    d.textContent='Map library failed to load — check your connection and reload.';
+    (document.body||document.documentElement).appendChild(d);
+  };
+  if(document.body)_mlFail();else document.addEventListener('DOMContentLoaded',_mlFail);
+}
+</script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -211,6 +227,10 @@
 .an-tbl tr.an-today{background:rgba(56,189,248,.08)}
 .an-tbl .an-day{text-align:left;font-weight:600;color:#e2e8f0}
 .an-go{color:#22c55e;font-weight:700}.an-marginal{color:#fbbf24;font-weight:700}.an-nogo{color:#ef4444;font-weight:700}
+/* Lead-time uncertainty: forecast skill degrades past day +3 (project limitations). Days +4..+7
+   get a subtle lower-confidence affordance — dimmed row + a small tag — without restructuring. */
+.an-tbl tr.an-lowconf{opacity:.5}
+.an-tbl tr.an-lowconf .an-lc{font-size:6px;color:#fbbf24;letter-spacing:.02em;text-transform:uppercase;margin-left:3px;vertical-align:top}
 </style>
 
 </head>
@@ -380,6 +400,9 @@
       <button class="dn" onclick="shiftDate(1)">▶</button>
       <button class="dn today-btn" onclick="setToday()">Today</button>
       <span class="date-indicator obs" id="dateIndicator" onclick="onDateIndClick()" style="cursor:pointer">OBS</span>
+      <!-- Shown only on forecast dates: satellite/SLA rasters have no imagery for future dates, so
+           they fall back to the latest available observation (see rG() TIME clamp). -->
+      <span id="rasterNote" title="Satellite & sea-level rasters have no data for forecast dates — showing the latest available observation" style="display:none;font-size:7px;color:#fdba74;opacity:.85;white-space:nowrap">SAT/SLA: latest obs</span>
     </div>
   </div>
   <!-- Forecast panel (inside bottom-controls so it pushes content up) -->
@@ -503,8 +526,13 @@ maplibregl.addProtocol('gibs',function(params){
 });
 function gu(l,d){var m=GM[l];return 'gibs://gibs.earthdata.nasa.gov/wmts/epsg3857/best/'+l+'/default/'+d+'/'+m.t+'/{z}/{y}/{x}.'+m.f}
 var GL={chl:'MODIS_Aqua_L2_Chlorophyll_A',sst:'GHRSST_L4_MUR_Sea_Surface_Temperature'};
-// CMEMS Sea Level Anomaly WMTS — NRT daily, no auth required
-var CMEMS_SLA='https://wmts.marine.copernicus.eu/teroWmts/?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=SEALEVEL_GLO_PHY_L4_NRT_008_046/cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.125deg_P1D_202506/sla&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&TIME=DATE&STYLE=cmap:balance,range:-0.5/0.5';
+// CMEMS Sea Level Anomaly WMTS — NRT daily, no auth required.
+// TIME-BOMB: Copernicus periodically rotates the versioned product id (the trailing _YYYYMM tag).
+// When they do, the old tag 404s silently and SLA tiles vanish with no error. Keep the version in
+// ONE place and REFRESH IT PERIODICALLY — check product SEALEVEL_GLO_PHY_L4_NRT_008_046 at
+// https://data.marine.copernicus.eu and update the string below to the current _YYYYMM tag.
+var CMEMS_SLA_VERSION='202506'; // <-- update when Copernicus rotates the SLA product version
+var CMEMS_SLA='https://wmts.marine.copernicus.eu/teroWmts/?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=SEALEVEL_GLO_PHY_L4_NRT_008_046/cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.125deg_P1D_'+CMEMS_SLA_VERSION+'/sla&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&TIME=DATE&STYLE=cmap:balance,range:-0.5/0.5';
 function guSLA(d){return CMEMS_SLA.replace('TIME=DATE','TIME='+d);}
 
 var SPOTS=[
@@ -676,6 +704,17 @@ function initMap(){
   // Move scale bar into toolbar row after render
   setTimeout(function(){var sc=document.querySelector('.maplibregl-ctrl-scale');if(sc){document.getElementById('toolbarRow').appendChild(sc);sc.style.display='block'}var bsw=document.querySelector('.basemap-sw');var tg=document.querySelector('.top-gradient');if(bsw&&tg){tg.style.width=(bsw.getBoundingClientRect().left-4)+'px'}},100);
   map.on('dragstart',function(){fGPS=false;document.getElementById('btnCenter').classList.remove('following')});
+  // Defensive SLA tile-error guard: if the CMEMS SLA source repeatedly fails (e.g. the versioned
+  // product id in CMEMS_SLA has rotated and now 404s for every tile), hide the SLA raster layer so
+  // it doesn't imply valid data. Resets whenever tiles load OK, so transient blips don't hide it.
+  var _slaErr=0;
+  map.on('sourcedata',function(e){if(e.sourceId==='g-ssh'&&e.isSourceLoaded)_slaErr=0;});
+  map.on('error',function(e){
+    // MapLibre suppresses default console logging once an 'error' listener exists — preserve it
+    // for everything unrelated to the SLA source so real errors stay visible during debugging.
+    if(!e||e.sourceId!=='g-ssh'){if(e&&e.error)console.warn(e.error);return;}
+    if(++_slaErr>=4&&map.getLayer('g-ssh-layer'))map.setLayoutProperty('g-ssh-layer','visibility','none');
+  });
   map.on('click','spot-dot',function(e){var f=e.features[0];var c=f.geometry.coordinates;new maplibregl.Popup({offset:12}).setLngLat(c).setHTML('<div style="font-weight:700;color:#fb923c;margin-bottom:3px">'+f.properties.name+'</div><div style="font-size:10px;color:#94a3b8;line-height:1.4">'+f.properties.desc+'</div><div style="font-size:9px;color:#64748b;margin-top:4px">'+fc(c[1],c[0])+'</div>').addTo(map)});
   map.on('mouseenter','spot-dot',function(){map.getCanvas().style.cursor='pointer'});
   map.on('mouseleave','spot-dot',function(){map.getCanvas().style.cursor=''});
@@ -831,8 +870,14 @@ function onDateChange(){cDate=document.getElementById('dateInput').value;if(fcMa
 function shiftDate(d){var dt=new Date(cDate);dt.setDate(dt.getDate()+d);var nd=dt.toISOString().split('T')[0];if(d>0&&fcMaxDate&&nd>fcMaxDate)return;cDate=nd;document.getElementById('dateInput').value=cDate;rG();if(fcOpen){drawForecastChart();updateForecastInfo()}}
 
 function rG(){
-  // Update GIBS date (2-day latency from selected date)
-  var gd=new Date(cDate);gd.setDate(gd.getDate()-2);gDate=gd.toISOString().split('T')[0];
+  // Rasters (GIBS satellite + CMEMS SLA) have no imagery for forecast (future) dates and would
+  // 404 silently. Clamp the effective raster date to "today" (latest available) BEFORE applying
+  // latency offsets so we never request nonexistent future tiles. Past/today behaviour unchanged.
+  var _now=new Date();var _todayStr=_now.getFullYear()+'-'+String(_now.getMonth()+1).padStart(2,'0')+'-'+String(_now.getDate()).padStart(2,'0');
+  var rasterDate=cDate>_todayStr?_todayStr:cDate; // string compare of YYYY-MM-DD; never past today
+  // Update GIBS date (2-day latency from the clamped raster date)
+  var gd=new Date(rasterDate);gd.setDate(gd.getDate()-2);gDate=gd.toISOString().split('T')[0];
+  var slaDate=rasterDate; // CMEMS SLA: clamp TIME to latest available date (no future tiles)
   // Reload WMS raster tiles for the new date
   var ids=['g-sst','g-chl','g-ssh'];
   var cfg={'g-sst':{l:GL.sst,z:7,o:.6,v:LS.sst},'g-chl':{l:GL.chl,z:7,o:.7,v:LS.chlorophyll},'g-ssh':{l:null,z:8,o:.7,v:LS.ssh_visual}};
@@ -842,7 +887,7 @@ function rG(){
   var firstGJ=['hs-blue','spot-glow'];var bef;
   for(var j=0;j<firstGJ.length;j++){if(map.getLayer(firstGJ[j])){bef=firstGJ[j];break}}
   var ord=['g-sst','g-chl','g-ssh'];
-  for(var i=0;i<ord.length;i++){var k=ord[i],c=cfg[k];var tiles=k==='g-ssh'?[guSLA(cDate)]:[gu(c.l,gDate)];map.addSource(k,{type:'raster',tiles:tiles,tileSize:256,maxzoom:c.z});map.addLayer({id:k+'-layer',type:'raster',source:k,layout:{visibility:c.v?'visible':'none'},paint:{'raster-opacity':c.o}},bef)}
+  for(var i=0;i<ord.length;i++){var k=ord[i],c=cfg[k];var tiles=k==='g-ssh'?[guSLA(slaDate)]:[gu(c.l,gDate)];map.addSource(k,{type:'raster',tiles:tiles,tileSize:256,maxzoom:c.z});map.addLayer({id:k+'-layer',type:'raster',source:k,layout:{visibility:c.v?'visible':'none'},paint:{'raster-opacity':c.o}},bef)}
   loadDatedGeoJSON();
   updateDateInd();
 }
@@ -1108,7 +1153,7 @@ function centerOnGPS(){if(cPos){map.flyTo({center:[cPos.lng,cPos.lat],zoom:14,du
 function togglePanel(){var p=document.getElementById('bottomPanel');p.classList.toggle('collapsed');var c=p.classList.contains('collapsed');document.getElementById('panelChevron').textContent=c?'▲':'▼'}
 function closeInfo(){document.getElementById('infoPanel').classList.remove('active');infoPinned=false}
 function setToday(){var t=new Date();var y=t.getFullYear(),m=String(t.getMonth()+1).padStart(2,'0'),d=String(t.getDate()).padStart(2,'0');cDate=y+'-'+m+'-'+d;document.getElementById('dateInput').value=cDate;rG()}
-function updateDateInd(){var t=new Date();t.setHours(0,0,0,0);var s=new Date(cDate+'T00:00:00');var ind=document.getElementById('dateIndicator');if(s>t){ind.textContent='FORECAST';ind.className='date-indicator forecast'}else{ind.textContent='OBS';ind.className='date-indicator obs'}}
+function updateDateInd(){var t=new Date();t.setHours(0,0,0,0);var s=new Date(cDate+'T00:00:00');var ind=document.getElementById('dateIndicator');var fut=s>t;if(fut){ind.textContent='FORECAST';ind.className='date-indicator forecast'}else{ind.textContent='OBS';ind.className='date-indicator obs'}var rn=document.getElementById('rasterNote');if(rn)rn.style.display=fut?'inline':'none';/* note raster imagery is unavailable for forecast dates */}
 function toggleLegend(){var l=document.getElementById('marlinLegend');l.classList.toggle('active');var tab=document.getElementById('legendTab');tab.textContent=l.classList.contains('active')?'▶':'◀'}
 
 // --- Historical catch browser ---
@@ -2554,6 +2599,9 @@ function buildMarlinTable(){
     var dayNum=dd.getDate();
     var mon=MN[dd.getMonth()];
     var isToday=d.date===todayStr;
+    // Lead-time confidence: forecast skill degrades past day +3, so flag days +4..+7 (see limitations)
+    var leadDays=Math.round((new Date(d.date+'T00:00:00')-new Date(todayStr+'T00:00:00'))/86400000);
+    var lowConf=leadDays>=4;
     var habitat=d.zone_max||0;
     var trend=d.model_score||0;
     var comfArr=comfortByDate[d.date];
@@ -2566,7 +2614,7 @@ function buildMarlinTable(){
     else if(blended>=60){label='GOOD';color='#86efac';}
     else if(blended>=45){label='FAIR';color='#fbbf24';}
     else{label='POOR';color='#ef4444';}
-    html+='<tr class="'+(isToday?'an-today':'')+'"><td class="an-day">'+dayName+' '+dayNum+' '+mon+(isToday?' *':'')+'</td>';
+    html+='<tr class="'+(isToday?'an-today':'')+(lowConf?' an-lowconf':'')+'"><td class="an-day">'+dayName+' '+dayNum+' '+mon+(isToday?' *':'')+(lowConf?'<span class="an-lc" title="Lower confidence — forecast skill degrades past day +3">lo-conf</span>':'')+'</td>';
     html+='<td style="color:'+_scoreClr(habitat)+'">'+Math.round(habitat)+'%</td>';
     html+='<td style="color:'+_scoreClr(blended)+';font-weight:600">'+Math.round(blended)+'%</td>';
     html+='<td style="color:'+comfortColor(Math.round(comfort))+'">'+Math.round(comfort)+'%</td>';

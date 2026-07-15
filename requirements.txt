@@ -1,11 +1,24 @@
-copernicusmarine>=2.0.0
-xarray
-numpy
-scipy
-netCDF4
-matplotlib
-rasterio
-shapely
-geojson
-optuna
-scikit-learn
+# Runtime dependencies for the MarLEEn data pipeline.
+#
+# The scoring model is CALIBRATED (Optuna-tuned weights, fixed sigmas) against
+# specific numeric behaviour, so an unpinned numpy/scipy/xarray upgrade can shift
+# predictions on a rebuild with no code change. The bounds below cap MAJOR versions
+# (where breaking numeric changes land) while allowing patch/minor updates.
+#
+# For full reproducibility of the validation numbers, freeze an exact lockfile:
+#     pip freeze > requirements.lock.txt
+# and install from it in production.
+
+copernicusmarine>=2.0.0,<3
+xarray>=2023.1.0
+numpy>=1.24,<3
+scipy>=1.10,<2
+netCDF4>=1.6,<2
+matplotlib>=3.6,<4
+rasterio>=1.3,<2
+shapely>=2.0,<3
+geojson>=2.5,<4
+
+# Optimization / analysis only (not needed to serve the app):
+optuna>=3.0,<5
+scikit-learn>=1.2,<2

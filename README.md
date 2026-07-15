@@ -35,7 +35,7 @@ Works on mobile Safari/Chrome. No API keys required for the base app.
 - Sends HTML email report with inline charts
 
 ### Email Report
-- **Blue Marlin 7-Day Forecast** — Habitat Score, Marlin Score, Comfort, blended rating (GREAT/GOOD/FAIR/POOR)
+- **Blue Marlin 7-Day Forecast** — Habitat Score, Marlin (ML trend) Score, Comfort, and a blended rating of **60% habitat + 40% comfort** (the ML trend score is shown for reference, not folded into the rating); labelled GREAT/GOOD/FAIR/POOR
 - **FADs Go/No-Go** — boating safety assessment with wind, swell, comfort, sun times
 - **Inline charts** — wind speed & direction arrows, swell & wave height, trench zone scores
 - Dark-themed HTML with sunlight strips (dawn/day/dusk/night)
@@ -65,7 +65,7 @@ Python Pipeline (local PC, scheduled daily)
 Scoring & Analysis (offline)
   marlin_data.py             Main data pipeline (observations)
   optimize_scoring.py        Optuna parameter optimization (200 trials)
-  validate_scoring.py        71-catch validation against GFAA records
+  validate_scoring.py        Catch validation against GFAA/DPI records (46 blue marlin)
   analyze_trends_v2.py       ML prediction model (paired within-event)
   fetch_lookback.py          7-day lookback data for catch events
 ```
@@ -163,13 +163,13 @@ python marlin_data.py --skip-fetch
 
 ## Scoring Algorithm
 
-See [ALGORITHM_REPORT.md](ALGORITHM_REPORT.md) for full technical details.
+See [SCORING_METHODOLOGY.md](SCORING_METHODOLOGY.md) for full technical details. (The older [ALGORITHM_REPORT.md](ALGORITHM_REPORT.md) describes a superseded 10-variable model and should not be cited.)
 
-**Summary:** 10 ocean variables combined into a weighted habitat suitability score (0–100%), optimized via Optuna against 71 historical catch records. Top weights: SST (0.31), SSH (0.19), Current (0.12), SST Front (0.09). Static multipliers for depth (hard gate at 50m) and shelf break (up to 53% boost at canyon walls).
+**Summary:** The deployed model ("v22") combines **14 ocean features** into a normalized weighted sum (0–100%), optimized via Optuna against **46 GPS-verified blue marlin catches** (25 unique locations). Top weights: SST (0.150), Current Shear (0.129), Chlorophyll (0.107), CHL Curvature (0.100), SSH (0.100), Salinity Front (0.100). SST uses an **asymmetric Gaussian centred at 23.75°C** (sigma 2.50 below the optimum, 4.0 above) — a cool poleward-edge value for the Perth Canyon, not the global tropical 25–30°C band. Multiplicative modifiers for depth (gate below ~80m) and shelf break (up to a 12% boost).
 
-**Validation:** Mean 89% at catch locations, 97% of catches score >= 70%, minimum 68%.
+**Accuracy (honest note):** The old headline "mean 84–89% at catch locations" is *in-sample training error*, not predictive skill — the Optuna objective maximizes that same quantity and there is no held-out set. The repo now includes `evaluate_model.py` + [EVALUATION.md](EVALUATION.md), which instead report presence/background discrimination: AUC ≈ **0.93** versus random ocean (in-sample), ≈ **0.91** leave-one-year-out, but only ≈ **0.78** within already-rendered zones (regional selection is good; fine-grained spot selection is weaker). A true out-of-sample figure needs a weight-refit cross-validation, which is not yet done. Note also that the same grid scores **striped** marlin equally well (AUC 0.93 vs 0.93) — it is really a shared shelf-edge / Leeuwin-front **billfish** index, not a blue-specific model.
 
-**Prediction model:** Paired within-event ML analysis detects warm water homogenization patterns in the 7-day lead-up to catches. Leave-one-out CV: 61.1% mean accuracy.
+**Prediction model:** Paired within-event ML analysis detects warm water homogenization patterns in the 7-day lead-up to catches. Leave-one-out CV: 61.1% mean accuracy. This ML "Marlin Score" is shown for reference and is **not** folded into the email's blended rating.
 
 ---
 
@@ -201,7 +201,8 @@ See [ALGORITHM_REPORT.md](ALGORITHM_REPORT.md) for full technical details.
 | `archive_forecast.py` | Archive daily Open-Meteo marine weather forecasts for verification |
 | `verify_forecast.py` | Verify forecast accuracy against BOM/buoy observations |
 | `run_daily.py` | Daily automation orchestrator + email + git push |
-| `validate_scoring.py` | Validate scoring against 71 historical catches |
+| `validate_scoring.py` | Validate scoring against the 46 GPS-verified blue marlin catches |
+| `evaluate_model.py` | Honest presence/background evaluation (AUC, lift) — see `EVALUATION.md` |
 | `optimize_scoring.py` | Optuna optimization of scoring weights (200 trials) |
 | `analyze_trends_v2.py` | ML prediction model (paired within-event, RF/GB) |
 | `analyze_trends.py` | Initial trend analysis (superseded by v2) |
@@ -213,7 +214,7 @@ See [ALGORITHM_REPORT.md](ALGORITHM_REPORT.md) for full technical details.
 
 The app targets the intersection of multiple ocean features that concentrate marlin prey:
 
-- **SST (23.4°C optimal)**: Blue marlin follow warm Leeuwin Current water along the shelf edge
+- **SST (23.75°C optimal, asymmetric — sigma 2.50 below, 4.0 above)**: Blue marlin follow warm Leeuwin Current water along the shelf edge. This is a cool poleward-edge value for the Perth Canyon, well below the global tropical 25–30°C band — the median SST at catch locations (~22.9°C) sits at the southern thermal limit of the Leeuwin Current, which is also why the same grid scores striped marlin equally well (a shared shelf-edge billfish index rather than a blue-specific one).
 - **Temperature fronts**: Sharp SST gradients aggregate baitfish at thermal boundaries
 - **Leeuwin Current intrusion**: Warm water pushed inshore toward the canyon signals active current transport
 - **Chlorophyll edges**: Boundary between productive green water and clean blue water

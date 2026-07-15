@@ -1,3 +1,13 @@
+> # ⚠️ SUPERSEDED — DO NOT CITE THE NUMBERS IN THIS DOCUMENT
+>
+> **This report documents an earlier 10-variable model that no longer matches the deployed code.** It is retained for historical and development context only. Every quantitative figure below — feature weights, SST optimum/sigma, the 71-catch count, the validation percentages (mean 89%, 97% ≥ 70%, min 68%), and the blended-rating formula — is from a superseded model version and is **wrong for the code now in production**.
+>
+> **For the current methodology, see [SCORING_METHODOLOGY.md](SCORING_METHODOLOGY.md).** In brief, the deployed model ("v22") uses **14 features** in a normalized weighted sum. SST is the top feature at weight **0.150**, scored with an *asymmetric* Gaussian centred at **23.75°C** (sigma 2.50 below the optimum, 4.0 above) — a cool poleward-edge value for the Perth Canyon, not the global tropical band. It is validated against **46 GPS-verified blue marlin catches** (25 unique locations), and the reported catch-location percentages are in-sample (see `EVALUATION.md`). The email's blended rating is **60% habitat + 40% comfort** with the ML trend score shown for reference only — *not* the "60% Marlin + 25% Habitat + 15% Comfort" formula described in Section 8.4 below.
+>
+> *Marked superseded 15 July 2026. The original content is preserved unchanged below for reference only.*
+
+---
+
 # Blue Marlin Habitat Suitability Algorithm
 
 ## Technical Report — Perth Canyon Region, Western Australia
