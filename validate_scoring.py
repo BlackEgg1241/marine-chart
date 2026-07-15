@@ -27,7 +27,14 @@ BBOX = {
     "lat_min": -33.5, "lat_max": -30.5,
 }
 
-CSV_PATH = r"C:\Users\User\Downloads\Export.csv"
+# Catch source. The GFAA Export.csv (DDM coords) is optional and looked up via the
+# MARLEEN_CATCH_CSV env var or a Downloads fallback; the repo-shipped decimal-degree
+# data/all_catches.csv is always used. Never hardcode a machine-specific absolute path
+# (the old value pointed at a user that does not exist on this checkout).
+CSV_PATH = os.environ.get(
+    "MARLEEN_CATCH_CSV",
+    os.path.join(os.path.expanduser("~"), "Downloads", "Export.csv"),
+)
 ALL_CATCHES_CSV = os.path.join("data", "all_catches.csv")
 BASE_DIR = "data"
 
@@ -53,8 +60,12 @@ def load_catches():
     catches = []
     seen = set()
 
-    # GFAA Export.csv (DDM format coordinates)
-    with open(CSV_PATH, encoding="utf-8") as f:
+    # GFAA Export.csv (DDM format coordinates) — optional, only if present
+    if not os.path.exists(CSV_PATH):
+        print(f"[validate] GFAA Export.csv not found at {CSV_PATH} "
+              f"(set MARLEEN_CATCH_CSV to override); using {ALL_CATCHES_CSV} only.")
+    if os.path.exists(CSV_PATH):
+      with open(CSV_PATH, encoding="utf-8") as f:
         for r in csv.DictReader(f):
             lat = ddm_to_dd(r["Latitude"].strip().replace("S", ""), negative=True)
             lon = ddm_to_dd(r["Longitude"].strip().replace("E", ""), negative=False)
@@ -274,6 +285,14 @@ def _proximity_max(grid, lats, lons, lat, lon, radius_deg=0.017):
     """Find max score within radius_deg (~1nm) of the target point.
 
     Returns (max_score, best_yi, best_xi).
+
+    CAVEAT (see review): max-within-radius is a ONE-SIDED, upward-biased estimator
+    of the score at an imprecise GPS mark — it always picks the best nearby cell, so
+    it inflates the reported mean for the ~half of catches at shared/duplicate
+    locations. A less biased choice is the nearest-pixel value or the mean/median over
+    the GPS-uncertainty radius. Kept here for backward comparability, but the honest
+    headline above uses exact/all-catch means, and evaluate_model.py samples the exact
+    catch cell for its AUC. Prefer those for any accuracy claim.
     """
     lat_mask = np.abs(lats - lat) <= radius_deg
     lon_mask = np.abs(lons - lon) <= radius_deg
@@ -416,15 +435,22 @@ def main():
     no_zone = [r for r in scored if not r["hotspot_score"] or r["hotspot_score"] == 0]
     print(f"  Data available: {len(scored)}/{len(all_results)}")
     print(f"  In a hotspot zone: {len(in_zone)}/{len(scored)} ({len(in_zone)/len(scored)*100:.0f}%)")
-    print(f"  Outside all zones: {len(no_zone)}/{len(scored)}")
-    if in_zone:
-        scores = [r["hotspot_score"] for r in in_zone]
-        print(f"  Score range: {min(scores):.0%} - {max(scores):.0%}")
-        print(f"  Mean score at catch locations: {np.mean(scores):.0%}")
-        print(f"  Median score: {np.median(scores):.0%}")
+    print(f"  Outside all zones (MISSES): {len(no_zone)}/{len(scored)}")
+    if scored:
+        # HONEST headline: mean over ALL catches, counting a miss (outside every
+        # zone) as 0. The old code averaged only in-zone catches, dropping the
+        # model's clearest failures and inflating the number (survivorship bias).
+        all_scores = [(r["hotspot_score"] or 0.0) for r in scored]
+        print(f"  Mean score at catches (INCLUDING misses): {np.mean(all_scores):.0%}   <-- report this")
+        if in_zone:
+            scores = [r["hotspot_score"] for r in in_zone]
+            print(f"  Mean score, in-zone only (old headline, biased): {np.mean(scores):.0%}")
+            print(f"  In-zone score range: {min(scores):.0%} - {max(scores):.0%}, median {np.median(scores):.0%}")
         for thresh in [0.3, 0.5, 0.7]:
-            n = sum(1 for s in scores if s >= thresh)
-            print(f"  Score >= {thresh:.0%}: {n}/{len(scored)} ({n/len(scored)*100:.0f}%)")
+            n = sum(1 for s in all_scores if s >= thresh)
+            print(f"  Catches scoring >= {thresh:.0%}: {n}/{len(scored)} ({n/len(scored)*100:.0f}%)")
+        print("  NOTE: these are IN-SAMPLE (weights were tuned on these catches).")
+        print("        For discrimination vs background, run: python evaluate_model.py")
 
     # Two-tier breakdown
     exact_catches = [r for r in scored if r.get("scoring_mode") == "exact"]

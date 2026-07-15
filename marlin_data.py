@@ -41,11 +41,25 @@ DEFAULT_BBOX = {
     "lat_max": -30.5,
 }
 
-# Marlin temperature preferences (°C) — based on Dale et al. (2022) IGFA tagging study
+# Marlin temperature preferences (°C).
+#
+# IMPORTANT — two different things live here (see review / SCORING_METHODOLOGY.md):
+#   * These bands are GLOBAL / tropical literature reference ranges (Dale et al. 2022,
+#     IGFA tagging). The blue "prime" 24-27C is a whole-of-range figure.
+#   * The COMPOSITE SST score does NOT use these bands. It uses a local, catch-fitted
+#     optimum of _opt_sst_optimal = 23.75C (see scoring_config / scoring_features), which
+#     is COOLER than the global blue band and overlaps the striped band (21-24C). That is
+#     correct for the Perth Canyon: this is a cool poleward-EDGE blue-marlin population,
+#     and the same catch set mixes blue + striped, so the model is really a shelf-edge
+#     billfish index (it scores striped catches as well as blue — see EVALUATION.md).
+# Keep the two in mind when reading the map: the isotherm OVERLAY drawn from these bands
+# is a global reference, while the hotspot SCORE follows the local 23.75C optimum.
 MARLIN_TEMPS = {
     "blue_prime": {"min": 24, "max": 27, "color": "#06b6d4", "species": "blue", "tier": "prime", "min_depth": 100},
     "blue_good":  {"min": 22, "max": 30, "color": "#22d3ee", "species": "blue", "tier": "good", "min_depth": 100},
     "striped":    {"min": 21, "max": 24, "color": "#6366f1", "species": "striped", "tier": "prime", "min_depth": 100},
+    # (The local cool-edge optimum used by the SCORE is _opt_sst_optimal=23.75C in
+    #  scoring_config, not an entry here — adding one would draw an extra isotherm.)
 }
 
 # SST gradient threshold for front detection (°C per ~10km)

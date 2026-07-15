@@ -31,7 +31,13 @@ import multiprocessing
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SCRIPT_DIR)
 
-CSV_PATH = r"C:\Users\User\Downloads\Export.csv"
+# Optional GFAA Export.csv (DDM). Env-overridable; guarded by os.path.exists below so
+# the optimizer falls back to the repo-shipped data/all_catches.csv. No machine-specific
+# absolute path (the old hardcoded value pointed at a nonexistent user).
+CSV_PATH = os.environ.get(
+    "MARLEEN_CATCH_CSV",
+    os.path.join(os.path.expanduser("~"), "Downloads", "Export.csv"),
+)
 BBOX = {"lon_min": 113.5, "lon_max": 116.5, "lat_min": -33.5, "lat_max": -30.5}
 
 # Evaluation zone — tight box around catch cluster for discrimination checks.
@@ -144,6 +150,7 @@ def _score_one_date(args):
         if script_dir not in sys.path:
             sys.path.insert(0, script_dir)
         import marlin_data
+        import scoring_config  # authoritative defaults (single source of truth)
 
         # Override ALL weights — normalized to 1.0
         marlin_data.BLUE_MARLIN_WEIGHTS['sst'] = params['w_sst']
@@ -173,36 +180,36 @@ def _score_one_date(args):
         marlin_data.BLUE_MARLIN_WEIGHTS['o2'] = 0
 
         # Override geometry params
-        marlin_data._opt_shelf_boost = params.get('shelf_boost', 0.08)
+        marlin_data._opt_shelf_boost = params.get('shelf_boost', scoring_config.DEFAULTS['_opt_shelf_boost'])
         marlin_data._shelf_prox_blend = params['shelf_prox_blend']
         marlin_data._shelf_prox_sigma = params['shelf_prox_sigma']
         marlin_data._depth_shallow_full = params['depth_shallow_full']
         marlin_data._opt_pool_percentile = params['pool_pct']
-        marlin_data._depth_zero_cut = params.get('depth_zero_cut', 50)
-        marlin_data._depth_taper_start = params.get('depth_taper_start', 300)
-        marlin_data._depth_taper_mid = params.get('depth_taper_mid', 800)
-        marlin_data._depth_floor = params.get('depth_floor', 0.25)
-        marlin_data._edge_shelf_sigma = params.get('edge_shelf_sigma', 2.5)
-        marlin_data._shelf_prox_depth = params.get('shelf_prox_depth', 210)
-        marlin_data._depth_shallow_floor = params.get('depth_shallow_floor', 0.75)
-        marlin_data._opt_band_shore_ratio = params.get('band_shore_ratio', 0.20)
-        marlin_data._opt_band_deep_ratio = params.get('band_deep_ratio', 0.20)
-        marlin_data._opt_shallow_cut = params.get('shallow_cut', 0.55)
-        marlin_data._opt_shear_depth_thresh = params.get('shear_depth_thresh', 70)
-        marlin_data._opt_shear_depth_full = params.get('shear_depth_full', 125)
-        marlin_data._opt_sst_optimal = params.get('sst_optimal', 22.5)
-        marlin_data._opt_sst_sigma = params.get('sst_sigma', 2.25)
-        marlin_data._opt_sst_sigma_above = params.get('sst_sigma_above', 2.0)
-        marlin_data._opt_chl_threshold = params.get('chl_threshold', 0.14)
-        marlin_data._opt_chl_sigma = params.get('chl_sigma', 0.20)
-        marlin_data._opt_band_width_nm = params.get('band_width_nm', 2.5)
-        marlin_data._opt_band_boost = params.get('band_boost', 0.45)
-        marlin_data._opt_band_decay = params.get('band_decay', 0.60)
-        marlin_data._opt_lunar_boost = params.get('lunar_boost', 0.02)
-        marlin_data._opt_bathy_w_200 = params.get('bathy_w_200', 0.6)
-        marlin_data._opt_bathy_w_500 = params.get('bathy_w_500', 0.1)
-        marlin_data._opt_corridor_pct = params.get('corridor_pct', 75)
-        marlin_data._edge_front_sigma = params.get('front_sigma', 2.0)
+        marlin_data._depth_zero_cut = params.get('depth_zero_cut', scoring_config.DEFAULTS['_depth_zero_cut'])
+        marlin_data._depth_taper_start = params.get('depth_taper_start', scoring_config.DEFAULTS['_depth_taper_start'])
+        marlin_data._depth_taper_mid = params.get('depth_taper_mid', scoring_config.DEFAULTS['_depth_taper_mid'])
+        marlin_data._depth_floor = params.get('depth_floor', scoring_config.DEFAULTS['_depth_floor'])
+        marlin_data._edge_shelf_sigma = params.get('edge_shelf_sigma', scoring_config.DEFAULTS['_edge_shelf_sigma'])
+        marlin_data._shelf_prox_depth = params.get('shelf_prox_depth', scoring_config.DEFAULTS['_shelf_prox_depth'])
+        marlin_data._depth_shallow_floor = params.get('depth_shallow_floor', scoring_config.DEFAULTS['_depth_shallow_floor'])
+        marlin_data._opt_band_shore_ratio = params.get('band_shore_ratio', scoring_config.DEFAULTS['_opt_band_shore_ratio'])
+        marlin_data._opt_band_deep_ratio = params.get('band_deep_ratio', scoring_config.DEFAULTS['_opt_band_deep_ratio'])
+        marlin_data._opt_shallow_cut = params.get('shallow_cut', scoring_config.DEFAULTS['_opt_shallow_cut'])
+        marlin_data._opt_shear_depth_thresh = params.get('shear_depth_thresh', scoring_config.DEFAULTS['_opt_shear_depth_thresh'])
+        marlin_data._opt_shear_depth_full = params.get('shear_depth_full', scoring_config.DEFAULTS['_opt_shear_depth_full'])
+        marlin_data._opt_sst_optimal = params.get('sst_optimal', scoring_config.DEFAULTS['_opt_sst_optimal'])
+        marlin_data._opt_sst_sigma = params.get('sst_sigma', scoring_config.DEFAULTS['_opt_sst_sigma'])
+        marlin_data._opt_sst_sigma_above = params.get('sst_sigma_above', scoring_config.DEFAULTS['_opt_sst_sigma_above'])
+        marlin_data._opt_chl_threshold = params.get('chl_threshold', scoring_config.DEFAULTS['_opt_chl_threshold'])
+        marlin_data._opt_chl_sigma = params.get('chl_sigma', scoring_config.DEFAULTS['_opt_chl_sigma'])
+        marlin_data._opt_band_width_nm = params.get('band_width_nm', scoring_config.DEFAULTS['_opt_band_width_nm'])
+        marlin_data._opt_band_boost = params.get('band_boost', scoring_config.DEFAULTS['_opt_band_boost'])
+        marlin_data._opt_band_decay = params.get('band_decay', scoring_config.DEFAULTS['_opt_band_decay'])
+        marlin_data._opt_lunar_boost = params.get('lunar_boost', scoring_config.DEFAULTS['_opt_lunar_boost'])
+        marlin_data._opt_bathy_w_200 = params.get('bathy_w_200', scoring_config.DEFAULTS['_opt_bathy_w_200'])
+        marlin_data._opt_bathy_w_500 = params.get('bathy_w_500', scoring_config.DEFAULTS['_opt_bathy_w_500'])
+        marlin_data._opt_corridor_pct = params.get('corridor_pct', scoring_config.DEFAULTS['_opt_corridor_pct'])
+        marlin_data._edge_front_sigma = params.get('front_sigma', scoring_config.DEFAULTS['_edge_front_sigma'])
 
         # Per-feature edge scoring params (value-space Gaussian)
         for feat in ['okubo_weiss', 'upwelling_edge', 'current_shear', 'chl_curvature',
